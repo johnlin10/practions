@@ -1,0 +1,112 @@
+.home-container {
+  z-index: 90;
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 100vh;
+  margin: 0 auto;
+  padding: 24px 0;
+  overflow: hidden;
+  overflow-y: scroll;
+  -ms-overflow-style: none; /* IE 和 Edge */
+  scrollbar-width: none; /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 800px) {
+    // padding: 28px 20px 88px 20px;
+  }
+
+  .home-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--primary-color-text);
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 1rem;
+      color: var(--gray-color-12);
+      margin-bottom: 96px;
+    }
+
+    > button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 20px;
+      margin-top: 12px;
+      height: 42px;
+      background: var(--background-color);
+      color: var(--text-color);
+      font-size: 1rem;
+      border: 2px solid var(--gray-color-12);
+
+      &:hover {
+        background: var(--gray-color-13);
+      }
+
+      &.start-quiz-button {
+        margin-bottom: 24px;
+        padding: 12px 20px;
+        height: 48px;
+        font-weight: 700;
+        font-size: 1.5rem;
+        background: var(--primary-color);
+        color: var(--text-white);
+        border: 2px solid var(--primary-color);
+      }
+    }
+  }
+
+  .square-1,
+  .square-2,
+  .square-3,
+  .square-4 {
+    z-index: -1;
+    position: fixed;
+    width: 720px;
+    height: 720px;
+    border: 12px solid var(--gray-color-13);
+    //opacity: 0.6;
+    transition: 8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate(50%, 50%);
+    -webkit-transform: translate(50%, 50%);
+    -moz-transform: translate(50%, 50%);
+    -ms-transform: translate(50%, 50%);
+    -o-transform: translate(50%, 50%);
+    -webkit-transition: 8s cubic-bezier(0.4, 0, 0.2, 1);
+    -moz-transition: 8s cubic-bezier(0.4, 0, 0.2, 1);
+    -ms-transition: 8s cubic-bezier(0.4, 0, 0.2, 1);
+    -o-transition: 8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .square-1 {
+    top: 20%;
+    left: -20%;
+  }
+
+  .square-2 {
+    top: -20%;
+    left: 50%;
+  }
+
+  .square-3 {
+    top: -50%;
+    left: 20%;
+  }
+
+  .square-4 {
+    top: 50%;
+    left: 0%;
+  }
+}
