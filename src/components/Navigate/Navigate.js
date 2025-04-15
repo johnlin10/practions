@@ -1,21 +1,21 @@
-import '../styles/Navigate.scss'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
-
+import './Navigate.scss'
+import { useLocation, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 function Navigate() {
-  const navigate = useNavigate()
   const pathname = useLocation().pathname
+  const [hideNavigate, setHideNavigate] = useState(false)
 
-  if (
-    pathname.startsWith('/quiz/') ||
-    pathname.startsWith('/results') ||
-    pathname.startsWith('/history/') ||
-    pathname.startsWith('/bank/')
-  ) {
-    return null
-  }
+  useEffect(() => {
+    const hideNavigatePaths = ['/quiz/', '/results', '/history/', '/bank/']
+    if (hideNavigatePaths.some((path) => pathname.startsWith(path))) {
+      setHideNavigate(true)
+    } else {
+      setHideNavigate(false)
+    }
+  }, [pathname])
 
   return (
-    <div className="navigate">
+    <div className={`navigate ${hideNavigate ? 'hide' : ''}`}>
       <div className="navigate-button">
         <Link className="no-style" data-active={pathname === '/'} to="/">
           首頁

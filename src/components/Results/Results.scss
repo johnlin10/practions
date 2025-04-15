@@ -1,4 +1,6 @@
-// results
+// .history {
+// }
+
 .date-text {
   margin-top: 6px;
   font-size: 0.875rem;
@@ -33,39 +35,47 @@
   padding: 12px;
   margin: 20px 0;
 
-  label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-color);
+  .filter-switch {
+    padding: 6px 12px;
+    width: fit-content;
+    color: var(--gray-color-10);
+    background: var(--background-color);
+    border: 2px solid var(--gray-color-13);
     cursor: pointer;
+
+    &.active {
+      background: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      color: var(--text-white);
+    }
   }
 }
-
+// questions review
 .questions-review {
   .question-item {
-    margin: 15px 0;
-    padding: 20px;
-    border: 1px solid var(--secondary-color);
+    margin: 12px 0;
+    padding: 12px;
+    border: 2px solid var(--secondary-color);
     background: var(--background-color);
     transition: all 0.3s ease;
 
     &.correct {
-      border: none;
-      border-left: 5px solid var(--correct-color);
-      background-color: var(--correct-background-color);
+      // border: 2px solid var(--correct-border-color);
+      // background-color: var(--correct-background-color);
+
+      .options .option {
+        background: var(--gray-color-13);
+      }
     }
 
     &.wrong {
-      border: none;
-      border-left: 5px solid var(--warning-color);
+      border: 2px solid var(--wrong-border-color);
       background-color: var(--wrong-background-color);
     }
 
     &.unanswered {
       border: none;
-      background-color: var(--gray-color-13);
-      border-left: 5px solid var(--gray-color-10);
+      border: 2px solid var(--gray-color-10);
     }
 
     h3 {
@@ -73,33 +83,48 @@
       font-size: 1.2rem;
       font-weight: bolder;
       font-style: italic;
-      color: var(--primary-color);
+      color: var(--gray-color-12);
     }
 
     .options {
-      margin: 15px 0;
+      margin-top: 12px;
 
       .option {
         padding: 12px;
-        margin: 8px 0;
+        margin-top: 6px;
         background: var(--background-color);
 
         &.user-answer {
-          background: var(--gray-color-12);
-          color: white;
+          border: 2px solid var(--gray-color-12);
+          background: var(--gray-color-13);
+          color: var(--text-color);
         }
 
         &.correct-answer {
-          background: var(--correct-color);
-          color: white;
+          border: 2px solid var(--correct-border-color);
+          background: var(--correct-background-color);
+          color: var(--correct-text-color);
         }
+        border-radius: 6px;
+        -webkit-border-radius: 6px;
+        -moz-border-radius: 6px;
+        -ms-border-radius: 6px;
+        -o-border-radius: 6px;
       }
     }
 
     .answer-status {
-      margin-top: 10px;
+      margin: 6px 0;
       font-weight: bold;
       color: var(--text-color);
+
+      &.correct {
+        color: var(--correct-text-color);
+      }
+
+      &.wrong {
+        color: var(--wrong-text-color);
+      }
     }
   }
 }
@@ -107,7 +132,7 @@
 .button-section {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -119,6 +144,7 @@
 // history record
 .history-section {
   margin-top: 20px;
+
   h2 {
     color: var(--text-color);
     margin-bottom: 20px;

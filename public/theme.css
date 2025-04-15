@@ -17,10 +17,14 @@
   --gray-color-12: #bdbdbd;
   --gray-color-13: #eeeeee;
 
-  --correct-color: #4caf50;
+  /* single bank option */
+  --correct-border-color: #4caf50;
   --correct-background-color: #e8f5e9;
-  --wrong-color: #f44336;
+  --correct-text-color: #329535;
+
+  --wrong-border-color: #f44336;
   --wrong-background-color: #ffe5e8;
+  --wrong-text-color: #d32f2f;
 
   --text-color: #1f1f1f;
 }

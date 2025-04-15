@@ -1,12 +1,17 @@
 import React, { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import Navigate from './components/Navigate'
-import Home from './components/Home'
-import Quiz from './components/Quiz'
-import Results from './components/Results'
-import History from './components/History'
-import Bank from './components/Bank'
 import './App.scss'
+
+// pages
+import Home from './pages/Home/Home'
+import Quiz from './pages/Quiz/Quiz'
+import Bank from './pages/Bank/Bank'
+import History from './pages/History/History'
+
+// components
+import Results from './components/Results/Results'
+import Navigate from './components/Navigate/Navigate'
+import SingleBank from './pages/Bank/ui/SingleBank'
 
 function App() {
   useEffect(() => {
@@ -14,9 +19,6 @@ function App() {
     if (localStorage.getItem('transfer-v2-to-v3')) {
       return
     }
-    alert(
-      '因作業疏失，導致先前測驗紀錄需重新紀錄，以確保後續獲得完整體驗！\n抱歉造成此困擾～'
-    )
     localStorage.setItem('transfer-v2-to-v3', true)
   }, [])
 
@@ -28,10 +30,11 @@ function App() {
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/quiz/:subjectId" element={<Quiz />} />
         <Route path="/results" element={<Results />} />
+        <Route path="/bank" element={<Bank />}>
+          <Route path=":subjectId" element={<SingleBank />} />
+        </Route>
         <Route path="/history" element={<History />} />
         <Route path="/history/:id" element={<History />} />
-        <Route path="/bank" element={<Bank />} />
-        <Route path="/bank/:subjectId" element={<Bank />} />
       </Routes>
     </>
   )
