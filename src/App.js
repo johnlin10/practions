@@ -7,6 +7,7 @@ import Home from './pages/Home/Home'
 import Quiz from './pages/Quiz/Quiz'
 import Bank from './pages/Bank/Bank'
 import History from './pages/History/History'
+import Settings from './pages/Settings/Settings'
 
 // components
 import Results from './components/Results/Results'
@@ -29,12 +30,13 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/quiz/:subjectId" element={<Quiz />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/history/:id" element={<History />} />
         <Route path="/results" element={<Results />} />
         <Route path="/bank" element={<Bank />}>
           <Route path=":subjectId" element={<SingleBank />} />
         </Route>
-        <Route path="/history" element={<History />} />
-        <Route path="/history/:id" element={<History />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </>
   )

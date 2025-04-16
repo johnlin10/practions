@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { isSubjectLocked } from '../Bank/utils/bankHelpers'
 import { subjects } from '../../data/subjects'
 
@@ -46,13 +46,17 @@ function History() {
     return () => clearInterval(intervalId)
   }, [id, navigate])
 
-  if (!id && history.length > 0) {
+  if (!id) {
     return (
       <div className="page">
         <div className="page-container">
+          <h1>
+            <Link className="pre-path no-style" to="/quiz">
+              測驗科目 /
+            </Link>{' '}
+            歷史紀錄
+          </h1>
           <div className="history-list">
-            <h1>測驗紀錄</h1>
-
             {history.length > 0 && (
               <div className="history-section">
                 {history.map((record, index) => (

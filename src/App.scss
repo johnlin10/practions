@@ -63,4 +63,23 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+
+  > h1 {
+    font-size: 1.75rem;
+
+    > a.pre-path {
+      font-size: 1rem;
+      color: var(--gray-color-12);
+
+      &:hover {
+        color: var(--gray-color-10);
+      }
+    }
+  }
+
+  > p {
+    margin-top: 12px;
+    font-size: 1rem;
+    color: var(--gray-color-10);
+  }
 }

@@ -22,7 +22,9 @@ function Navigate() {
         </Link>
         <Link
           className="no-style"
-          data-active={pathname.includes('/quiz')}
+          data-active={
+            pathname.includes('/quiz') || pathname.includes('/history')
+          }
           to="/quiz"
         >
           測驗
@@ -36,10 +38,10 @@ function Navigate() {
         </Link>
         <Link
           className="no-style"
-          data-active={pathname.includes('/history')}
-          to="/history"
+          data-active={pathname.includes('/settings')}
+          to="/settings"
         >
-          紀錄
+          設定
         </Link>
       </div>
     </div>

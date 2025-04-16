@@ -38,8 +38,8 @@ function Bank() {
       <Outlet />
       <div className="page">
         <div className="page-container">
+          <h1>題庫</h1>
           <div className="subjects-section">
-            <h1>題庫</h1>
             <div className="subjects-grid">
               {Object.values(subjects).map((subject) => {
                 const locked = isSubjectLocked(subject)
