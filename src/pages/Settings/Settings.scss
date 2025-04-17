@@ -1,14 +1,28 @@
 .settings-list {
   display: flex;
   flex-direction: column;
+  position: relative;
   margin-top: 24px;
   gap: 24px;
-  opacity: 0.5;
 
   .settings-list-group {
     display: flex;
     flex-direction: column;
+    position: relative;
     border: 2px solid var(--gray-color-13);
+
+    &.has-title {
+      margin-top: 32px;
+    }
+
+    > h5 {
+      position: absolute;
+      top: -32px;
+      left: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-color-12);
+    }
 
     .settings-list-group-item {
       display: flex;
@@ -16,9 +30,39 @@
       justify-content: space-between;
       padding: 12px;
       min-height: 48px;
+      cursor: default;
+
+      &.action {
+        cursor: pointer;
+
+        &:hover {
+          background-color: var(--gray-color-13);
+
+          &.action {
+            > p.info {
+              color: var(--primary-color);
+            }
+          }
+
+          > .icon {
+            color: var(--primary-color);
+          }
+        }
+      }
 
       &:not(:last-child) {
         border-bottom: 2px solid var(--gray-color-13);
+      }
+
+      > p {
+        &.info {
+          font-size: 0.9rem;
+          color: var(--gray-color-10);
+        }
+      }
+      > .icon {
+        font-size: 1.2rem;
+        color: var(--gray-color-10);
       }
       border-radius: 0;
       -webkit-border-radius: 0;
@@ -46,6 +90,7 @@
 
 .copyright {
   position: fixed;
+  left: 0;
   bottom: 120px;
   margin-top: 24px;
   width: 100%;

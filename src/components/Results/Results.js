@@ -126,7 +126,7 @@ function Results() {
 
         {/* button section */}
         <div className="button-section">
-          <button onClick={() => navigate('/')}>返回首頁</button>
+          <button onClick={() => navigate('/quiz')}>返回</button>
         </div>
       </div>
     </div>

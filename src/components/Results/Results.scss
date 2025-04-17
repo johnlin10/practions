@@ -150,6 +150,11 @@
     margin-bottom: 20px;
   }
 
+  > p {
+    text-align: center;
+    color: var(--gray-color-10);
+  }
+
   .history-item {
     display: flex;
     align-items: flex-end;

@@ -31,7 +31,17 @@ function Quiz() {
       .slice(0, subject.questionCount)
     // start quiz
     startQuiz(subject, shuffled)
-  }, [subjectId, startQuiz, subject])
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subjectId])
+
+  // if (!subjectId) {
+  //   return (
+  //     <div className="page">
+  //       <div className="page-container"></div>
+  //     </div>
+  //   )
+  // }
 
   // handle answer
   const handleAnswer = (index) => {
@@ -117,35 +127,38 @@ function Quiz() {
         ) : (
           // if no subjectId, show subject list
           <>
-            <h1>測驗</h1>
-            <div className="history-record">
+            <h1 className="quiz-to-history">
+              測驗
               <Link to="/history" className="no-style">
                 <p>測驗紀錄</p>
-                <span class="material-symbols-outlined">arrow_forward_ios</span>
+                <span class="material-symbols-outlined">chevron_right</span>
               </Link>
-            </div>
+            </h1>
             <div className="subject-list">
               {Object.values(subjects).map((subject) => {
                 if (!subject.quizOpen) return null
                 return (
                   <div key={subject.id} className="subject-card">
                     <h3>{subject.name}</h3>
-                    <div className="subject-info">
-                      <p>{subject.questionCount} 題</p>
-                      <p>{subject.timeLimit} 分鐘</p>
+                    <div className="subject-card-content">
+                      <div className="subject-info">
+                        <p>{subject.questionCount} 題</p>
+                        <p>{subject.timeLimit} 分鐘</p>
+                      </div>
+                      <button
+                        className="start-quiz-btn"
+                        onClick={() => {
+                          if (isSubjectLocked(subject)) {
+                            alert('此科目目前處於鎖定狀態，無法完成測驗')
+                            return
+                          }
+                          navigate(`/quiz/${subject.id}`)
+                        }}
+                      >
+                        <span class="material-symbols-rounded">play_arrow</span>
+                        {/* 開始測驗 */}
+                      </button>
                     </div>
-                    <button
-                      className="start-quiz-btn"
-                      onClick={() => {
-                        if (isSubjectLocked(subject)) {
-                          alert('此科目目前處於鎖定狀態，無法完成測驗')
-                          return
-                        }
-                        navigate(`/quiz/${subject.id}`)
-                      }}
-                    >
-                      開始測驗
-                    </button>
                   </div>
                 )
               })}

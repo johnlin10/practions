@@ -22,7 +22,6 @@ function History() {
       localStorage.getItem('quizHistory-v3') || '[]'
     )
     setHistory(savedHistory.reverse())
-    console.log(savedHistory)
   }, [])
 
   useEffect(() => {
@@ -52,12 +51,12 @@ function History() {
         <div className="page-container">
           <h1>
             <Link className="pre-path no-style" to="/quiz">
-              測驗科目 /
+              測驗 /
             </Link>{' '}
-            歷史紀錄
+            紀錄
           </h1>
           <div className="history-list">
-            {history.length > 0 && (
+            {history.length > 0 ? (
               <div className="history-section">
                 {history.map((record, index) => (
                   <div key={index} className="history-item">
@@ -98,6 +97,10 @@ function History() {
                     </button>
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className="history-section">
+                <p>尚無測驗紀錄</p>
               </div>
             )}
           </div>
