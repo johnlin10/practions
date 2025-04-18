@@ -130,7 +130,7 @@ function Quiz() {
             <h1 className="quiz-to-history">
               測驗
               <Link to="/history" className="no-style">
-                <p>測驗紀錄</p>
+                <p>紀錄</p>
                 <span class="material-symbols-outlined">chevron_right</span>
               </Link>
             </h1>

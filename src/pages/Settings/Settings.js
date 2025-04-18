@@ -1,9 +1,13 @@
 import './Settings.scss'
 
 function Settings() {
+  const history = JSON.parse(localStorage.getItem('quizHistory-v3') || '[]')
+  const hasHistory = history.length > 0
+
   const clearHistory = () => {
-    if (window.confirm('確定要清除歷史測驗紀錄嗎？')) {
+    if (window.confirm(`確定要清除 ${history.length} 筆測驗紀錄嗎？`)) {
       localStorage.setItem('quizHistory-v3', JSON.stringify([]))
+      window.location.reload()
     }
   }
 
@@ -14,14 +18,25 @@ function Settings() {
 
         <div className="settings-list">
           <div className="settings-list-group has-title">
-            <h5>測驗紀錄</h5>
+            <h5>測驗</h5>
             <div
-              className="settings-list-group-item action"
+              className={`settings-list-group-item action ${
+                !hasHistory ? 'disabled' : ''
+              }`}
               onClick={() => {
+                if (!hasHistory) return
                 clearHistory()
               }}
             >
-              <p>清除歷史測驗紀錄</p>
+              <p>
+                <span class="material-symbols-outlined icon">delete</span>
+                清除測驗紀錄
+              </p>
+              {!hasHistory ? (
+                <p className="info">沒有測驗紀錄</p>
+              ) : (
+                <p className="info">{history.length} 筆紀錄</p>
+              )}
             </div>
           </div>
 
