@@ -13,6 +13,7 @@ import Settings from './pages/Settings/Settings'
 import Results from './components/Results/Results'
 import Navigate from './components/Navigate/Navigate'
 import SingleBank from './pages/Bank/ui/SingleBank'
+import SingleHistory from './pages/History/ui/SingleHistory'
 
 function App() {
   useEffect(() => {
@@ -30,12 +31,17 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/quiz/:subjectId" element={<Quiz />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/history/:id" element={<History />} />
+
+        <Route path="/history" element={<History />}>
+          <Route path=":id" element={<SingleHistory />} />
+        </Route>
+
         <Route path="/results" element={<Results />} />
+
         <Route path="/bank" element={<Bank />}>
           <Route path=":subjectId" element={<SingleBank />} />
         </Route>
+
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </>

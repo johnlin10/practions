@@ -10,16 +10,17 @@ import {
 } from '../utils/bankHelpers'
 
 const SingleBank = () => {
+  const [pageAnimation, setPageAnimation] = useState(true)
   const { subjectId } = useParams()
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [isLocked, setIsLocked] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
 
-  const [pageAnimation, setPageAnimation] = useState(true)
-
   useEffect(() => {
-    setPageAnimation(false)
+    setTimeout(() => {
+      setPageAnimation(false)
+    }, 100)
   }, [])
 
   // update current time
@@ -115,7 +116,7 @@ const SingleBank = () => {
     return null
   }
 
-  // 過濾題目
+  // filter questions
   const getFilteredQuestions = () => {
     if (!subjectId || isLocked) return []
 
@@ -201,9 +202,13 @@ const SingleBank = () => {
     return () => clearInterval(intervalId)
   }, [subjectId, checkLockStatus])
 
-  // handle back button
-  const handleBack = () => {
-    navigate('/bank')
+  // handle close single bank page
+  const handleClose = () => {
+    setPageAnimation(true)
+
+    setTimeout(() => {
+      navigate('/bank')
+    }, 500)
   }
 
   return (
@@ -233,6 +238,10 @@ const SingleBank = () => {
                 </>
               )}
             </h2>
+
+            <button className="close-btn" onClick={handleClose}>
+              <span className="material-symbols-rounded">close</span>
+            </button>
 
             {/* if locked, show locked message */}
             {isLocked ? (
@@ -265,9 +274,9 @@ const SingleBank = () => {
             )}
 
             {/* back button */}
-            <button className="back-btn" onClick={handleBack}>
+            {/* <button className="back-btn" onClick={handleBack}>
               返回
-            </button>
+            </button> */}
           </>
         )}
       </div>

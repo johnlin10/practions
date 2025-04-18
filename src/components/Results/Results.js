@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Results.scss'
+import '../../styles/reviewQuestions.scss'
 
 // context
 import { useQuiz } from '../../context/QuizContext'
@@ -59,11 +60,20 @@ function Results() {
     })
   }, [quizState, navigate])
 
+  const handleClose = () => {
+    navigate('/quiz')
+  }
+
   return (
-    <div className="page">
-      <div className="page-container">
-        <h1>測驗結果</h1>
-        {/* summary */}
+    <div className="results-page">
+      <div className="review-questions-container">
+        <button className="close-btn" onClick={handleClose}>
+          <span className="material-symbols-rounded">close</span>
+        </button>
+        <div className="review-questions-header">
+          <h2>測驗結果</h2>
+        </div>
+
         <div className="summary">
           <h1>
             {quizState.correctRate}{' '}
@@ -76,21 +86,17 @@ function Results() {
           </p>
         </div>
 
-        {/* filters */}
         <div className="filters">
-          <label>
-            <input
-              type="checkbox"
-              checked={showWrongOnly}
-              onChange={(e) => setShowWrongOnly(e.target.checked)}
-            />
-            只顯示錯誤題目
-          </label>
+          <div
+            className={`filter-switch ${showWrongOnly ? 'active' : ''}`}
+            onClick={() => setShowWrongOnly(!showWrongOnly)}
+          >
+            <span>只顯示錯誤題目</span>
+          </div>
         </div>
 
-        {/* questions review */}
         <div className="questions-review">
-          {displayQuestions.map((question, index) => (
+          {displayQuestions.map((question) => (
             <div
               key={question.id}
               className={`question-item ${
@@ -98,6 +104,19 @@ function Results() {
               } ${question.isUnanswered ? 'unanswered' : ''}`}
             >
               <h3>#{question.id}</h3>
+              <div
+                className={`answer-status ${
+                  question.isCorrect ? 'correct' : 'wrong'
+                }`}
+              >
+                {question.isUnanswered
+                  ? '未作答'
+                  : question.isCorrect
+                  ? '✓ 答對'
+                  : `✗ 答錯 (正確答案: ${String.fromCharCode(
+                      65 + question.correctIndex
+                    )})`}
+              </div>
               <p>{question.question}</p>
               <div className="options">
                 {question.options.map((option, idx) => (
@@ -111,22 +130,8 @@ function Results() {
                   </div>
                 ))}
               </div>
-              <div className="answer-status">
-                {question.isUnanswered
-                  ? '未作答'
-                  : question.isCorrect
-                  ? '✓ 答對'
-                  : `✗ 答錯 (正確答案: ${String.fromCharCode(
-                      65 + question.correctIndex
-                    )})`}
-              </div>
             </div>
           ))}
-        </div>
-
-        {/* button section */}
-        <div className="button-section">
-          <button onClick={() => navigate('/quiz')}>返回</button>
         </div>
       </div>
     </div>

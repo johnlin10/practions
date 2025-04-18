@@ -139,7 +139,7 @@ function Quiz() {
                 if (!subject.quizOpen) return null
                 return (
                   <div key={subject.id} className="subject-card">
-                    <h3>{subject.name}</h3>
+                    <p className="subject-name">{subject.name}</p>
                     <div className="subject-card-content">
                       <div className="subject-info">
                         <p>{subject.questionCount} 題</p>

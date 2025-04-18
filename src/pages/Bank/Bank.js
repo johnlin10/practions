@@ -52,12 +52,12 @@ function Bank() {
                     }${locked ? ' locked' : ''}`}
                     to={locked ? '' : `/bank/${subject.id}`}
                   >
-                    <h3>
+                    <p className="subject-name">
                       {locked && (
                         <span className="material-symbols-rounded">lock</span>
                       )}
                       {subject.name}
-                    </h3>
+                    </p>
 
                     <p>
                       {subject.lockTime && lockStatus.status !== 'none' && (

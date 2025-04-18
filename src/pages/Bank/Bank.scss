@@ -34,22 +34,20 @@
       cursor: not-allowed;
     }
 
-    h3 {
-      display: flex;
-      align-items: center;
-      margin: 0 0 3px 0;
-      color: #333;
-
-      > span {
-        margin-right: 6px;
-      }
-    }
-
     p {
       display: flex;
       align-items: center;
       margin: 0;
       color: #666;
+
+      &.subject-name {
+        font-weight: 500;
+        color: #333;
+
+        > span {
+          margin-right: 6px;
+        }
+      }
     }
   }
 }
@@ -290,6 +288,17 @@ span.lock-time {
       -o-transform: translateY(100%);
     }
   }
+
+  border-radius: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  transition: 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+  -webkit-transition: 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+  -moz-transition: 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+  -ms-transition: 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+  -o-transition: 0.65s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 //

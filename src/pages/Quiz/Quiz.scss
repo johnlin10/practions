@@ -153,6 +153,22 @@ h1.quiz-to-history {
     padding: 12px;
     border: 2px solid var(--gray-color-13);
 
+    > p {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      color: #666;
+
+      &.subject-name {
+        font-weight: 500;
+        color: #333;
+
+        > span {
+          margin-right: 6px;
+        }
+      }
+    }
+
     > .subject-card-content {
       display: flex;
       flex-direction: row;

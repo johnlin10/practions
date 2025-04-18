@@ -61,7 +61,7 @@
 
 .page-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 640px;
   margin: 0 auto;
 
   > h1 {
@@ -87,4 +87,10 @@
     font-size: 1rem;
     color: var(--gray-color-10);
   }
+
+  border-radius: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
 }
