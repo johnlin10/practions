@@ -91,7 +91,8 @@ function Results() {
             className={`filter-switch ${showWrongOnly ? 'active' : ''}`}
             onClick={() => setShowWrongOnly(!showWrongOnly)}
           >
-            <span>只顯示錯誤題目</span>
+            <span className="material-symbols-rounded fill">filter_list</span>
+            <p>只顯示錯誤題目</p>
           </div>
         </div>
 
@@ -109,13 +110,20 @@ function Results() {
                   question.isCorrect ? 'correct' : 'wrong'
                 }`}
               >
-                {question.isUnanswered
-                  ? '未作答'
-                  : question.isCorrect
-                  ? '✓ 答對'
-                  : `✗ 答錯 (正確答案: ${String.fromCharCode(
-                      65 + question.correctIndex
-                    )})`}
+                {question.isUnanswered ? (
+                  '未作答'
+                ) : question.isCorrect ? (
+                  <>
+                    <span className="material-symbols-rounded fill">check</span>
+                    答對
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-rounded fill">close</span>
+                    答錯（正確答案:{' '}
+                    {String.fromCharCode(65 + question.correctIndex)}）
+                  </>
+                )}
               </div>
               <p>{question.question}</p>
               <div className="options">

@@ -64,10 +64,13 @@
   }
 
   > .filters {
-    padding: 12px;
+    padding-top: 12px;
 
     > .filter-switch {
-      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 9px;
       width: fit-content;
       font-size: 0.8rem;
       color: var(--gray-color-10);
@@ -76,9 +79,13 @@
       cursor: pointer;
 
       &.active {
-        background: var(--primary-color);
+        background: var(--primary-background-color);
         border: 2px solid var(--primary-color);
-        color: var(--text-white);
+        color: var(--primary-color-text);
+      }
+
+      > span {
+        font-size: 1.2rem;
       }
     }
   }
@@ -149,6 +156,9 @@
       }
 
       .answer-status {
+        display: flex;
+        align-items: center;
+        gap: 3px;
         margin: 6px 0;
         font-weight: bold;
         color: var(--text-color);

@@ -18,7 +18,7 @@ function Navigate() {
     <div className={`navigate ${hideNavigate ? 'hide' : ''}`}>
       <div className="navigate-button">
         <Link className="no-style" data-active={pathname === '/'} to="/">
-          首頁
+          <span className="material-symbols-rounded fill">home</span>
         </Link>
         <Link
           className="no-style"
@@ -27,21 +27,23 @@ function Navigate() {
           }
           to="/quiz"
         >
-          測驗
+          <span className="material-symbols-rounded fill">
+            assignment_turned_in
+          </span>
         </Link>
         <Link
           className="no-style"
           data-active={pathname.includes('/bank')}
           to="/bank"
         >
-          題庫
+          <span class="material-symbols-rounded fill">library_books</span>
         </Link>
         <Link
           className="no-style"
           data-active={pathname.includes('/settings')}
           to="/settings"
         >
-          設定
+          <span className="material-symbols-rounded fill">settings</span>
         </Link>
       </div>
     </div>

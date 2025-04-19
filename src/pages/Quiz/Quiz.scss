@@ -141,8 +141,8 @@ h1.quiz-to-history {
 .subject-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 9px;
+  margin-top: 24px;
 
   > .subject-card {
     display: flex;
@@ -178,12 +178,13 @@ h1.quiz-to-history {
 
       > .subject-info {
         font-size: 0.8rem;
+        color: var(--gray-color-10);
       }
 
       > button {
         &:hover {
-          background: var(--primary-color);
-          color: var(--background-color);
+          background: var(--primary-background-color);
+          color: var(--primary-color-text);
           border: 2px solid var(--primary-color);
         }
       }

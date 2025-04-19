@@ -131,7 +131,7 @@ function Quiz() {
               測驗
               <Link to="/history" className="no-style">
                 <p>紀錄</p>
-                <span class="material-symbols-outlined">chevron_right</span>
+                <span class="material-symbols-rounded">chevron_right</span>
               </Link>
             </h1>
             <div className="subject-list">
@@ -155,7 +155,9 @@ function Quiz() {
                           navigate(`/quiz/${subject.id}`)
                         }}
                       >
-                        <span class="material-symbols-rounded">play_arrow</span>
+                        <span class="material-symbols-rounded fill">
+                          play_arrow
+                        </span>
                         {/* 開始測驗 */}
                       </button>
                     </div>

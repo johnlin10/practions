@@ -32,6 +32,10 @@
       min-height: 48px;
       cursor: default;
 
+      &:not(:last-child) {
+        border-bottom: 2px solid var(--gray-color-13);
+      }
+
       &.action {
         cursor: pointer;
 
@@ -53,10 +57,6 @@
             color: var(--primary-color);
           }
         }
-      }
-
-      &:not(:last-child) {
-        border-bottom: 2px solid var(--gray-color-13);
       }
 
       > p {

@@ -105,15 +105,24 @@ const SingleBank = () => {
     } else if (subjects[subjectId].quizType === 'vocabulary') {
       // vocabulary
       return (
-        <div className="vocabulary-content">
+        <div className="vocabulary-content" onClick={() => playWord(question)}>
           <div className="word">
             <span className="english">{question.english}</span>
             <span className="chinese">{question.chinese}</span>
+          </div>
+          <div className="volume-up">
+            <span className="material-symbols-rounded">volume_up</span>
           </div>
         </div>
       )
     }
     return null
+  }
+
+  // use web speech api to play word
+  const playWord = (question) => {
+    const english = new SpeechSynthesisUtterance(question.english)
+    window.speechSynthesis.speak(english)
   }
 
   // filter questions
