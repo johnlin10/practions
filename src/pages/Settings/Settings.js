@@ -44,7 +44,7 @@ function Settings() {
             <h5>開發資訊</h5>
             <div className="settings-list-group-item">
               <p>版本</p>
-              <p className="info">v1.1.5</p>
+              <p className="info">v1.1.6</p>
             </div>
             <div
               className="settings-list-group-item action"

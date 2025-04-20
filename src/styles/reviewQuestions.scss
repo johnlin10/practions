@@ -64,6 +64,11 @@
   }
 
   > .filters {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     padding-top: 12px;
 
     > .filter-switch {

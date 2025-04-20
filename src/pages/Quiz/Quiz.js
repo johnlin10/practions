@@ -72,8 +72,8 @@ function Quiz() {
   }
 
   return (
-    <div className="page">
-      <div className="page-container">
+    <div className={`page${subjectId ? ' quiz-page' : ''}`}>
+      <div className={`page-container${subjectId ? ' quiz-container' : ''}`}>
         {subjectId ? (
           // if subjectId, show quiz page
           <>
@@ -83,7 +83,10 @@ function Quiz() {
             />
             <div className="question-section">
               <h2>
-                {currentQuestionIndex + 1} / {subject.questionCount}
+                {currentQuestionIndex + 1}{' '}
+                <span className="question-count">
+                  / {subject.questionCount}
+                </span>
               </h2>
               <div className="question-block">
                 <p>{questions[currentQuestionIndex]?.question}</p>

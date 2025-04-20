@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { isSubjectLocked } from '../../Bank/utils/bankHelpers'
 import { subjects } from '../../../data/subjects'
@@ -11,6 +11,7 @@ function SingleHistory() {
   const navigate = useNavigate()
   const [record, setRecord] = useState(null)
   const [showWrongOnly, setShowWrongOnly] = useState(false)
+  const [sortByQuestionId, setSortByQuestionId] = useState(false)
 
   useEffect(() => {
     const history = JSON.parse(localStorage.getItem('quizHistory-v3') || '[]')
@@ -48,22 +49,45 @@ function SingleHistory() {
     }, 500)
   }
 
-  if (!record) return null
+  // 處理分析問題數據
+  const analyzedQuestions = useMemo(() => {
+    if (!record) return []
 
-  const analyzedQuestions = record.questions.map((question) => {
-    const userAnswer = record.answers[question.id]
-    const isCorrect = userAnswer === question.correctIndex
-    return {
-      ...question,
-      userAnswer,
-      isCorrect,
-      isUnanswered: userAnswer === undefined,
+    return record.questions.map((question) => {
+      const userAnswer = record.answers[question.id]
+      const isCorrect = userAnswer === question.correctIndex
+      return {
+        ...question,
+        userAnswer,
+        isCorrect,
+        isUnanswered: userAnswer === undefined,
+      }
+    })
+  }, [record])
+
+  // 使用 useMemo 處理篩選和排序，僅在依賴項變化時重新計算
+  const displayQuestions = useMemo(() => {
+    let filteredQuestions = [...analyzedQuestions]
+
+    // 先應用篩選條件
+    if (showWrongOnly) {
+      filteredQuestions = filteredQuestions.filter((q) => !q.isCorrect)
     }
-  })
 
-  const displayQuestions = showWrongOnly
-    ? analyzedQuestions.filter((q) => !q.isCorrect)
-    : analyzedQuestions
+    // 再應用排序條件
+    if (sortByQuestionId) {
+      return filteredQuestions.sort((a, b) => {
+        // 嘗試提取數字部分進行排序
+        const aNum = parseInt(a.id.toString().replace(/\D/g, '')) || 0
+        const bNum = parseInt(b.id.toString().replace(/\D/g, '')) || 0
+        return aNum - bNum
+      })
+    }
+
+    return filteredQuestions
+  }, [analyzedQuestions, showWrongOnly, sortByQuestionId])
+
+  if (!record) return null
 
   return (
     <div className={`single-history ${pageAnimation ? 'page-animation' : ''}`}>
@@ -111,6 +135,13 @@ function SingleHistory() {
           >
             <span className="material-symbols-rounded fill">filter_list</span>
             <p>只顯示錯誤題目</p>
+          </div>
+          <div
+            className={`filter-switch ${sortByQuestionId ? 'active' : ''}`}
+            onClick={() => setSortByQuestionId(!sortByQuestionId)}
+          >
+            <span className="material-symbols-outlined">swap_vert</span>
+            <p>依題號排序</p>
           </div>
         </div>
 

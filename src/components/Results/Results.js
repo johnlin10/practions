@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Results.scss'
 import '../../styles/reviewQuestions.scss'
@@ -12,6 +12,8 @@ function Results() {
   const { quizState } = useQuiz()
   // state for showing wrong only
   const [showWrongOnly, setShowWrongOnly] = useState(false)
+  // state for sorting by question ID
+  const [sortByQuestionId, setSortByQuestionId] = useState(false)
   // state for results
   const [results, setResults] = useState({
     correctCount: 0,
@@ -19,10 +21,30 @@ function Results() {
     allQuestions: [],
   })
 
-  // display questions
-  const displayQuestions = showWrongOnly
-    ? results.wrongAnswers
-    : results.allQuestions
+  // 使用 useMemo 處理篩選和排序
+  const displayQuestions = useMemo(() => {
+    let filteredQuestions = showWrongOnly
+      ? results.wrongAnswers
+      : results.allQuestions
+
+    // 應用排序條件
+    if (sortByQuestionId) {
+      return [...filteredQuestions].sort((a, b) => {
+        // 嘗試提取數字部分進行排序
+        const aNum = parseInt(a.id.toString().replace(/\D/g, '')) || 0
+        const bNum = parseInt(b.id.toString().replace(/\D/g, '')) || 0
+        return aNum - bNum
+      })
+    }
+
+    return filteredQuestions
+  }, [
+    results.wrongAnswers,
+    results.allQuestions,
+    showWrongOnly,
+    sortByQuestionId,
+  ])
+
   // calculate test duration
   const duration = quizState.endTime - quizState.startTime
   // convert to minutes and seconds
@@ -93,6 +115,13 @@ function Results() {
           >
             <span className="material-symbols-rounded fill">filter_list</span>
             <p>只顯示錯誤題目</p>
+          </div>
+          <div
+            className={`filter-switch ${sortByQuestionId ? 'active' : ''}`}
+            onClick={() => setSortByQuestionId(!sortByQuestionId)}
+          >
+            <span className="material-symbols-outlined">swap_vert</span>
+            <p>依題號排序</p>
           </div>
         </div>
 
