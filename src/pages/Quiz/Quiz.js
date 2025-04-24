@@ -62,6 +62,7 @@ function Quiz() {
         navigate('/results')
       } else {
         // time not up, but not all questions answered
+        setPreviewAllQuestions(true)
         alert('請回答所有問題')
         return
       }
@@ -117,6 +118,12 @@ function Quiz() {
                 ))}
               </div>
               <div className="quiz-buttons">
+                <button onClick={handlePrev} title="上一題">
+                  <span class="material-symbols-rounded">arrow_back</span>
+                </button>
+                <button onClick={handleNext} title="下一題">
+                  <span class="material-symbols-rounded">arrow_forward</span>
+                </button>
                 <button
                   className={`preview-all-questions-btn${
                     previewAllQuestions ? ' active' : ''
@@ -129,14 +136,8 @@ function Quiz() {
                       previewAllQuestions ? 'fill' : ''
                     }`}
                   >
-                    visibility
+                    apps
                   </span>
-                </button>
-                <button onClick={handlePrev} title="上一題">
-                  <span class="material-symbols-rounded">arrow_back</span>
-                </button>
-                <button onClick={handleNext} title="下一題">
-                  <span class="material-symbols-rounded">arrow_forward</span>
                 </button>
                 <button
                   onClick={() => {
@@ -220,9 +221,9 @@ const PreviewAllQuestions = ({ close }) => {
           return (
             <div
               key={question.id}
-              className={`question-item ${isAnswered ? 'answered' : ''} ${
-                isCurrentQuestion ? 'current' : ''
-              }`}
+              className={`question-item${isAnswered ? ' answered' : ''}${
+                isCurrentQuestion ? ' current' : ''
+              }${(index + 1) % 5 === 0 ? ' five-in-row' : ''}`}
               onClick={() => {
                 handleQuestionClick(index)
                 close()
