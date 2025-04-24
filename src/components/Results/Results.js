@@ -61,13 +61,14 @@ function Results() {
     //* analyze results
     // loop through questions
     const analyzedResults = quizState.questions.map((question) => {
-      const userAnswer = quizState.answers[question.id]
+      const userAnswerData = quizState.answers[question.id]
+      const userAnswer = userAnswerData?.answeredIndex
       const isCorrect = userAnswer === question.correctIndex
       return {
         ...question,
         userAnswer,
         isCorrect,
-        isUnanswered: userAnswer === undefined,
+        isUnanswered: userAnswerData === undefined,
       }
     })
 

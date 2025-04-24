@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import './Quiz.scss'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useQuiz } from '../../context/QuizContext'
@@ -10,6 +10,7 @@ function Quiz() {
   const { subjectId } = useParams()
   const navigate = useNavigate()
   const subject = subjects[subjectId] || null
+  const [previewAllQuestions, setPreviewAllQuestions] = useState(false)
 
   const {
     startQuiz,
@@ -71,6 +72,11 @@ function Quiz() {
     }
   }
 
+  // handle preview all questions
+  const closePreviewAllQuestions = () => {
+    setPreviewAllQuestions(false)
+  }
+
   return (
     <div className={`page${subjectId ? ' quiz-page' : ''}`}>
       <div className={`page-container${subjectId ? ' quiz-container' : ''}`}>
@@ -99,7 +105,8 @@ function Quiz() {
                     key={idx}
                     onClick={() => handleAnswer(idx)}
                     className={
-                      answers[questions[currentQuestionIndex].id] === idx
+                      answers[questions[currentQuestionIndex].id]
+                        ?.answeredIndex === idx
                         ? 'selected'
                         : ''
                     }
@@ -110,10 +117,25 @@ function Quiz() {
                 ))}
               </div>
               <div className="quiz-buttons">
-                <button onClick={handlePrev}>
+                <button
+                  className={`preview-all-questions-btn${
+                    previewAllQuestions ? ' active' : ''
+                  }`}
+                  onClick={() => setPreviewAllQuestions(!previewAllQuestions)}
+                  title={previewAllQuestions ? '關閉題目預覽' : '預覽全部題目'}
+                >
+                  <span
+                    class={`material-symbols-rounded ${
+                      previewAllQuestions ? 'fill' : ''
+                    }`}
+                  >
+                    visibility
+                  </span>
+                </button>
+                <button onClick={handlePrev} title="上一題">
                   <span class="material-symbols-rounded">arrow_back</span>
                 </button>
-                <button onClick={handleNext}>
+                <button onClick={handleNext} title="下一題">
                   <span class="material-symbols-rounded">arrow_forward</span>
                 </button>
                 <button
@@ -170,6 +192,51 @@ function Quiz() {
             </div>
           </>
         )}
+        {previewAllQuestions && (
+          <PreviewAllQuestions close={closePreviewAllQuestions} />
+        )}
+      </div>
+    </div>
+  )
+}
+
+const PreviewAllQuestions = ({ close }) => {
+  const { handleNext, quizState } = useQuiz()
+  const { questions, answers, currentQuestionIndex } = quizState
+
+  const handleQuestionClick = (index) => {
+    // 設置當前問題索引
+    handleNext(index)
+  }
+
+  return (
+    <div className="preview-all-questions">
+      <h2>預覽題目</h2>
+      <div className="questions-grid">
+        {questions.map((question, index) => {
+          const isAnswered = answers[question.id] !== undefined
+          const isCurrentQuestion = index === currentQuestionIndex
+
+          return (
+            <div
+              key={question.id}
+              className={`question-item ${isAnswered ? 'answered' : ''} ${
+                isCurrentQuestion ? 'current' : ''
+              }`}
+              onClick={() => {
+                handleQuestionClick(index)
+                close()
+              }}
+            >
+              <span className="question-number">{index + 1}</span>
+              {isAnswered && (
+                <span className="question-answer">
+                  {String.fromCharCode(65 + answers[question.id].answeredIndex)}
+                </span>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

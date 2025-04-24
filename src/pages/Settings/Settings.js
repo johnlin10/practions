@@ -1,4 +1,5 @@
 import './Settings.scss'
+import packageJson from '../../../package.json'
 
 function Settings() {
   const history = JSON.parse(localStorage.getItem('quizHistory-v3') || '[]')
@@ -44,7 +45,7 @@ function Settings() {
             <h5>開發資訊</h5>
             <div className="settings-list-group-item">
               <p>版本</p>
-              <p className="info">v1.1.6</p>
+              <p className="info">{packageJson.version}</p>
             </div>
             <div
               className="settings-list-group-item action"

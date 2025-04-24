@@ -1,0 +1,167 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Practions 專案 Cursor Rules
+
+## 專案概述
+
+Practions 是一個為中臺科技大學資管系開發的測驗網站，提供學生進行各種主題的測驗及查看題庫的功能。專案使用 React 18 開發，採用現代化的函數式組件與 Hooks 設計模式。
+
+## 技術框架與核心依賴
+
+- **框架**: React 18.3.1
+- **路由**: React Router Dom 6.27.0
+- **樣式**: SCSS/Sass 1.80.4
+- **後端服務**: Firebase (Hosting, Firestore)
+- **部署**: Firebase Hosting
+
+## 架構設計原則
+
+### 目錄結構
+
+專案採用 feature-based 架構，主要結構如下：
+
+- `/src/components`: 共用元件
+- `/src/context`: React Context API 狀態管理
+- `/src/data`: 靜態資料與題庫
+- `/src/pages`: 頁面級元件，按功能模組分類
+- `/src/utils`: 公用工具函數
+- `/src/styles`: 全域樣式定義
+
+### 主要功能模組
+
+- **首頁 (Home)**: 網站入口
+- **測驗 (Quiz)**: 進行測驗的核心功能
+- **題庫 (Bank)**: 瀏覽與管理題庫
+- **歷史記錄 (History)**: 查看測驗歷史記錄
+- **設定 (Settings)**: 用戶設定與偏好
+
+## 編碼規範
+
+### 檔案與命名規範
+
+1. **檔案命名**:
+   - 元件檔案使用 PascalCase (如: `Timer.js`)
+   - 工具函數使用 camelCase (如: `helper.js`)
+   - 常數檔案使用 UPPER_SNAKE_CASE (如: `CONSTANTS.js`)
+
+2. **樣式檔案**:
+   - 元件樣式使用 `.scss` 副檔名
+   - 樣式檔案與元件同名 (如: `Timer.js` 對應 `Timer.scss`)
+
+3. **元件結構**:
+   - 一個目錄包含相關元件與其樣式文件
+   - 功能相關的元件應放在同一目錄下
+
+### 程式碼風格
+
+1. **React 元件**:
+   - 使用函數式元件與 Hooks
+   - 使用命名導出 (named exports)
+   - 使用 JSDoc 註解說明元件用途與參數
+
+2. **Hooks 使用**:
+   - 使用 `useState` 管理本地狀態
+   - 使用 `useEffect` 處理副作用
+   - 使用 `useMemo` 和 `useCallback` 優化效能
+   - 使用自定義 Hooks 封裝共用邏輯
+
+3. **狀態管理**:
+   - 使用 React Context API 管理全域狀態
+   - 將相關狀態封裝在特定的 Context Provider 中
+   - 使用自定義 Hooks 提供方便的存取方法
+
+4. **樣式規範**:
+   - 使用 SCSS 巢狀結構
+   - 使用 CSS 變數管理主題色彩與排版
+   - 樣式類名使用小寫加底線 (snake_case)
+
+## CSS/UI 設計系統
+
+1. **顏色系統**:
+   - 主色調: `--primary-color: #34b3e1;`
+   - 背景色: `--background-color: #ffffff;`
+   - 文字色: `--text-color: #333333;`
+   - 警告色: `--warning-color: #c8372d;`
+   - 灰階色: `--gray-color-5` 到 `--gray-color-13`
+
+2. **反饋狀態**:
+   - 正確狀態: `--correct-border-color`, `--correct-background-color`
+   - 錯誤狀態: `--wrong-border-color`, `--wrong-background-color`
+
+3. **間距與排版**:
+   - 使用相對單位 (rem, em) 而非絕對單位 (px)
+   - 主要間距使用 6px, 12px, 24px 系列
+
+## 資料模型
+
+1. **測驗資料**:
+   - 題目 (questions): 包含 id, question, options, correctIndex
+   - 答案 (answers): 使用者選擇的答案
+   - 結果 (results): 測驗結果包含正確率與錯誤題目
+
+2. **題庫組織**:
+   - 按科目分類 (subjects)
+   - 每個科目包含多個題目
+   - 題目可以是單選、多選或是非題
+
+3. **歷史記錄**:
+   - 保存在 localStorage 中
+   - 包含測驗日期、科目、得分與答案
+
+## 性能優化實踐
+
+1. **記憶化與快取**:
+   - 使用 `useMemo` 避免不必要的計算
+   - 使用 `useCallback` 避免不必要的函數重建
+
+2. **列表渲染優化**:
+   - 對長列表使用虛擬滾動或分頁
+
+3. **動畫效能**:
+   - 使用 CSS transitions 而非 JavaScript 動畫
+   - 避免頻繁的 DOM 操作
+
+## 開發流程
+
+1. **分支管理**:
+   - 主分支 (main): 穩定版本
+   - 開發分支 (dev): 正在開發的功能
+
+2. **版本發布**:
+   - 使用 npm scripts 進行建置與部署
+   - `npm run build-deploy` 進行建置後部署到 Firebase Hosting
+
+## 擴展與未來開發
+
+1. **計劃功能**:
+   - 多選題型支援
+   - 是非題型支援
+   - 更多題庫內容
+
+2. **技術改進**:
+   - 加入單元測試
+   - 實現離線模式
+   - 增強使用者體驗
+
+## 常見問題與解決方案
+
+1. **Firebase 整合**:
+   - 專案已整合 Firebase 服務，用於部署與可能的後端服務
+   - 相關配置文件位於專案根目錄
+
+2. **本地開發**:
+   - 使用 `npm start` 啟動本地開發伺服器
+   - 使用 `npm run build` 建置生產版本
+
+## 文件維護規範
+
+1. **文件更新原則**:
+   - 在專案有任何相關改動、新增功能或擴展用途時，必須同步更新此文件: '.cursor/rules/practions.mdc'
+   - 文件應實時跟進專案項目的演變，確保始終反映最新狀態
+
+2. **更新責任**:
+   - 所有開發人員都有責任維護此文件的準確性
+   - 每次提交包含重大變更的程式碼時，必須同時更新相關文件說明

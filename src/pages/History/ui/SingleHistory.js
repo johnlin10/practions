@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { isSubjectLocked } from '../../Bank/utils/bankHelpers'
 import { subjects } from '../../../data/subjects'
@@ -40,7 +40,7 @@ function SingleHistory() {
     }, 100)
   }, [])
 
-  // 處理關閉單個歷史紀錄頁面
+  // process close single history page
   const handleClose = () => {
     setPageAnimation(true)
 
@@ -49,13 +49,17 @@ function SingleHistory() {
     }, 500)
   }
 
-  // 處理分析問題數據
+  // process questions data
   const analyzedQuestions = useMemo(() => {
     if (!record) return []
 
     return record.questions.map((question) => {
-      const userAnswer = record.answers[question.id]
+      const userAnswer = !isNaN(record.answers[question.id])
+        ? record.answers[question.id] // compatible with old version record
+        : record.answers[question.id].answeredIndex
+
       const isCorrect = userAnswer === question.correctIndex
+
       return {
         ...question,
         userAnswer,
@@ -65,19 +69,19 @@ function SingleHistory() {
     })
   }, [record])
 
-  // 使用 useMemo 處理篩選和排序，僅在依賴項變化時重新計算
+  // use useMemo to process filter and sort, only recalculate when dependencies change
   const displayQuestions = useMemo(() => {
     let filteredQuestions = [...analyzedQuestions]
 
-    // 先應用篩選條件
+    // apply filter condition first
     if (showWrongOnly) {
       filteredQuestions = filteredQuestions.filter((q) => !q.isCorrect)
     }
 
-    // 再應用排序條件
+    // apply sort condition
     if (sortByQuestionId) {
       return filteredQuestions.sort((a, b) => {
-        // 嘗試提取數字部分進行排序
+        // try to extract number part for sorting
         const aNum = parseInt(a.id.toString().replace(/\D/g, '')) || 0
         const bNum = parseInt(b.id.toString().replace(/\D/g, '')) || 0
         return aNum - bNum
@@ -148,6 +152,7 @@ function SingleHistory() {
         <div className="questions-review">
           {displayQuestions.map((question) => (
             <div
+              id={question.id}
               key={question.id}
               className={`question-item ${
                 question.isCorrect ? 'correct' : 'wrong'
