@@ -1,6 +1,6 @@
 {
   "name": "practions",
-  "version": "1.1.8",
+  "version": "2.0.0 Beta",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -19,7 +19,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "firebase deploy --only hosting",
-    "build-deploy": "npm run build && npm run deploy"
+    "build-deploy": "npm run build && npm run deploy",
+    "migrate-history": "node scripts/migrate-history-records.js"
   },
   "eslintConfig": {
     "extends": [

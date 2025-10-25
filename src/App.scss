@@ -45,7 +45,7 @@
   height: 100vh;
   margin: 0 auto;
   background-color: var(--background-color);
-  padding: 48px 12px 120px 12px;
+  padding: 48px 18px 120px 18px;
   overflow: hidden;
   overflow-y: auto;
   border-radius: 0;
@@ -68,7 +68,7 @@
   > h1 {
     z-index: 10;
     position: sticky;
-    padding: 0 12px;
+    padding: 0 6px;
     top: -36px;
     font-size: 1.75rem;
     background-color: var(--background-color);

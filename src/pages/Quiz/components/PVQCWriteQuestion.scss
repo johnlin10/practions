@@ -1,0 +1,15 @@
+.pvqc-write-question {
+  > .question-content {
+    > input[type='text'] {
+      margin: 6px 0;
+      padding: 9px 12px;
+      border-radius: 6px;
+      border: 2px solid var(--border-color);
+      font-size: 1rem;
+
+      &:focus {
+        border-color: var(--primary-color);
+      }
+    }
+  }
+}

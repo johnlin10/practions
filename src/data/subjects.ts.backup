@@ -1,5 +1,4 @@
-import { Question, QuestionTypeId } from '../types/questions'
-import { SubjectConfig, QuizFlowConfig } from '../types/quiz-flows'
+import { Question } from '../types/questions'
 
 // 定義舊格式的型別（向後兼容）
 export interface Subject {
@@ -15,72 +14,16 @@ export interface Subject {
 
 export type Subjects = Record<string, Subject>
 
-/**
- * [function] convertToSubjectConfig
- * 將舊格式的 Subject 轉換為新格式的 SubjectConfig
- * @param {Subject} subject - 舊格式的 Subject
- * @returns {SubjectConfig} - 新格式的 SubjectConfig
- */
-export function convertToSubjectConfig(subject: Subject): SubjectConfig {
-  // 根據 quizType 決定 baseQuestionType
-  let baseQuestionType: QuestionTypeId
-  // 根據 quizType 決定 baseQuestionType
-  switch (subject.quizType) {
-    case 'once_choice':
-      baseQuestionType = 'single_choice'
-      break
-    case 'multiple_choice':
-      baseQuestionType = 'multiple_choice'
-      break
-    case 'true_false':
-      baseQuestionType = 'true_false'
-      break
-    case 'vocabulary':
-      baseQuestionType = 'vocabulary'
-      break
-    default:
-      baseQuestionType = 'single_choice'
-  }
-
-  // 創建標準單階段流程配置
-  const flowConfig: QuizFlowConfig = {
-    id: `${subject.id}_flow`,
-    name: subject.name,
-    type: 'single_stage',
-    stages: [
-      {
-        stageId: 'main',
-        mode: 'standard',
-        questionCount: subject.questionCount,
-        timeLimit: subject.timeLimit,
-      },
-    ],
-    totalTimeLimit: subject.timeLimit,
-  }
-
-  return {
-    id: subject.id,
-    name: subject.name,
-    baseQuestionType,
-    flowConfig,
-    quizOpen: subject.quizOpen,
-    lockTime: subject.lockTime,
-    questions: subject.questions,
-  }
-}
-
-//* 原始題庫
-const rawSubjects: Subjects = {
-  ail_certification_exam_once_choice: {
-    id: 'ail_certification_exam_once_choice',
-    name: 'AIL 證照檢定（單選）',
+export const subjects: Subjects = {
+  ai_certification_exam_once_choice: {
+    id: 'ai_certification_exam_once_choice',
+    name: 'AI 證照檢定（單選）',
     quizType: 'once_choice',
     quizOpen: true,
     questionCount: 50,
     timeLimit: 30,
     questions: [
       {
-        type: 'single_choice',
         id: '1',
         question:
           '_____________是影像處理中的一項關鍵技術，一直都受到人們的高度重視。',
@@ -88,7 +31,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '2',
         question:
           '_____________是裝備有電磁或光學等自動導引裝置，能夠沿著事先規劃的導引路徑行駛，具有安全保護以及各種移載功能的運輸車。',
@@ -101,7 +43,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '3',
         question:
           '一般在發展人工智慧大約需要基礎專業知識、應用專業知識、 跨領域應用的專業知識等三類方向，例如，數學、統計學是屬於_____________方向。',
@@ -114,7 +55,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '4',
         question:
           '人工智慧技術持續、健康發展的重要前提，是建立一個令人工智慧技術造福於社會、保護公眾利益的_____________。',
@@ -127,7 +67,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '5',
         question:
           '人腦是一種適應性系統，必須對變幻莫測的事物做出反應，而學習是通過修改神經元之間連接的_____________來進行的。',
@@ -135,7 +74,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '6',
         question:
           '以醫院管理和電子病歷為重點，建立全市居民電子健康檔案；以實現醫院服務網路化為重點，推進遠端掛號、電子收費、數位遠端醫療服務、圖文體檢診斷系統等智慧醫療系統建設，提升醫療和健康服務水準。這是屬於智慧城市的_____________體系建設。',
@@ -148,7 +86,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '7',
         question:
           '使系統呈現智慧的效果，而不考慮所用方法是否與人或動物等機體所用的方法相同，是指_____________。',
@@ -161,7 +98,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '8',
         question:
           '假設想訓練一台機器來識別直升機，你有150萬張照片，其中有些照片裡邊有直升機，有些沒有直升機。那你需要有人先來教會電腦哪些圖像有直升機，哪些又沒有直升機。這就是_____________的用處所在。',
@@ -174,7 +110,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '9',
         question:
           '在人工智慧機器學習領域中，若已經有明確的類別(例如：脊椎動物分為哺乳類、爬蟲類、兩棲類、鳥類、魚類等)，把未知的新輸入訊息歸納到已知的資訊類別。這是進行_____________的工作。',
@@ -187,7 +122,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '10',
         question:
           '在建立機器學習的模型時，通常用_____________已知的(歷史資料)考古題作為訓練資料(training data)，剩下的_____________用來作為測試資料(test data)。',
@@ -200,7 +134,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '11',
         question:
           '在智慧製造中，_____________是一種全新的分散式運算技術，目前已經成為一種進行複雜系統分析與類比的思想方法與工具。',
@@ -213,7 +146,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '12',
         question:
           '在機器學習(ML)演算法中，_____________的演算法架構，是在環境給予的獎勵或是懲罰的刺激下，逐步形成對獎勵或懲罰刺激的預期性，產生能獲得最大利益的判斷演算法。',
@@ -221,7 +153,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '13',
         question: '在機器學習中，無監督學習又稱歸納性學習，分為_____________。',
         options: [
@@ -233,7 +164,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '14',
         question:
           '在機器學習的主要三項演算法技術中(又稱為三劍客或三兄弟)，_____________不涉及提供“正確的”答案或輸出，只關注性能，讓AI系統很快就學會了，不要重複這一動作。',
@@ -241,7 +171,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '15',
         question:
           '在物聯網與大數據如此浩如雲海的資料中，作資料的分類提取和有效處理，需要強大的技術設計與運算能力，於是"運算能力" 有了_____________；另外的“技術設計”屬於_____________。',
@@ -254,7 +183,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '16',
         question:
           '在醫療資訊系統中，經授權的醫生能夠隨時查閱病人的病歷、患史、治療措施和保險細則，患者也可以自主選擇更換醫生或醫院。這是智慧醫療的_____________特點。',
@@ -262,7 +190,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '17',
         question:
           '在開發或應用人工智慧系統時，人工智慧透明度的重要性和必要性，因具體的人工智慧應用而定；使用者必須能理解人工智慧系統可能被愚弄的機制。這個是針對人工智慧系統發展的_____________問題。',
@@ -275,7 +202,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '18',
         question:
           '在開發或應用人工智慧系統時，許多用戶所執行的任務涉及人類生命或高昂設備風險，因此在依靠人工智慧來執行任務之前，首先要解決或確認該人工智慧系統的_____________問題。',
@@ -288,7 +214,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '19',
         question:
           '如果將人工智慧分成運算資源基礎、核心技術發展與應用領域等層次，深度學習(deep learning)是屬於_____________。',
@@ -301,7 +226,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '20',
         question:
           '將普通家用電器利用數位技術、網路技術及智慧控制技術，設計改進的新型家電產品是_____________。',
@@ -309,7 +233,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '21',
         question:
           '尋找_____________是人類長久以來的習慣，即使要確定這樣的關係很困難而且用途不大，人類還是習慣性地尋找緣由。',
@@ -317,7 +240,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '22',
         question:
           '智慧交通的軌道交通系統，所謂“列車自動保護系統”，就是指_____________。',
@@ -325,7 +247,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '23',
         question: '智慧客服，又稱智慧客服機器人，它的英文名稱是_____________。',
         options: [
@@ -337,7 +258,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '24',
         question:
           '智慧工廠為達到[人機協同]，需要結合現代化的_____________兩項方法，以合乎智慧化與簡單化的生產管理要求。',
@@ -350,14 +270,12 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '25',
         question: '智慧製造中，「標準化作業」的英文簡稱為_____________。',
         options: ['SOP', 'Internet', 'AGV', 'CPS'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '26',
         question: '智能家居的英文是_____________。',
         options: [
@@ -369,7 +287,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '27',
         question:
           '曾經是全球電子商務重要的推動者之一，馬雲先生在五大變革中提出的“新能源”是指_____________。',
@@ -377,7 +294,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '28',
         question:
           '根據美國國防高級研究計畫局DARPA對人工智慧技術等級的定義，人工智慧的深度學習、強化學習、對抗學習等技術，是屬於_____________。',
@@ -385,7 +301,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '29',
         question:
           '機器學習的許多演算法都是基於_____________理論所衍生或改良演進而來。',
@@ -393,7 +308,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '30',
         question:
           '當人們擁有海量即時資料時，絕對的精准不再是人們追求的主要目標。因此大數據的專家建議是：_____________。',
@@ -406,7 +320,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '31',
         question:
           '神經網路每一層神經元的輸出，就是下一層的輸入層，如此一層一層地傳遞下去，這種神經網路又稱為_____________。',
@@ -419,7 +332,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '32',
         question:
           '科學家Wiener從理論上指出，所有的智慧活動都是_____________機制的結果，而這一機制是有可能用機器模擬的。這項發現對早期AI的發展影響很大。',
@@ -427,14 +339,12 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '33',
         question: '製造執行系統的英文簡稱是_____________。',
         options: ['MES', 'AGV', 'CPS', 'SOP'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '34',
         question:
           '要實現電腦視覺必須有影像處理的幫助，而影像處理依賴於_____________的有效運用。',
@@ -442,7 +352,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '35',
         question:
           '語音理解是指利用_____________等人工智慧技術進行語句自動識別和語意理解。',
@@ -450,7 +359,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '36',
         question:
           '語音處理是研究語音發聲過程、語音信號的統計特性、_____________、機器合成以及語音感知等各種處理技術的總稱。',
@@ -463,7 +371,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '37',
         question:
           '谷歌的“虛擬大腦”是模擬人類的大腦細胞相互交流、影響設計出來的，具備自我學習功能，它可以通過觀看Youku(優酷)、YouTube等影片(視頻)，學習識別人臉、貓臉動物、聲音以及其他事物。這項技術使Google產品變得更加智慧化，而首先受益的是_____________產品。',
@@ -471,7 +378,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '38',
         question:
           '通過找到一個現象的_____________，相關關係可以幫助我們捕捉現在和預測未來。',
@@ -479,7 +385,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '39',
         question:
           '關於人工智慧的技術之一機器學習(ML, machine learning)最早的發展可以追溯到_____________。',
@@ -492,7 +397,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '40',
         question:
           'i-CRM智慧客服關係管理系統包括四大方向，銷售管理、市場行銷、_____________、管理拓展等。',
@@ -500,7 +404,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '41',
         question:
           '人工智慧是研究與開發用於模擬、延伸和擴展人的智慧，所採用的理論、方法、技術及應用系統的一門交叉科學。人工智慧是一門極富挑戰性的_____________技術科學。',
@@ -508,7 +411,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '42',
         question:
           '人工智慧是電腦科學的一個分支，人工智慧的英文縮寫是_____________。',
@@ -516,7 +418,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '43',
         question:
           '人工智慧的廣泛應用，給人類社會帶來法律法規、道德倫理、社會治理等一系列的_____________。',
@@ -524,7 +425,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '44',
         question:
           '人工智慧領域通常所指的模式識別主要是對語音波形、地震波、心電圖、腦電圖、圖片、照片、文字、符號、生物感測器等物件的具體模式進行_____________。',
@@ -532,7 +432,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '45',
         question:
           '以顧客為中心客制化生產的智慧工廠，在不影響產能與良率的條件下，需要具有強大的_____________，以滿足產品生命週期短且需要快速換線、快速交貨的市場與客戶要求。',
@@ -540,14 +439,12 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '46',
         question: '圖像識別是以圖像的主要_____________為基礎的。',
         options: ['元素', '特徵', '部件', '圖元'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '47',
         question:
           '在一個語音系統中，可以認為是信號處理與知識處理結合的產物，這是指_____________的技術。',
@@ -555,7 +452,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '48',
         question:
           '在人工智慧技術中，________________可幫助解決更多問題，提高解決問題的效率；它可從使用者和輸入資料等處獲得知識或技能，重新組織已有的知識結構、使之不斷改善自身的性能。',
@@ -563,7 +459,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '49',
         question:
           '在人工智慧機器學習領域中，輸入的資料對象經過feature(特徵)的classification\n(分類)處理後的結果，稱為_____________。',
@@ -576,7 +471,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '50',
         question:
           '在智慧製造中，_____________是指對於快速變化的市場、變化的製造要求有很強的適應性。',
@@ -584,7 +478,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '51',
         question:
           '在智慧製造中，_____________是指每個整子(holon)可以請求其他整子執行某種操作行為，也可以對其他整子提出的操作申請提供服務。',
@@ -592,7 +485,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '52',
         question:
           '在智慧製造中的智慧技術中，不同結構的模組化硬體設計技術，以及實現統一資料格式、統一程式設計環境的工程軟體平臺技術等，是屬於_____________技術。',
@@ -605,7 +497,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '53',
         question:
           '在運用上，語言既是精確也是模糊的。可以想像_____________可能會給需要語音辨識、自然語言處理的機器帶來的問題。',
@@ -613,7 +504,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '54',
         question:
           '在醫療資訊系統中，即時感知、處理和分析重大的醫療事件，從而快速、有效地做出回應。這是智慧醫療的_____________特點。',
@@ -621,14 +511,12 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '55',
         question: '大數據的數據存儲單位，1 PB\n(petabyte) =_____________。',
         options: ['1,024 MB', '1,024 TB', '1,024 KB', '1,024 GB'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '56',
         question:
           '大數據系統為了獲得更廣泛的資料而犧牲了精確性，但是也看到了很多無法被關注到的細節；這樣的現象，_____________。',
@@ -641,7 +529,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '57',
         question:
           '工業4.0不僅是要從過去自動化、標準化作業(SOP)的大量生產，結合智慧互聯、智慧生產、智慧工廠，轉變為以_____________為中心的客制化生產。',
@@ -649,7 +536,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '58',
         question:
           '工業4.0智慧製造將所有的機台與生產資訊，透過_____________作整合資料應用，並且所有處理過程都是視覺化的。',
@@ -662,7 +548,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '59',
         question: '廣義的大數據與狹義的大數據差異為_____________。',
         options: [
@@ -674,7 +559,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '60',
         question:
           '從一些研究中顯示，只有_____________的數位資料是結構化的、且能適用於傳統資料庫。如果不接受混亂的資料，剩下_____________的非結構化資料都無法被利用。',
@@ -682,7 +566,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '61',
         question:
           '所謂神經網路(neural network)，是指以人腦和神經系統為模型的一種_____________演算法。',
@@ -690,7 +573,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '62',
         question:
           '數位圖像是指用數位攝像機、掃描器等設備經過採樣和數位化得到的一個大的二維陣列，該陣列的元素稱為_____________，其值為一整數，稱為灰度值。',
@@ -703,7 +585,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '63',
         question:
           '智慧城市的應用體系可能包括了智慧物流體系、智慧製造體系、智慧貿易體系、智慧能源應用體系、智慧公共服務、等一系列應用體系，但不包括智慧_____________體系。',
@@ -711,7 +592,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '64',
         question:
           '智慧家居是以_____________為平臺，通過物聯網IoT技術將家中的各種設備連接到一起，實現智慧化的一種生態系統。',
@@ -719,7 +599,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '65',
         question:
           '智慧家居系統方案的設計有一個顯著的特點，就是安裝、調試與維護的工作量非常大，需要大量的人力物力投入，成為行業發展的瓶頸。針對這個問題，系統在設計時，就應考慮安裝與維護的部分工作，系統可以通過Internet遠端調試與維護。這是屬於設計智慧家居系統遵循的_____________原則。',
@@ -727,7 +606,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '66',
         question:
           '智慧家居系統方案的設計應依照產業有關標準進行，確保系統的擴充性和擴展性，在系統傳輸上採用標準的 TCP/IP網路協定技術，保證不同家電商品之間系統可以相容與互聯。這是屬於設計智慧家居系統遵循的_____________原則。',
@@ -735,7 +613,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '67',
         question:
           '設計智慧家居時要充分考慮到用戶體驗，並注重操作的便利化和直觀性，最好能採用圖像化的控制介面，讓操作所見即所得(What you see is what you get.)，這是屬於設計智慧家居系統遵循的_____________原則。',
@@ -743,7 +620,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '68',
         question:
           '智慧製造源於人工智慧的研究，包含智慧製造_____________和智慧製造系統。',
@@ -751,7 +627,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '69',
         question: '智慧農業的英文是_____________。',
         options: [
@@ -763,7 +638,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '70',
         question:
           '為發展擬人化的特性(具有人工意識或人工大腦)，許多知名企業提出人工大腦的基本框架：例如，將人工智慧劃分為應用層、認知層、感知層、演算法層、大數據、及雲計算等幾個層。其中，資料標註技術工作是屬於_____________層。',
@@ -771,7 +645,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '71',
         question:
           '現代神經網路是一種非線性統計性資料建模工具。典型的神經網路具有三個部分，除了_____________。',
@@ -779,7 +652,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '72',
         question:
           '當我們把訓練資料送入神經網路的模型或函數學習機的學習過程中，在_____________的程度後，通常可以說這個神經網路的模型或函數學習機完成學習了。',
@@ -792,7 +664,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '73',
         question:
           '相對於聊天機器人，智慧客服系統的結構中最大的區別是增強了_____________部分，它是真正實現智慧化的核心技術。',
@@ -800,14 +671,12 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '74',
         question: '第一次的工業革命(簡稱工業1.0)是_____________的革命。',
         options: ['智能化', '機械化', '信息化', '電氣化'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '75',
         question:
           '線上影片租賃服務商Netflix\n(網飛)的主要經營業務是提供Internet隨選流媒體播放，它所依賴的關鍵服務是_____________。',
@@ -815,7 +684,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '76',
         question: '自然語言處理(NLP)是AI研究中_____________的領域之一。',
         options: [
@@ -827,7 +695,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '77',
         question:
           '語音辨識技術的最重大突破是在數位技術、積體電路技術發展之後，以及應用_____________的大詞彙量語音辨識系統，如李開復的Sphinx系統。',
@@ -840,7 +707,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '78',
         question:
           '運用人工智慧機器演算法建立的模型或函數機制，有時候會去「背考古題」，遇過的考古題全部都會，但是對於未見過的問題，有時會回答的很離譜，這種情況稱作_____________。',
@@ -853,7 +719,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '79',
         question:
           '過去，統計學家們總是把他們的興趣放在提高樣本的隨機性，而不是數量上。這是因為_____________。',
@@ -866,7 +731,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '80',
         question:
           '長期以來，人們已經發展了一些使用盡可能少資訊的技術。例如，傳統統計學的一個目的就是_____________。',
@@ -879,7 +743,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '81',
         question:
           '面向特定領域的人工智慧技術，即專用人工智慧又簡稱為_____________。',
@@ -887,7 +750,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '82',
         question:
           '便捷快速的預約掛號成為病患對醫院資源最大的需求之一。其最主要原因是______________所造成的。',
@@ -900,7 +762,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '83',
         question:
           '19世紀以來，當面臨大量資料時，社會都依賴於採樣分析。但是採樣分析是屬於_____________時代的產物。',
@@ -908,7 +769,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '84',
         question:
           'ANN是一種模仿生物神經網路，其中的_____________扮演了生物神經模型中突觸的角色，用於調節一個神經元對另一個神經元的影響程度。',
@@ -916,14 +776,12 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '85',
         question: '人工智慧生態系統指的是在_____________人工智慧的配套能力。',
         options: ['實驗', '研究', '使用和管理', '開發'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '86',
         question:
           '以深度學習(deep learning)為代表的人工智慧核心技術取得_____________，讓人工智慧的發展與應用邁向新的里程碑。',
@@ -931,7 +789,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '87',
         question:
           '以醫療資訊系統為例，智慧醫療具有的特點中不包括_____________。',
@@ -939,7 +796,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '88',
         question:
           '充分考慮公共區、商務區、居住區的不同需求，融合應用物聯網、互聯網、移動通信等各種資訊技術，發展社區政務、智慧家居系統、智慧樓宇管理、智慧社區服務、社區遠端監控、安全管理、智慧商務辦公等智慧應用系統，使居民生活“智慧化發展”。這是屬於_____________。',
@@ -952,7 +808,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '89',
         question:
           '圖形刺激作用於人類的感覺器官，人們再辨認出它是經歷過的某一圖形的過程，稱為_____________。',
@@ -960,7 +815,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '90',
         question:
           '在一個語音理解系統中，包括音位知識、音變知識、韻律知識、詞法知識、句法知識，語義知識以及語用知識等，這是屬於_____________。',
@@ -968,7 +822,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '91',
         question:
           '在一般情況下，訓練一個深度學習(DL)演算法需要很長的時間。這是因為深度學習(DL)演算法中_____________很多。',
@@ -976,7 +829,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '92',
         question:
           '在大數據時代，要想獲得大規模資料帶來的好處，混亂資料應該是一種_____________。',
@@ -989,7 +841,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '93',
         question:
           '在醫療資訊系統中，提升知識和過程處理能力，進一步推動臨床創新和研究。這是智慧醫療的_____________特點。',
@@ -997,7 +848,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '94',
         question:
           '對城市工作族的居民而言，智慧城市的基本需求要件，就是能輕鬆找到最快捷的_____________、供水供電有保障，且街道更加安全。',
@@ -1005,7 +855,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '95',
         question:
           '強化學習使用機器的個別歷史和經驗來做出決定，其經典應用是_____________。',
@@ -1013,7 +862,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '96',
         question:
           '智慧家居通過_____________技術將家中的各種設備（如多媒體影像設備、 照明系統、窗簾控制、空調控制、安防系統、數位影院系統、 影音伺服器、網路家電等）連接到一起。',
@@ -1021,7 +869,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '97',
         question:
           '智慧醫院中，實現與提升醫療服務的水準，分析患者過敏和用藥史，反映藥品產地批次等資訊，有效記錄和分析處方變更等資訊，為慢性病治療和保健提供參考。這是屬於_____________。',
@@ -1029,14 +876,12 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '98',
         question: '模式識別原本是_____________的一項基本智慧。',
         options: ['動物', '人工智慧', '人類', '電腦'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '99',
         question:
           '機器學習有三種主要類型，有人稱它們為機器學習三兄弟。下列_____________可以描述監督學習的個性。',
@@ -1049,7 +894,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '100',
         question:
           '機器學習的核心是“使用_____________解析資料，從中學習，然後對世界上的某件事情做出決定或預測”。',
@@ -1057,7 +901,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '101',
         question:
           '機器學習的主要核心是“使用_____________來解析資料，從中學習，然後對某件事情做出決定或預測”。',
@@ -1065,7 +908,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '102',
         question: '用於描述解決特定問題的步驟序列稱為_____________。',
         options: [
@@ -1077,14 +919,12 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '103',
         question: '第四次的工業革命(簡稱工業4.0)是_____________的革命。',
         options: ['信息化', '電氣化', '智能化', '機械化'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '104',
         question:
           '聊天機器人系統一般包含語音辨識、_____________、對話管理、自然語言生成、語音轉換等五個主要的功能模組。',
@@ -1097,7 +937,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '105',
         question:
           '通常設計人工智慧系統時，都會先學習並分析地球上最自然的智慧系統之一，即_____________。',
@@ -1110,7 +949,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '106',
         question:
           '_____________不僅是要從過去自動化、標準化作業(SOP)的大量生產，結合智慧互聯、智慧生產、智慧工廠，轉變為以顧客為中心的客制化生產。',
@@ -1118,7 +956,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '107',
         question:
           '_____________是人工智慧的核心技術之一，是使計算機具有智慧的根本途徑，其應用遍及人工智慧的各個領域，它主要使用歸納、綜合而不是演繹。',
@@ -1126,7 +963,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '108',
         question:
           '_____________是個大奇蹟，被認為可能是繼互聯網之後，人類最偉大的技術革命。',
@@ -1134,7 +970,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '109',
         question:
           '_____________是智慧工廠的核心，透過領先的資料收集和呈現，實現智慧工廠數位化轉型。',
@@ -1147,7 +982,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '110',
         question:
           '_____________集合了三維地理資訊系統3D-GIS、建築資訊模型BIM和物聯網IoT等多種先進技術的城市管理手段，為智慧城市發展注入了新鮮血液。',
@@ -1160,14 +994,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '111',
         question: '“人工智慧物聯網”的英文縮寫是_____________。',
         options: ['IoT', 'Smart IoT', 'AI', 'AIoT'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '112',
         question: '“智慧城市”的概念源於_____________的理念。',
         options: [
@@ -1179,7 +1011,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '113',
         question:
           '人工智慧AI在圖像識別上已經超越了人類，支援這些圖像識別技術的，通常是_____________。',
@@ -1187,14 +1018,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '114',
         question: '人工智慧成為世界各國競相戰略佈局的_____________。',
         options: ['新突破', '新動能', '新亮點', '新高地'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '115',
         question:
           '人工智慧用電腦實現的方法中，_____________系統開始常犯錯誤，但它能吸取教訓，在下一次運行時就可能改正，至少不會永遠錯下去，通常不需要發佈新版本或做修正\n(打補丁)。',
@@ -1207,7 +1036,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '116',
         question:
           '人工智慧的發展伴隨著越來越多的個人資料被記錄和分析，而在這個過程中_____________是能夠增加社會信任的重要條件。',
@@ -1220,7 +1048,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '117',
         question:
           '人工智慧經常被稱為世界三大尖端技術之一，下列說法中錯誤的是_____________。',
@@ -1233,7 +1060,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '118',
         question:
           '因為大數據是建立在_____________，所以我們才可以正確地考察細節，並進行新的分析。',
@@ -1246,7 +1072,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '119',
         question:
           '國際自動機工程師學會(SAE International)定義的自動駕駛為六級，「完全自動駕駛」的車輛是指哪一級？',
@@ -1259,7 +1084,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '120',
         question:
           '圖像採集就是從_____________獲取場景圖像的過程，是機器視覺的第一步。',
@@ -1267,7 +1091,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '121',
         question: '在大資料時代，非常新穎且有價值的觀點是_____________。',
         options: [
@@ -1279,7 +1102,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '122',
         question:
           '在每個音段上標記正確的文字，再反饋給語音辨識系統做學習。這種由人工先聽取後，並錄入正確文字的過程，稱之為_____________。',
@@ -1287,7 +1109,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '123',
         question:
           '在電商領域，通過自動採集不同管道中用戶與企業的互動資料（包括將語音對話轉換成為結構化的文字資料），加上多維度的輔助分析模型，智慧客服機器能夠幫助企業挖掘不同業務場景下的高頻話題，及時獲取某類產品/服務的市場回饋。這是_____________的應用案例。',
@@ -1300,7 +1121,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '124',
         question:
           '在電商領域，通過靈活的關鍵字匹配、情感/語速識別和智慧業務模型規則，運用智慧客服機器深入多個業務場景，對人工客服的服務態度、話術規範及處理業務的流程做出自動化的批量檢測，將質檢覆蓋率提升到100%。這是_____________的應用案例。',
@@ -1313,14 +1133,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '125',
         question: '大數據的數據存儲單位，1 TB\n(terabyte) =_____________。',
         options: ['1,024 KB', '1,024 PB', '1,024 MB', '1,024 GB'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '126',
         question:
           '如果將人工智慧分成運算資源基礎、核心技術發展與應用領域等層次，智慧機器人(intelligent robot)/ 智慧家居（smart home; intelligent home）是屬於_____________。',
@@ -1333,7 +1151,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '127',
         question:
           '我們經常把“人”這類群體分為“男”(male)、“女”(female)特徵進行抽象概括，而統稱為“性別(sex)”；這種對某一類特定群體或物件的某項特徵進行的抽象分類和概括，稱為_____________。',
@@ -1346,14 +1163,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '128',
         question: '智慧城市的英文是_____________。',
         options: ['Smart IoT', 'smart district', 'Internet city', 'smart city'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '129',
         question:
           '智慧工廠是以_____________作為基本資料的搜集機制，所得到的大數據(big data)將是整個智慧工廠的重要資產，包括歷史資料與現在的資料。',
@@ -1366,7 +1181,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '130',
         question:
           '有一個使用大數據的修護系統，把異常情況與正常情況進行對比，就知道什麼地方會出毛病。通過儘早地發現異常，系統可提醒在故障之前更換零件或者修復問題。這是使用_____________分析方法。',
@@ -1374,7 +1188,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '131',
         question:
           '有研究者認為，讓電腦擁有智商是很危險的，它可能會反抗人類。這種隱患已經在_____________中呈現過，其關鍵是允不允許機器擁有自主意識的產生與延續。',
@@ -1382,7 +1195,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '132',
         question:
           '機器學習有三種主要的類型：監督學習、非監督學習和_____________學習，各自有著不同的特點。',
@@ -1390,7 +1202,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '133',
         question:
           '現代圖像識別技術的一項不足之處是_____________，這也是目前圖像識別技術需要克服的地方。',
@@ -1403,7 +1214,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '134',
         question:
           '產品生命週期管理是一種對智慧工廠所有與產品相關的資料、在其整個生命週期內，進行管理的技術，英文簡稱為_____________。',
@@ -1411,7 +1221,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '135',
         question: '車牌辨識主要應用了_____________技術。',
         options: [
@@ -1423,7 +1232,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '136',
         question:
           '電腦的出現使資訊存儲和處理技術與應用等各個方面都發生了革命。下列說法中不正確的是_____________。',
@@ -1436,7 +1244,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '137',
         question:
           '_____________神經網路通常包括兩個特別形式的層，一為卷積層，另為池化層(pooling layer) 。卷積層用來設計些不同大小的方塊式過濾器(filter)，去找出照片的特徵，池化層則是決定方塊（好像是選區一樣）的大小，從每個選區中選出最大的值。',
@@ -1449,7 +1256,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '138',
         question:
           '一般是指從大量的資料中，通過演算法搜索隱藏於其中資訊的過程；它通常透過電腦處理與統計、線上分析處理(OLAP, online analytical processing)、情報檢索和模式識別等諸多技術或方法來實現上述目標。這是_____________技術。',
@@ -1462,7 +1268,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '139',
         question:
           '在人工智慧領域機器學習技術中，常運用建立數學的模型(model) 來預測有興趣的變數變化情況。其中，_____________分析目的是要瞭解，兩個或多個變數之間的相關程度、相關的方向(正或負相關)與強度有多少？',
@@ -1475,7 +1280,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '140',
         question:
           '在智慧製造中，_____________是指每個整子(honon)可以對其自身的操作行為作出規劃，可以對意外事件（如製造資源變化、製造任務貨物要求變動等）作出反應，並且其行為是可控的。',
@@ -1483,7 +1287,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '141',
         question:
           '在智慧製造中的系統中，幫助我們可以根據實際情況靈活的設置AGV的運行路線、呼叫派車、即時監控，智慧分析AGV的運行情況，這是_____________。',
@@ -1497,16 +1300,15 @@ const rawSubjects: Subjects = {
       },
     ],
   },
-  ail_certification_exam_multiple_choice: {
-    id: 'ail_certification_exam_multiple_choice',
-    name: 'AIL 證照檢定（多選）',
+  ai_certification_exam_multiple_choice: {
+    id: 'ai_certification_exam_multiple_choice',
+    name: 'AI 證照檢定（多選）',
     quizType: 'multiple_choice',
     quizOpen: true,
     questionCount: 20,
     timeLimit: 15,
     questions: [
       {
-        type: 'multiple_choice',
         id: '1',
         question:
           '在創建新零售時，至少要滿足_____________等四項需求。(請選擇二項)',
@@ -1516,10 +1318,9 @@ const rawSubjects: Subjects = {
           '街頭店上市場(street market)、全域行銷(overall marketing)。',
           'IP位址(IP address)、雲平臺(cloud platform)',
         ],
-        correctIndexes: [0, 1],
+        correctIndex: [0, 1],
       },
       {
-        type: 'multiple_choice',
         id: '2',
         question:
           '弱人工智慧(weak AI)又稱為專用人工智慧(ANI, artificial narrow intelligence)，應用實例有_____________。(請選擇二項)',
@@ -1529,10 +1330,9 @@ const rawSubjects: Subjects = {
           '新一代自動駕駛車',
           '家庭照護用的機器人',
         ],
-        correctIndexes: [0, 1],
+        correctIndex: [0, 1],
       },
       {
-        type: 'multiple_choice',
         id: '3',
         question:
           '有專家將強人工智慧(strong AI)分成兩類，是指_____________。(請選擇二項)',
@@ -1542,10 +1342,9 @@ const rawSubjects: Subjects = {
           '應用型的人工智慧',
           '混成式的人工智慧',
         ],
-        correctIndexes: [0, 1],
+        correctIndex: [0, 1],
       },
       {
-        type: 'multiple_choice',
         id: '4',
         question:
           '下列_____________資訊服務利用了人工智慧的機器學習技術。(請選三項(含)以上)',
@@ -1555,10 +1354,9 @@ const rawSubjects: Subjects = {
           'Netflix電影推薦',
           'QQ郵箱轉送',
         ],
-        correctIndexes: [0, 1, 2],
+        correctIndex: [0, 1, 2],
       },
       {
-        type: 'multiple_choice',
         id: '5',
         question:
           '下列屬於知識發現(knowledge discovery)的技術有_____________。(請選三項(含)以上)',
@@ -1568,34 +1366,30 @@ const rawSubjects: Subjects = {
           '序列樣式探勘(sequential pattern mining)',
           '反聚類(anti-clustering)',
         ],
-        correctIndexes: [0, 1, 2],
+        correctIndex: [0, 1, 2],
       },
       {
-        type: 'multiple_choice',
         id: '6',
         question:
           '人工智慧定義中的“智慧”，涉及到諸如_____________等問題。(請選三項(含)以上)',
         options: ['意識', '自我', '思維', '論證'],
-        correctIndexes: [0, 1, 2],
+        correctIndex: [0, 1, 2],
       },
       {
-        type: 'multiple_choice',
         id: '7',
         question:
           '人工智慧的發展突破了“三算”方面的制約因素，這“三算”包括_____________。(請選三項(含)以上)',
         options: ['算料', '演算法', '算力', '運算元'],
-        correctIndexes: [0, 1, 2],
+        correctIndex: [0, 1, 2],
       },
       {
-        type: 'multiple_choice',
         id: '8',
         question:
           '基於電腦視覺的圖像檢索，可以分為類似文本搜尋引擎的三個步驟，包括_____________。(請選三項(含)以上)',
         options: ['建立索引', '提取特徵', '查詢', '清晰'],
-        correctIndexes: [0, 1, 2],
+        correctIndex: [0, 1, 2],
       },
       {
-        type: 'multiple_choice',
         id: '9',
         question:
           '所謂“新零售”是指:個人、企業以互聯網為依託，涵蓋_____________的零售新模式。(請選三項(含)以上)',
@@ -1605,26 +1399,23 @@ const rawSubjects: Subjects = {
           '對線上服務、線下體驗以及現代物流進行深度融合',
           '能主動執行零售任務的機器人',
         ],
-        correctIndexes: [0, 1, 2],
+        correctIndex: [0, 1, 2],
       },
       {
-        type: 'multiple_choice',
         id: '10',
         question:
           '語音信號處理是一門多學科的綜合技術。它以_____________以及聲學等基本學科為基礎。(請選三項(含)以上)',
         options: ['生理學', '心理學', '語言學', '農業學'],
-        correctIndexes: [0, 1, 2],
+        correctIndex: [0, 1, 2],
       },
       {
-        type: 'multiple_choice',
         id: '11',
         question:
           'ANN(人工神經網路)從股票市場預測到_____________和許多其他應用領域都有突出的應用表現。(請選三項(含)以上)',
         options: ['汽車自主控制', '圖像模式識別', '語音辨識', '經濟預測'],
-        correctIndexes: [0, 1, 2, 3],
+        correctIndex: [0, 1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '12',
         question:
           '人工智慧AI與智慧城市的關係為_____________。(請選三項(含)以上)',
@@ -1634,10 +1425,9 @@ const rawSubjects: Subjects = {
           '人工智慧是有其特定概念與技術內涵的，AI與其它技術有明確區別，是發揮認知、分析、運籌與決策作用的關鍵技術',
           '智慧城市會隨著人工智慧技術的不斷發展深化，推演預測、自動決策等城市智慧化水準不斷提高',
         ],
-        correctIndexes: [0, 1, 2, 3],
+        correctIndex: [0, 1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '13',
         question:
           '大數據的混亂(chaos)資料，是指_____________。(請選三項(含)以上)',
@@ -1647,18 +1437,16 @@ const rawSubjects: Subjects = {
           '在大數據背景下很難做到清洗資料(data cleansing)',
           '在整合來源不同的各類資訊時，因格式不完全一致，會加大混亂程度',
         ],
-        correctIndexes: [0, 1, 2, 3],
+        correctIndex: [0, 1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '14',
         question:
           '智慧醫療以人工智慧為核心的ICT群組技術支援包括_____________等，正在顛覆醫療觀念、體系與技術及服務。(請選三項(含)以上)',
         options: ['雲運算技術', '大數據分析', '物聯網技術', '穿戴式/移動裝置'],
-        correctIndexes: [0, 1, 2, 3],
+        correctIndex: [0, 1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '15',
         question:
           '相較於一般的監督式學習的機器學習系統，深度學習系統還存在_____________的問題。(請選兩項(含)以上)',
@@ -1668,10 +1456,9 @@ const rawSubjects: Subjects = {
           '有些領域或問題，採用傳統的監督式機器學習方法，就可很好地解決問題了',
           '現在的深度學習方法不是對人腦的模擬',
         ],
-        correctIndexes: [0, 1, 2, 3],
+        correctIndex: [0, 1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '16',
         question:
           '自從SARS, MERS及新冠狀病毒COVID-19連續發生以來，作為智慧醫療體系中的區域衛生系統的發展就變成很重要，區域衛生系統可包括_____________等。(請選三項(含)以上)',
@@ -1681,10 +1468,9 @@ const rawSubjects: Subjects = {
           '運用尖端的科學和電腦技術，建立醫療單位以及其它有關組織開展疾病危險度的評價。',
           '制定規範以預防和控制疾病的發生',
         ],
-        correctIndexes: [0, 1, 2, 3],
+        correctIndex: [0, 1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '17',
         question:
           '關於資料結構化與非結構化的觀點，下列說法正確的是_____________。(請選三項(含)以上)',
@@ -1694,10 +1480,9 @@ const rawSubjects: Subjects = {
           '非結構化資料可能包括很多模糊(fuzzy)和不確定(uncertain)的數據',
           '資料結構化才能適用於傳統資料庫',
         ],
-        correctIndexes: [0, 1, 2, 3],
+        correctIndex: [0, 1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '18',
         question:
           '在知識發現(knowledge discovery)的處理流程中，有_____________等流程項目。(請選三項(含)以上)',
@@ -1708,10 +1493,9 @@ const rawSubjects: Subjects = {
           '知識評估(knowledge evaluation)',
           '資料格式轉換(data transformation)',
         ],
-        correctIndexes: [0, 1, 2, 3, 4],
+        correctIndex: [0, 1, 2, 3, 4],
       },
       {
-        type: 'multiple_choice',
         id: '19',
         question:
           '下列_____________可能是由於醫療資訊不暢，醫療資源兩極化，醫療監督機制不全等原因導致的。(請選三項(含)以上)',
@@ -1721,18 +1505,16 @@ const rawSubjects: Subjects = {
           '自然環境污染嚴重',
           '病人就診手續繁瑣',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '20',
         question:
           '人工智慧AI在數位醫療健康領域應用中已經扮演樞紐角色，應用於_____________等三大領域。(請選三項(含)以上)',
         options: ['數位醫療', '精准醫療', '專屬醫學', '預防醫學'],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '21',
         question:
           '人工智慧技術AI與三大新興技術跨領域結合，組成人工智慧物聯網，分別是指_____________。(請選三項(含)以上)',
@@ -1742,34 +1524,30 @@ const rawSubjects: Subjects = {
           '自然語言處理',
           '邊緣計算(雲計算)(cloud computing)',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '22',
         question:
           '人工智慧生態系統中三項至關重要的相關技術基礎，包括_____________。(請選三項(含)以上)',
         options: ['信任', '安全性', '潛力性', '可靠性'],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '23',
         question:
           '使城市交通系統具備普及化泛在感知、互聯、分析、預測、控制、應用等能力，是建設智慧城市的必經之路，而在智慧交通體系中，道路交通資訊搜集主要包括_____________。(請選三項(含)以上)',
         options: ['路況監視', '車輛定位', '交通控制', '旅遊資訊'],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '24',
         question:
           '使城市交通系統具備普及化泛在感知、互聯、分析、預測、控制、應用等能力，是建設智慧城市的必經之路。而在智慧交通體系中，交通資訊發佈與路況管理主要包括_____________。(請選三項(含)以上)',
         options: ['公車到站信息', '用路人信息', '交通控制', '旅遊資訊'],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '25',
         question:
           '國際市場產業研究機構(IHS, Information Handling Services)曾指出，關於現代化的城市(city)主要須具備的功能有：移動(mobility)和運輸(transport)、能源(energy)與永續(sustainability)、_____________等城市功能(city functions)。(請選三項(含)以上)',
@@ -1779,10 +1557,9 @@ const rawSubjects: Subjects = {
           '都市合併(city merging)',
           '安防(safety and security)',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '26',
         question:
           '大數據的特點可用5V或3V來代表，_____________就是3V的代表。(請選三項(含)以上)',
@@ -1792,10 +1569,9 @@ const rawSubjects: Subjects = {
           'Value (價值)',
           'Variety (種類)',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '27',
         question:
           '得益於人工智慧技術的興起，一些行業崗位將呈現出顯著的增長趨勢。例如，下面_____________等三項即是。(請選三項(含)以上)',
@@ -1805,10 +1581,9 @@ const rawSubjects: Subjects = {
           '電腦維修工程師',
           'AI硬體專家',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '28',
         question:
           '數位城市或智慧城市3S技術，是指_____________。(請選三項(含)以上)',
@@ -1818,10 +1593,9 @@ const rawSubjects: Subjects = {
           '大數據分析系統BDS',
           '遙感RS',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '29',
         question: '智慧客服的核心價值在於_____________。(請選三項(含)以上)',
         options: [
@@ -1830,34 +1604,30 @@ const rawSubjects: Subjects = {
           '為企業提高服務費用與產品價格變革助力。',
           '讓企業發現有價值的資料、隨時發現新的商機',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '30',
         question:
           '機器視覺需要_____________，以及物體建模等處理。一個有能力的視覺系統應該把所有這些處理都緊密地集成在一起。(請選三項(含)以上)',
         options: ['幾何處理和推理', '圖像信號', '圖像聚合', '紋理和顏色建模'],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '31',
         question:
           '為了發展擬人化的特性(具有人工意識或人工大腦)，許多知名企業提出人工大腦的基本框架。例如，有企業將人工智慧大腦劃分為應用層、認知層、感知層、演算法層、大數據、及雲計算等幾個層。下列_____________是屬於認知層。(請選三項(含)以上)',
         options: ['自然語言處理', '知識圖譜', '圖像識別', '用戶畫像'],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '32',
         question:
           '要完全理解大多數機器學習演算法，需要對一些關鍵的數學概念有一個基本的理解。機器學習使用的數學知識主要包括_____________。(請選三項(含)以上)',
         options: ['線性代數', '微積分', '解析幾何', '概率和統計'],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '33',
         question:
           '要落實推動工業4.0需要先從技術面、行為面、與觀念面來瞭解工業4.0的重點內涵。其中的「虛實合一系統」是_____________。(請選三項(含)以上)',
@@ -1867,10 +1637,9 @@ const rawSubjects: Subjects = {
           '光電設備為核心基礎',
           '強調創造人機協同作業',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '34',
         question:
           '通過總結人工智慧發展歷程中的經驗和教訓，我們可以得到的啟示是_____________。(請選三項(含)以上)',
@@ -1880,10 +1649,9 @@ const rawSubjects: Subjects = {
           '在人工智慧技術開發方面應遵循專利至上原則；在技術應用方面則應當遵循權責一致原則',
           '應用需求是科技創新的不竭之源，學科交叉(跨領域)是創新突破的“捷徑”，寬容失敗是支持創新中應有之義',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '35',
         question:
           '關於大數據與小數據的差異性，下列說法正確的是_____________。(請選三項(含)以上)',
@@ -1893,10 +1661,9 @@ const rawSubjects: Subjects = {
           '大數據不容易説明人們進一步接近事實的真相',
           '小資料強調數據的精確性',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '36',
         question: '關於大數據處理數據的觀點有_____________。(請選三項(含)以上)',
         options: [
@@ -1905,10 +1672,9 @@ const rawSubjects: Subjects = {
           '經過多年的發展，技術尚未成熟，尚未得到充分應用',
           '樣本=總體',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '37',
         question:
           '關於智慧工廠應變力的具體意義與功能有_____________。(請選三項(含)以上)',
@@ -1918,18 +1684,16 @@ const rawSubjects: Subjects = {
           '減少研發費用---盡量降低研究發展的人力與經費',
           '庫存水準低---零庫存為目標',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '38',
         question:
           '為了發展擬人化的特性(具有人工意識或人工大腦)，許多知名企業提出人工大腦的基本框架。例如，有企業將人工智慧大腦劃分為應用層、認知層、感知層、演算法層、大數據、及雲計算等幾個層。下列_____________是屬於感知層。(請選擇二項)',
         options: ['圖像識別', '機器學習', '語音辨識', '大數據'],
-        correctIndexes: [0, 2],
+        correctIndex: [0, 2],
       },
       {
-        type: 'multiple_choice',
         id: '39',
         question:
           '知識圖譜(knowledge graph)系統的生命週期包含四個重要環節：_____________、知識管理與知識應用。(請選兩項)',
@@ -1939,10 +1703,9 @@ const rawSubjects: Subjects = {
           '知識獲取(knowledge acquisition)',
           '知識評估(knowledge evaluation)',
         ],
-        correctIndexes: [0, 2],
+        correctIndex: [0, 2],
       },
       {
-        type: 'multiple_choice',
         id: '40',
         question: '關於智慧交通的英文為_____________。(請選擇二項)',
         options: [
@@ -1951,10 +1714,9 @@ const rawSubjects: Subjects = {
           'intelligent transportation systems',
           'Internet transportation systems',
         ],
-        correctIndexes: [0, 2],
+        correctIndex: [0, 2],
       },
       {
-        type: 'multiple_choice',
         id: '41',
         question:
           '人工智慧經常被並列稱為世界三大尖端技術之一，下列說法正確的是_____________。(請選三項(含)以上)',
@@ -1964,18 +1726,16 @@ const rawSubjects: Subjects = {
           '空間技術、能源技術、人工智慧',
           '人工智慧已成為一個獨立的學科分支，無論在理論和實踐上都已自成系統',
         ],
-        correctIndexes: [0, 2, 3],
+        correctIndex: [0, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '42',
         question:
           '圖像識別的發展經歷了三個階段，包括_____________等。(請選三項(含)以上)',
         options: ['文字識別', '圖元識別', '物體識別', '數位影像處理與識別'],
-        correctIndexes: [0, 2, 3],
+        correctIndex: [0, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '43',
         question:
           '在大規模個性化定制的生產需求下，企業從工業3.0自動化工廠升級為工業4.0智慧工廠的運作模式通常會考慮的處理方式有_____________。(請選三項(含)以上)',
@@ -1985,34 +1745,30 @@ const rawSubjects: Subjects = {
           '舊機台盡量採外掛式提升智能',
           '建立智慧工廠平臺',
         ],
-        correctIndexes: [0, 2, 3],
+        correctIndex: [0, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '44',
         question:
           '影像處理技術的主要內容包括3個部分，包括_____________等。(請選三項(含)以上)',
         options: ['匹配、描述和識別', '數據排序', '圖像壓縮', '增強和復原'],
-        correctIndexes: [0, 2, 3],
+        correctIndex: [0, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '45',
         question:
           '智慧城市經常與_____________、無線城市、生態城市、低碳城市等區域發展概念相交叉，甚至與電子政務(行政事務)、智慧交通、智慧電網等行業資訊化概念產生重疊。(請選三項(含)以上)',
         options: ['數字城市', '宜居城市', '感知城市', '智能城市'],
-        correctIndexes: [0, 2, 3],
+        correctIndex: [0, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '46',
         question:
           '有研究指出，人工智慧可能會給人類社會帶來潛在威脅，包括_____________。(請選三項(含)以上)',
         options: ['物理安全', '年長者安全', '數位安全', '政治安全'],
-        correctIndexes: [0, 2, 3],
+        correctIndex: [0, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '47',
         question:
           '目前智慧客服還不能完全取代人工客服。企業將智慧客服更多地用於_____________等方式進行。(請選擇二項)',
@@ -2022,10 +1778,9 @@ const rawSubjects: Subjects = {
           '對用戶意圖的理解和預測及需求上，以調升或調降產品的售價',
           '複雜問題由智慧客服轉到人工客服',
         ],
-        correctIndexes: [0, 3],
+        correctIndex: [0, 3],
       },
       {
-        type: 'multiple_choice',
         id: '48',
         question:
           '立足於大數據思維，將城市交通資料有條件地開放，其中_____________等，就是基於開放的資料(open data)進行資料融合、深度挖掘的實際應用案例。(請選兩項)',
@@ -2035,10 +1790,9 @@ const rawSubjects: Subjects = {
           '高速路上每部車輛定位App即時位置的查詢',
           '飛機航班App起降即時情況的查詢',
         ],
-        correctIndexes: [0, 3],
+        correctIndex: [0, 3],
       },
       {
-        type: 'multiple_choice',
         id: '49',
         question: '關於大數據說法正確的是_____________。(請選兩項)',
         options: [
@@ -2047,10 +1801,9 @@ const rawSubjects: Subjects = {
           '在大數據背景下很容易做到清洗資料(data cleansing)',
           '“資料採擷”(data mining)的數據分析或挖掘技術的產生或需求，是在進行”雲計算”時，需要從大量數據中挖掘有用的資訊',
         ],
-        correctIndexes: [0, 3],
+        correctIndex: [0, 3],
       },
       {
-        type: 'multiple_choice',
         id: '50',
         question:
           'AGI ( artificial general intelligence)通用人工智慧又稱為強人工智慧，應用實例有_____________。(請選擇二項)',
@@ -2060,10 +1813,9 @@ const rawSubjects: Subjects = {
           '新一代自動駕駛車',
           '車牌辨識系統',
         ],
-        correctIndexes: [1, 2],
+        correctIndex: [1, 2],
       },
       {
-        type: 'multiple_choice',
         id: '51',
         question: '下面_____________是屬於深度學習的技術。(請選三項(含)以上)',
         options: [
@@ -2072,34 +1824,30 @@ const rawSubjects: Subjects = {
           '卷積神經網路(convolutional neural network, CNN)',
           '遞迴神經網路(recursive neural network, RNN)',
         ],
-        correctIndexes: [1, 2, 3],
+        correctIndex: [1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '52',
         question:
           '人工智慧當前的發展具有“四新”特徵，包括新挑戰以及_____________等。(請選三項(含)以上)',
         options: ['新能源', '新突破', '新高地', '新動能'],
-        correctIndexes: [1, 2, 3],
+        correctIndex: [1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '53',
         question:
           '圖像識別的主要方法有三種模式，包括_____________等模式。(請選三項(含)以上)',
         options: ['圖元模式', '模糊模式', '結構模式', '統計模式'],
-        correctIndexes: [1, 2, 3],
+        correctIndex: [1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '54',
         question:
           '在圖像識別領域中，模式識別是一門與概率、統計緊密結合的科學，主要分為_____________模式識別等三種。(請選三項(含)以上)',
         options: ['智能', '句法', '統計', '模糊'],
-        correctIndexes: [1, 2, 3],
+        correctIndex: [1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '55',
         question:
           '目前深度學習(deep learning)各種神經網路的演算法，主要是基於_____________的方法。(請選三項(含)以上)',
@@ -2109,18 +1857,16 @@ const rawSubjects: Subjects = {
           '發現規則自學習(self-learning)',
           '海量資料為輸入的',
         ],
-        correctIndexes: [1, 2, 3],
+        correctIndex: [1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '56',
         question:
           '要建立一套語音理解系統需要有_____________等三類知識或技術的支援。(請選三項(含)以上)',
         options: ['知識處理', '語音知識', '語音辨識', '語音特徵'],
-        correctIndexes: [1, 2, 3],
+        correctIndex: [1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '57',
         question:
           '在智慧家居中，各網路家電要實現家電間互聯和資訊交換，需要解決的技術問題有_____________。(請選擇二項)',
@@ -2130,10 +1876,9 @@ const rawSubjects: Subjects = {
           '描述家電工作特性的產品模型與規格，使得資料的交換具有特定含義與介面',
           '在解決資訊傳輸的網路媒介，可選擇的方案有：電力線、無線射頻、雙絞線、同軸電纜、紅外線、光纖等',
         ],
-        correctIndexes: [2, 3],
+        correctIndex: [2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '58',
         question:
           '在電腦上實現人工智慧常見的有2種不同方式，其中，_____________等兩種是屬於模擬法(modeling approach)。(請選擇二項)',
@@ -2143,10 +1888,9 @@ const rawSubjects: Subjects = {
           '遺傳演算法(Generic Algorithm, GA)',
           '人工神經網路(Artificial Neural Network, ANN)',
         ],
-        correctIndexes: [2, 3],
+        correctIndex: [2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '59',
         question:
           '網路家電技術包括兩個層面。分別是__________。（請選擇二項(含)以上）',
@@ -2156,10 +1900,9 @@ const rawSubjects: Subjects = {
           '不同家電之間能夠互相識別、協同工作',
           '使用5G網路技術將普通家用電器設計改進為高速家電',
         ],
-        correctIndexes: [0, 2],
+        correctIndex: [0, 2],
       },
       {
-        type: 'multiple_choice',
         id: '60',
         question: '下列關於人工智慧的說法何者正確?',
         options: [
@@ -2168,10 +1911,9 @@ const rawSubjects: Subjects = {
           '自1946年以來，人工智慧學科經過多年的發展，已經趨於成熟，得到充分應用。',
           '人工智慧不是人的智慧，但能像人那樣思考，甚至也可能超過人的智慧。',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
       {
-        type: 'multiple_choice',
         id: '61',
         question:
           '在知識發現(knowledge discovery)的流程中，屬於資料預處理(data preprocessing)的工作有_____________。(請選擇二項(含)以上)',
@@ -2181,10 +1923,9 @@ const rawSubjects: Subjects = {
           '對篩選出來的資料進行初步檢驗，確保資料正確性與完整性',
           '挑選出與分析目標有關的資料',
         ],
-        correctIndexes: [1, 2, 3],
+        correctIndex: [1, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '62',
         question:
           '物聯網IoT技術在醫療領域的應用潛力巨大，利用物聯網技術構建“電子醫療”服務體系，可以為醫療服務領域帶來進步。包括_____________等都是因物聯網技術帶來的便利。(請選擇二項(含)以上)',
@@ -2194,10 +1935,9 @@ const rawSubjects: Subjects = {
           '把現有的醫療監護設備無線化連線，進而大大降低公眾醫療負擔',
           '通過資訊化手段實現遠端醫療和自助醫療，有利於緩解醫療資源緊缺的壓力',
         ],
-        correctIndexes: [0, 2, 3],
+        correctIndex: [0, 2, 3],
       },
       {
-        type: 'multiple_choice',
         id: '63',
         question:
           '智慧家居產品被稱為“輕巧”型的產品，具有_____________的特點。(請選擇二項(含)以上)',
@@ -2207,217 +1947,188 @@ const rawSubjects: Subjects = {
           '智慧Internet小家電',
           '無需施工部署，功能可自由搭配組合',
         ],
-        correctIndexes: [0, 1, 3],
+        correctIndex: [0, 1, 3],
       },
     ],
   },
-  ail_certification_exam_true_false: {
-    id: 'ail_certification_exam_true_false',
-    name: 'AIL 證照檢定（是非）',
+  ai_certification_exam_true_false: {
+    id: 'ai_certification_exam_true_false',
+    name: 'AI 證照檢定（是非）',
     quizType: 'true_false',
-    quizOpen: true,
+    quizOpen: false,
     questionCount: 29,
-    timeLimit: 10,
+    timeLimit: 0,
     questions: [
       {
-        type: 'true_false',
         id: '1',
         question:
           '智慧城市實質上是運用現代資訊技術推動城市運行系統的互聯、整合、高效和智慧，以達到為城市人創造更加美好的生活，使城市發展更加舒適便利、安全和諧、更具活力。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '2',
         question:
           '建立在相關關係分析法(correlation analysis)基礎上的預測是大數據的核心。這種預測發生的頻率非常高，經常會有它的創新性，而且應用會越來越多。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '3',
         question:
           '當用戶量過大時，企業有限的客服能力會成為用戶滿意度下降的一個原因，而採用非人工的智慧客服方式就可幫助為企業解決這一問題。',
-        correctAnswer: false,
+        correct: false,
       },
       {
-        type: 'true_false',
         id: '4',
         question:
           '世界衛生組織（WHO）對「智慧醫療」定義為：資訊通訊科技(ICT)在醫療及健康領域的應用，包括醫療照護、疾病管理、公共衛生監測、教育和研究。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '5',
         question:
           '大數據的混亂(chaos)資料，簡單地說就是隨著資料的增加，錯誤率也會相應增加。在整合來源不同的各類資訊的時候，因為它們通常不完全一致，所以也會讓大數據加大混亂程度。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '6',
         question:
           '若與一般未經訓練過的圖像識別系統相比較，人類的圖像識別能力是很強的。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '7',
         question:
           '隨著“新零售”模式的逐步落地，線上和線下將從原來的相對獨立、相互衝突逐漸轉化為互為促進、彼此融合，電子商務的表現形式和商業路徑必定會發生根本性的轉變。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '8',
         question:
           '工業4.0不僅是自動化，而是「整條價值鏈全週期管理與服務」的新觀念。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '9',
         question: '簡單地說，深度學習DL可以理解為進行“特徵學習”或“表示學習”。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '10',
         question: '未來的智慧交通將會是車車相聯、車路相聯的車聯網環境。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '12',
         question:
           '在機器學習眾多技術中，又以深度學習(DP)所取得的進步最為顯著。深度學習所帶來的重大技術革命之一，甚至有可能顛覆過去長期以來人們對互聯網技術的認知，實現技術體驗的跨越式發展。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '13',
         question:
           '全球各先進國家，在有些地區的城鎮開始探索如何以數位城市(digital city)建設的基礎上，繼續推動智慧城市的建設。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '14',
         question: '語音辨識是實現語音自動控制的基礎之一。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '15',
         question:
           '人工智慧AI是研究如何應用電腦的軟/硬體來類比人類某些智慧行為的基本理論、方法和技術。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '16',
         question:
           '在大數據時代中，雖然相關關係是無法預知未來的，但是它只能預測可能發生的事情。對大數據分析師而言，已經極其珍貴了。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '18',
         question:
           'AGV自動導引運輸車是智能製造中物流系統的關鍵設備之一，通常是以電池為動力，進行非接觸式導引。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '20',
         question:
           '谷歌的流感趨勢預測是透過分析整個資料庫，分析了全美國幾十億條互聯網檢索記錄。這樣才能提高微觀層面分析的準確性，甚至能夠推測出美國某特定城市的流感狀況。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '21',
         question:
           '在智慧醫療中，醫生工作站的核心工作是採集、存儲、傳輸、處理和瞭解病人健康狀況，和醫療資訊的查詢與應用。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '22',
         question:
           '機器學習ML新階段的重要表現之一是：機器學習成為新的邊緣學科，並且在很多大學成為一門課程。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '23',
         question:
           '從應用面而言，機器人專家將機器人分為兩大類，即製造環境下的工業機器人和非製造環境下的服務與仿人型機器人（特種機器人）。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '24',
         question:
           '在智慧製造的運作過程中，是允許被授權使用的客戶(網路用戶端)，可以透過網路，瞭解客戶本身的訂單執行的形況或結果。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '26',
         question:
           '目前人工智慧AI最關鍵的難題是機器自主創造性思維能力的塑造與提升。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '27',
         question:
           '深度學習DL的特徵學習(表徵學習)是通過機器學習技術自身來產生特徵，這種新的觀念與技術使機器學習向“全自動資料分析”又前進了一步。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '29',
         question:
           '人工智慧充滿未知且曲折起伏的探索道路，但可以預測人工智慧AI未來將無所不在(ubiquitous)的深入各行各業應用之中。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '30',
         question:
           '智慧製造、智慧醫療、智慧安防、智慧零售、智慧家居等商業和應用是屬於人工智慧生態系統的橫向。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '32',
         question:
           '在無法利用已有傳統管制技術的條件下，想要保障人類社會使用人工智慧的安全，必須另闢蹊徑，保證人工智慧技術本身及在各個領域的應用，都遵循人類社會所認同的倫理原則。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '33',
         question:
           '目前的人工智慧系統可謂：有聰明智能但沒智慧、有智商卻沒情商、會計算但不會“算計”、有專才卻無通才。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '34',
         question:
           '智慧交通的建設將推進智慧城市的發展成效，智慧城市的發展成果也反映在智慧交通。',
-        correctAnswer: true,
+        correct: true,
       },
       {
-        type: 'true_false',
         id: '35',
         question:
           '與傳統的辦公網路及純粹的“家庭局域網”相比，家用網路加入了很多家庭應用產品和系統。例如，家電設備、照明系統等。因此，家用網路相應技術標準也錯綜複雜，其發展趨勢是將智慧家居其它系統融合進去。',
-        correctAnswer: true,
+        correct: true,
       },
     ],
   },
@@ -2425,1597 +2136,1597 @@ const rawSubjects: Subjects = {
     id: 'pvqc_ai',
     name: 'PVQC AI',
     quizOpen: false,
-    questionCount: 20,
-    timeLimit: 10,
+    questionCount: 0,
+    timeLimit: 0,
     quizType: 'vocabulary',
     questions: [
       {
-        type: 'vocabulary',
         id: '1',
         english: 'non-causal',
         chinese: '(adj)非因果',
+        audioUrl: '',
         audioFile: 'audio-1.mp3',
       },
       {
-        type: 'vocabulary',
         id: '2',
         english: 'algorithm',
         chinese: '(n)演算法；互除法；規則系統',
+        audioUrl: '',
         audioFile: 'audio-2.mp3',
       },
       {
-        type: 'vocabulary',
         id: '3',
         english: 'intelligence',
         chinese: '(n)智能；智慧；理解力；情報；情報工作',
+        audioUrl: '',
         audioFile: 'audio-3.mp3',
       },
       {
-        type: 'vocabulary',
         id: '4',
         english: 'heuristic',
         chinese: '(adj)啟發式的；(電腦程式)探索的',
+        audioUrl: '',
         audioFile: 'audio-4.mp3',
       },
       {
-        type: 'vocabulary',
         id: '5',
         english: 'knowledge',
         chinese: '(n)知識；學識',
+        audioUrl: '',
         audioFile: 'audio-5.mp3',
       },
       {
-        type: 'vocabulary',
         id: '6',
         english: 'positioning',
         chinese: '(n)定位',
+        audioUrl: '',
         audioFile: 'audio-6.mp3',
       },
       {
-        type: 'vocabulary',
         id: '7',
         english: 'stream',
         chinese: '(n)串流',
+        audioUrl: '',
         audioFile: 'audio-7.mp3',
       },
       {
-        type: 'vocabulary',
         id: '8',
         english: 'linear',
         chinese: '(adj)線的；直線的；使用線的',
+        audioUrl: '',
         audioFile: 'audio-8.mp3',
       },
       {
-        type: 'vocabulary',
         id: '9',
         english: 'intelligent',
         chinese: '(adj)智能化',
+        audioUrl: '',
         audioFile: 'audio-9.mp3',
       },
       {
-        type: 'vocabulary',
         id: '10',
         english: 'digitalize',
         chinese: '(v/adj)數位化',
+        audioUrl: '',
         audioFile: 'audio-10.mp3',
       },
       {
-        type: 'vocabulary',
         id: '11',
         english: 'terabyte',
         chinese: '(n)等於1000GB；萬億位元組；太位元組',
+        audioUrl: '',
         audioFile: 'audio-11.mp3',
       },
       {
-        type: 'vocabulary',
         id: '12',
         english: 'threshold',
         chinese: '(n)門檻；閾值；起點',
+        audioUrl: '',
         audioFile: 'audio-12.mp3',
       },
       {
-        type: 'vocabulary',
         id: '13',
         english: 'strong',
         chinese: '(adj/adv)強壯的；強健的；強大的',
+        audioUrl: '',
         audioFile: 'audio-13.mp3',
       },
       {
-        type: 'vocabulary',
         id: '14',
         english: 'speech',
         chinese: '(n)語音；說話；說話能力；言詞',
+        audioUrl: '',
         audioFile: 'audio-14.mp3',
       },
       {
-        type: 'vocabulary',
         id: '15',
         english: 'energy',
         chinese: '(n)能源',
+        audioUrl: '',
         audioFile: 'audio-15.mp3',
       },
       {
-        type: 'vocabulary',
         id: '16',
         english: 'session',
         chinese: '(phr)對話；開會；會議',
+        audioUrl: '',
         audioFile: 'audio-16.mp3',
       },
       {
-        type: 'vocabulary',
         id: '17',
         english: 'explanation',
         chinese: '(phr)解釋；說明',
+        audioUrl: '',
         audioFile: 'audio-17.mp3',
       },
       {
-        type: 'vocabulary',
         id: '18',
         english: 'confidence',
         chinese: '(n)信賴度',
+        audioUrl: '',
         audioFile: 'audio-18.mp3',
       },
       {
-        type: 'vocabulary',
         id: '19',
         english: 'hyperlink',
         chinese: '(n)連結；超連結',
+        audioUrl: '',
         audioFile: 'audio-19.mp3',
       },
       {
-        type: 'vocabulary',
         id: '20',
         english: 'domain',
         chinese: '(n)領域；領土；領地',
+        audioUrl: '',
         audioFile: 'audio-20.mp3',
       },
       {
-        type: 'vocabulary',
         id: '21',
         english: 'retrieval',
         chinese: '(n)檢索；取回',
+        audioUrl: '',
         audioFile: 'audio-21.mp3',
       },
       {
-        type: 'vocabulary',
         id: '22',
         english: 'virtual',
         chinese: '(adj)虛擬的',
+        audioUrl: '',
         audioFile: 'audio-22.mp3',
       },
       {
-        type: 'vocabulary',
         id: '23',
         english: 'translation',
         chinese: '(n)翻譯；譯文',
+        audioUrl: '',
         audioFile: 'audio-23.mp3',
       },
       {
-        type: 'vocabulary',
         id: '24',
         english: 'probability',
         chinese: '(n)概率；或然率；機率',
+        audioUrl: '',
         audioFile: 'audio-24.mp3',
       },
       {
-        type: 'vocabulary',
         id: '25',
         english: 'inheritance',
         chinese: '(n)繼承；繼承權',
+        audioUrl: '',
         audioFile: 'audio-25.mp3',
       },
       {
-        type: 'vocabulary',
         id: '26',
         english: 'safety',
         chinese: '(n)安全',
+        audioUrl: '',
         audioFile: 'audio-26.mp3',
       },
       {
-        type: 'vocabulary',
         id: '27',
         english: 'statistical',
         chinese: '(adj)統計；統計學的',
+        audioUrl: '',
         audioFile: 'audio-27.mp3',
       },
       {
-        type: 'vocabulary',
         id: '28',
         english: 'geographic',
         chinese: '(adj)地理學的；地理的',
+        audioUrl: '',
         audioFile: 'audio-28.mp3',
       },
       {
-        type: 'vocabulary',
         id: '29',
         english: 'signal',
         chinese: '(n)信號；暗號',
+        audioUrl: '',
         audioFile: 'audio-29.mp3',
       },
       {
-        type: 'vocabulary',
         id: '30',
         english: 'transmission',
         chinese: '(n)傳輸；傳送；傳達',
+        audioUrl: '',
         audioFile: 'audio-30.mp3',
       },
       {
-        type: 'vocabulary',
         id: '31',
         english: 'management',
         chinese: '(n)管理；經營；處理',
+        audioUrl: '',
         audioFile: 'audio-31.mp3',
       },
       {
-        type: 'vocabulary',
         id: '32',
         english: 'uncertain',
         chinese: '(adj)不明確的；含糊的；不確定的',
+        audioUrl: '',
         audioFile: 'audio-32.mp3',
       },
       {
-        type: 'vocabulary',
         id: '33',
         english: 'programming',
         chinese: '(n)程式設計；撰寫程式',
+        audioUrl: '',
         audioFile: 'audio-33.mp3',
       },
       {
-        type: 'vocabulary',
         id: '34',
         english: 'governance',
         chinese: '(n)治理',
+        audioUrl: '',
         audioFile: 'audio-34.mp3',
       },
       {
-        type: 'vocabulary',
         id: '35',
         english: 'stream',
         chinese: '(n)串流',
+        audioUrl: '',
         audioFile: 'audio-35.mp3',
       },
       {
-        type: 'vocabulary',
         id: '36',
         english: 'artificial',
         chinese: '(adj)人工的；人造的；假的',
+        audioUrl: '',
         audioFile: 'audio-36.mp3',
       },
       {
-        type: 'vocabulary',
         id: '37',
         english: 'causal',
         chinese: '(adj)原因的；因果的',
+        audioUrl: '',
         audioFile: 'audio-37.mp3',
       },
       {
-        type: 'vocabulary',
         id: '38',
         english: 'autonomic',
         chinese: '(adj)自治的；自律的',
+        audioUrl: '',
         audioFile: 'audio-38.mp3',
       },
       {
-        type: 'vocabulary',
         id: '39',
         english: 'listening',
         chinese: '(n)傾聽',
+        audioUrl: '',
         audioFile: 'audio-39.mp3',
       },
       {
-        type: 'vocabulary',
         id: '40',
         english: 'global',
         chinese: '(adj)球狀的；全世界',
+        audioUrl: '',
         audioFile: 'audio-40.mp3',
       },
       {
-        type: 'vocabulary',
         id: '41',
         english: 'object',
         chinese: '(n)物件；物體；對象；目標',
+        audioUrl: '',
         audioFile: 'audio-41.mp3',
       },
       {
-        type: 'vocabulary',
         id: '42',
         english: 'sensor',
         chinese: '(n)感應器；傳感器',
+        audioUrl: '',
         audioFile: 'audio-42.mp3',
       },
       {
-        type: 'vocabulary',
         id: '43',
         english: 'charge',
         chinese: '(n)充電；電荷',
+        audioUrl: '',
         audioFile: 'audio-43.mp3',
       },
       {
-        type: 'vocabulary',
         id: '44',
         english: 'Medline',
         chinese: '(n)一個醫療知識網站',
+        audioUrl: '',
         audioFile: 'audio-44.mp3',
       },
       {
-        type: 'vocabulary',
         id: '45',
         english: 'binary',
         chinese: '(adj/n)二元的；二進位的；由二部分構成的；二進位數；一雙',
+        audioUrl: '',
         audioFile: 'audio-45.mp3',
       },
       {
-        type: 'vocabulary',
         id: '46',
         english: 'coronary',
         chinese: '(adj/n)冠心病；冠狀的；冠狀動脈的',
+        audioUrl: '',
         audioFile: 'audio-46.mp3',
       },
       {
-        type: 'vocabulary',
         id: '47',
         english: 'informatics',
         chinese: '(n)信息學；資訊學',
+        audioUrl: '',
         audioFile: 'audio-47.mp3',
       },
       {
-        type: 'vocabulary',
         id: '48',
         english: 'engineer',
         chinese: '(n)工程師',
+        audioUrl: '',
         audioFile: 'audio-48.mp3',
       },
       {
-        type: 'vocabulary',
         id: '49',
         english: 'condition',
         chinese: '(n)情況；環境；形勢',
+        audioUrl: '',
         audioFile: 'audio-49.mp3',
       },
       {
-        type: 'vocabulary',
         id: '50',
         english: 'computer',
         chinese: '(n)電腦',
+        audioUrl: '',
         audioFile: 'audio-50.mp3',
       },
       {
-        type: 'vocabulary',
         id: '51',
         english: 'graphic',
         chinese: '(adj)圖解的；繪畫的',
+        audioUrl: '',
         audioFile: 'audio-51.mp3',
       },
       {
-        type: 'vocabulary',
         id: '52',
         english: 'genome',
         chinese: '(n)基因組',
+        audioUrl: '',
         audioFile: 'audio-52.mp3',
       },
       {
-        type: 'vocabulary',
         id: '53',
         english: 'sampling',
         chinese: '(n/adj)採樣',
+        audioUrl: '',
         audioFile: 'audio-53.mp3',
       },
       {
-        type: 'vocabulary',
         id: '54',
         english: 'eHealth',
         chinese: '(phr)智慧醫療',
+        audioUrl: '',
         audioFile: 'audio-54.mp3',
       },
       {
-        type: 'vocabulary',
         id: '55',
         english: 'transmission',
         chinese: '(n)傳輸；傳送；傳達',
+        audioUrl: '',
         audioFile: 'audio-55.mp3',
       },
       {
-        type: 'vocabulary',
         id: '56',
         english: 'remote',
         chinese: '(adj)相隔很遠的；遙遠的',
+        audioUrl: '',
         audioFile: 'audio-56.mp3',
       },
       {
-        type: 'vocabulary',
         id: '57',
         english: 'medical',
         chinese: '(adj)醫學的；醫術的；醫療的',
+        audioUrl: '',
         audioFile: 'audio-57.mp3',
       },
       {
-        type: 'vocabulary',
         id: '58',
         english: 'precision',
         chinese: '(n)精度；準確度',
+        audioUrl: '',
         audioFile: 'audio-58.mp3',
       },
       {
-        type: 'vocabulary',
         id: '59',
         english: 'bearing',
         chinese: '(n)軸承',
+        audioUrl: '',
         audioFile: 'audio-59.mp3',
       },
       {
-        type: 'vocabulary',
         id: '60',
         english: 'production',
         chinese: '(n)生產；產生式；製作',
+        audioUrl: '',
         audioFile: 'audio-60.mp3',
       },
       {
-        type: 'vocabulary',
         id: '61',
         english: 'syntax',
         chinese: '(n)語法；句法',
+        audioUrl: '',
         audioFile: 'audio-61.mp3',
       },
       {
-        type: 'vocabulary',
         id: '62',
         english: 'decision',
         chinese: '(n)決策；決定；決心；判斷',
+        audioUrl: '',
         audioFile: 'audio-62.mp3',
       },
       {
-        type: 'vocabulary',
         id: '63',
         english: 'transport',
         chinese: '(n)運送；運輸；搬運',
+        audioUrl: '',
         audioFile: 'audio-63.mp3',
       },
       {
-        type: 'vocabulary',
         id: '64',
         english: 'language',
         chinese: '(n)語言；語言文字',
+        audioUrl: '',
         audioFile: 'audio-64.mp3',
       },
       {
-        type: 'vocabulary',
         id: '65',
         english: 'chatbots',
         chinese: '(phr)聊天機器人',
+        audioUrl: '',
         audioFile: 'audio-65.mp3',
       },
       {
-        type: 'vocabulary',
         id: '66',
         english: 'computational',
         chinese: '(adj)運算；計算的；計算機的',
+        audioUrl: '',
         audioFile: 'audio-66.mp3',
       },
       {
-        type: 'vocabulary',
         id: '67',
         english: 'correlationship',
         chinese: '(n)相關關係',
+        audioUrl: '',
         audioFile: 'audio-67.mp3',
       },
       {
-        type: 'vocabulary',
         id: '68',
         english: 'demand',
         chinese: '(v/n)請求；需求；需要',
+        audioUrl: '',
         audioFile: 'audio-68.mp3',
       },
       {
-        type: 'vocabulary',
         id: '69',
         english: 'correlation',
         chinese: '(n)相互關係；關聯',
+        audioUrl: '',
         audioFile: 'audio-69.mp3',
       },
       {
-        type: 'vocabulary',
         id: '70',
         english: 'analytic',
         chinese: '(adj)分析的',
+        audioUrl: '',
         audioFile: 'audio-70.mp3',
       },
       {
-        type: 'vocabulary',
         id: '71',
         english: 'transformation',
         chinese: '(n)轉換；變換',
+        audioUrl: '',
         audioFile: 'audio-71.mp3',
       },
       {
-        type: 'vocabulary',
         id: '72',
         english: 'Internet',
         chinese: '(n)網際網路；互聯網',
+        audioUrl: '',
         audioFile: 'audio-72.mp3',
       },
       {
-        type: 'vocabulary',
         id: '73',
         english: 'encapsulation',
         chinese: '(n)封裝；概括',
+        audioUrl: '',
         audioFile: 'audio-73.mp3',
       },
       {
-        type: 'vocabulary',
         id: '74',
         english: 'function',
         chinese: '(n)函數；功能；作用；官能；職務；職責',
+        audioUrl: '',
         audioFile: 'audio-74.mp3',
       },
       {
-        type: 'vocabulary',
         id: '75',
         english: 'sustainability',
         chinese: '(n)永續',
+        audioUrl: '',
         audioFile: 'audio-75.mp3',
       },
       {
-        type: 'vocabulary',
         id: '76',
         english: 'semantic',
         chinese: '(adj)語意的；語意學的',
+        audioUrl: '',
         audioFile: 'audio-76.mp3',
       },
       {
-        type: 'vocabulary',
         id: '77',
         english: 'neighbor',
         chinese: '(n/adj)鄰居；鄰近的；鄰接的',
+        audioUrl: '',
         audioFile: 'audio-77.mp3',
       },
       {
-        type: 'vocabulary',
         id: '78',
         english: 'evidence',
         chinese: '(n/v)證據；證詞；證人；物證',
+        audioUrl: '',
         audioFile: 'audio-78.mp3',
       },
       {
-        type: 'vocabulary',
         id: '79',
         english: 'pseudo',
         chinese: '(adj/n)假的；冒充的；假冒的人；偽君子',
+        audioUrl: '',
         audioFile: 'audio-79.mp3',
       },
       {
-        type: 'vocabulary',
         id: '80',
         english: 'prediction',
         chinese: '(n)預測',
+        audioUrl: '',
         audioFile: 'audio-80.mp3',
       },
       {
-        type: 'vocabulary',
         id: '81',
         english: 'resource',
         chinese: '(n)資源；物力；對策',
+        audioUrl: '',
         audioFile: 'audio-81.mp3',
       },
       {
-        type: 'vocabulary',
         id: '82',
         english: 'big data',
         chinese: '(phr)大數據',
+        audioUrl: '',
         audioFile: 'audio-82.mp3',
       },
       {
-        type: 'vocabulary',
         id: '83',
         english: 'particle',
         chinese: '(phr)粒子；顆粒',
+        audioUrl: '',
         audioFile: 'audio-83.mp3',
       },
       {
-        type: 'vocabulary',
         id: '84',
         english: 'assumption',
         chinese: '(n)假定；設想',
+        audioUrl: '',
         audioFile: 'audio-84.mp3',
       },
       {
-        type: 'vocabulary',
         id: '85',
         english: 'swarm behavior',
         chinese: '(n)群體行為',
+        audioUrl: '',
         audioFile: 'audio-85.mp3',
       },
       {
-        type: 'vocabulary',
         id: '86',
         english: 'business intelligence',
         chinese: '(phr)商業智慧',
+        audioUrl: '',
         audioFile: 'audio-86.mp3',
       },
       {
-        type: 'vocabulary',
         id: '87',
         english: 'feature map',
         chinese: '(phr)特徵圖像',
+        audioUrl: '',
         audioFile: 'audio-87.mp3',
       },
       {
-        type: 'vocabulary',
         id: '88',
         english: 'physical',
         chinese: '(adj/n)實體的；物理的；物質的',
+        audioUrl: '',
         audioFile: 'audio-88.mp3',
       },
       {
-        type: 'vocabulary',
         id: '89',
         english: 'mobility',
         chinese: '(n)移動',
+        audioUrl: '',
         audioFile: 'audio-89.mp3',
       },
       {
-        type: 'vocabulary',
         id: '90',
         english: 'intermediate',
         chinese: '(adj/n)中間的；居中的；中級的',
+        audioUrl: '',
         audioFile: 'audio-90.mp3',
       },
       {
-        type: 'vocabulary',
         id: '91',
         english: 'analyst',
         chinese: '(n)分析師；分析者；善於分析者',
+        audioUrl: '',
         audioFile: 'audio-91.mp3',
       },
       {
-        type: 'vocabulary',
         id: '92',
         english: 'nonlinear',
         chinese: '(adj)非線性的',
+        audioUrl: '',
         audioFile: 'audio-92.mp3',
       },
       {
-        type: 'vocabulary',
         id: '93',
         english: 'customer',
         chinese: '(n)客戶；顧客；買主',
+        audioUrl: '',
         audioFile: 'audio-93.mp3',
       },
       {
-        type: 'vocabulary',
         id: '94',
         english: 'contral',
         chinese: '(n/v)控制；支配；管理',
+        audioUrl: '',
         audioFile: 'audio-94.mp3',
       },
       {
-        type: 'vocabulary',
         id: '95',
         english: 'branch',
         chinese: '(n/v)樹枝；分枝；枝；支',
+        audioUrl: '',
         audioFile: 'audio-95.mp3',
       },
       {
-        type: 'vocabulary',
         id: '96',
         english: 'interactive',
         chinese: '(adj/n)相互作用的；互動的；互相交流的',
+        audioUrl: '',
         audioFile: 'audio-96.mp3',
       },
       {
-        type: 'vocabulary',
         id: '97',
         english: 'information',
         chinese: '(phr)信息；報告；消息；報導；情報資料',
+        audioUrl: '',
         audioFile: 'audio-97.mp3',
       },
       {
-        type: 'vocabulary',
         id: '98',
         english: 'autonomous',
         chinese: '(adj)自主的；自治的；自治權的',
+        audioUrl: '',
         audioFile: 'audio-98.mp3',
       },
       {
-        type: 'vocabulary',
         id: '99',
         english: 'intelligent',
         chinese: '(adj)智能化',
+        audioUrl: '',
         audioFile: 'audio-99.mp3',
       },
       {
-        type: 'vocabulary',
         id: '100',
         english: 'guidance',
         chinese: '(n)引導；指導；領導；輔導；諮詢',
+        audioUrl: '',
         audioFile: 'audio-100.mp3',
       },
       {
-        type: 'vocabulary',
         id: '101',
         english: 'shopping',
         chinese: '(n)買東西；購物',
+        audioUrl: '',
         audioFile: 'audio-101.mp3',
       },
       {
-        type: 'vocabulary',
         id: '102',
         english: 'virtualization',
         chinese: '(n)虛擬化',
+        audioUrl: '',
         audioFile: 'audio-102.mp3',
       },
       {
-        type: 'vocabulary',
         id: '103',
         english: 'scenario',
         chinese: '(n)場景；情節；劇本；事態；局面',
+        audioUrl: '',
         audioFile: 'audio-103.mp3',
       },
       {
-        type: 'vocabulary',
         id: '104',
         english: 'security',
         chinese: '(n)安全；保安；防備；安全感',
+        audioUrl: '',
         audioFile: 'audio-104.mp3',
       },
       {
-        type: 'vocabulary',
         id: '105',
         english: 'veracity',
         chinese: '(n)真實性；真實；誠實',
+        audioUrl: '',
         audioFile: 'audio-105.mp3',
       },
       {
-        type: 'vocabulary',
         id: '106',
         english: 'computing',
         chinese: '(n)計算；運算',
+        audioUrl: '',
         audioFile: 'audio-106.mp3',
       },
       {
-        type: 'vocabulary',
         id: '107',
         english: 'clustering',
         chinese: '(n)聚類',
+        audioUrl: '',
         audioFile: 'audio-107.mp3',
       },
       {
-        type: 'vocabulary',
         id: '108',
         english: 'instrumented',
         chinese: '(adj)感知化',
+        audioUrl: '',
         audioFile: 'audio-108.mp3',
       },
       {
-        type: 'vocabulary',
         id: '109',
         english: 'empirical',
         chinese: '(adj)經驗性的；以經驗(或觀察)為依據的',
+        audioUrl: '',
         audioFile: 'audio-109.mp3',
       },
       {
-        type: 'vocabulary',
         id: '110',
         english: 'transition',
         chinese: '(n)轉移；變遷；轉變',
+        audioUrl: '',
         audioFile: 'audio-110.mp3',
       },
       {
-        type: 'vocabulary',
         id: '111',
         english: 'mathematics',
         chinese: '(n)數學；數學運算',
+        audioUrl: '',
         audioFile: 'audio-111.mp3',
       },
       {
-        type: 'vocabulary',
         id: '112',
         english: 'AlphaGo',
         chinese: '(n)阿爾法狗；一種下棋的AI軟體',
+        audioUrl: '',
         audioFile: 'audio-112.mp3',
       },
       {
-        type: 'vocabulary',
         id: '113',
         english: 'visualization',
         chinese: '(n)形象；形象化；想像',
+        audioUrl: '',
         audioFile: 'audio-113.mp3',
       },
       {
-        type: 'vocabulary',
         id: '114',
         english: 'neural',
         chinese: '(adj)神經的；神經中樞的',
+        audioUrl: '',
         audioFile: 'audio-114.mp3',
       },
       {
-        type: 'vocabulary',
         id: '115',
         english: 'program',
         chinese: '(n)程式',
+        audioUrl: '',
         audioFile: 'audio-115.mp3',
       },
       {
-        type: 'vocabulary',
         id: '116',
         english: 'numerical',
         chinese: '(adj)數值的；數字的；以數字表示的',
+        audioUrl: '',
         audioFile: 'audio-116.mp3',
       },
       {
-        type: 'vocabulary',
         id: '117',
         english: 'remediation',
         chinese: '(n)補救；矯正',
+        audioUrl: '',
         audioFile: 'audio-117.mp3',
       },
       {
-        type: 'vocabulary',
         id: '118',
         english: 'automatic',
         chinese: '(adj)自動的',
+        audioUrl: '',
         audioFile: 'audio-118.mp3',
       },
       {
-        type: 'vocabulary',
         id: '119',
         english: 'fluent',
         chinese: '(adj)流暢的',
+        audioUrl: '',
         audioFile: 'audio-119.mp3',
       },
       {
-        type: 'vocabulary',
         id: '120',
         english: 'tensor',
         chinese: '(n)張量；張肌',
+        audioUrl: '',
         audioFile: 'audio-120.mp3',
       },
       {
-        type: 'vocabulary',
         id: '121',
         english: 'network',
         chinese: '(n/adj)網路；網狀物',
+        audioUrl: '',
         audioFile: 'audio-121.mp3',
       },
       {
-        type: 'vocabulary',
         id: '122',
         english: 'learning',
         chinese: '(n)學習',
+        audioUrl: '',
         audioFile: 'audio-122.mp3',
       },
       {
-        type: 'vocabulary',
         id: '123',
         english: 'representation',
         chinese: '(n)表示；表述；代表；表現；代理；代理權',
+        audioUrl: '',
         audioFile: 'audio-123.mp3',
       },
       {
-        type: 'vocabulary',
         id: '124',
         english: 'natural',
         chinese: '(adj/n)自然的；天然物；自然的事情',
+        audioUrl: '',
         audioFile: 'audio-124.mp3',
       },
       {
-        type: 'vocabulary',
         id: '125',
         english: 'dialogue',
         chinese: '(n)對話；交談',
+        audioUrl: '',
         audioFile: 'audio-125.mp3',
       },
       {
-        type: 'vocabulary',
         id: '126',
         english: 'health',
         chinese: '(n)健康；健康狀況；衛生',
+        audioUrl: '',
         audioFile: 'audio-126.mp3',
       },
       {
-        type: 'vocabulary',
         id: '127',
         english: 'infrastructure',
         chinese: '(n)基礎設施；基礎建設',
+        audioUrl: '',
         audioFile: 'audio-127.mp3',
       },
       {
-        type: 'vocabulary',
         id: '128',
         english: 'multifunctional',
         chinese: '(adj)多功能的',
+        audioUrl: '',
         audioFile: 'audio-128.mp3',
       },
       {
-        type: 'vocabulary',
         id: '129',
         english: 'simulated',
         chinese: '(adj)模擬的',
+        audioUrl: '',
         audioFile: 'audio-129.mp3',
       },
       {
-        type: 'vocabulary',
         id: '130',
         english: 'contemporary',
         chinese: '(adj/n)當代的；同時代的；同時代的人；同年齡的人',
+        audioUrl: '',
         audioFile: 'audio-130.mp3',
       },
       {
-        type: 'vocabulary',
         id: '131',
         english: 'service',
         chinese: '(v/n)服務',
+        audioUrl: '',
         audioFile: 'audio-131.mp3',
       },
       {
-        type: 'vocabulary',
         id: '132',
         english: 'multi-layer',
         chinese: '(adj/n)多層；多層的',
+        audioUrl: '',
         audioFile: 'audio-132.mp3',
       },
       {
-        type: 'vocabulary',
         id: '133',
         english: 'perceptible',
         chinese: '(adj)可感知的；可察覺的；可辨的',
+        audioUrl: '',
         audioFile: 'audio-133.mp3',
       },
       {
-        type: 'vocabulary',
         id: '134',
         english: 'digital',
         chinese: '(adj/n)數位的',
+        audioUrl: '',
         audioFile: 'audio-134.mp3',
       },
       {
-        type: 'vocabulary',
         id: '135',
         english: 'engine',
         chinese: '(n)引擎；發動機',
+        audioUrl: '',
         audioFile: 'audio-135.mp3',
       },
       {
-        type: 'vocabulary',
         id: '136',
         english: 'vision',
         chinese: '(n)視力；視覺',
+        audioUrl: '',
         audioFile: 'audio-136.mp3',
       },
       {
-        type: 'vocabulary',
         id: '137',
         english: 'online',
         chinese: '(n)線上；連線作業的；(在)線上的',
+        audioUrl: '',
         audioFile: 'audio-137.mp3',
       },
       {
-        type: 'vocabulary',
         id: '138',
         english: 'neuron',
         chinese: '(phr)神經元；神經單位；神經元(細胞)',
+        audioUrl: '',
         audioFile: 'audio-138.mp3',
       },
       {
-        type: 'vocabulary',
         id: '139',
         english: 'polymorphism',
         chinese: '(n)多態性；多型現象',
+        audioUrl: '',
         audioFile: 'audio-139.mp3',
       },
       {
-        type: 'vocabulary',
         id: '140',
         english: 'thinking',
         chinese: '(n/adj)思維；思想；思考；意見；想法',
+        audioUrl: '',
         audioFile: 'audio-140.mp3',
       },
       {
-        type: 'vocabulary',
         id: '141',
         english: 'Turing',
         chinese: '(n)圖靈(人名)',
+        audioUrl: '',
         audioFile: 'audio-141.mp3',
       },
       {
-        type: 'vocabulary',
         id: '142',
         english: 'interconnected',
         chinese: '(adj)互聯化',
+        audioUrl: '',
         audioFile: 'audio-142.mp3',
       },
       {
-        type: 'vocabulary',
         id: '143',
         english: 'surface',
         chinese: '(n/adj)表面；表面的；外觀的',
+        audioUrl: '',
         audioFile: 'audio-143.mp3',
       },
       {
-        type: 'vocabulary',
         id: '144',
         english: 'augmented',
         chinese: '(adj)擴增的；增加的',
+        audioUrl: '',
         audioFile: 'audio-144.mp3',
       },
       {
-        type: 'vocabulary',
         id: '145',
         english: 'inference',
         chinese: '(n)推理；推論；推斷',
+        audioUrl: '',
         audioFile: 'audio-145.mp3',
       },
       {
-        type: 'vocabulary',
         id: '146',
         english: 'distribution',
         chinese: '(n)分布；分發；分配；散布；分銷',
+        audioUrl: '',
         audioFile: 'audio-146.mp3',
       },
       {
-        type: 'vocabulary',
         id: '147',
         english: 'linguistic',
         chinese: '(adj)語言的；語言學',
+        audioUrl: '',
         audioFile: 'audio-147.mp3',
       },
       {
-        type: 'vocabulary',
         id: '148',
         english: 'Bayesian',
         chinese: '(n)貝葉斯；貝葉斯機率演算法',
+        audioUrl: '',
         audioFile: 'audio-148.mp3',
       },
       {
-        type: 'vocabulary',
         id: '149',
         english: 'sharing',
         chinese: '(phr)共用；分享',
+        audioUrl: '',
         audioFile: 'audio-149.mp3',
       },
       {
-        type: 'vocabulary',
         id: '150',
         english: 'action',
         chinese: '(n)行動；行為；活動',
+        audioUrl: '',
         audioFile: 'audio-150.mp3',
       },
       {
-        type: 'vocabulary',
         id: '151',
         english: 'cognitive',
         chinese: '(adj)認知的',
+        audioUrl: '',
         audioFile: 'audio-151.mp3',
       },
       {
-        type: 'vocabulary',
         id: '152',
         english: 'volume',
         chinese: '(n)容積；體積；卷；表示海量的資料規模',
+        audioUrl: '',
         audioFile: 'audio-152.mp3',
       },
       {
-        type: 'vocabulary',
         id: '153',
         english: 'database',
         chinese: '(n)資料庫',
+        audioUrl: '',
         audioFile: 'audio-153.mp3',
       },
       {
-        type: 'vocabulary',
         id: '154',
         english: 'colony',
         chinese: '(phr)集體；群體；殖民地',
+        audioUrl: '',
         audioFile: 'audio-154.mp3',
       },
       {
-        type: 'vocabulary',
         id: '155',
         english: 'variety',
         chinese: '(n)種類；多樣化；變化；表示多樣的資料行態',
+        audioUrl: '',
         audioFile: 'audio-155.mp3',
       },
       {
-        type: 'vocabulary',
         id: '156',
         english: 'motivated',
         chinese: '(adj)有動機的；有目地的；有積極性的',
+        audioUrl: '',
         audioFile: 'audio-156.mp3',
       },
       {
-        type: 'vocabulary',
         id: '157',
         english: 'classification',
         chinese: '(phr)分類',
+        audioUrl: '',
         audioFile: 'audio-157.mp3',
       },
       {
-        type: 'vocabulary',
         id: '158',
         english: 'interaction',
         chinese: '(n)交互；互動，互相影響',
+        audioUrl: '',
         audioFile: 'audio-158.mp3',
       },
       {
-        type: 'vocabulary',
         id: '159',
         english: 'monitor',
         chinese: '(n)監督；監視器；監聽員；(電腦)顯示器',
+        audioUrl: '',
         audioFile: 'audio-159.mp3',
       },
       {
-        type: 'vocabulary',
         id: '160',
         english: 'corpus',
         chinese: '(n)資料庫；文集；全集；主體；軀體',
+        audioUrl: '',
         audioFile: 'audio-160.mp3',
       },
       {
-        type: 'vocabulary',
         id: '161',
         english: 'technology',
         chinese: '(n)科技；技術；工業技術；科學技術',
+        audioUrl: '',
         audioFile: 'audio-161.mp3',
       },
       {
-        type: 'vocabulary',
         id: '162',
         english: 'structure',
         chinese: '(v/n)結構；構造；組織；構造體；建築物',
+        audioUrl: '',
         audioFile: 'audio-162.mp3',
       },
       {
-        type: 'vocabulary',
         id: '163',
         english: 'overall',
         chinese: '(adj)全域的；全部的；全體的',
+        audioUrl: '',
         audioFile: 'audio-163.mp3',
       },
       {
-        type: 'vocabulary',
         id: '164',
         english: 'supervise',
         chinese: '(v)監督；管理；指導',
+        audioUrl: '',
         audioFile: 'audio-164.mp3',
       },
       {
-        type: 'vocabulary',
         id: '165',
         english: 'system',
         chinese: '(n)系統',
+        audioUrl: '',
         audioFile: 'audio-165.mp3',
       },
       {
-        type: 'vocabulary',
         id: '166',
         english: 'embedded',
         chinese: '(adj)植入的；嵌入的',
+        audioUrl: '',
         audioFile: 'audio-166.mp3',
       },
       {
-        type: 'vocabulary',
         id: '167',
         english: 'assessment',
         chinese: '(n)評價；估計',
+        audioUrl: '',
         audioFile: 'audio-167.mp3',
       },
       {
-        type: 'vocabulary',
         id: '168',
         english: 'memory',
         chinese: '(n)記憶體',
+        audioUrl: '',
         audioFile: 'audio-168.mp3',
       },
       {
-        type: 'vocabulary',
         id: '169',
         english: 'firewall',
         chinese: '(n)防火牆',
+        audioUrl: '',
         audioFile: 'audio-169.mp3',
       },
       {
-        type: 'vocabulary',
         id: '170',
         english: 'random',
         chinese: '(n/adj)隨機；隨機的',
+        audioUrl: '',
         audioFile: 'audio-170.mp3',
       },
       {
-        type: 'vocabulary',
         id: '171',
         english: 'recognize',
         chinese: '(v)識別；認知；認出',
+        audioUrl: '',
         audioFile: 'audio-171.mp3',
       },
       {
-        type: 'vocabulary',
         id: '172',
         english: 'unsupervised',
         chinese: '(adj)無監督的；無人監督的',
+        audioUrl: '',
         audioFile: 'audio-172.mp3',
       },
       {
-        type: 'vocabulary',
         id: '173',
         english: 'nature',
         chinese: '(n)自然(常大寫)；自然界',
+        audioUrl: '',
         audioFile: 'audio-173.mp3',
       },
       {
-        type: 'vocabulary',
         id: '174',
         english: 'variance',
         chinese: '(n)變數；變化；變動；變異',
+        audioUrl: '',
         audioFile: 'audio-174.mp3',
       },
       {
-        type: 'vocabulary',
         id: '175',
         english: 'substitutional',
         chinese: '(adj)替代的；代用的',
+        audioUrl: '',
         audioFile: 'audio-175.mp3',
       },
       {
-        type: 'vocabulary',
         id: '176',
         english: 'gigabyte',
         chinese: '(n)相當於1024MB；相當於百萬KB；十億位元組',
+        audioUrl: '',
         audioFile: 'audio-176.mp3',
       },
       {
-        type: 'vocabulary',
         id: '177',
         english: 'specialist',
         chinese: '(n)專家',
+        audioUrl: '',
         audioFile: 'audio-177.mp3',
       },
       {
-        type: 'vocabulary',
         id: '178',
         english: 'velocity',
         chinese: '(n)迅速；快速；速度',
+        audioUrl: '',
         audioFile: 'audio-178.mp3',
       },
       {
-        type: 'vocabulary',
         id: '179',
         english: 'scientist',
         chinese: '(phr)科學家；自然科學家',
+        audioUrl: '',
         audioFile: 'audio-179.mp3',
       },
       {
-        type: 'vocabulary',
         id: '180',
         english: 'expert',
         chinese: '(phr)專家；能手；熟練',
+        audioUrl: '',
         audioFile: 'audio-180.mp3',
       },
       {
-        type: 'vocabulary',
         id: '181',
         english: 'granularity',
         chinese: '(n)細微性；顆粒度；間格尺寸',
+        audioUrl: '',
         audioFile: 'audio-181.mp3',
       },
       {
-        type: 'vocabulary',
         id: '182',
         english: 'statistics',
         chinese: '(n)統計學；統計；統計資料',
+        audioUrl: '',
         audioFile: 'audio-182.mp3',
       },
       {
-        type: 'vocabulary',
         id: '183',
         english: 'nearest',
         chinese: '(adj)最近的',
+        audioUrl: '',
         audioFile: 'audio-183.mp3',
       },
       {
-        type: 'vocabulary',
         id: '184',
         english: 'action recognition',
         chinese: '(n)行為識別',
+        audioUrl: '',
         audioFile: 'audio-184.mp3',
       },
       {
-        type: 'vocabulary',
         id: '185',
         english: 'retailing',
         chinese: '(n)零售；零售業',
+        audioUrl: '',
         audioFile: 'audio-185.mp3',
       },
       {
-        type: 'vocabulary',
         id: '186',
         english: 'ubiquitous',
         chinese: '(adj)無所不在的；到處存在的；普遍存在的',
+        audioUrl: '',
         audioFile: 'audio-186.mp3',
       },
       {
-        type: 'vocabulary',
         id: '187',
         english: 'action',
         chinese: '(n)行動；行為；活動',
+        audioUrl: '',
         audioFile: 'audio-187.mp3',
       },
       {
-        type: 'vocabulary',
         id: '188',
         english: 'petabyte',
         chinese: '(n)相當於1024TB；相當於百萬GB',
+        audioUrl: '',
         audioFile: 'audio-188.mp3',
       },
       {
-        type: 'vocabulary',
         id: '189',
         english: 'consciousness',
         chinese: '(n)意念；意識；有知覺；清醒',
+        audioUrl: '',
         audioFile: 'audio-189.mp3',
       },
       {
-        type: 'vocabulary',
         id: '190',
         english: 'control',
         chinese: '(n/v)控制；支配；管理',
+        audioUrl: '',
         audioFile: 'audio-190.mp3',
       },
       {
-        type: 'vocabulary',
         id: '191',
         english: 'distributed',
         chinese: '(adj)分散式的；分布式的',
+        audioUrl: '',
         audioFile: 'audio-191.mp3',
       },
       {
-        type: 'vocabulary',
         id: '192',
         english: 'omnidirectional',
         chinese: '(adj)全方向的；全向的',
+        audioUrl: '',
         audioFile: 'audio-192.mp3',
       },
       {
-        type: 'vocabulary',
         id: '193',
         english: 'mining',
         chinese: '(n)採礦；礦業',
+        audioUrl: '',
         audioFile: 'audio-193.mp3',
       },
       {
-        type: 'vocabulary',
         id: '194',
         english: 'calculus',
         chinese: '(n)微積分',
+        audioUrl: '',
         audioFile: 'audio-194.mp3',
       },
       {
-        type: 'vocabulary',
         id: '195',
         english: 'robotics',
         chinese: '(phr)機器人學',
+        audioUrl: '',
         audioFile: 'audio-195.mp3',
       },
       {
-        type: 'vocabulary',
         id: '196',
         english: 'association',
         chinese: '(n)關聯；協會；公會；社團；聯盟',
+        audioUrl: '',
         audioFile: 'audio-196.mp3',
       },
       {
-        type: 'vocabulary',
         id: '197',
         english: 'test data',
         chinese: '(n)測試數據',
+        audioUrl: '',
         audioFile: 'audio-197.mp3',
       },
       {
-        type: 'vocabulary',
         id: '198',
         english: 'coding',
         chinese: '(n)程式設計；編碼；識別；分辨',
+        audioUrl: '',
         audioFile: 'audio-198.mp3',
       },
       {
-        type: 'vocabulary',
         id: '199',
         english: 'training',
         chinese: '(n)訓練；培養',
+        audioUrl: '',
         audioFile: 'audio-199.mp3',
       },
       {
-        type: 'vocabulary',
         id: '200',
         english: 'transportation',
         chinese: '(n)交通；運輸；輸送；運輸工具',
+        audioUrl: '',
         audioFile: 'audio-200.mp3',
       },
       {
-        type: 'vocabulary',
         id: '201',
         english: 'enriched',
         chinese: '(adj)使富足的；使肥沃的',
+        audioUrl: '',
         audioFile: 'audio-201.mp3',
       },
       {
-        type: 'vocabulary',
         id: '202',
         english: 'diagnosis',
         chinese: '(n)診斷；診斷結果；診斷書',
+        audioUrl: '',
         audioFile: 'audio-202.mp3',
       },
       {
-        type: 'vocabulary',
         id: '203',
         english: 'environment',
         chinese: '(n)環境；四周狀況',
+        audioUrl: '',
         audioFile: 'audio-203.mp3',
       },
       {
-        type: 'vocabulary',
         id: '204',
         english: 'manufacture',
         chinese: '(n/v)(大量)製造；製造業；加工',
+        audioUrl: '',
         audioFile: 'audio-204.mp3',
       },
       {
-        type: 'vocabulary',
         id: '205',
         english: 'integration',
         chinese: '(n)整合；完成；集成',
+        audioUrl: '',
         audioFile: 'audio-205.mp3',
       },
       {
-        type: 'vocabulary',
         id: '206',
         english: 'relationship',
         chinese: '(n)關係；關聯；人際關係；聯系',
+        audioUrl: '',
         audioFile: 'audio-206.mp3',
       },
       {
-        type: 'vocabulary',
         id: '207',
         english: 'adaptive',
         chinese: '(adj)適合的；適應的',
+        audioUrl: '',
         audioFile: 'audio-207.mp3',
       },
       {
-        type: 'vocabulary',
         id: '208',
         english: 'semi-structured',
         chinese: '(adj)半結構化',
+        audioUrl: '',
         audioFile: 'audio-208.mp3',
       },
       {
-        type: 'vocabulary',
         id: '209',
         english: 'activation',
         chinese: '(n)激活；啟動；觸發',
+        audioUrl: '',
         audioFile: 'audio-209.mp3',
       },
       {
-        type: 'vocabulary',
         id: '210',
         english: 'bottleneck',
         chinese: '(n)瓶頸；障礙物；隘',
+        audioUrl: '',
         audioFile: 'audio-210.mp3',
       },
       {
-        type: 'vocabulary',
         id: '211',
         english: 'behavior',
         chinese: '(n)行為；舉止；態度',
+        audioUrl: '',
         audioFile: 'audio-211.mp3',
       },
       {
-        type: 'vocabulary',
         id: '212',
         english: 'convolution',
         chinese: '(phr)卷積；盤繞；彎曲',
+        audioUrl: '',
         audioFile: 'audio-212.mp3',
       },
       {
-        type: 'vocabulary',
         id: '213',
         english: 'recursive',
         chinese: '(adj)遞歸的；遞迴的；不斷自我重複的',
+        audioUrl: '',
         audioFile: 'audio-213.mp3',
       },
       {
-        type: 'vocabulary',
         id: '214',
         english: 'cleansing',
         chinese: '(phr)清理；淨化；洗清',
+        audioUrl: '',
         audioFile: 'audio-214.mp3',
       },
       {
-        type: 'vocabulary',
         id: '215',
         english: 'self-directed',
         chinese: '(adj)自主式',
+        audioUrl: '',
         audioFile: 'audio-215.mp3',
       },
       {
-        type: 'vocabulary',
         id: '216',
         english: 'platform',
         chinese: '(n)平台；台；講台',
+        audioUrl: '',
         audioFile: 'audio-216.mp3',
       },
       {
-        type: 'vocabulary',
         id: '217',
         english: 'genetic',
         chinese: '(adj)基因的；遺傳的',
+        audioUrl: '',
         audioFile: 'audio-217.mp3',
       },
       {
-        type: 'vocabulary',
         id: '218',
         english: 'modeling',
         chinese: '(n/aadj)模擬；建模；造型的；立體感的',
+        audioUrl: '',
         audioFile: 'audio-218.mp3',
       },
       {
-        type: 'vocabulary',
         id: '219',
         english: 'context',
         chinese: '(phr)背景情境；上下文；文章脈絡；來龍去脈',
+        audioUrl: '',
         audioFile: 'audio-219.mp3',
       },
       {
-        type: 'vocabulary',
         id: '220',
         english: 'reinforcement',
         chinese: '(n)增援；加強；加固；強化',
+        audioUrl: '',
         audioFile: 'audio-220.mp3',
       },
       {
-        type: 'vocabulary',
         id: '221',
         english: 'transducer',
         chinese: '(n)感應器；傳感器；變頻器變換器；換能器',
+        audioUrl: '',
         audioFile: 'audio-221.mp3',
       },
       {
-        type: 'vocabulary',
         id: '222',
         english: 'correlation',
         chinese: '(n)相關關係；關聯',
+        audioUrl: '',
         audioFile: 'audio-222.mp3',
       },
       {
-        type: 'vocabulary',
         id: '223',
         english: 'TensorFlow',
         chinese: '(n)深度學習開發框架',
+        audioUrl: '',
         audioFile: 'audio-223.mp3',
       },
       {
-        type: 'vocabulary',
         id: '224',
         english: 'annealing',
         chinese: '(n)鍛鍊；磨練',
+        audioUrl: '',
         audioFile: 'audio-224.mp3',
       },
       {
-        type: 'vocabulary',
         id: '225',
         english: 'electrontic',
         chinese: '(adj)電子的',
+        audioUrl: '',
         audioFile: 'audio-225.mp3',
       },
       {
-        type: 'vocabulary',
         id: '226',
         english: 'narrow',
         chinese: '(adj/v)狹的；狹窄的；範圍狹小的',
+        audioUrl: '',
         audioFile: 'audio-226.mp3',
       },
       {
-        type: 'vocabulary',
         id: '227',
         english: 'destination',
         chinese: '(n)目的地；終點；目標',
+        audioUrl: '',
         audioFile: 'audio-227.mp3',
       },
     ],
@@ -4030,7 +3741,6 @@ const rawSubjects: Subjects = {
     lockTime: ['2024-11-17T09:15:00', '2024-11-17T11:05:00'],
     questions: [
       {
-        type: 'single_choice',
         id: '1',
         question: '在物價上漲情況下，最易受到指責之一般公認會計原則是？',
         options: [
@@ -4042,21 +3752,18 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '2',
         question: '應付財產稅是屬於：',
         options: ['收益', '資產', '業主權益', '費用', '負債'],
         correctIndex: 4,
       },
       {
-        type: 'single_choice',
         id: '3',
         question: '短期投資或有價證卷在資產負債表上應列為？',
         options: ['無形資產', '流動資產', '遞延資產', '固定資產'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '4',
         question: '下列何者要記錄在各該帳戶的貸方？',
         options: [
@@ -4068,7 +3775,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '5',
         question: '公司提供服務，顧客尚未付款，其影響為：',
         options: [
@@ -4080,7 +3786,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '6',
         question: '正常餘額為借餘的帳戶包括：',
         options: [
@@ -4092,7 +3797,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '7',
         question:
           '會計上對於資產的評價採歷史成本，排除了清算價值的使用，此乃基於？',
@@ -4100,7 +3804,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '8',
         question:
           '下列會計科目中，屬於資產者有幾項？(1)存出保證金 (2)開辦費 (3)備抵壞帳 (4)預收租金 (5)建築物 (6)債券長期投資',
@@ -4108,28 +3811,24 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '9',
         question: '通常按年編制財務報表所根據之會計原則或慣例為？',
         options: ['會計期間慣例', '成本原則', '企業個體慣例', '繼續經營慣例'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '10',
         question: '以未到期支票購入冰箱，使負債：',
         options: ['減少', '不變', '增加', '不一定'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '11',
         question: '預付費用是屬於：',
         options: ['其他資產', '流動資產', '固定資產', '流動負債'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '12',
         question: '分類帳是？',
         options: [
@@ -4141,7 +3840,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '13',
         question: '下列何者不須要納入會計記錄？',
         options: [
@@ -4153,7 +3851,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '14',
         question:
           '就會計觀點而言，企業是一個獨立的個體，有關企業資產、負債的處理和損益的計算，與業主私人的會計事項不能相混，這是根據？',
@@ -4166,7 +3863,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '15',
         question: '下列哪一項對資產的敘述是正確的？',
         options: [
@@ -4178,7 +3874,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '16',
         question:
           '應收帳款、應付帳款、預收收入、勞務收入，上述會計帳戶中正常餘額在貸方者， 共有幾項？',
@@ -4186,7 +3881,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '17',
         question: '下列敘述何者有誤？',
         options: [
@@ -4198,21 +3892,18 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '18',
         question: '簿記與會計不同，因為簿記主要只涉及：',
         options: ['衡量', '記錄', '溝通', '認定'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '19',
         question: '試算表之編製？',
         options: ['每月一次', '每年一次', '視需要編製', '每週一次'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '20',
         question: '公司賒購設備，賒購日其影響為：',
         options: [
@@ -4224,7 +3915,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '21',
         question: '下列有關會計帳戶之描述，何者不正確？',
         options: [
@@ -4236,28 +3926,24 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '22',
         question: '報表上通常不以清算價值評價係基於？',
         options: ['穩健原則', '繼續經營慣例', '充分揭露原則', '貨幣評價慣例'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '23',
         question: '下列何者之正常餘額不是在貸方？',
         options: ['股利', '股本', '勞務收入', '應付票據'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '24',
         question: '下列哪一項不是公司之負債？',
         options: ['應收帳款', '應付票據', '應付稅捐', '應付帳款'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '25',
         question: '借貸法則下，下列何者交易之分錄不成立？',
         options: [
@@ -4269,7 +3955,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '26',
         question: '累計折舊是屬於下列何種性質的會計項目：',
         options: [
@@ -4281,7 +3966,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '27',
         question: '有關權益之敘述，何者不正確？',
         options: [
@@ -4293,14 +3977,12 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '28',
         question: '下列事項何者會造成權益減少？',
         options: ['購買設備', '股東增資', '費用發生', '收入發生'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '29',
         question: '本店代付業主私人宴客費入帳時屬？',
         options: [
@@ -4312,7 +3994,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '30',
         question: '獨資企業以現金$100,000代資本主償還其銀行借款，則？',
         options: [
@@ -4324,7 +4005,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '31',
         question: '下列敘述何者正確？',
         options: [
@@ -4336,7 +4016,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '32',
         question: '下列的會計方程式，哪一式是不正確的？',
         options: [
@@ -4348,28 +4027,24 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '33',
         question: '下列何者不屬費損類項目？',
         options: ['預付費用', '處分損失', '存貨盤損', '投資損失'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '34',
         question: '預收收益是屬於：',
         options: ['業主權益', '負債', '費用', '收益', '資產'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '35',
         question: '權益因何而增加？',
         options: ['費損增加', '收益增加', '股利增加', '資產增加'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '36',
         question: '向銀行借款$20,000是會影響何種會計科目之交易?',
         options: [
@@ -4381,7 +4056,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '37',
         question: '下列會計循環中何者正確?',
         options: [
@@ -4393,7 +4067,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '38',
         question: '假設可以用人為方式，將企業的生命劃分期間，此係基於：',
         options: [
@@ -4405,7 +4078,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '39',
         question: '下列何者要記錄在各該帳戶的借方？',
         options: [
@@ -4417,14 +4089,12 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '40',
         question: '公司賒購大批可供數月使用之辦公用品，賒購日其影響為：',
         options: ['資產增加', '費用增加', '負債不變', '資產不變'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '41',
         question: '基本會計等式為：',
         options: [
@@ -4436,7 +4106,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '42',
         question: '會計處理程序正確的順序為：',
         options: [
@@ -4448,7 +4117,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '43',
         question: '帳戶之正常餘額係指：',
         options: [
@@ -4460,7 +4128,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '44',
         question: '以即期支票10,000購入辦公設備，其分錄？',
         options: [
@@ -4472,14 +4139,12 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '45',
         question: '文具用品是屬於：',
         options: ['資產', '費用', '收益', '負債', '業主權益'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '46',
         question:
           '10月3日購買銷售用冰箱，付款時以一張50,000支票，到期日為10/31。此時分錄為',
@@ -4492,7 +4157,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '47',
         question:
           '下列屬於費用科目的有幾項水電費、燃料費、應收帳款、應付費用、文具用品、利息收入、稅捐？',
@@ -4500,7 +4164,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '48',
         question: '淨利是一段期間，當：',
         options: [
@@ -4512,14 +4175,12 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '49',
         question: '存貨是屬於：',
         options: ['業主權益', '資產', '費用', '負債', '收益'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '50',
         question: '下列有關預付租金費用的敘述，何者正確?',
         options: [
@@ -4531,7 +4192,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '51',
         question: '下列有關試算表之敘述，何者不正確？',
         options: [
@@ -4543,7 +4203,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '52',
         question: '過帳後發現現購文具用品誤記為現購商品，則應作之改正分錄為？',
         options: [
@@ -4555,7 +4214,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '53',
         question:
           '下列六項中屬於費用科目的有幾項水電費、所得稅、應收帳款、存出保證金、文具用品、利息收入？',
@@ -4563,7 +4221,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '54',
         question: '支付本月份的水電費$200，對會計類別之增減變動的影響',
         options: [
@@ -4575,14 +4232,12 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '55',
         question: '以現金購入辦公設備，使資產',
         options: ['減少', '增加', '不變', '不一定'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '56',
         question: '下列有關預收租金收入的敘述，何者正確?',
         options: [
@@ -4594,14 +4249,12 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '57',
         question: '所謂會計年度乃指將會計期間定為？',
         options: ['一年', '三年', '半年', '兩年'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '58',
         question: '會計上借、貸二字之意義係指？',
         options: [
@@ -4613,14 +4266,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '59',
         question: '下列何者非屬財務報表要素？',
         options: ['收益及費損', '資產、負債', '權益', '員工的價值'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '60',
         question:
           '當「觀念架構」與現有國際財務報導準則發生衝突時，應如何處理較為妥適?',
@@ -4633,21 +4284,18 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '61',
         question: '陳政績加入志定公司後，使業主權益：',
         options: ['增加', '減少', '不一定', '不變'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '62',
         question: '以現金$10,000購入辦公設備，對會計類別之增減變動的影響',
         options: ['資產減少', '資產不變', '資產增加', '費損增加'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '63',
         question: '會計之主要功能是？',
         options: [
@@ -4659,14 +4307,12 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '64',
         question: '下列錯誤中哪一項會影響到試算表之平衡？',
         options: ['借貸科目顛倒', '貸方帳戶過錯', '借方過重', '整筆交易漏過'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '65',
         question: '分類帳的主要功用為：',
         options: [
@@ -4678,7 +4324,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '66',
         question: '下列何者要記錄在各該帳戶的貸方？',
         options: [
@@ -4690,14 +4335,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '67',
         question: '會計上所有交易均按貨幣金額入帳，係基於？',
         options: ['繼續經營慣例', '貨幣評價慣例', '成本原則', '企業個體慣例'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '68',
         question: '假設衡量單位的價值穩定，此係基於：',
         options: [
@@ -4709,7 +4352,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '69',
         question: '有關權益之敘述，何者不正確？',
         options: [
@@ -4721,21 +4363,18 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '70',
         question: '公司收到顧客支付以前公司為其提供服務賒欠的款項，其影響為：',
         options: ['負債增加', '總資產金額不變', '收入增加', '不需紀錄'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '71',
         question: '銷售冰箱後，使資產：',
         options: ['減少', '不變', '增加', '不一定'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '72',
         question:
           '運輸設備之續後評價未採用清算價值，主要係基於下列那一個假設？',
@@ -4743,7 +4382,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '73',
         question: '會計程序不包括下列哪一項？',
         options: [
@@ -4755,7 +4393,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '74',
         question: '標準之分錄要：',
         options: [
@@ -4767,14 +4404,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '75',
         question: '即期支票購入辦公設備，使資產：',
         options: ['減少', '不變', '增加', '不一定'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '76',
         question: '業主待本店墊付款項應？',
         options: [
@@ -4786,7 +4421,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '77',
         question: '向銀行借錢$20,000是？',
         options: [
@@ -4798,14 +4432,12 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '78',
         question: '權益因何而減少？',
         options: ['負債增加', '資產減少', '費損增加', '收益增加'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '79',
         question: '下列有關借貸之敘述，何者不正確？',
         options: [
@@ -4817,7 +4449,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '80',
         question: '下列何項交易不會使資產、負債、業主權益之總金額產生變化？',
         options: [
@@ -4829,7 +4460,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '81',
         question: '陳政績繳入10,000,000現金加入志定股份有限公司股東，其分錄為',
         options: [
@@ -4841,14 +4471,12 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '82',
         question: '所有會計項目之正常餘額是在：',
         options: ['貸方', '項目增加之一方', '借方', '項目減少之一方'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '83',
         question:
           '應收帳款、應付帳款、預收收入、勞務收入，上述會計帳戶中正常餘額在借方者，共有幾項？',
@@ -4856,7 +4484,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '84',
         question: '以現金支付$200,000的薪資，對會計類別之增減變動的影響',
         options: [
@@ -4868,14 +4495,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '85',
         question: '會計上採用應計基礎，事蹟於下列何項會計原則：',
         options: ['繼續經營假設', '貨幣評價假設', '會計期間假設', '配合原則'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '86',
         question: '業主家中的水電費不是企業的費用，此係基於：',
         options: [
@@ -4887,7 +4512,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '87',
         question:
           '賒購卡車一輛，帳款$10,000將於下月償付，對會計類別之增減變動的影響',
@@ -4900,21 +4524,18 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '88',
         question: '有一個會計科目就要設置一個',
         options: ['日記簿', '試算表', '帳戶', '分錄'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '89',
         question: '企業發生虧損時會計方程式：',
         options: ['右方較大', '依然平衡', '左方較大', '不一定'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '90',
         question: '淨損是一段期間，當：',
         options: [
@@ -4926,7 +4547,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '91',
         question:
           '在接受繼續經營假設的前提下，下列何種原則對財務報表攸關性之減損程度得以降低，並提高可靠性？',
@@ -4934,14 +4554,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '92',
         question: '如果試算表不平衡，借貸相差數額能被9整除，則錯誤可能為',
         options: ['抄錯位數', '相鄰顛倒', '借貸方寫錯', '漏過一筆'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '93',
         question: '財務報表的基本品質特性為：',
         options: [
@@ -4953,7 +4571,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '94',
         question: '試算表的主要目的？',
         options: [
@@ -4965,7 +4582,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '95',
         question:
           '10月20日銷售一台冰箱，收到客戶第一銀行的即期支票20,000，此時分錄為',
@@ -4978,35 +4594,30 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '96',
         question: '股東增資表示：',
         options: ['現金資產增加', '淨利增加', '負債增加', '股本增加'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '97',
         question: '壞帳(呆帳)是屬於：',
         options: ['資產', '業主權益', '收益', '負債', '費用'],
         correctIndex: 4,
       },
       {
-        type: 'single_choice',
         id: '98',
         question: '如果試算表不平衡，借貸相差數額能被9整除，則錯誤可能為？',
         options: ['重複記錄', '數字移位', '借貸科目顛倒', '計算錯誤'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '99',
         question: '分類帳是由？所彙集而成的',
         options: ['交易', '帳戶', '會計科目', '分錄'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '100',
         question: '會計期間劃分之目的為？',
         options: [
@@ -5018,7 +4629,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '101',
         question: '記錄交易時，必須：',
         options: [
@@ -5030,14 +4640,12 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '102',
         question: '下列各項中，何者不屬於會計上重要假設：',
         options: ['企業個體', '收支配合', '幣值不變', '會計期間', '繼續經營'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '103',
         question: '根據借貸法則，當負債減少時，不可能配合發生之要素變化為？',
         options: ['費用增加', '業主權益增加', '資產減少', '收入增加'],
@@ -5054,7 +4662,6 @@ const rawSubjects: Subjects = {
     quizType: 'once_choice',
     questions: [
       {
-        type: 'single_choice',
         id: '1',
         question: 'Deepfake是指什麼資安威脅？',
         options: [
@@ -5066,7 +4673,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '2',
         question: '關於網路安全之危害，哪一項描述是基本的認知？',
         options: [
@@ -5078,7 +4684,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '3',
         question:
           '近年來社群網站很流行，可以向朋友分享近況及互動按讚，請問下列哪一種行為可能會導致個人隱私的危害？',
@@ -5091,7 +4696,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '4',
         question: '使用社群網站時，以下哪一項行為有助於個人資料的保護？',
         options: [
@@ -5103,7 +4707,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '5',
         question: '請問在引用他人著作時，下列何者不是必要行為？',
         options: [
@@ -5115,7 +4718,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '6',
         question:
           '一名研究生儲存論文的筆記型電腦遭竊，突顯資料備份的重要性。以下哪一種資料備份的做法是不正確的？',
@@ -5128,7 +4730,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '7',
         question:
           '阿志買了一臺新的筆記型電腦，以下哪一項行為對筆記型電腦的資安防護沒有幫助？',
@@ -5141,7 +4742,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '8',
         question:
           '交友類型的App越來越流行，請問下列何者為使用交友或社群App的安全注意事項？',
@@ -5154,7 +4754,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '9',
         question: '請問下列敘述，何者較不算是霸凌行為？',
         options: [
@@ -5166,7 +4765,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '10',
         question: '下列哪一項行為有網路沉迷的隱憂？',
         options: [
@@ -5178,7 +4776,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '11',
         question: '有關社群平臺與著作權議題，以下描述哪一項正確？',
         options: [
@@ -5190,7 +4787,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '12',
         question: '請問在自己的部落格上播放音樂，會不會違反著作權法？',
         options: [
@@ -5202,7 +4798,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '13',
         question:
           '從網路下載圖片，然後加上文字與其他圖案，製作成為海報，這樣是否會違反著作權？',
@@ -5215,7 +4810,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '14',
         question:
           '社群網站是意見交流的網路平臺，但也常發生濫用的情況。請問下列何者是使用社群網站的正確觀念？',
@@ -5228,7 +4822,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '15',
         question:
           '使用需要登入帳號密碼以及填寫信用卡號的網站，為避免帳號及密碼等重要資訊被竊取，要注意網站連線應採用哪一種協定比較安全？',
@@ -5236,7 +4829,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '16',
         question:
           '卡耐基美隆大學所提出的「能力成熟度模型整合」CMMI各階段與其主要特定的匹配，下列何者為非？',
@@ -5249,7 +4841,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '17',
         question:
           '一名英國青年在買來的二手手機中，發現了許多名人的手機號碼，造成名人隱私有被洩漏的危機。請問下列敘述何者「正確」？',
@@ -5262,7 +4853,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '18',
         question:
           '面對網路上的各種資訊，下列何者「不是」評估網路資訊可信度的面向？',
@@ -5275,7 +4865,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '19',
         question: '小明最近迷上手機上的小遊戲，他該怎麼做才不會影響到課業呢？',
         options: [
@@ -5287,7 +4876,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '20',
         question: '使用雲端服務存放個人檔案時，請問下列注意事項何者有誤？',
         options: [
@@ -5299,7 +4887,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '21',
         question: '如果發現自己沉迷網路遊戲，請問可以採取下列何種做法？',
         options: [
@@ -5311,7 +4898,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '22',
         question: '網路上充斥各種資訊，以下哪一則網路資訊最可靠？',
         options: [
@@ -5323,7 +4909,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '23',
         question:
           '一名美國大學生曾在駭客大會上，展示如何透過網路紀錄(Cookies)竊取個人資料。請問為什麼網路紀錄(Cookies)會令駭客有機可乘？',
@@ -5336,7 +4921,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '24',
         question:
           '在安裝與使用APP時，為了避免個人資料外洩的風險，以下敘述哪一項正確？',
@@ -5349,7 +4933,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '25',
         question:
           '被不明人士使用通訊軟體邀請加入購物群組，以下哪一種是最佳的處理方式？',
@@ -5362,7 +4945,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '26',
         question:
           '網路交友未必都是壞事，但是要瞭解如何保護自己。請問與網友相約見面時，下列何者是必須要遵守的原則？',
@@ -5375,7 +4957,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '27',
         question: '請問下列有關網路交友的敘述，何者正確？',
         options: [
@@ -5387,7 +4968,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '28',
         question: '下列何種情況經常出現容易變成網路沉迷？',
         options: [
@@ -5399,7 +4979,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '29',
         question: '請問驗證碼的意義是什麼？',
         options: [
@@ -5411,7 +4990,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '30',
         question: '請問下列哪一句訊息可能是網路霸凌？',
         options: [
@@ -5423,7 +5001,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '31',
         question: '使用社群服務時，下列何者「無法」強化您的帳號及密碼的安全？',
         options: [
@@ -5435,7 +5012,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '32',
         question: '請問下列何者不是著作權保護的意義？',
         options: [
@@ -5447,7 +5023,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '33',
         question: '請問下列有關著作權的敘述，何者正確？',
         options: [
@@ -5459,7 +5034,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '34',
         question:
           '為落實資料保護保護，公司希望可以在網路層級可以對內部員工對外傳輸的資料進行掃描及過濾，下列哪⼀類防火牆可以符合公司的需求？',
@@ -5472,7 +5046,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '35',
         question: '請問下列何者不是資訊查證的管道？',
         options: [
@@ -5484,7 +5057,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '36',
         question:
           '物聯網技術日漸普及，下列何種選項不是其帶來的資訊安全風險變化？',
@@ -5497,7 +5069,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '37',
         question:
           '社群網站能使朋友間的聯繫更為緊密，但容易淪為詐騙集團的犯罪工具，關於防範社群網站的詐騙，以下敘述哪一項正確？',
@@ -5510,7 +5081,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '38',
         question: '請問下列哪些狀況屬於網路霸凌呢？',
         options: [
@@ -5522,7 +5092,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '39',
         question:
           '利用熱心網友於社群網站設立的演唱會賣票/徵票/交換專區購票時，應注意什麼事情？',
@@ -5535,7 +5104,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '40',
         question:
           '近來網路瘋傳「非洲豬瘟也會感染牛羊，人類也難倖免」收到這樣的資訊，應如何處理較合適？',
@@ -5548,7 +5116,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '41',
         question: '小安自行重灌電腦，在安裝軟體時，以下哪一種行為是正確的？',
         options: [
@@ -5560,7 +5127,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '42',
         question:
           '上網時間過多、過度依賴網路，可能會造成網路沉迷。因此，學習管理上網的時間可以避免發生沉迷的問題，請問還有什麼技巧可以幫助我們避免過度上網？',
@@ -5573,7 +5139,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '43',
         question: '以下哪一項是在網路使用信用卡付款的可能風險？',
         options: [
@@ -5585,7 +5150,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '44',
         question:
           '公司福委會為辦理團體保險，蒐集員工姓名、生日及身分證字號等個人資料，應該怎麼將資料提供給保險公司業務人員比較安全？',
@@ -5598,7 +5162,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '45',
         question:
           '當系統管理人員收到原廠作業系統之安全漏洞修補程式(patch)時，應該如何處理？',
@@ -5611,7 +5174,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '46',
         question:
           '⼩銀在⺠營企業上班，有⼀天看到同事的密碼寫在桌上，便使用同事密碼登入同事的電腦，請問他是違反了何項法令？',
@@ -5619,7 +5181,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '47',
         question:
           '某書店來電通知陳老師，他於網路訂購的書籍因訂單程序及付款方式有誤，需要透過ATM取消分期付款。請問下列陳老師的處理方式中何者有誤？',
@@ -5632,21 +5193,18 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '48',
         question: '請問下列選項何者不是長期使用3C產品可能導致的生理問題？',
         options: ['近視。', '扁平足。', '腕隧道症候群。', '駝背。'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '49',
         question: '使用網路銀行時，請問選擇下列哪一組密碼比較安全？',
         options: ['BAnkBAnk', '1BA23$nK4', 'BAnk', 'BAnk1234'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '50',
         question:
           '小芬為網路團購活動的發起人，以下敘述，何者可能造成網購風險？',
@@ -5659,7 +5217,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '51',
         question:
           '有人傳訊息告訴你，只要把訊息轉寄10位朋友，就可以獲得精美禮物，你應該怎麼辦？',
@@ -5672,7 +5229,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '52',
         question:
           '阿廣每天都會利用社群網站追蹤朋友的動態，請問以下哪一種行為較不恰當？',
@@ -5685,7 +5241,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '53',
         question: '小敏新申請一個電子郵件信箱，請問她應該如何妥善使用呢？',
         options: [
@@ -5697,7 +5252,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '54',
         question:
           '系統商常會提醒使用者應儘速下載更新程式。請問電腦進行軟體更新的最主要目的為？',
@@ -5710,7 +5264,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '55',
         question:
           '現今許多廣告、海報會印出QRCoDe，當我們在掃描QRCoDe時應該注意哪些事項才能確保安全？',
@@ -5723,7 +5276,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '56',
         question:
           '醫師表示，網路沉迷又區分不同類型，以下何者「並非」網路沉迷的類型？',
@@ -5736,7 +5288,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '57',
         question: '下列四人最近都有在玩網路遊戲，請問誰可能沉迷網路遊戲？',
         options: [
@@ -5748,7 +5299,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '58',
         question: '以下哪一種網路內容較適合未滿18歲者瀏覽？',
         options: [
@@ -5760,14 +5310,12 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '59',
         question: '請問根據課堂所學，每看螢幕30分鐘應該休息多久？',
         options: ['10分鐘。', '5分鐘。', '1分鐘。', '3分鐘。'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '60',
         question:
           '新聞常報導個人網路相簿的密碼遭破解，造成私密相片外流的事件。請問有關密碼的設定，以下哪一項正確？',
@@ -5780,7 +5328,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '61',
         question:
           '社群網路是透過人與人的關係，不斷連結與擴張，下列何者「不是」使用社群網路的正確方式？',
@@ -5793,7 +5340,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '62',
         question:
           '網路上流傳的日文旅遊書，芳芳想將它翻譯成中文張貼在自己的部落格。請問芳芳是否需要取得著作權人的同意或授權？',
@@ -5806,7 +5352,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '63',
         question: '以下哪一項屬於侵犯著作權的行為？',
         options: [
@@ -5818,7 +5363,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '64',
         question:
           '一個女明星因剪了男生髮型、穿著中性，被網友留言批評「不男不女」，這言論可能帶有？',
@@ -5826,14 +5370,12 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '65',
         question: '請問下列何種社群平臺或網站所提供的資訊可信性較高？',
         options: ['YouTuBe。', 'MyGoPen。', 'FACeBook。', 'InstAgrAm。'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '66',
         question: '請問下列有關社群媒體跟風挑戰的敘述，何者錯誤？',
         options: [
@@ -5845,7 +5387,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '67',
         question:
           '澳洲曾發生一名少女將大疊鈔票照片上傳到臉書，導致搶匪依少女公開在網路上的地址，直接上門搶劫。關於此案例，以下說明何者有誤？',
@@ -5858,7 +5399,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '68',
         question: '在學校或網咖等地方使用公共電腦，應該注意哪一種可能的風險？',
         options: [
@@ -5870,14 +5410,12 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '69',
         question: '以下哪一種人的個人資料不受「個人資料保護法」的保護？',
         options: ['未成年者。', '已死亡者。', '80歲以上的年長者。', '自然人。'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '70',
         question:
           '沉迷於網路的使用者，其生活容易受到影響，而導致作息的不正常，因此可能出現哪一種狀況？',
@@ -5890,7 +5428,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '71',
         question: '如果長時間近距離用眼，請問可能會發生什麼事？',
         options: [
@@ -5902,7 +5439,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '72',
         question: '請問Line訊息查證官方帳號能提供我們什麼幫助？',
         options: [
@@ -5914,7 +5450,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '73',
         question:
           '小文最近沉迷於一款網路遊戲，但是需要購買遊戲點數，才能升級裝備。但小文沒有零用錢，請問下列關於小文的作法，何者較為恰當？',
@@ -5927,7 +5462,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '74',
         question: '長時間沉迷上網容易造成生理傷害，可能導致以下哪一種狀況？',
         options: [
@@ -5939,7 +5473,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '75',
         question: '請問下列哪種情境下，不應該滑手機，否則容易發生危險？',
         options: [
@@ -5951,7 +5484,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '76',
         question:
           '小彬打遊戲認識了網友，這半年都一起玩也很聊得來，最近他說缺錢要向你借錢，你該怎麼做以避免金錢損失的可能？',
@@ -5964,7 +5496,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '77',
         question: '在個人的筆記型電腦上安裝軟體時，下列哪一種作法比較合適？',
         options: [
@@ -5976,7 +5507,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '78',
         question: '請問沉迷網路遊戲，可能會有什麼後果？',
         options: [
@@ -5988,7 +5518,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '79',
         question:
           '若你因為過度玩手機遊戲導致手機被爸媽沒收時，請問以下哪個做法較不恰當？',
@@ -6001,7 +5530,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '80',
         question:
           '小剛透過交友平臺認識一位心儀的女性，該女性常藉口家人生病或投資失敗等各種名義，希望小剛能匯錢給她應急，如果你是小剛，你會怎麼辦？',
@@ -6014,7 +5542,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '81',
         question: '下列哪些是性別歧視的意義？',
         options: [
@@ -6026,7 +5553,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '82',
         question: '面對網路霸凌時，請問下列哪個行為是最不建議的？',
         options: [
@@ -6038,7 +5564,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '83',
         question: '我國著作權法所保護的著作須符合以下哪一項要件？',
         options: [
@@ -6050,7 +5575,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '84',
         question:
           '曾有民眾在求職網站填寫履歷時，因不瞭解功能設定，結果個人資料完全曝露了。請問對於上網求職，下列何者正確？',
@@ -6063,14 +5587,12 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '85',
         question: '下列哪一種資訊透過通訊軟體傳遞比較適宜？',
         options: ['身分證字號', '公司機密資料', '新聞網址', '信用卡號'],
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '86',
         question: '接到疑似是詐騙電話或釣魚郵件時，請問你應該如何處理？',
         options: [
@@ -6082,7 +5604,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '87',
         question:
           '小明收到主旨為「立即填問卷限量送最新款手機」的電子郵件，下列哪一種做法比較合適？',
@@ -6095,7 +5616,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '88',
         question: '在遭遇網路霸凌時，請問下列哪個行為是最重要的？',
         options: [
@@ -6107,7 +5627,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '89',
         question:
           '阿威因為網路沉迷，最近開始出現暴力傾向，請問阿威的家長應該帶他到醫院看哪一科門診？',
@@ -6115,7 +5634,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '90',
         question:
           '使用網路拍賣服務時，應選擇信用好的賣家。請問向下列哪一位賣家購物可能會比較安全？',
@@ -6128,7 +5646,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '91',
         question:
           '小春向爸爸借用手機來玩遊戲，突然收到遊戲公司送出的廣告網址連結。請問小春是否應該要點選？',
@@ -6141,14 +5658,12 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '92',
         question: '使用智慧型裝置時，下列哪一項功能最好隨時保持開啟？',
         options: ['定位功能。', '錄音功能。', '藍芽功能。', '安全認證功能。'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '93',
         question:
           '收到陌生人的來信，稱讚你社群媒體經營的非常好，希望可以成為他們的代言人，請問此時你應該要怎麼做？',
@@ -6161,7 +5676,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '94',
         question: '下列幾則手機通訊APP上傳來的訊息，哪一項最有可能是詐騙？',
         options: [
@@ -6173,7 +5687,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '95',
         question:
           '網路沉迷或成癮的高危險群，除會有肩頸疲勞等生理問題外，還可能帶來哪些負向的心理反應？',
@@ -6186,7 +5699,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '96',
         question:
           '收到知名購物網站寄來活動中獎通知郵件時，請問要如何分辨是否收到詐騙的釣魚郵件？',
@@ -6199,7 +5711,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '97',
         question: '請問下列何者是網路霸凌的行為？',
         options: [
@@ -6211,7 +5722,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '98',
         question: '請問使用創用CC授權的作品可以用於商業用途嗎？',
         options: [
@@ -6223,7 +5733,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '99',
         question:
           '透過網路入侵別人的電腦，破壞或竊取資料牟利的人，一般稱之為何？',
@@ -6231,7 +5740,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '100',
         question: '下列哪一項行為可以幫助陷入網路沉迷危機的朋友？',
         options: [
@@ -6243,7 +5751,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '101',
         question:
           '近年來因網路及行動裝置的普及，讓網路直播成為一門新興職業，以下哪一種行為是身為直播主應該要注意的？',
@@ -6256,7 +5763,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '102',
         question:
           '為了避免個人資料外洩，無論在實際生活或是網路虛擬活動中，都應該要妥善保管個人資料，下列哪一項屬於正確的做法？',
@@ -6269,7 +5775,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '103',
         question:
           '臺灣著作財產權的保護期間，原則上是著作人的生存期間，加上其死亡後幾年？',
@@ -6277,7 +5782,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '104',
         question: '請問下列敘述何者錯誤？',
         options: [
@@ -6289,7 +5793,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '105',
         question:
           '「戒斷症狀」是指，當中斷或停止使用某種令人上癮的物質後，生理或心理上所產生的不適。請問，網路沉迷的戒斷症狀與下列哪一種情況類似？',
@@ -6297,7 +5800,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '106',
         question: '假設你是網路霸凌的受害者，請問下列何者是正確的做法？',
         options: [
@@ -6309,7 +5811,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '107',
         question: '遇到網路霸凌，請問下列哪個做法是最重要的？',
         options: [
@@ -6321,7 +5822,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '108',
         question:
           '影音平臺常會依照使用者觀看影片的類型，推薦其他類似影片，當發現推薦的影片涉及裸露色情內容時，下列哪一項處理方式較適宜？',
@@ -6334,14 +5834,12 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '109',
         question: '反詐騙專線電話號碼為何？',
         options: ['165', '110', '1922', '113'],
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '110',
         question: '請問提升資訊素養的主要目的為何？',
         options: [
@@ -6353,7 +5851,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '111',
         question: '下列何者最有可能是網路詐騙廣告？',
         options: [
@@ -6365,7 +5862,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '112',
         question:
           '網路購物平臺眾多，消費者遇到網路詐騙或交易糾紛的機會也隨之升高，採取哪一種購物方式較能避免受騙？',
@@ -6378,7 +5874,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '113',
         question: '在網站留下個人資料前，應該要注意下列哪一事項？',
         options: [
@@ -6390,7 +5885,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '114',
         question:
           '近期常常發現有不肖份子假借官方名義，以提供免費貼圖的資訊誘騙使用者加入好友，意圖獲取當事人的個資，我們應該如何識別？',
@@ -6403,7 +5897,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '115',
         question: '容量管理(capacitymanagement)的⽬標為何？',
         options: [
@@ -6415,7 +5908,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '116',
         question: '請問以下哪個不是購買網路商品時要注意的地方？',
         options: [
@@ -6427,7 +5919,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '117',
         question: '下列哪一項是安全使用網路的行為？',
         options: [
@@ -6439,7 +5930,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '118',
         question: '下列哪⼀個網路設備最容易被攔截及監聽？',
         options: [
@@ -6451,7 +5941,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '119',
         question:
           '在現代社會中，網路識讀是不可或缺的公民素養，請問最主要的原因為何？',
@@ -6464,7 +5953,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '120',
         question:
           '部分駭客專門入侵無線上網民眾的電腦，再破解電腦內儲存的密碼與信用卡資訊，所以當使用沒有加密的無線Wi-Fi上網時，最好不要從事哪些行為？',
@@ -6477,7 +5965,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '121',
         question:
           '與同事透過通訊軟體討論公務時，傳送下列哪一種資料比較「沒有」風險？',
@@ -6490,7 +5977,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '122',
         question:
           '將公司資訊技術服務化是資訊技術服務管理的基礎理念，下⾯何者不是資訊技術服務管理的特色？',
@@ -6503,7 +5989,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '123',
         question:
           '隨著科技的進步與時代的發展，人工智慧議題廣受討論，許多人針對著作權法提出不同的問題，請問下列敘述何者已有明確規定，較不具有爭議性？',
@@ -6516,7 +6001,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '124',
         question:
           '與網友互動一段時間後，對方想邀約見面，初次見面若對方出現以下哪一項行為，你應該提高警覺？',
@@ -6529,7 +6013,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '125',
         question:
           '網路已經是現代生活中不可或缺的事物，下列哪一個關於網路使用的描述是「正確」的？',
@@ -6542,7 +6025,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '126',
         question: '請問下列有關網路霸凌的敘述，何者正確？',
         options: [
@@ -6554,7 +6036,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '127',
         question:
           '網路交易後接到疑似詐騙的電話，多方的查詢及確認是不二法門，下列哪一種做法較為正確？',
@@ -6567,7 +6048,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '128',
         question:
           '網路虛擬世界裡，常發生中年男子偽裝成年輕男女，誘騙結交網友的實際案例。請問網路交友時應如何保護自己避免受騙上當？',
@@ -6580,7 +6060,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '129',
         question: '下列話語哪一項帶有性別歧視？',
         options: [
@@ -6592,7 +6071,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '130',
         question:
           '在個人電腦上存放個人履歷、生活記事與照片，應該如何保護檔案安全？',
@@ -6605,7 +6083,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '131',
         question: '請問下列哪項行為較不是詐騙集團常見的詐騙手法？',
         options: [
@@ -6617,7 +6094,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '132',
         question: '以下哪一項不是手機感染惡意程式或病毒後，可能會發生的現象？',
         options: [
@@ -6629,7 +6105,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '133',
         question:
           '近年來透過網路平臺團購的風氣盛行，但也曾出現藉此詐騙之案例，在參加團購時，以下敘述何者「不正確」？',
@@ -6642,7 +6117,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '134',
         question:
           '國小學童使用手機上網的比例已越來越高，為避免學童接觸不適合其年齡觀看的網路內容，家長應當如何因應？',
@@ -6655,7 +6129,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '135',
         question: '如果你看到同學被網路霸凌，請問你可以怎麼做？',
         options: [
@@ -6667,7 +6140,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '136',
         question:
           '駭客常會利用民眾對「高點閱率」的好奇心，而將木馬病毒藏在許多人按讚的臉書網頁。請問一旦點選這個網頁的連結，可能會發生什麼問題？',
@@ -6680,7 +6152,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '137',
         question: '請問下列哪項行為可能會使肩頸痠痛？',
         options: [
@@ -6692,7 +6163,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '138',
         question: '關於免費軟體的使用，以下哪一種行為較為恰當？',
         options: [
@@ -6704,14 +6174,12 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '139',
         question: '以下哪一項屬於我國「個人資料保護法」所列特種個資？',
         options: ['護照號碼。', '財務情況。', '身分證號碼。', '健康檢查報告。'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '140',
         question: '下列關於性別議題的描述中，何者應被鼓勵及提倡？',
         options: [
@@ -6723,7 +6191,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '141',
         question: '請問下列有關網路交友的描述，何者具有較高的風險？',
         options: [
@@ -6735,7 +6202,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '142',
         question:
           '手機也有可能會感染電腦病毒，下列何者不是手機中毒後可能會發生的現象？',
@@ -6748,7 +6214,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '143',
         question:
           '網路交友具有「網路匿名性」的特性，下列何者是有關「網路匿名性」的「正確」敘述？',
@@ -6761,7 +6226,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '144',
         question:
           '創作共用授權條款（CreAtiveCommonsLiCense,簡稱CC授權）保障了創作人的著作權，也能讓使用者在符合條件下進行使用與散布該著作，以下有關CC授權著作的描述哪一項較為正確？',
@@ -6774,7 +6238,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '145',
         question:
           '請問在沒有著作權人的許可下，下列哪種方式是屬於合理使用範圍？',
@@ -6787,7 +6250,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '146',
         question:
           '好友透過即時通訊APP傳遞熱門院線電影影片給你，請問以下哪一項是正確的？',
@@ -6800,7 +6262,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '147',
         question: '在公用電腦登入社群網站時，下列應注意事項何者有誤？',
         options: [
@@ -6812,7 +6273,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '148',
         question: '如果手機遭木馬程式攻擊，請問下列何種做法沒有幫助？',
         options: [
@@ -6824,7 +6284,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '149',
         question:
           '透過社群網站平臺，可以快速傳播商品資訊，如果想要利用社群網站平臺進行行銷推廣，請問以下敘述哪一項正確？',
@@ -6837,14 +6296,12 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '150',
         question: '請問哪一個法條規定，合理使用下，不會侵害著作財產權？',
         options: ['刑法。', '財產權法。', '民法。', '著作權法。'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '151',
         question:
           '阿泰和阿傑是好朋友，他們經常一起上線玩遊戲，同時又透過遊戲提供的平臺來聊天。請問下列何者「不是」他們在遊戲平臺聊天時應該討論的內容？',
@@ -6857,7 +6314,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '152',
         question:
           '過去曾發生許多網友以超連結方式分享影音平臺上的電影，而遭電影代理商控告侵權，請問只是張貼影片的超連結也算違反著作權法嗎？',
@@ -6870,7 +6326,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '153',
         question: '請問下列哪一個行為能避免可可曝露在網路交友的風險中？',
         options: [
@@ -6882,7 +6337,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '154',
         question: '在網路上，看到同學被霸凌時，請問下列何者是正確的做法？',
         options: [
@@ -6894,7 +6348,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '155',
         question: '當網路交友時，下列哪種行為才是正確的？',
         options: [
@@ -6906,7 +6359,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '156',
         question:
           '下列那一項「不是」保護筆記型電腦、平板電腦、智慧型手機等行動裝置的安全措施？',
@@ -6919,7 +6371,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '157',
         question:
           '現在資訊基礎架構的部署常採用虛擬機器(virtualmachine)架構，以下何者不是採用虛擬機器架構下的好處？',
@@ -6932,7 +6383,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '158',
         question:
           '在網站系統開發後期為避免上線程式存在資安漏洞，常使用源碼檢測(codereview)工具，來協助評估所開發之程式是否存在資安漏洞，此類工具無法偵測以下何項漏洞？',
@@ -6945,7 +6395,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '159',
         question:
           '⾯對組織內日益龐大且複雜的資訊資源，組態管理(configurationmanagement)變得越來越重要，下⾯哪⼀個程序不是組態管理主要可⽀援項⽬？',
@@ -6958,7 +6407,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '160',
         question:
           '網路購物輸入信用卡號碼或身分證字號時，為什麼要注意瀏覽器上方的網址列是否有出現https？這代表該網站具有哪一項功能？',
@@ -6971,7 +6419,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '161',
         question:
           '小明在網路上看到一篇文章覺得不錯，進而轉載文章，最後被告知侵犯了著作權，以下方式哪一項可以讓他避免侵犯著作權？',
@@ -6984,7 +6431,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '162',
         question:
           '透過網路可以讓我們認識各種國籍、文化和領域的人。請問在與不同文化或生活環境的人相處時，下列何者是「不適當」的行為？',
@@ -6997,7 +6443,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '163',
         question: '請問下列何者不是正確使用桌上型電腦的正確姿勢？',
         options: [
@@ -7009,7 +6454,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '164',
         question:
           '為了在交友網站中讓他人進一步與你認識，你必須提供個人資訊，下列何種提供個人資料的方式可能會導致隱私的外洩？',
@@ -7022,7 +6466,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '165',
         question: 'OSI模型各層的名稱與描述，下列何者錯誤？',
         options: [
@@ -7034,14 +6477,12 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '166',
         question: '網路詐騙者的目的最可能是下列何者？',
         options: ['無聊好玩。', '有利可圖。', '自作聰明。', '發洩報復。'],
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '167',
         question: '萬一電腦被植入惡意軟體，應該如何處理？',
         options: [
@@ -7053,7 +6494,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '168',
         question:
           '請問發現網友疑似用假身分與自己來往時，採取下列哪一個行動最恰當？',
@@ -7066,7 +6506,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '169',
         question:
           '小愛收到表哥傳來的訊息，請她幫忙去便利商店購買遊戲點數。請問下列小愛的處理方式中何者有誤？',
@@ -7079,7 +6518,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '170',
         question: '遇到有人發表歧視女性的討論時，我們應該抱持何種立場？',
         options: [
@@ -7091,7 +6529,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '171',
         question:
           '收到不知名的網站主動寄發的電子郵件，內容為點選連結加入會員就送贈品，請問，適當的處理方式為何？',
@@ -7104,7 +6541,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '172',
         question: '在網路上與他人互動時，請問下列哪一個行為較不適當？',
         options: [
@@ -7116,7 +6552,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '173',
         question:
           '當發現朋友準備與網友見面時，請問我們應該採取下列哪一個行動？',
@@ -7129,7 +6564,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '174',
         question: '請問網路交友的匿名性可能會有什麼負面影響呢？',
         options: [
@@ -7141,7 +6575,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '175',
         question: '面對網路交友時，請問我們應該抱持何種態度？',
         options: [
@@ -7153,7 +6586,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '176',
         question:
           '網路上的資訊五花八門，並非都適合各年齡層的使用者，以下哪一種屬於未滿18歲適合瀏覽的網站內容？',
@@ -7161,14 +6593,12 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '177',
         question: '由公司對外部資訊廠商發動的稽核，稱為？',
         options: ['內部稽核。', '第三者稽核。', '第⼀者稽核。', '第二者稽核。'],
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '178',
         question:
           '阿飛為了讓家人能更方便使用網路，於是在家安裝了無線網路分享器。以下有關無線網路的設定何者正確？',
@@ -7181,7 +6611,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '179',
         question:
           '有些人喜歡上網追劇，常常因此忘了時間，對於這樣的行為，以下敘述哪一項正確？',
@@ -7194,7 +6623,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '180',
         question: '下列何種行為可能構成「數位性別暴力」？',
         options: [
@@ -7206,7 +6634,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '181',
         question:
           '有關我國「個人資料保護法」主要目的為避免人格權受到侵害，請問其中所指的個人資料「不包含」下列哪一項？',
@@ -7219,7 +6646,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '182',
         question: '下列哪一項是正確的網路使用方式？',
         options: [
@@ -7231,7 +6657,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '183',
         question:
           '小智收到一封帶有附件檔案的電子郵件，內容描述自己常用的某個網路平臺帳號被盜用，請立即點擊信中連結前往修改密碼，請問下列哪一種處理方式是小智的最佳選擇？',
@@ -7244,7 +6669,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '184',
         question:
           '部分交通轉運車站提供公用電腦讓旅客們使用，請問有關正確使用公用電腦，以下敘述何者正確？',
@@ -7257,7 +6681,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '185',
         question: '請問下列哪項不是受著作權法保護的必要條件？',
         options: [
@@ -7269,7 +6692,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '186',
         question: '手機遊戲千百種，該如何分辨哪種才是適合自己玩的遊戲呢？',
         options: [
@@ -7281,7 +6703,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '187',
         question:
           '在組織遭遇重大災害時需依緊急應變計畫，啟動緊急應變措施，說明如何將資訊服務回復原本運作模式的作業是包含在計畫內的哪⼀個階段？',
@@ -7294,7 +6715,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '188',
         question:
           '網站個人資料外洩事件頻傳，請問以下有關網路上保護個人資料的做法，何者「不恰當」？',
@@ -7307,7 +6727,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '189',
         question:
           '請問當我們過度沉迷於網路遊戲時，較不會帶給我們下列何種影響？',
@@ -7320,7 +6739,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '190',
         question:
           '網路沉迷的使用者會因過度使用網際網路服務，影響個人日常生活，以下哪一種狀態比較容易發生？',
@@ -7333,7 +6751,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '191',
         question:
           '有民眾在拍賣網站以6千元標到市價上萬元的筆電，卻始終收不到貨，才知被詐騙。請問下列針對網拍購物安全的敘述何者有誤？',
@@ -7346,7 +6763,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '192',
         question:
           '為參加網路抽獎活動，在輸入自己的個人資料時，應注意什麼事項？',
@@ -7359,7 +6775,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '193',
         question: '如果剛認識的網友邀請你出門見面，請問你會怎麼做？',
         options: [
@@ -7371,7 +6786,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '194',
         question:
           '小美最近在網路遊戲認識一位網友，對方向她提出一些要求。請問下列哪一項網友提出的要求是不合理的？',
@@ -7384,7 +6798,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '195',
         question:
           '在網路上散布不當的文字或影片內容可能涉及違法行為，以下哪一種行為不違法且合乎禮儀？',
@@ -7397,7 +6810,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '196',
         question:
           '個人資料遭受洩漏的事件時有所聞，以下哪一項「不是」導致此情形的原因？',
@@ -7410,7 +6822,6 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
         id: '197',
         question:
           '身分認證(authentication)常用3種認證要素與實際應用，以下哪⼀個選項正確？',
@@ -7423,7 +6834,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '198',
         question:
           '在公眾場合想要連接無線網路時，如果手機搜尋到無須密碼驗證的Wi-Fi熱點，以下哪一種行為較恰當？',
@@ -7436,7 +6846,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '199',
         question:
           '駭客常常利用釣魚網頁或社交工程信件，惡意偷取使用者的帳號與密碼，其主要用意可能與下列哪一項無關？',
@@ -7449,7 +6858,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '200',
         question:
           '為什麼有些網站因為長期保留網路紀錄(Cookies)，而引發侵犯隱私的批評？',
@@ -7462,7 +6870,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '201',
         question: '請問下列何者為不當的網路使用行為？',
         options: [
@@ -7474,7 +6881,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '202',
         question: '請問下列何種行為容易使電腦遭受木馬程式攻擊呢？',
         options: [
@@ -7486,7 +6892,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '203',
         question: '依照著作權法，使用電腦和網路時，以下何者是正確的行為？',
         options: [
@@ -7498,7 +6903,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '204',
         question: '如果同學沉迷網路遊戲，請問你應該怎麼做？',
         options: [
@@ -7510,7 +6914,6 @@ const rawSubjects: Subjects = {
         correctIndex: 1,
       },
       {
-        type: 'single_choice',
         id: '205',
         question:
           '假設在社群媒體上，收到朋友向自己借錢的訊息，請問你會怎麼做？',
@@ -7523,7 +6926,6 @@ const rawSubjects: Subjects = {
         correctIndex: 0,
       },
       {
-        type: 'single_choice',
         id: '206',
         question: '請問下列何者是沉迷網路遊戲的現象？',
         options: [
@@ -7535,7 +6937,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '207',
         question: '下列網路購物發生的情形，何者可能是騙局？',
         options: [
@@ -7547,7 +6948,6 @@ const rawSubjects: Subjects = {
         correctIndex: 2,
       },
       {
-        type: 'single_choice',
         id: '208',
         question: '如果沉迷網路交友，不分晝夜，請問會有什麼負面影響呢？',
         options: [
@@ -7561,11 +6961,3 @@ const rawSubjects: Subjects = {
     ],
   },
 }
-
-//* 導出轉換後的 subjects（SubjectConfig 格式）
-export const subjects: Record<string, SubjectConfig> = Object.fromEntries(
-  Object.entries(rawSubjects).map(([key, subject]) => [
-    key,
-    convertToSubjectConfig(subject),
-  ])
-)

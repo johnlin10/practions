@@ -7,7 +7,90 @@ alwaysApply: true
 
 ## 專案概述
 
-Practions 是一個為中臺科技大學資管系開發的測驗網站，提供學生進行各種主題的測驗及查看題庫的功能。專案使用 React 18 開發，採用現代化的函數式組件與 Hooks 設計模式。
+Practions 是一個為中臺科技大學資管系開發的測驗網站，提供學生進行各種主題的測驗及查看題庫的功能。專案使用 React 18 + TypeScript 開發，採用現代化的函數式組件與 Hooks 設計模式。
+
+### 重構狀態 (2025-10-19)
+
+專案已完成重大架構重構，支援 PVQC 多階段測驗流程：
+
+✅ **階段一：型別系統重構** - 已完成
+- 建立新的 discriminated union 題型系統 (`src/types/questions.ts`)
+- 建立測驗模式系統 (`src/types/quiz-modes.ts`)
+- 建立測驗流程系統 (`src/types/quiz-flows.ts`)
+- 建立統一的答案系統 (`src/types/answers.ts`)
+
+✅ **階段二：QuizContext 重構** - 已完成
+- 實現多階段測驗支援
+- 使用策略模式處理不同答案類型
+- 支援 `boolean` 型別答案（是非題）
+- 新增 `finishStage`, `goToStage`, `hasNextStage` 函數
+
+✅ **階段三：PVQC 測驗元件** - 已完成
+- `PVQCWriteQuestion.tsx` - 看中拼英
+- `PVQCReadQuestion.tsx` - 看英選中
+- `PVQCListenQuestion.tsx` - 聽英選中/英
+- `PVQCPronunciationQuestion.tsx` - 看中選發音
+- `StandardQuestion.tsx` - 標準題型（單選/多選/是非）
+
+✅ **階段四：評分系統** - 已完成
+- 實現策略模式評分系統 (`src/utils/scoring.ts`)
+- 支援多階段結果統計
+- 向後兼容單階段測驗
+
+✅ **階段五：資料遷移** - 已完成
+- 建立自動遷移工具 (`src/utils/migrate-subjects.ts`)
+- 成功遷移 771 題題目資料
+  - 單選題: 452 題
+  - 多選題: 63 題
+  - 是非題: 29 題
+  - 單字題: 227 題
+- 所有型別錯誤已解決
+
+✅ **階段六：多選題答案處理修復** - 已完成 (2025-10-23)
+- 問題：多選題切換題目後答案消失
+- 原因：`standard` 模式統一使用 `single_choice` 答案類型
+- 修復：引入 `dynamic` 答案類型，根據題目實際類型選擇處理策略
+- 影響範圍：
+  - `src/types/quiz-modes.ts` - 新增 `dynamic` 答案類型
+  - `src/context/QuizContext.ts` - 改進 `submitAnswer` 函數邏輯
+- 結果：所有題型（單選/多選/是非）答案正確保存和顯示
+
+✅ **階段七：單階段 PVQC 測驗修復** - 已完成 (2025-10-23)
+- 問題：當只選擇單個 PVQC 測驗項目時，測驗記錄顯示為空
+- 根本原因：
+  - `generateFlowConfigSummary` 函數原本的判斷條件 `flowConfig.stages.length < 0` 是錯誤的（永遠為 false）
+  - 修正為 `flowConfig.stages.length <= 0` 後，單個 PVQC 項目可以保留 flowConfig
+  - 但 `generateDetailedResults` 使用 `flowConfig.stages.length > 1` 判斷多階段，導致單個 PVQC 項目被當作 Standard 測驗
+  - 結果產生的 `DetailedQuizResults` 只有 `questionResults` 而沒有 `stageResults`
+  - SingleHistory 和 Results 元件根據階段數量判斷，嘗試讀取不存在的 `stageResults`，導致顯示為空
+- 修復方案：
+  - 修改 `generateDetailedResults` 的判斷邏輯，從「階段數量 > 1」改為「是否為 PVQC 測驗」
+  - 使用 `flowConfig.stages.some(stage => stage.mode.startsWith('pvqc'))` 判斷
+  - 確保所有 PVQC 測驗（無論單階段或多階段）都生成 `stageResults` 格式
+  - 同步修復 Results 元件的判斷邏輯，確保即時結果頁面也能正確顯示
+- 影響範圍：
+  - `src/utils/detailed-results.ts` - 修改 `generateDetailedResults` 函數的判斷邏輯
+  - `src/pages/History/ui/SingleHistory.tsx` - 清理調試用的 console.log
+  - `src/components/Results/Results.tsx` - 修復 PVQC 判斷邏輯
+- 結果：單個和多個 PVQC 測驗項目在結果頁面和歷史記錄頁面都能正確顯示
+
+✅ **階段八：完成測驗按鈕判斷邏輯修復** - 已完成 (2025-10-24)
+- 問題：「完成測驗」按鈕的啟用狀態無法正確判斷使用者是否做完所有階段的所有測驗題目
+- 根本原因：
+  - `isCurrentStageCompleted` 原本只檢查 `multi_stage` 類型測驗，且只檢查當前階段的題目
+  - `handleFinish` 函數內部也只檢查當前階段的題目，而非所有階段
+  - 導致在多階段測驗中，即使還有未完成的階段，按鈕也會被啟用
+- 修復方案：
+  - 新增 `isAllQuestionsCompleted`：檢查所有階段的所有題目是否都已回答
+  - 保留 `isCurrentStageCompleted`：用於自動切換階段的邏輯（只檢查當前階段）
+  - 更新「完成測驗」按鈕的 `disabled` 屬性，使用 `isAllQuestionsCompleted`
+  - 更新 `handleFinish` 函數，檢查所有階段的題目而非僅當前階段
+- 影響範圍：
+  - `src/pages/Quiz/Quiz.tsx` - 新增 `isAllQuestionsCompleted`，修改按鈕邏輯和 `handleFinish` 函數
+- 結果：
+  - 單階段測驗：按鈕正確反映當前階段的完成狀態
+  - 多階段測驗：按鈕只在所有階段的所有題目都完成後才啟用
+  - 自動切換階段功能正常運作（使用 `isCurrentStageCompleted`）
 
 ## 技術框架與核心依賴
 
@@ -16,27 +99,119 @@ Practions 是一個為中臺科技大學資管系開發的測驗網站，提供�
 - **樣式**: SCSS/Sass 1.80.4
 - **後端服務**: Firebase (Hosting, Firestore)
 - **部署**: Firebase Hosting
+- **TypeScript**: 完整型別系統支援
 
 ## 架構設計原則
+
+### 核心設計理念
+
+1. **分離關注點 (Separation of Concerns)**
+   - 題目資料 (Question Data)：純粹的題目內容
+   - 題型定義 (Question Type)：題目的基本類型
+   - 測驗模式 (Quiz Mode)：測驗的呈現和互動方式
+   - 測驗流程 (Quiz Flow)：多階段測驗的編排
+
+2. **TypeScript Discriminated Union**
+   - 所有題型使用 `type` 屬性區分
+   - 確保型別安全，編譯時檢查錯誤
+   - 避免執行時型別錯誤
+
+3. **策略模式 (Strategy Pattern)**
+   - 不同答題方式使用不同處理策略
+   - 不同評分方式使用不同評分策略
+   - 易於擴展新題型和測驗模式
+
+### 型別系統架構
+
+#### 題型系統 (`src/types/questions.ts`)
+- `SingleChoiceQuestion`: 單選題
+- `MultipleChoiceQuestion`: 多選題
+- `TrueFalseQuestion`: 是非題
+- `VocabularyQuestion`: 單字題（基礎資料）
+- 所有題型使用 `Question` 聯合型別
+
+#### 測驗模式 (`src/types/quiz-modes.ts`)
+- `standard`: 標準測驗（單選/多選/是非）
+  - 使用 `dynamic` 答案類型：根據題目實際類型自動選擇處理策略
+  - 支援單選題 (number)、多選題 (number[])、是非題 (boolean)
+- `pvqc_write`: PVQC 測驗一 - 看中拼英
+- `pvqc_read`: PVQC 測驗二 - 看英選中
+- `pvqc_listen_chinese`: PVQC 測驗三 - 聽英選中
+- `pvqc_listen_english`: PVQC 測驗四 - 聽英選英
+- `pvqc_pronunciation`: PVQC 測驗五 - 看中選發音
+
+#### 答案系統 (`src/types/answers.ts`)
+- `AnswerRecord`: 統一的答案記錄格式
+  - 支援 `string | number | number[] | boolean`
+  - 包含時間戳和階段資訊
+- `AnswersCollection`: 答案集合
+- `QuizState`: 完整的測驗狀態
+
+#### 測驗流程 (`src/types/quiz-flows.ts`)
+- `QuizStageConfig`: 單一測驗階段配置
+- `QuizFlowConfig`: 多階段測驗流程配置
+- `SubjectConfig`: 科目配置（支援多階段）
+
+#### 歷史記錄系統 (`src/types/index.ts`)
+- `DetailedQuestionResult`: 單題詳細結果（包含原始題目、正確答案、使用者答案）
+- `DetailedStageResult`: 階段詳細結果（適用於 PVQC 多階段）
+- `DetailedQuizResults`: 完整評分報告（支援 Standard 和 PVQC 測驗類型）
+- `HistoryRecord`: 歷史記錄介面（區分測驗類型，包含完整評分報告）
+- `QuizRecordType`: 測驗記錄類型（'standard' | 'pvqc'）
+
+#### 分組顯示系統 (`src/utils/detailed-results.ts`)
+- `getStageDisplayName()`: 獲取階段的顯示名稱（用於分組標題）
+- 支援 PVQC 各階段的中文名稱顯示
+- 支援 Standard 測驗的題型分組
 
 ### 目錄結構
 
 專案採用 feature-based 架構，主要結構如下：
 
+- `/src/types`: TypeScript 型別定義（新增）
 - `/src/components`: 共用元件
 - `/src/context`: React Context API 狀態管理
 - `/src/data`: 靜態資料與題庫
 - `/src/pages`: 頁面級元件，按功能模組分類
+  - `/src/pages/Quiz/components`: 題目元件（新增）
+  - `/src/pages/PVQC`: PVQC 測驗設定頁面（新增）
 - `/src/utils`: 公用工具函數
+  - `scoring.ts`: 評分策略（新增）
+  - `migrate-subjects.ts`: 資料遷移工具（新增）
+  - `detailed-results.ts`: 詳細評分報告生成工具（新增）
+  - `helper.ts`: 通用輔助函數
 - `/src/styles`: 全域樣式定義
+- `/scripts`: 執行腳本（新增）
 
 ### 主要功能模組
 
 - **首頁 (Home)**: 網站入口
 - **測驗 (Quiz)**: 進行測驗的核心功能
+  - 支援 Standard 和 PVQC 兩種測驗類型
+  - PVQC 支援多階段測驗流程
 - **題庫 (Bank)**: 瀏覽與管理題庫
 - **歷史記錄 (History)**: 查看測驗歷史記錄
+  - 區分 Standard 和 PVQC 測驗記錄
+  - 顯示完整的評分報告（不再重複計算）
+  - 包含每一題的詳細資訊（原始題目、正確答案、使用者答案）
+  - **分組顯示**: 按階段/題型分組，用標題區分不同題型
+- **測驗結果 (Results)**: 即時測驗結果查看
+  - **分組顯示**: 按階段/題型分組，用標題區分不同題型
+  - 支援篩選和排序功能
 - **設定 (Settings)**: 用戶設定與偏好
+
+## 用戶體驗改進
+
+### 分組顯示設計
+- **PVQC 測驗**: 按階段分組，每個階段顯示對應的測驗名稱
+  - PVQC 測驗一：寫（看中文，拼寫英文）
+  - PVQC 測驗二：讀（看英文，選中文）
+  - PVQC 測驗三：聽（聽英文，選中文）
+  - PVQC 測驗四：聽（聽英文，選英文）
+  - PVQC 測驗五：聽（看中文，選發音）
+- **Standard 測驗**: 按題型分組
+  - 單選題、多選題、是非題、單字題
+- **視覺設計**: 每個組有明顯的標題和底線分隔，增強可讀性
 
 ## 編碼規範
 
@@ -133,6 +308,10 @@ Practions 是一個為中臺科技大學資管系開發的測驗網站，提供�
 2. **版本發布**:
    - 使用 npm scripts 進行建置與部署
    - `npm run build-deploy` 進行建置後部署到 Firebase Hosting
+
+3. **資料遷移**:
+   - 歷史記錄格式更新時，使用 `npm run migrate-history` 遷移舊資料
+   - 確保向後相容性，舊格式資料仍可正常顯示
 
 ## 擴展與未來開發
 

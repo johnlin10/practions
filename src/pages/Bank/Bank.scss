@@ -284,12 +284,10 @@ span.lock-time {
         position: relative;
         width: 100%;
         height: min-content;
-        border: 2px solid var(--gray-color-13);
 
         > .word {
           display: flex;
           flex-direction: column;
-          padding: 12px;
           width: 100%;
 
           > .english {

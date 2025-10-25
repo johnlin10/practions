@@ -28,7 +28,7 @@
 
     h1 {
       font-size: 2.5rem;
-      color: var(--primary-color-text);
+      color: var(--primary-color);
       margin-bottom: 12px;
     }
 
@@ -42,27 +42,43 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
       padding: 9px 20px;
       margin-top: 12px;
       height: 42px;
       background: var(--background-color);
       color: var(--text-color);
       font-size: 1rem;
-      border: 2px solid var(--gray-color-12);
+      font-weight: 500;
+      border: 2px solid var(--border-color);
 
       &:hover {
         background: var(--gray-color-13);
       }
 
-      &.start-quiz-button {
-        margin-bottom: 24px;
-        padding: 12px 20px;
-        height: 48px;
-        font-weight: 700;
-        font-size: 1.5rem;
-        background: var(--primary-color);
-        color: var(--text-white);
-        border: 2px solid var(--primary-color);
+      > .new-badge {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 2px 6px;
+        font-size: 0.8rem;
+        background-color: var(--primary-color);
+        border: 2px solid var(--foreground-100);
+        color: var(--white);
+        border-radius: 6px;
+        -webkit-border-radius: 6px;
+        -moz-border-radius: 6px;
+        -ms-border-radius: 6px;
+        -o-border-radius: 6px;
+        transform: translateY(-50%) translateX(-50%);
+        -webkit-transform: translateY(-50%) translateX(-50%);
+        -moz-transform: translateY(-50%) translateX(-50%);
+        -ms-transform: translateY(-50%) translateX(-50%);
+        -o-transform: translateY(-50%) translateX(-50%);
+      }
+
+      > .material-symbols-rounded {
+        margin-right: 6px;
       }
     }
   }

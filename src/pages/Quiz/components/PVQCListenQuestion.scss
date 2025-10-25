@@ -1,0 +1,32 @@
+.audio-section {
+  margin-top: 48px;
+  .audio-controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    > button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 24px;
+
+      > span {
+        font-size: 2.5rem;
+      }
+    }
+  }
+}
+
+.pvqc-listen-options {
+  > p.hint-text {
+    font-size: 0.85rem !important;
+    font-weight: 400 !important;
+    color: var(--gray-500) !important;
+    margin: 0 !important;
+  }
+}

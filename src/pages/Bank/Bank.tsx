@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, Link, Outlet } from 'react-router-dom'
 import './Bank.scss'
 
@@ -12,21 +12,38 @@ import {
   formatLockTime,
 } from './utils/bankHelpers'
 
-function Bank() {
-  const { subjectId } = useParams()
-  const [selectedSubject, setSelectedSubject] = useState(null)
-  const [currentTime, setCurrentTime] = useState(new Date())
+// types
+import { SubjectConfig } from '../../types/quiz-flows'
 
+interface BankParams extends Record<string, string | undefined> {
+  subjectId?: string
+}
+
+/**
+ * [page] Bank page
+ * 題庫頁面，顯示所有可用的科目
+ */
+function Bank(): React.ReactElement {
+  // 取得科目 ID
+  const { subjectId } = useParams<BankParams>()
+  // 選中的科目
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
+  // 當前時間
+  const [currentTime, setCurrentTime] = useState<Date>(new Date())
+
+  // 更新當前時間
   useEffect(() => {
+    // 設置當前時間
     setCurrentTime(new Date())
-
+    // 每 10 秒更新一次當前時間
     const intervalId = setInterval(() => {
       setCurrentTime(new Date())
     }, 10000)
-
+    // 清除定時器
     return () => clearInterval(intervalId)
   }, [])
 
+  // 更新選中的科目
   useEffect(() => {
     if (subjectId) {
       setSelectedSubject(subjectId)
@@ -41,7 +58,7 @@ function Bank() {
           <h1>題庫</h1>
           <div className="subjects-section">
             <div className="subjects-grid">
-              {Object.values(subjects).map((subject) => {
+              {Object.values(subjects).map((subject: SubjectConfig) => {
                 const locked = isSubjectLocked(subject)
                 const lockStatus = getLockStatus(subject, currentTime)
                 return (
@@ -62,7 +79,8 @@ function Bank() {
                     <p>
                       {subject.lockTime && lockStatus.status !== 'none' && (
                         <span className={`lock-time ${locked ? 'locked' : ''}`}>
-                          {lockStatus.text} {formatLockTime(lockStatus.time)}{' '}
+                          {lockStatus.text}{' '}
+                          {lockStatus.time && formatLockTime(lockStatus.time)}{' '}
                         </span>
                       )}
                       {subject.questions.length} 題
@@ -77,4 +95,5 @@ function Bank() {
     </>
   )
 }
+
 export default Bank

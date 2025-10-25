@@ -48,12 +48,44 @@ button {
   justify-content: center;
   padding: 6px 12px;
   font-size: 1rem;
-  color: var(--text-color);
-  background-color: var(--background-color);
-  border: 2px solid var(--gray-color-12);
+  color: var(--foreground-900);
+  background-color: var(--background);
+  border: 2px solid var(--border-color);
+  box-shadow: 0 3px 0 var(--border-color);
 
-  &:hover {
-    background: var(--gray-color-13);
+  -webkit-appearance: none; /* Safari and Chrome */
+  -moz-appearance: none; /* Firefox */
+  appearance: none;
+
+  &:focus {
+    outline: none;
+    -webkit-appearance: none; /* Safari and Chrome */
+    -moz-appearance: none; /* Firefox */
+    appearance: none;
+  }
+
+  &:not(:disabled) {
+    &:hover {
+      background: var(--background-secondary);
+      border: 2px solid var(--border-hover-color);
+
+      box-shadow: 0 3px 0 var(--border-hover-color);
+    }
+
+    &:active {
+      transform: translateY(3px);
+      box-shadow: 0 0 0 var(--border-color);
+    }
+  }
+
+  &.selected {
+    box-shadow: 0 0 0 var(--primary-color) !important;
+    transform: translateY(3px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   &.close-btn {
@@ -62,8 +94,8 @@ button {
     top: 12px;
     right: 12px;
     padding: 6px 6px;
-    color: var(--gray-color-10);
-    border: 0 solid var(--gray-color-13);
+    color: var(--gray-600);
+    border: 2px solid var(--border-color);
   }
 
   border-radius: 6px;
@@ -81,6 +113,13 @@ input[type='text'] {
   -moz-border-radius: 12px;
   -ms-border-radius: 12px;
   -o-border-radius: 12px;
+}
+
+input {
+  &:focus {
+    border: 2px solid var(--primary-color);
+    outline: none;
+  }
 }
 
 div {

@@ -1,0 +1,69 @@
+.question-block {
+  h3 {
+    margin-bottom: 12px;
+  }
+
+  // 題目內容
+  > div.question-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+
+    > div.question-prompt-container {
+      height: 100%;
+
+      > p.question-prompt {
+        font-size: 1rem;
+        font-weight: 400;
+        color: var(--foreground-900);
+        margin-bottom: 12px;
+      }
+    }
+
+    // 答案選擇介面
+    > div.options {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      padding: 12px 0;
+      width: 100%;
+      max-width: 640px;
+
+      button {
+        justify-content: flex-start;
+        gap: 6px;
+        padding: 9px 12px;
+        width: 100%;
+        text-align: start;
+
+        &.selected {
+          border-color: var(--primary-color);
+          color: var(--blue-600) !important;
+          background-color: var(--blue-100);
+
+          box-shadow: 0 3px 0 var(--primary-color);
+          &:active {
+            box-shadow: 0 0 0 var(--primary-color);
+            transform: translateY(3px);
+          }
+        }
+        &:not(:disabled) {
+          &:active {
+            color: var(--blue-600) !important;
+            background-color: var(--blue-100);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 var(--primary-color);
+            transform: translateY(3px);
+          }
+        }
+      }
+    }
+  }
+}
+
+p.question-prompt {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--foreground-900);
+}
