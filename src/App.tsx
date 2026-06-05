@@ -43,10 +43,10 @@ function App(): React.ReactElement {
         <Route path="/history" element={<History />}>
           <Route path=":id" element={<SingleHistory />} />
         </Route>
-        <Route path="/results" element={<Results />} />
         <Route path="/bank" element={<Bank />}>
           <Route path=":subjectId" element={<SingleBank />} />
         </Route>
+        <Route path="/results" element={<Results />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </>

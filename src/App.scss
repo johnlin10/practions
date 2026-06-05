@@ -45,7 +45,7 @@
   height: 100vh;
   margin: 0 auto;
   background-color: var(--background-color);
-  padding: 48px 18px 120px 18px;
+  padding: 48px 18px calc(48px + 60px + 48px) 18px;
   overflow: hidden;
   overflow-y: auto;
   border-radius: 0;

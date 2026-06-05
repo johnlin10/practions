@@ -1,6 +1,7 @@
 import { VocabularyQuestion } from '../../../types/questions'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import './PVQCListenQuestion.scss'
+import { speakEnglish, cancelSpeech } from '../../../utils/tts'
 
 interface Props {
   question: VocabularyQuestion
@@ -34,72 +35,44 @@ function PVQCListenQuestion({
   const [isPlaying, setIsPlaying] = useState(false)
   // 是否已播放
   const [hasPlayed, setHasPlayed] = useState(false)
-  // 音訊元素引用
-  const audioRef = useRef<HTMLAudioElement>(null)
 
   /**
    * [function] playAudio
-   * 播放音訊
-   * @returns {void}
+   * 播放瀏覽器內建語音
    */
   const playAudio = useCallback(() => {
-    // 如果瀏覽器支援語音合成
-    if ('speechSynthesis' in window) {
-      setIsPlaying(true)
+    cancelSpeech()
+    setIsPlaying(true)
 
-      // 停止任何正在播放的語音
-      window.speechSynthesis.cancel()
-
-      // 創建語音合成實例
-      const utterance = new SpeechSynthesisUtterance(question.english)
-
-      // 設定語音參數
-      utterance.lang = 'en-US' // 英文語音
-      utterance.rate = 0.8 // 語速稍慢一點
-      utterance.pitch = 1 // 音調
-      utterance.volume = 1 // 音量
-
-      // 播放結束事件
-      utterance.onend = () => {
+    speakEnglish(question.english, {
+      rate: 0.85,
+      onEnd: () => {
         setIsPlaying(false)
         setHasPlayed(true)
-      }
-
-      // 播放錯誤事件
-      utterance.onerror = () => {
+      },
+      onError: () => {
         setIsPlaying(false)
-        setHasPlayed(true)
-        console.warn('語音合成播放失敗')
-      }
-
-      // 開始播放
-      window.speechSynthesis.speak(utterance)
-    }
+      },
+    })
   }, [question.english])
 
-  // 當題目切換時，重置播放狀態
+  // 當題目切換時，重置狀態並自動播放。
   useEffect(() => {
-    // 重置已播放狀態
     setHasPlayed(false)
-    // 重置是否正在播放狀態
     setIsPlaying(false)
-    // 停止任何正在播放的語音
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-      // 延遲播放音訊
-      setTimeout(() => {
-        playAudio()
-      }, 250)
-    }
+    cancelSpeech()
+
+    const t = setTimeout(() => {
+      playAudio()
+    }, 250)
+
+    return () => clearTimeout(t)
   }, [question.id, playAudio])
 
   // 元件卸載時清理語音合成
   useEffect(() => {
-    // 元件卸載時清理語音合成
     return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel()
-      }
+      cancelSpeech()
     }
   }, [])
 
@@ -152,15 +125,6 @@ function PVQCListenQuestion({
               {isPlaying ? '播放中...' : '播放音訊'}
             </button>
           </div>
-
-          {/* 音訊元素 */}
-          <audio
-            ref={audioRef}
-            src={`/vocabulary-audio/${
-              question.audioFile || `${question.english}.mp3`
-            }`}
-            preload="auto"
-          />
         </div>
 
         <div className="options pvqc-listen-options">

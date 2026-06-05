@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Results.scss'
 import '../../styles/reviewQuestions.scss'
@@ -6,9 +6,10 @@ import '../../styles/reviewQuestions.scss'
 // context
 import { useQuiz } from '../../context/QuizContext'
 import { Question } from '../../types/questions'
+import { DetailedQuestionResult } from '../../types'
 import { getStageDisplayName } from '../../utils/detailed-results'
 
-//* 分析後的題目型別
+//* 分析後的題目型別（直接沿用 detailed-results 的判定）
 type AnalyzedQuestion = {
   question: Question
   userAnswer: string | number | number[] | boolean | undefined
@@ -22,7 +23,18 @@ type QuestionGroup = {
   questions: AnalyzedQuestion[]
   stageId?: string
   mode?: string
+  correctCount?: number
+  totalCount?: number
+  passingScore?: number
+  passed?: boolean
 }
+
+const toAnalyzed = (q: DetailedQuestionResult): AnalyzedQuestion => ({
+  question: q.question,
+  userAnswer: q.userAnswer,
+  isCorrect: q.isCorrect,
+  isUnanswered: q.isUnanswered,
+})
 
 /**
  * Results component
@@ -33,9 +45,8 @@ function Results(): React.ReactElement {
   const { quizState } = useQuiz()
   const [showWrongOnly, setShowWrongOnly] = useState<boolean>(false)
   const [sortByQuestionId, setSortByQuestionId] = useState<boolean>(false)
-  const [analyzedQuestions, setAnalyzedQuestions] = useState<
-    AnalyzedQuestion[]
-  >([])
+
+  const results = quizState.results
 
   //* 計算測驗持續時間
   const duration =
@@ -45,221 +56,79 @@ function Results(): React.ReactElement {
   const minutes = Math.floor(duration / 60000)
   const seconds = Math.floor((duration % 60000) / 1000)
 
-  //* 分析題目和答案
-  useEffect(() => {
-    // 檢查是否有結果資料
-    if (!quizState.results) {
-      navigate('/')
-      return
+  //* 直接讀取 detailed-results 的判定（單一資料來源）
+  const analyzedQuestions = useMemo<AnalyzedQuestion[]>(() => {
+    if (!results) return []
+    if (results.stageResults) {
+      return results.stageResults.flatMap((s) =>
+        s.questionResults.map(toAnalyzed)
+      )
     }
-
-    // 收集所有階段的題目
-    const allQuestions: Question[] = []
-    Object.values(quizState.allStagesQuestions).forEach((stageQuestions) => {
-      allQuestions.push(...stageQuestions)
-    })
-
-    const analyzed: AnalyzedQuestion[] = allQuestions.map((question) => {
-      const answerRecord = quizState.answers[question.id]
-      const userAnswer = answerRecord?.answer
-
-      // 判斷是否正確
-      let isCorrect = false
-
-      if (answerRecord) {
-        switch (question.type) {
-          case 'single_choice':
-            isCorrect =
-              typeof userAnswer === 'number' &&
-              userAnswer === question.correctIndex
-            break
-
-          case 'multiple_choice':
-            if (Array.isArray(userAnswer)) {
-              isCorrect =
-                userAnswer.length === question.correctIndexes.length &&
-                userAnswer.every((ans) => question.correctIndexes.includes(ans))
-            }
-            break
-
-          case 'true_false':
-            isCorrect =
-              typeof userAnswer === 'boolean' &&
-              userAnswer === question.correctAnswer
-            break
-
-          case 'vocabulary':
-            // 單字題的正確性判斷
-            if (typeof userAnswer === 'string') {
-              // 可能是拼寫題、選擇題或發音題
-              // 拼寫題：比對英文單字
-              const isWriteCorrect =
-                userAnswer.trim().toLowerCase() ===
-                question.english.trim().toLowerCase()
-              // 選中文：比對中文翻譯
-              const isChineseCorrect = userAnswer === question.chinese
-              // 選英文：比對英文單字
-              const isEnglishCorrect =
-                userAnswer.trim().toLowerCase() ===
-                question.english.trim().toLowerCase()
-              // 發音題：比對音訊檔案
-              const correctAudio =
-                question.audioFile ||
-                `/vocabulary-audio/${question.english}.mp3`
-              const isPronunciationCorrect = userAnswer === correctAudio
-
-              isCorrect =
-                isWriteCorrect ||
-                isChineseCorrect ||
-                isEnglishCorrect ||
-                isPronunciationCorrect
-            }
-            break
-        }
-      }
-
-      return {
-        question,
-        userAnswer,
-        isCorrect,
-        isUnanswered: !answerRecord,
-      }
-    })
-
-    setAnalyzedQuestions(analyzed)
-  }, [quizState, navigate])
+    return (results.questionResults ?? []).map(toAnalyzed)
+  }, [results])
 
   //* 使用 useMemo 處理分組和篩選
   const questionGroups = useMemo<QuestionGroup[]>(() => {
-    // 檢查是否為 PVQC 測驗（任何階段的模式以 'pvqc' 開頭）
-    const isPVQC = quizState.flowConfig.stages.some((stage) =>
-      stage.mode.startsWith('pvqc')
-    )
+    if (!results) return []
 
-    if (isPVQC) {
-      // PVQC 測驗：按階段分組
-      return quizState.flowConfig.stages
-        .map((stage, index) => {
-          const stageQuestions =
-            quizState.allStagesQuestions[stage.stageId] || []
-          const analyzedStageQuestions: AnalyzedQuestion[] = stageQuestions.map(
-            (question) => {
-              const answerRecord = quizState.answers[question.id]
-              const userAnswer = answerRecord?.answer
+    const applyFilterAndSort = (questions: AnalyzedQuestion[]): AnalyzedQuestion[] => {
+      let filtered = showWrongOnly
+        ? questions.filter((q) => !q.isCorrect)
+        : questions.slice()
+      if (sortByQuestionId) {
+        filtered.sort((a, b) => {
+          const aNum = parseInt(a.question.id.toString().replace(/\D/g, '')) || 0
+          const bNum = parseInt(b.question.id.toString().replace(/\D/g, '')) || 0
+          return aNum - bNum
+        })
+      }
+      return filtered
+    }
 
-              // 判斷是否正確（簡化版邏輯）
-              let isCorrect = false
-              if (answerRecord) {
-                switch (question.type) {
-                  case 'vocabulary':
-                    if (typeof userAnswer === 'string') {
-                      const isWriteCorrect =
-                        userAnswer.trim().toLowerCase() ===
-                        question.english.trim().toLowerCase()
-                      const isChineseCorrect = userAnswer === question.chinese
-                      const isEnglishCorrect =
-                        userAnswer.trim().toLowerCase() ===
-                        question.english.trim().toLowerCase()
-                      const correctAudio =
-                        question.audioFile ||
-                        `/vocabulary-audio/${question.english}.mp3`
-                      const isPronunciationCorrect = userAnswer === correctAudio
-                      isCorrect =
-                        isWriteCorrect ||
-                        isChineseCorrect ||
-                        isEnglishCorrect ||
-                        isPronunciationCorrect
-                    }
-                    break
-                  default:
-                    // 其他題型使用簡單邏輯
-                    isCorrect = true // 暫時設為 true，實際應該用詳細邏輯
-                }
-              }
-
-              return {
-                question,
-                userAnswer,
-                isCorrect,
-                isUnanswered: !answerRecord,
-              }
-            }
-          )
-
-          // 應用篩選
-          let filteredQuestions = analyzedStageQuestions
-          if (showWrongOnly) {
-            filteredQuestions = filteredQuestions.filter((q) => !q.isCorrect)
-          }
-
-          // 應用排序
-          if (sortByQuestionId) {
-            filteredQuestions.sort((a, b) => {
-              const aNum =
-                parseInt(a.question.id.toString().replace(/\D/g, '')) || 0
-              const bNum =
-                parseInt(b.question.id.toString().replace(/\D/g, '')) || 0
-              return aNum - bNum
-            })
-          }
-
+    // PVQC 多階段：按 stageResults 分組
+    if (results.stageResults) {
+      return results.stageResults
+        .map((stage, index): QuestionGroup => {
+          const analyzed = stage.questionResults.map(toAnalyzed)
           return {
-            title: getStageDisplayName(stage.mode, index),
-            questions: filteredQuestions,
+            title: stage.label || getStageDisplayName(stage.mode, index),
+            questions: applyFilterAndSort(analyzed),
             stageId: stage.stageId,
             mode: stage.mode,
+            correctCount: stage.correctCount,
+            totalCount: stage.totalCount,
+            passingScore: stage.passingScore,
+            passed: stage.passed,
           }
         })
-        .filter((group) => group.questions.length > 0) // 只顯示有題目的組
-    } else {
-      // Standard 測驗：按題型分組
-      const groupedByType: Record<string, AnalyzedQuestion[]> = {}
-
-      analyzedQuestions.forEach((analyzed) => {
-        const typeName =
-          analyzed.question.type === 'single_choice'
-            ? '單選題'
-            : analyzed.question.type === 'multiple_choice'
-            ? '多選題'
-            : analyzed.question.type === 'true_false'
-            ? '是非題'
-            : analyzed.question.type === 'vocabulary'
-            ? '單字題'
-            : '其他題型'
-
-        if (!groupedByType[typeName]) {
-          groupedByType[typeName] = []
-        }
-        groupedByType[typeName].push(analyzed)
-      })
-
-      return Object.entries(groupedByType)
-        .map(([typeName, questions]) => {
-          // 應用篩選
-          let filteredQuestions = questions
-          if (showWrongOnly) {
-            filteredQuestions = filteredQuestions.filter((q) => !q.isCorrect)
-          }
-
-          // 應用排序
-          if (sortByQuestionId) {
-            filteredQuestions.sort((a, b) => {
-              const aNum =
-                parseInt(a.question.id.toString().replace(/\D/g, '')) || 0
-              const bNum =
-                parseInt(b.question.id.toString().replace(/\D/g, '')) || 0
-              return aNum - bNum
-            })
-          }
-
-          return {
-            title: typeName,
-            questions: filteredQuestions,
-          }
-        })
-        .filter((group) => group.questions.length > 0) // 只顯示有題目的組
+        .filter((group) => group.questions.length > 0)
     }
-  }, [quizState, analyzedQuestions, showWrongOnly, sortByQuestionId])
+
+    // 單階段：按題型分組
+    const typeNameOf = (t: Question['type']): string =>
+      t === 'single_choice'
+        ? '單選題'
+        : t === 'multiple_choice'
+        ? '多選題'
+        : t === 'true_false'
+        ? '是非題'
+        : t === 'vocabulary'
+        ? '單字題'
+        : '其他題型'
+
+    const groupedByType: Record<string, AnalyzedQuestion[]> = {}
+    analyzedQuestions.forEach((q) => {
+      const name = typeNameOf(q.question.type)
+      ;(groupedByType[name] = groupedByType[name] || []).push(q)
+    })
+
+    return Object.entries(groupedByType)
+      .map(([typeName, questions]) => ({
+        title: typeName,
+        questions: applyFilterAndSort(questions),
+      }))
+      .filter((group) => group.questions.length > 0)
+  }, [results, analyzedQuestions, showWrongOnly, sortByQuestionId])
 
   //* 渲染正確答案
   const renderCorrectAnswer = (question: Question): string => {
@@ -406,12 +275,16 @@ function Results(): React.ReactElement {
   }
 
   // 如果沒有結果，顯示載入中
-  if (!quizState.results) {
+  if (!results) {
     return <div>載入中...</div>
   }
 
   const correctCount = analyzedQuestions.filter((q) => q.isCorrect).length
   const totalQuestions = analyzedQuestions.length
+
+  const flowMode = quizState.flowConfig.flowMode
+  const isOfficial = flowMode === 'pvqc_official'
+  const overallPassed = results.overallPassed
 
   return (
     <div className="results-page">
@@ -423,9 +296,26 @@ function Results(): React.ReactElement {
           <h2>測驗結果</h2>
         </div>
 
+        {isOfficial && typeof overallPassed === 'boolean' && (
+          <div
+            className={`official-banner ${
+              overallPassed ? 'passed' : 'failed'
+            }`}
+          >
+            <span className="material-symbols-rounded fill">
+              {overallPassed ? 'verified' : 'cancel'}
+            </span>
+            <span className="banner-text">
+              {overallPassed
+                ? 'PASS · 通過 PVQC 官方模擬'
+                : 'FAIL · 未通過 PVQC 官方模擬'}
+            </span>
+          </div>
+        )}
+
         <div className="summary">
           <h1>
-            {quizState.results.overallCorrectRate}{' '}
+            {results.overallCorrectRate}{' '}
             <span>
               {correctCount}/{totalQuestions}
             </span>
@@ -455,7 +345,35 @@ function Results(): React.ReactElement {
         <div className="questions-review">
           {questionGroups.map((group, groupIndex) => (
             <div key={`group-${groupIndex}`} className="question-group">
-              <h2 className="group-title">{group.title}</h2>
+              <div className="group-header">
+                <h2 className="group-title">{group.title}</h2>
+                {typeof group.correctCount === 'number' &&
+                  typeof group.totalCount === 'number' && (
+                    <div
+                      className={`stage-badge ${
+                        group.passed === true
+                          ? 'passed'
+                          : group.passed === false
+                          ? 'failed'
+                          : ''
+                      }`}
+                    >
+                      <span className="stage-score">
+                        {group.correctCount}/{group.totalCount}
+                      </span>
+                      {typeof group.passingScore === 'number' && (
+                        <span className="stage-threshold">
+                          （及格 {group.passingScore}）
+                        </span>
+                      )}
+                      {typeof group.passed === 'boolean' && (
+                        <span className="stage-passed">
+                          {group.passed ? '✓ 通過' : '✗ 未通過'}
+                        </span>
+                      )}
+                    </div>
+                  )}
+              </div>
               <div className="group-questions">
                 {group.questions.map((analyzed) => (
                   <div

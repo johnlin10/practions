@@ -8,6 +8,12 @@ export interface ScoringStrategy {
   evaluate: (question: Question, answer: AnswerRecord) => boolean
 }
 
+// 英文 / 拼音正規化（去前後空白、轉小寫）
+const normalizeEnglish = (s: string): string => s.trim().toLowerCase()
+
+// 中文正規化（僅去前後空白，不轉大小寫）
+const normalizeChinese = (s: string): string => s.trim()
+
 /**
  * [function] standardScoringStrategy
  * 標準測驗評分（處理單選、多選、是非題）
@@ -56,16 +62,10 @@ export const standardScoringStrategy: ScoringStrategy = {
  */
 export const pvqcWriteScoringStrategy: ScoringStrategy = {
   evaluate: (question, answer) => {
-    // 如果題目不是單字題或答案不是字符串，則返回 false
     if (question.type !== 'vocabulary' || typeof answer.answer !== 'string') {
       return false
     }
-    // 移除空格並轉小寫比較
-    const userAnswer = answer.answer.trim().toLowerCase()
-    // 獲取正確答案
-    const correctAnswer = question.english.trim().toLowerCase()
-    // 返回是否正確
-    return userAnswer === correctAnswer
+    return normalizeEnglish(answer.answer) === normalizeEnglish(question.english)
   },
 }
 
@@ -78,12 +78,10 @@ export const pvqcWriteScoringStrategy: ScoringStrategy = {
  */
 export const pvqcChineseScoringStrategy: ScoringStrategy = {
   evaluate: (question, answer) => {
-    // 如果題目不是單字題或答案不是字符串，則返回 false
     if (question.type !== 'vocabulary' || typeof answer.answer !== 'string') {
       return false
     }
-    // 返回是否正確
-    return answer.answer === question.chinese
+    return normalizeChinese(answer.answer) === normalizeChinese(question.chinese)
   },
 }
 
@@ -96,15 +94,10 @@ export const pvqcChineseScoringStrategy: ScoringStrategy = {
  */
 export const pvqcEnglishScoringStrategy: ScoringStrategy = {
   evaluate: (question, answer) => {
-    // 如果題目不是單字題或答案不是字符串，則返回 false
     if (question.type !== 'vocabulary' || typeof answer.answer !== 'string') {
       return false
     }
-    // 返回是否正確
-    return (
-      answer.answer.trim().toLowerCase() ===
-      question.english.trim().toLowerCase()
-    )
+    return normalizeEnglish(answer.answer) === normalizeEnglish(question.english)
   },
 }
 
@@ -117,15 +110,10 @@ export const pvqcEnglishScoringStrategy: ScoringStrategy = {
  */
 export const pvqcPronunciationScoringStrategy: ScoringStrategy = {
   evaluate: (question, answer) => {
-    // 如果題目不是單字題或答案不是字符串，則返回 false
     if (question.type !== 'vocabulary' || typeof answer.answer !== 'string') {
       return false
     }
-    // 返回是否正確
-    return (
-      answer.answer.trim().toLowerCase() ===
-      question.english.trim().toLowerCase()
-    )
+    return normalizeEnglish(answer.answer) === normalizeEnglish(question.english)
   },
 }
 
@@ -146,6 +134,7 @@ export const getScoringStrategy = (mode: QuizModeId): ScoringStrategy => {
     case 'pvqc_listen_english':
       return pvqcEnglishScoringStrategy
     case 'pvqc_pronunciation':
+    case 'pvqc_read_listen':
       return pvqcPronunciationScoringStrategy
     case 'standard':
       return standardScoringStrategy

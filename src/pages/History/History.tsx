@@ -48,6 +48,23 @@ function History(): React.ReactElement {
                     return null
                   }
 
+                  const flowMode =
+                    record.flowMode ||
+                    (record.recordType === 'pvqc'
+                      ? 'pvqc_custom'
+                      : 'standard')
+                  const modeLabel =
+                    flowMode === 'pvqc_official'
+                      ? 'PVQC 官方'
+                      : flowMode === 'pvqc_custom'
+                      ? 'PVQC 自訂'
+                      : '標準'
+                  // 官方模式：顯示 PASS / FAIL 徽章
+                  const officialPassed =
+                    flowMode === 'pvqc_official'
+                      ? record.results?.overallPassed
+                      : undefined
+
                   return (
                     <Link
                       key={record.id}
@@ -57,8 +74,17 @@ function History(): React.ReactElement {
                       <div className="history-info">
                         <p className="history-subject">
                           {record.subject?.name || '未知測驗'}
-                          {record.recordType === 'pvqc' && (
-                            <span className="quiz-type-badge">PVQC</span>
+                          <span className={`flow-mode-chip ${flowMode}`}>
+                            {modeLabel}
+                          </span>
+                          {typeof officialPassed === 'boolean' && (
+                            <span
+                              className={`official-result-chip ${
+                                officialPassed ? 'passed' : 'failed'
+                              }`}
+                            >
+                              {officialPassed ? 'PASS' : 'FAIL'}
+                            </span>
                           )}
                         </p>
                         <p>

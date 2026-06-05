@@ -22,6 +22,7 @@ import { SubjectConfig } from '../../../types/quiz-flows'
 
 // data
 import { subjects } from '../../../data/subjects'
+import { speakEnglish } from '../../../utils/tts'
 
 // interfaces
 interface SingleBankParams extends Record<string, string | undefined> {
@@ -222,8 +223,9 @@ const SingleBank: React.FC = () => {
    */
   const playWord = (question: VocabularyQuestion): void => {
     if (question.english) {
-      const english = new SpeechSynthesisUtterance(question.english)
-      window.speechSynthesis.speak(english)
+      speakEnglish(question.english, {
+        rate: 0.85,
+      })
     }
   }
 
@@ -380,6 +382,9 @@ const SingleBank: React.FC = () => {
   // 渲染單一題庫頁面
   return (
     <div className={`single-bank ${pageAnimation ? 'page-animation' : ''}`}>
+      <button className="close-btn" onClick={handleClose}>
+        <span className="material-symbols-rounded">close</span>
+      </button>
       <div className="single-bank-container">
         <h2>
           {subject.name}
@@ -400,10 +405,6 @@ const SingleBank: React.FC = () => {
             </>
           )}
         </h2>
-
-        <button className="close-btn" onClick={handleClose}>
-          <span className="material-symbols-rounded">close</span>
-        </button>
 
         {/* 如果被鎖定，顯示鎖定訊息 */}
         {isLocked ? (

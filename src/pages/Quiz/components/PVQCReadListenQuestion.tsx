@@ -1,6 +1,6 @@
 import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect } from 'react'
-import './PVQCPronunciationQuestion.scss'
+import './PVQCReadListenQuestion.scss'
 import { speakEnglish, cancelSpeech } from '../../../utils/tts'
 
 interface Props {
@@ -11,41 +11,25 @@ interface Props {
 }
 
 /**
- * [component] PVQCPronunciationQuestion component
- * PVQC 發音題目元件
- * @param {Props} props - 元件屬性
- * @param {VocabularyQuestion} props.question - 題目
- * @param {string[]} props.pronunciationOptions - 發音選項
- * @param {string} props.currentAnswer - 當前答案
- * @param {() => void} props.onSubmit - 提交答案的回調函數
- * @returns {React.ReactElement} - PVQC 發音題目元件
+ * [component] PVQCReadListenQuestion component
+ * PVQC 測驗六：看英文聽選發音題目元件
  */
-function PVQCPronunciationQuestion({
+function PVQCReadListenQuestion({
   question,
   pronunciationOptions,
   currentAnswer,
   onSubmit,
 }: Props) {
-  // 是否正在播放
   const [isPlaying, setIsPlaying] = useState([false, false, false, false])
-  // 已提交的選項
   const [submittedOption, setSubmittedOption] = useState<number | null>(null)
 
-  /**
-   * [function] useEffect
-   * 當題目改變時，重置狀態
-   * @returns {void}
-   */
   useEffect(() => {
     setIsPlaying([false, false, false, false])
     setSubmittedOption(null)
   }, [question.id])
 
-  // 當答案改變時，更新已提交的選項
   useEffect(() => {
-    // 如果當前答案存在
     if (currentAnswer) {
-      // 獲取當前答案的索引
       const index = pronunciationOptions.indexOf(currentAnswer)
       setSubmittedOption(index >= 0 ? index : null)
     } else {
@@ -60,10 +44,6 @@ function PVQCPronunciationQuestion({
     }
   }, [])
 
-  /**
-   * [function] playAudio
-   * 播放發音並提交答案
-   */
   const playAudio = (index: number) => {
     setIsPlaying((prev) => {
       const next = [...prev]
@@ -71,7 +51,6 @@ function PVQCPronunciationQuestion({
       return next
     })
 
-    // 立即提交答案
     const selectedAnswer = pronunciationOptions[index]
     setSubmittedOption(index)
     onSubmit(question.id, selectedAnswer)
@@ -95,11 +74,11 @@ function PVQCPronunciationQuestion({
   }
 
   return (
-    <div className="question-block pvqc-pronunciation-question">
-      <h3>請選擇正確的英文發音</h3>
+    <div className="question-block pvqc-read-listen-question">
+      <h3>請聽各選項發音，選擇與英文單字相符的發音</h3>
       <div className="question-content">
-        <div className="chinese-prompt">
-          <p>{question.chinese}</p>
+        <div className="english-prompt">
+          <p>{question.english}</p>
         </div>
 
         <div className="options pronunciation-options">
@@ -127,4 +106,4 @@ function PVQCPronunciationQuestion({
   )
 }
 
-export default PVQCPronunciationQuestion
+export default PVQCReadListenQuestion

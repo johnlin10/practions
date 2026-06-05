@@ -1,12 +1,14 @@
 import { Question, QuestionTypeId } from './questions'
 import { QuizFlowConfig, QuizStageConfig } from './quiz-flows'
 
-// 前置宣告 QuizResults，避免循環引用
-interface QuizResults {
+// 前置宣告 DetailedQuizResults，避免循環引用（真正的型別定義在 ./index.ts）
+interface DetailedQuizResultsLite {
   totalCorrect: number
   totalQuestions: number
   overallCorrectRate: string
-  stageResults: any[]
+  stageResults?: any[]
+  questionResults?: any[]
+  overallPassed?: boolean
   correctRate?: string
   correctCount?: number
   wrongQuestions?: Question[]
@@ -54,6 +56,6 @@ export interface QuizState {
   endTime: Date | null
   stageStartTime: Date | null
 
-  // 結果
-  results?: QuizResults
+  // 結果（測驗完成後儲存的詳細評分報告）
+  results?: DetailedQuizResultsLite
 }

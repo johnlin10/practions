@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from 'react'
-import { calculateResults } from '../utils/helper'
 import {
   generateDetailedResults,
   determineQuizRecordType,
@@ -20,6 +19,7 @@ import {
   SubjectConfig,
 } from '../types/quiz-flows'
 import { QUIZ_MODES } from '../types/quiz-modes'
+import { answerKey } from '../utils/answer-key'
 
 type AnswerHandler = (
   state: QuizState,
@@ -129,7 +129,7 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       answers: {
         // 更新答案
         ...state.answers,
-        [questionId]: {
+        [answerKey(state.currentStage.stageId, questionId)]: {
           questionId,
           questionIndex: currentQuestion,
           answer,
@@ -171,7 +171,7 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       ...state,
       answers: {
         ...state.answers,
-        [questionId]: {
+        [answerKey(state.currentStage.stageId, questionId)]: {
           questionId,
           questionIndex: currentQuestion,
           answer,
@@ -204,7 +204,7 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       ...state,
       answers: {
         ...state.answers,
-        [questionId]: {
+        [answerKey(state.currentStage.stageId, questionId)]: {
           questionId,
           questionIndex: currentQuestion,
           answer,
@@ -248,7 +248,7 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       ...state,
       answers: {
         ...state.answers,
-        [questionId]: {
+        [answerKey(state.currentStage.stageId, questionId)]: {
           questionId,
           questionIndex: currentQuestion,
           answer,
@@ -370,6 +370,12 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
 
     // 生成唯一 ID
     const recordId = generateRecordId(endTime)
+
+    // 推斷 flowMode：優先沿用 flowConfig 上的 flowMode；若無則依 recordType fallback
+    const flowMode =
+      quizState.flowConfig.flowMode ||
+      (recordType === 'pvqc' ? 'pvqc_custom' : 'standard')
+
     // 建立新的歷史記錄格式
     const historyRecord: HistoryRecord = {
       id: recordId,
@@ -379,6 +385,7 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
         baseQuestionType: quizState.baseQuestionType,
       },
       recordType,
+      flowMode,
       flowConfig: flowConfigSummary,
       date: endTime,
       // 計算測驗時間
@@ -415,14 +422,11 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     // 儲存新的歷史記錄到 LocalStorage 中
     localStorage.setItem(STORAGE_KEYS.QUIZ_HISTORY, JSON.stringify(history))
 
-    // 使用舊的 calculateResults 函數來維持向後兼容（用於 Results 頁面），並返回舊的結果
-    const legacyResults = calculateResults(quizState)
-
-    // 設定新的測驗狀態
+    // Results 頁面直接讀取 detailedResults（含 stageResults / overallPassed）
     setQuizState((prev) => ({
       ...prev,
       endTime,
-      results: legacyResults, // 保留舊格式的 results 用於 Results 頁面（即將淘汰）
+      results: detailedResults,
     }))
 
     // 返回記錄 ID，用於導航

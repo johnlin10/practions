@@ -1,5 +1,5 @@
-.pvqc-pronunciation-question {
-  .chinese-prompt {
+.pvqc-read-listen-question {
+  .english-prompt {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -13,10 +13,10 @@
 
     p {
       margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
       color: var(--text-color);
-      font-size: 1.2rem;
-      font-weight: 600;
-      text-align: center;
+      letter-spacing: 0;
     }
   }
 
@@ -54,12 +54,6 @@
           background-color: var(--primary-background-color);
           box-shadow: 0 3px 0 var(--primary-color);
           color: var(--blue-600);
-        }
-
-        &.disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-          background-color: var(--gray-color-2);
         }
 
         .material-symbols-rounded {
