@@ -30,7 +30,7 @@ export const standardScoringStrategy: ScoringStrategy = {
           answer.answer === question.correctIndex
         )
 
-      case 'multiple_choice':
+      case 'multiple_choice': {
         // 如果答案不是數組，則返回 false
         if (!Array.isArray(answer.answer)) return false
         // 獲取正確答案索引
@@ -40,6 +40,7 @@ export const standardScoringStrategy: ScoringStrategy = {
           answer.answer.length === correctIndexes.length &&
           answer.answer.every((idx: number) => correctIndexes.includes(idx))
         )
+      }
 
       case 'true_false':
         return (

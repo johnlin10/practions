@@ -17,16 +17,27 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
     "deploy": "firebase deploy --only hosting",
     "build-deploy": "pnpm build && pnpm deploy",
     "migrate-history": "node scripts/migrate-history-records.js"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/react": "^18.3.30",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^6.0.2",
+    "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
     "gh-pages": "^6.3.0",
+    "globals": "^17.6.0",
     "jsdom": "^29.1.1",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.1",
     "vite": "^8.0.16",
     "vitest": "^4.1.8"
   }

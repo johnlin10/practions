@@ -72,7 +72,7 @@ function Results(): React.ReactElement {
     if (!results) return []
 
     const applyFilterAndSort = (questions: AnalyzedQuestion[]): AnalyzedQuestion[] => {
-      let filtered = showWrongOnly
+      const filtered = showWrongOnly
         ? questions.filter((q) => !q.isCorrect)
         : questions.slice()
       if (sortByQuestionId) {
@@ -220,7 +220,7 @@ function Results(): React.ReactElement {
           </div>
         )
 
-      case 'vocabulary':
+      case 'vocabulary': {
         // 判斷答案類型並顯示
         let answerDisplay = '未作答'
         if (typeof userAnswer === 'string') {
@@ -248,6 +248,7 @@ function Results(): React.ReactElement {
             </p>
           </div>
         )
+      }
 
       default:
         return null

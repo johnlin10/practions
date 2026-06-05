@@ -181,7 +181,7 @@ export interface BaseComponentProps {
   children?: React.ReactNode
 }
 
-export interface QuizProviderProps extends BaseComponentProps {}
+export type QuizProviderProps = BaseComponentProps
 
 // 路由參數型別
 export interface HistoryParams {
