@@ -1,31 +1,18 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Link, Outlet } from 'react-router-dom'
 import './History.scss'
 
-// types
-import { HistoryRecord, STORAGE_KEYS } from '../../types'
+// data
+import { useQuizHistory } from '@/hooks/useQuizHistory'
 
 /**
  * [page] History page
  * 歷史記錄列表頁面
  */
 function History(): React.ReactElement {
-  // 歷史記錄
-  const [history, setHistory] = useState<HistoryRecord[]>([])
-
-  /**
-   * [function] useEffect
-   * 獲取歷史記錄
-   * @returns {void}
-   */
-  useEffect(() => {
-    // 從 LocalStorage 中獲取歷史記錄
-    const savedHistory = JSON.parse(
-      localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY) || '[]'
-    ) as HistoryRecord[]
-    // 設定歷史記錄（反轉陣列）
-    setHistory(savedHistory.reverse())
-  }, [])
+  // 歷史記錄（由資料層提供，最新在前；複製後反轉以免 mutate 唯讀快照）
+  const { history: rawHistory } = useQuizHistory()
+  const history = [...rawHistory].reverse()
 
   return (
     <>

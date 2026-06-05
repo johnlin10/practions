@@ -7,12 +7,11 @@ import { isSubjectLocked } from '../../Bank/utils/bankHelpers'
 import { getStageDisplayName } from '../../../utils/detailed-results'
 import { speakEnglish } from '../../../utils/tts'
 
+// data
+import { getHistoryById } from '@/data/historyStore'
+
 // types
-import {
-  HistoryRecord,
-  STORAGE_KEYS,
-  DetailedQuestionResult,
-} from '../../../types'
+import { HistoryRecord, DetailedQuestionResult } from '../../../types'
 import {
   Question,
   SingleChoiceQuestion,
@@ -76,12 +75,8 @@ function SingleHistory(): React.ReactElement {
 
   // 獲取歷史記錄
   useEffect(() => {
-    // 從 LocalStorage 中獲取歷史記錄
-    const history = JSON.parse(
-      localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY) || '[]'
-    ) as HistoryRecord[]
-    // 找到指定 ID 的歷史記錄
-    const selectedRecord = history.find((record) => record.id === id)
+    // 從資料層依 id 取得記錄
+    const selectedRecord = getHistoryById(id ?? '')
 
     // 如果找不到指定 ID 的歷史記錄，則顯示錯誤訊息
     if (!selectedRecord) {

@@ -16,20 +16,17 @@ import Navigate from './components/Navigate/Navigate'
 import SingleBank from './pages/Bank/ui/SingleBank'
 import SingleHistory from './pages/History/ui/SingleHistory'
 
+// data
+import { runMigrations } from '@/data/migrations'
+
 /**
  * App component
  * 應用程式的根元件，包含路由配置和全域設置
  */
 function App(): React.ReactElement {
   useEffect(() => {
-    // 清理舊版本的歷史記錄
-    localStorage.removeItem('quizHistory-v2')
-
-    // 檢查是否已經完成 v2 到 v3 的遷移
-    if (localStorage.getItem('transfer-v2-to-v3')) {
-      return
-    }
-    localStorage.setItem('transfer-v2-to-v3', 'true')
+    // 執行跨版本資料遷移（集中於 data/migrations）
+    runMigrations()
   }, [])
 
   return (

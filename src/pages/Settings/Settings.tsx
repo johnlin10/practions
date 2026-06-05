@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
 import './Settings.scss'
 import packageJson from '../../../package.json'
-import { STORAGE_KEYS, HistoryRecord, DEFAULT_SETTINGS } from '../../types'
+import { DEFAULT_SETTINGS } from '../../types'
 import { usePVQCSettings } from '../../hooks/useSettings'
+import { useQuizHistory } from '@/hooks/useQuizHistory'
 
 /**
  * Settings component
  * 設定頁面，包含測驗記錄管理和開發資訊
  */
 function Settings(): React.ReactElement {
-  const history = JSON.parse(
-    localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY) || '[]'
-  ) as HistoryRecord[]
+  // 測驗紀錄（由資料層提供，清除後即時反映，無需 reload）
+  const { history, clearHistory: clearAllHistory } = useQuizHistory()
   const hasHistory = history.length > 0
 
   // PVQC 設定管理
@@ -25,8 +25,7 @@ function Settings(): React.ReactElement {
 
   const clearHistory = (): void => {
     if (window.confirm(`確定要清除 ${history.length} 筆測驗紀錄嗎？`)) {
-      localStorage.setItem(STORAGE_KEYS.QUIZ_HISTORY, JSON.stringify([]))
-      window.location.reload()
+      clearAllHistory()
     }
   }
 

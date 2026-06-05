@@ -9,8 +9,8 @@ import {
   // Subject,
   QuizContextType,
   QuizProviderProps,
-  STORAGE_KEYS,
 } from '../types'
+import { addHistoryRecord } from '@/data/historyStore'
 import { Question } from '../types/questions'
 import { QuizState } from '../types/answers'
 import {
@@ -413,14 +413,8 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       historyRecord.questions = allQuestions
     }
 
-    // 取得 LocalStorage 中的歷史記錄
-    const history = JSON.parse(
-      localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY) || '[]'
-    )
-    // 添加新的歷史記錄
-    history.push(historyRecord)
-    // 儲存新的歷史記錄到 LocalStorage 中
-    localStorage.setItem(STORAGE_KEYS.QUIZ_HISTORY, JSON.stringify(history))
+    // 透過資料層新增歷史記錄（集中持久化並通知所有訂閱者）
+    addHistoryRecord(historyRecord)
 
     // Results 頁面直接讀取 detailedResults（含 stageResults / overallPassed）
     setQuizState((prev) => ({
