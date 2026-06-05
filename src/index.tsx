@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import './index.scss'
-import App from './App'
+import '@/index.scss'
+import App from '@/App'
 import { BrowserRouter } from 'react-router-dom'
-import { QuizProvider } from './context/QuizContext'
+import { QuizProvider } from '@/context/QuizContext'
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {
