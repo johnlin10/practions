@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import './App.scss'
 
 // pages
@@ -12,7 +12,7 @@ import PVQCSetup from './pages/PVQC/PVQCSetup'
 
 // components
 import Results from './components/Results/Results'
-import Navigate from './components/Navigate/Navigate'
+import BottomNav from './components/BottomNav/BottomNav'
 import SingleBank from './pages/Bank/ui/SingleBank'
 import SingleHistory from './pages/History/ui/SingleHistory'
 
@@ -31,7 +31,7 @@ function App(): React.ReactElement {
 
   return (
     <>
-      <Navigate />
+      <BottomNav />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/quiz" element={<Quiz />} />
@@ -45,6 +45,8 @@ function App(): React.ReactElement {
         </Route>
         <Route path="/results" element={<Results />} />
         <Route path="/settings" element={<Settings />} />
+        {/* 未知路徑導回首頁 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   )

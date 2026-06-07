@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useLocation, Link } from 'react-router-dom'
-import './Navigate.scss'
+import './BottomNav.scss'
 
 interface NavigationLink {
   path: string
@@ -10,11 +10,11 @@ interface NavigationLink {
 }
 
 /**
- * [component] Navigate component
+ * [component] BottomNav component
  * 底部導航欄元件，根據當前路徑顯示對應的導航狀態
  * @returns {React.ReactElement} - 底部導航欄元件
  */
-function Navigate(): React.ReactElement {
+function BottomNav(): React.ReactElement {
   // 當前路徑
   const pathname = useLocation().pathname
   // 是否顯示導航欄
@@ -87,4 +87,4 @@ function Navigate(): React.ReactElement {
   )
 }
 
-export default Navigate
+export default BottomNav
