@@ -1,5 +1,7 @@
 import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect } from 'react'
+import './PVQCPronunciationQuestion.scss'
+import { speakEnglish, cancelSpeech } from '../../../utils/tts'
 
 interface Props {
   question: VocabularyQuestion
@@ -51,63 +53,45 @@ function PVQCPronunciationQuestion({
     }
   }, [question.id, currentAnswer, pronunciationOptions])
 
+  // 元件卸載時清理語音合成
+  useEffect(() => {
+    return () => {
+      cancelSpeech()
+    }
+  }, [])
+
   /**
    * [function] playAudio
    * 播放發音並提交答案
-   * @param index - 播放的選項索引
-   * @returns {void}
    */
   const playAudio = (index: number) => {
-    // 如果瀏覽器支援語音合成
-    if ('speechSynthesis' in window) {
-      // 設置正在播放的狀態
+    setIsPlaying((prev) => {
+      const next = [...prev]
+      next[index] = true
+      return next
+    })
+
+    // 立即提交答案
+    const selectedAnswer = pronunciationOptions[index]
+    setSubmittedOption(index)
+    onSubmit(question.id, selectedAnswer)
+
+    const clearPlaying = () => {
       setIsPlaying((prev) => {
-        const newIsPlaying = [...prev]
-        newIsPlaying[index] = true
-        return newIsPlaying
+        const next = [...prev]
+        next[index] = false
+        return next
       })
-
-      // 立即提交答案
-      const selectedAnswer = pronunciationOptions[index]
-      setSubmittedOption(index)
-      onSubmit(question.id, selectedAnswer)
-
-      // 停止任何正在播放的語音
-      window.speechSynthesis.cancel()
-
-      // 創建語音合成實例
-      const utterance = new SpeechSynthesisUtterance(
-        pronunciationOptions[index]
-      )
-
-      // 設定語音參數
-      utterance.lang = 'en-US' // 英文語音
-      utterance.rate = 0.8 // 語速稍慢一點
-      utterance.pitch = 1 // 音調
-      utterance.volume = 1 // 音量
-
-      // 播放結束事件
-      utterance.onend = () => {
-        setIsPlaying((prev) => {
-          const newIsPlaying = [...prev]
-          newIsPlaying[index] = false
-          return newIsPlaying
-        })
-      }
-
-      // 播放錯誤事件
-      utterance.onerror = () => {
-        setIsPlaying((prev) => {
-          const newIsPlaying = [...prev]
-          newIsPlaying[index] = false
-          return newIsPlaying
-        })
-        console.warn('語音合成播放失敗')
-      }
-
-      // 開始播放
-      window.speechSynthesis.speak(utterance)
     }
+
+    speakEnglish(pronunciationOptions[index], {
+      rate: 0.85,
+      onEnd: clearPlaying,
+      onError: () => {
+        clearPlaying()
+        console.warn('語音合成播放失敗')
+      },
+    })
   }
 
   return (

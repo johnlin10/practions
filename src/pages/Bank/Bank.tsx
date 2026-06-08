@@ -61,14 +61,11 @@ function Bank(): React.ReactElement {
               {Object.values(subjects).map((subject: SubjectConfig) => {
                 const locked = isSubjectLocked(subject)
                 const lockStatus = getLockStatus(subject, currentTime)
-                return (
-                  <Link
-                    key={subject.id}
-                    className={`subject-card no-style${
-                      selectedSubject === subject.id ? ' selected' : ''
-                    }${locked ? ' locked' : ''}`}
-                    to={locked ? '' : `/bank/${subject.id}`}
-                  >
+                const cardClassName = `subject-card no-style${
+                  selectedSubject === subject.id ? ' selected' : ''
+                }${locked ? ' locked' : ''}`
+                const cardContent = (
+                  <>
                     <p className="subject-name">
                       {locked && (
                         <span className="material-symbols-rounded">lock</span>
@@ -85,6 +82,25 @@ function Bank(): React.ReactElement {
                       )}
                       {subject.questions.length} 題
                     </p>
+                  </>
+                )
+
+                // 鎖定的科目渲染為不可點的 div，取代原本 to="" 的無效導航 hack
+                return locked ? (
+                  <div
+                    key={subject.id}
+                    className={cardClassName}
+                    aria-disabled="true"
+                  >
+                    {cardContent}
+                  </div>
+                ) : (
+                  <Link
+                    key={subject.id}
+                    className={cardClassName}
+                    to={`/bank/${subject.id}`}
+                  >
+                    {cardContent}
                   </Link>
                 )
               })}

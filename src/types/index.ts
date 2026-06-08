@@ -5,7 +5,7 @@
 
 import { Question, QuestionTypeId } from './questions'
 import { AnswersCollection, QuizState as QuizStateFromAnswers } from './answers'
-import { SubjectConfig } from './quiz-flows'
+import { SubjectConfig, FlowMode } from './quiz-flows'
 
 // 基礎型別
 type QuizType = 'once_choice' | 'multiple_choice' | 'true_false' | 'vocabulary'
@@ -44,6 +44,12 @@ export interface DetailedStageResult {
   totalCount: number
   correctRate: string
   questionResults: DetailedQuestionResult[]
+  // 該階段及格門檻（沿用 QuizStageConfig.passingScore；無則 undefined）
+  passingScore?: number
+  // 該階段是否通過（correctCount >= passingScore）；無門檻時為 undefined
+  passed?: boolean
+  // 顯示用名稱
+  label?: string
 }
 
 // 完整的評分報告介面
@@ -58,6 +64,9 @@ export interface DetailedQuizResults {
 
   // 單階段結果（適用於 Standard，為了向後相容）
   questionResults?: DetailedQuestionResult[]
+
+  // 整體是否通過（僅 pvqc_official 模式有意義：所有階段皆 passed 才為 true）
+  overallPassed?: boolean
 
   // 向後兼容屬性
   correctRate?: string
@@ -83,6 +92,9 @@ export interface HistoryRecord {
   // 測驗類型
   recordType: QuizRecordType
 
+  // 流程模式（舊紀錄無此欄位，讀取時依 recordType / stages 數量 fallback）
+  flowMode?: FlowMode
+
   // 流程資訊（適用於 PVQC）
   flowConfig?: {
     id: string
@@ -91,6 +103,8 @@ export interface HistoryRecord {
       stageId: string
       mode: string
       questionCount: number
+      passingScore?: number
+      label?: string
     }>
   }
 
@@ -167,7 +181,7 @@ export interface BaseComponentProps {
   children?: React.ReactNode
 }
 
-export interface QuizProviderProps extends BaseComponentProps {}
+export type QuizProviderProps = BaseComponentProps
 
 // 路由參數型別
 export interface HistoryParams {
@@ -190,6 +204,13 @@ export type IsSubjectLockedFunction = (subject: Subject) => boolean
 export const STORAGE_KEYS = {
   QUIZ_HISTORY: 'quizHistory-v3',
 } as const
+
+// 重新導出設定相關型別
+export type { AppSettings, PVQCSettings, UseSettingsReturn } from './settings'
+export { DEFAULT_SETTINGS } from './settings'
+
+// 重新導出流程相關型別
+export type { FlowMode, QuizFlowConfig, QuizStageConfig, SubjectConfig } from './quiz-flows'
 
 // 錯誤型別
 export class PractionsError extends Error {

@@ -5,13 +5,13 @@ import './SingleHistory.scss'
 // utils
 import { isSubjectLocked } from '../../Bank/utils/bankHelpers'
 import { getStageDisplayName } from '../../../utils/detailed-results'
+import { speakEnglish } from '../../../utils/tts'
+
+// data
+import { getHistoryById } from '@/data/historyStore'
 
 // types
-import {
-  HistoryRecord,
-  STORAGE_KEYS,
-  DetailedQuestionResult,
-} from '../../../types'
+import { HistoryRecord, DetailedQuestionResult } from '../../../types'
 import {
   Question,
   SingleChoiceQuestion,
@@ -38,6 +38,10 @@ interface QuestionGroup {
   questions: AnalyzedQuestion[]
   stageId?: string
   mode?: string
+  correctCount?: number
+  totalCount?: number
+  passingScore?: number
+  passed?: boolean
 }
 
 interface HistoryParams extends Record<string, string | undefined> {
@@ -71,12 +75,8 @@ function SingleHistory(): React.ReactElement {
 
   // 獲取歷史記錄
   useEffect(() => {
-    // 從 LocalStorage 中獲取歷史記錄
-    const history = JSON.parse(
-      localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY) || '[]'
-    ) as HistoryRecord[]
-    // 找到指定 ID 的歷史記錄
-    const selectedRecord = history.find((record) => record.id === id)
+    // 從資料層依 id 取得記錄
+    const selectedRecord = getHistoryById(id ?? '')
 
     // 如果找不到指定 ID 的歷史記錄，則顯示錯誤訊息
     if (!selectedRecord) {
@@ -260,14 +260,10 @@ function SingleHistory(): React.ReactElement {
    * @returns {void}
    */
   const playWord = (question: VocabularyQuestion): void => {
-    // 如果單字存在，則播放單字
     if (question.english) {
-      const english = new SpeechSynthesisUtterance(question.english)
-      english.lang = 'en-US'
-      english.rate = 0.8
-      english.pitch = 1
-      english.volume = 1
-      window.speechSynthesis.speak(english)
+      speakEnglish(question.english, {
+        rate: 0.85,
+      })
     }
   }
 
@@ -284,6 +280,27 @@ function SingleHistory(): React.ReactElement {
 
     // 如果為 PVQC 測驗且流程配置存在，則按階段分組
     if (isPVQC && record.flowConfig) {
+      // 從 record.results.stageResults 索引出每階段的統計（含 passed）
+      const stageStatsById = new Map<
+        string,
+        {
+          correctCount: number
+          totalCount: number
+          passingScore?: number
+          passed?: boolean
+          label?: string
+        }
+      >()
+      record.results?.stageResults?.forEach((sr) => {
+        stageStatsById.set(sr.stageId, {
+          correctCount: sr.correctCount,
+          totalCount: sr.totalCount,
+          passingScore: sr.passingScore,
+          passed: sr.passed,
+          label: sr.label,
+        })
+      })
+
       // PVQC 測驗：按階段分組
       return record.flowConfig.stages
         .map((stage, index) => {
@@ -310,12 +327,18 @@ function SingleHistory(): React.ReactElement {
             })
           }
 
+          const stats = stageStatsById.get(stage.stageId)
+
           // 返回分組後的題目資料
           return {
-            title: getStageDisplayName(stage.mode, index),
+            title: stats?.label || stage.label || getStageDisplayName(stage.mode, index),
             questions: filteredQuestions,
             stageId: stage.stageId,
             mode: stage.mode,
+            correctCount: stats?.correctCount,
+            totalCount: stats?.totalCount,
+            passingScore: stats?.passingScore ?? stage.passingScore,
+            passed: stats?.passed,
           }
         })
         .filter((group) => group.questions.length > 0) // 只顯示有題目的組
@@ -675,6 +698,16 @@ function SingleHistory(): React.ReactElement {
     )
   }
 
+  if (!id) {
+    return (
+      <div className="single-history">
+        <div className="single-history-container">
+          <div>找不到指定的歷史記錄</div>
+        </div>
+      </div>
+    )
+  }
+
   // 如果歷史記錄不存在，則顯示載入中
   if (!record) {
     return (
@@ -711,7 +744,39 @@ function SingleHistory(): React.ReactElement {
               .replace(/[/-]/g, '')
               .replace(/[\s:]/g, '')}
           </p>
+          {(() => {
+            const flowMode =
+              record.flowMode ||
+              (record.recordType === 'pvqc' ? 'pvqc_custom' : 'standard')
+            const label =
+              flowMode === 'pvqc_official'
+                ? 'PVQC 官方模擬'
+                : flowMode === 'pvqc_custom'
+                ? '自訂 PVQC'
+                : '標準測驗'
+            return (
+              <span className={`flow-mode-badge ${flowMode}`}>{label}</span>
+            )
+          })()}
         </div>
+
+        {record.flowMode === 'pvqc_official' &&
+          typeof record.results?.overallPassed === 'boolean' && (
+            <div
+              className={`official-banner ${
+                record.results.overallPassed ? 'passed' : 'failed'
+              }`}
+            >
+              <span className="material-symbols-rounded fill">
+                {record.results.overallPassed ? 'verified' : 'cancel'}
+              </span>
+              <span className="banner-text">
+                {record.results.overallPassed
+                  ? 'PASS · 通過 PVQC 官方模擬'
+                  : 'FAIL · 未通過 PVQC 官方模擬'}
+              </span>
+            </div>
+          )}
 
         <div className="summary">
           <h1>
@@ -756,7 +821,35 @@ function SingleHistory(): React.ReactElement {
               key={`group-${groupIndex}`}
               className={`question-group ${group.mode}`}
             >
-              <h2 className="group-title">{group.title}</h2>
+              <div className="group-header">
+                <h2 className="group-title">{group.title}</h2>
+                {typeof group.correctCount === 'number' &&
+                  typeof group.totalCount === 'number' && (
+                    <div
+                      className={`stage-badge ${
+                        group.passed === true
+                          ? 'passed'
+                          : group.passed === false
+                          ? 'failed'
+                          : ''
+                      }`}
+                    >
+                      <span className="stage-score">
+                        {group.correctCount}/{group.totalCount}
+                      </span>
+                      {typeof group.passingScore === 'number' && (
+                        <span className="stage-threshold">
+                          （及格 {group.passingScore}）
+                        </span>
+                      )}
+                      {typeof group.passed === 'boolean' && (
+                        <span className="stage-passed">
+                          {group.passed ? '✓ 通過' : '✗ 未通過'}
+                        </span>
+                      )}
+                    </div>
+                  )}
+              </div>
               <div className="group-questions">
                 {group.questions.map((analyzed) =>
                   renderQuestionContent(analyzed, group.mode)

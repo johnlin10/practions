@@ -8,6 +8,7 @@ import PVQCWriteQuestion from './components/PVQCWriteQuestion'
 import PVQCReadQuestion from './components/PVQCReadQuestion'
 import PVQCListenQuestion from './components/PVQCListenQuestion'
 import PVQCPronunciationQuestion from './components/PVQCPronunciationQuestion'
+import PVQCReadListenQuestion from './components/PVQCReadListenQuestion'
 import StandardQuestion from './components/StandardQuestion'
 
 // context
@@ -26,6 +27,9 @@ import { VocabularyQuestion } from '../../types/questions'
 
 // data
 import { subjects } from '../../data/subjects'
+
+// utils
+import { answerKey } from '../../utils/answer-key'
 
 // interfaces
 // 預覽所有題目的彈窗元件 Props 介面
@@ -96,12 +100,13 @@ function Quiz(): React.ReactElement {
       return false
     }
 
-    // 取得所有階段的所有題目
-    const allQuestions = Object.values(quizState.allStagesQuestions).flat()
-
-    // 檢查是否每一題都有答案
-    return allQuestions.every(
-      (question) => quizState.answers[question.id] !== undefined
+    // 每階段獨立判定：當前 stage 的每一題在該 stage 都要有答案
+    return Object.entries(quizState.allStagesQuestions).every(
+      ([stageId, questions]) =>
+        questions.every(
+          (question) =>
+            quizState.answers[answerKey(stageId, question.id)] !== undefined
+        )
     )
   }, [quizState.allStagesQuestions, quizState.answers])
 
@@ -110,22 +115,51 @@ function Quiz(): React.ReactElement {
     // 確保 currentQuestions 已初始化
     if (
       !quizState.currentQuestions ||
-      quizState.currentQuestions.length === 0
+      quizState.currentQuestions.length === 0 ||
+      !quizState.currentStage?.stageId
     ) {
       return false
     }
 
-    // 檢查當前階段的所有題目是否都已回答
+    const stageId = quizState.currentStage.stageId
+    // 檢查當前階段的所有題目是否都已回答（用 compound key）
     return quizState.currentQuestions.every(
-      (question) => quizState.answers[question.id] !== undefined
+      (question) =>
+        quizState.answers[answerKey(stageId, question.id)] !== undefined
     )
-  }, [quizState.currentQuestions, quizState.answers])
+  }, [quizState.currentQuestions, quizState.answers, quizState.currentStage])
 
   // 進入下一階段
   const handleNextStage = (): void => {
     const hasNext = finishStage()
     if (!hasNext) {
       console.log('所有階段完成')
+    }
+  }
+
+  /**
+   * [function] handleStageTimeUp
+   * 階段時間到的處理：
+   * - enforceStageTimer 為 true：強制進入下一階段；若為最後階段則結算整份測驗
+   * - enforceStageTimer 為 false：維持舊行為（總計時器，時間到直接結算）
+   */
+  const handleStageTimeUp = (): void => {
+    const enforce = quizState.flowConfig.enforceStageTimer === true
+    if (!enforce) {
+      handleFinish(true)
+      return
+    }
+
+    if (hasNextStage()) {
+      // 提示後再進入下一階段
+      // 為避免阻塞 timer 觸發的 state 更新，alert 包在 setTimeout 內
+      setTimeout(() => {
+        alert(`本階段時間到，自動進入下一階段。`)
+      }, 0)
+      finishStage()
+    } else {
+      // 最後一階段時間到 → 強制結算整份
+      handleFinish(true)
     }
   }
 
@@ -144,10 +178,13 @@ function Quiz(): React.ReactElement {
       return
     }
 
-    // 檢查所有階段的所有題目是否都已回答
-    const allQuestions = Object.values(quizState.allStagesQuestions).flat()
-    const allAnswered = allQuestions.every(
-      (question) => quizState.answers[question.id] !== undefined
+    // 檢查所有階段的所有題目是否都已回答（每階段獨立檢查）
+    const allAnswered = Object.entries(quizState.allStagesQuestions).every(
+      ([stageId, questions]) =>
+        questions.every(
+          (question) =>
+            quizState.answers[answerKey(stageId, question.id)] !== undefined
+        )
     )
 
     if (!allAnswered) {
@@ -190,6 +227,7 @@ function Quiz(): React.ReactElement {
         'pvqc_listen_chinese',
         'pvqc_listen_english',
         'pvqc_pronunciation',
+        'pvqc_read_listen',
       ].includes(currentStage.mode)
     ) {
       // 取得所有單字題目
@@ -202,7 +240,10 @@ function Quiz(): React.ReactElement {
         if (question.type === 'vocabulary') {
           const vocabQuestion = question as VocabularyQuestion
 
-          if (currentStage.mode === 'pvqc_pronunciation') {
+          if (
+            currentStage.mode === 'pvqc_pronunciation' ||
+            currentStage.mode === 'pvqc_read_listen'
+          ) {
             // 生成發音選項
             const { options } = generatePVQCPronunciationOptions(
               vocabQuestion,
@@ -252,6 +293,12 @@ function Quiz(): React.ReactElement {
     if (currentStage.mode === 'pvqc_listen_english') {
       return <p className="quiz-type">PVQC 測驗四：聽</p>
     }
+    if (currentStage.mode === 'pvqc_pronunciation') {
+      return <p className="quiz-type">PVQC 測驗五：聽</p>
+    }
+    if (currentStage.mode === 'pvqc_read_listen') {
+      return <p className="quiz-type">PVQC 測驗六：讀聽</p>
+    }
     return null
   }
 
@@ -268,8 +315,9 @@ function Quiz(): React.ReactElement {
 
     if (!question) return null
 
-    // 取得當前題目已儲存的答案
-    const currentAnswer = answers[question.id]?.answer
+    // 取得當前題目已儲存的答案（compound key，避免跨階段污染）
+    const currentAnswer =
+      answers[answerKey(currentStage.stageId, question.id)]?.answer
 
     // 如果是單字題，根據模式選擇對應的元件
     if (question.type === 'vocabulary') {
@@ -318,6 +366,16 @@ function Quiz(): React.ReactElement {
             />
           )
 
+        case 'pvqc_read_listen':
+          return (
+            <PVQCReadListenQuestion
+              question={vocabQuestion}
+              pronunciationOptions={pvqcOptionsCache[question.id] || []}
+              currentAnswer={currentAnswer as string}
+              onSubmit={submitAnswer}
+            />
+          )
+
         default:
           return (
             <StandardQuestion
@@ -345,16 +403,45 @@ function Quiz(): React.ReactElement {
           subject ? (
             //* 如果有 subjectId，顯示測驗頁面
             <>
-              {quizState.flowConfig.totalTimeLimit > 0 && (
-                <Timer
-                  key={`timer-${quizState.currentStageIndex}-${quizState.flowConfig.totalTimeLimit}`}
-                  duration={quizState.flowConfig.totalTimeLimit}
-                  onTimeUp={() => handleFinish(true)}
-                />
-              )}
+              {(() => {
+                const enforce =
+                  quizState.flowConfig.enforceStageTimer === true
+                const stage = quizState.currentStage
+                // 啟用分階段強制計時 → 用當前階段 timeLimit
+                // 未啟用 → 沿用舊行為（總時長一次倒數）
+                const duration = enforce
+                  ? stage.timeLimit
+                  : quizState.flowConfig.totalTimeLimit
+                const timerKey = enforce
+                  ? `stage-${stage.stageId}`
+                  : `total-${quizState.flowConfig.totalTimeLimit}`
+                return (
+                  duration > 0 && (
+                    <Timer
+                      key={timerKey}
+                      duration={duration}
+                      onTimeUp={
+                        enforce ? handleStageTimeUp : () => handleFinish(true)
+                      }
+                    />
+                  )
+                )
+              })()}
               <div className="question-section">
                 <div className="question-header">
                   {renderQuizType()}
+                  {(quizState.flowConfig.stages?.length ?? 0) > 1 && (
+                    <p className="stage-progress">
+                      階段 {quizState.currentStageIndex + 1} /{' '}
+                      {quizState.flowConfig.stages.length}
+                      {quizState.currentStage?.label && (
+                        <span className="stage-label">
+                          {' · '}
+                          {quizState.currentStage.label}
+                        </span>
+                      )}
+                    </p>
+                  )}
                   <h2>
                     {quizState.currentQuestionIndex + 1}{' '}
                     <span className="question-count">
@@ -529,7 +616,11 @@ const PreviewAllQuestions: React.FC<PreviewAllQuestionsProps> = ({
     currentQuestions: questions,
     answers,
     currentQuestionIndex,
+    currentStage,
   } = quizState
+
+  // 當前階段的 compound key 前綴
+  const stageId = currentStage?.stageId || ''
 
   const handleQuestionClick = (index: number): void => {
     // 設置當前問題索引
@@ -537,7 +628,7 @@ const PreviewAllQuestions: React.FC<PreviewAllQuestionsProps> = ({
   }
 
   const getAnswerDisplay = (questionId: string): string | null => {
-    const answerData = answers[questionId]
+    const answerData = answers[answerKey(stageId, questionId)]
     if (!answerData) return null
 
     // 使用新的答案格式
@@ -585,7 +676,8 @@ const PreviewAllQuestions: React.FC<PreviewAllQuestionsProps> = ({
         }`}
       >
         {questions.map((question, index) => {
-          const isAnswered = answers[question.id] !== undefined
+          const isAnswered =
+            answers[answerKey(stageId, question.id)] !== undefined
           const isCurrentQuestion = index === currentQuestionIndex
           const answerDisplay = getAnswerDisplay(question.id)
 

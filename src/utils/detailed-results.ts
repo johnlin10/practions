@@ -11,6 +11,7 @@ import { QUIZ_MODES } from '../types/quiz-modes'
 
 // utils
 import { getScoringStrategy } from './scoring'
+import { answerKey } from './answer-key'
 
 /**
  * [function] getCorrectAnswer
@@ -106,28 +107,31 @@ function generateStageResult(
   stageId: string,
   mode: string,
   questions: Question[],
-  answers: Record<string, any>
+  answers: Record<string, any>,
+  passingScore?: number,
+  label?: string
 ): DetailedStageResult {
-  // 生成單一題目的詳細結果
   const questionResults: DetailedQuestionResult[] = questions.map(
     (question) => {
-      // 獲取答案記錄
-      const answerRecord = answers[question.id]
-      // 獲取使用者答案
+      // 優先用 compound key（stageId::questionId）；
+      // fallback 到舊格式（純 questionId），確保舊紀錄仍能讀取
+      const answerRecord =
+        answers[answerKey(stageId, question.id)] ?? answers[question.id]
       const userAnswer = answerRecord?.answer
-      // 生成單一題目的詳細結果
       return generateQuestionResult(question, userAnswer, stageId, mode)
     }
   )
 
-  // 計算正確答案數量
   const correctCount = questionResults.filter((q) => q.isCorrect).length
-  // 計算總題數
   const totalCount = questions.length
-  // 計算正確率
-  const correctRate = `${((correctCount / totalCount) * 100).toFixed(0)}%`
+  const correctRate =
+    totalCount > 0
+      ? `${((correctCount / totalCount) * 100).toFixed(0)}%`
+      : '0%'
 
-  // 返回階段的詳細結果
+  const passed =
+    typeof passingScore === 'number' ? correctCount >= passingScore : undefined
+
   return {
     stageId,
     mode,
@@ -135,6 +139,9 @@ function generateStageResult(
     totalCount,
     correctRate,
     questionResults,
+    passingScore,
+    passed,
+    label,
   }
 }
 
@@ -157,52 +164,58 @@ export function generateDetailedResults(
 
   // 如果為 PVQC 測驗
   if (isPVQC) {
-    // 生成階段的詳細結果
     const stageResults: DetailedStageResult[] = flowConfig.stages.map(
       (stage) => {
-        // 獲取階段題目
         const questions = allStagesQuestions[stage.stageId] || []
-        // 生成階段的詳細結果
         return generateStageResult(
           stage.stageId,
           stage.mode,
           questions,
-          answers
+          answers,
+          stage.passingScore,
+          stage.label
         )
       }
     )
 
-    // 計算總正確答案數量
     const totalCorrect = stageResults.reduce(
       (sum, stage) => sum + stage.correctCount,
       0
     )
-    // 計算總題數
     const totalQuestions = stageResults.reduce(
       (sum, stage) => sum + stage.totalCount,
       0
     )
-    // 計算總正確率
-    const overallCorrectRate = `${(
-      (totalCorrect / totalQuestions) *
-      100
-    ).toFixed(0)}%`
+    const overallCorrectRate =
+      totalQuestions > 0
+        ? `${((totalCorrect / totalQuestions) * 100).toFixed(0)}%`
+        : '0%'
 
-    // 返回完整的詳細評分報告
+    // 僅官方模式判定整體通過：所有階段都需 passed===true
+    const overallPassed =
+      flowConfig.flowMode === 'pvqc_official'
+        ? stageResults.every((s) => s.passed === true)
+        : undefined
+
     return {
-      totalCorrect, // 總正確答案數量
-      totalQuestions, // 總題數
-      overallCorrectRate, // 總正確率
-      stageResults, // 階段的詳細結果
+      totalCorrect,
+      totalQuestions,
+      overallCorrectRate,
+      stageResults,
+      overallPassed,
     }
   } else {
     // 生成單階段的詳細結果
     const questions = Object.values(allStagesQuestions).flat()
+    const singleStageId = flowConfig.stages[0]?.stageId
     // 生成單一題目的詳細結果
     const questionResults: DetailedQuestionResult[] = questions.map(
       (question) => {
-        // 獲取答案記錄
-        const answerRecord = answers[question.id]
+        // 獲取答案記錄（compound key 優先，fallback 到舊格式）
+        const answerRecord = singleStageId
+          ? answers[answerKey(singleStageId, question.id)] ??
+            answers[question.id]
+          : answers[question.id]
         // 獲取使用者答案
         const userAnswer = answerRecord?.answer
         // 獲取測驗模式
@@ -268,6 +281,8 @@ export function generateFlowConfigSummary(flowConfig: any) {
       stageId: stage.stageId,
       mode: stage.mode,
       questionCount: stage.questionCount,
+      passingScore: stage.passingScore,
+      label: stage.label,
     })),
   }
 }
@@ -299,6 +314,8 @@ export function getStageDisplayName(mode: string, stageIndex?: number): string {
       return 'PVQC 測驗四：聽（聽英文，選英文）'
     case 'pvqc_pronunciation':
       return 'PVQC 測驗五：聽（看中文，選發音）'
+    case 'pvqc_read_listen':
+      return 'PVQC 測驗六：讀聽（看英文，聽選發音）'
     default:
       return `階段 ${stageIndex ? stageIndex + 1 : ''}`
   }

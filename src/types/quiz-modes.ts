@@ -8,6 +8,7 @@ export type QuizModeId =
   | 'pvqc_listen_chinese' // PVQC 測驗三：聽英選中
   | 'pvqc_listen_english' // PVQC 測驗四：聽英選英
   | 'pvqc_pronunciation' // PVQC 測驗五：看中選英發音
+  | 'pvqc_read_listen' // PVQC 測驗六：看英聽選發音
 
 // 答案類型
 export type AnswerType =
@@ -75,6 +76,14 @@ export const QUIZ_MODES: Record<QuizModeId, QuizModeConfig> = {
     id: 'pvqc_pronunciation',
     name: 'PVQC 測驗五：聽',
     description: '看中選發音',
+    compatibleQuestionTypes: ['vocabulary'],
+    answerType: 'text', // 提交選項內容（字符串）
+    requiresAudio: true,
+  },
+  pvqc_read_listen: {
+    id: 'pvqc_read_listen',
+    name: 'PVQC 測驗六：讀聽',
+    description: '看英聽選發音',
     compatibleQuestionTypes: ['vocabulary'],
     answerType: 'text', // 提交選項內容（字符串）
     requiresAudio: true,

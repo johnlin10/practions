@@ -8,10 +8,14 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 100%;
+    align-items: flex-start;
+    height: calc(100% - 48px);
+    // overflow: hidden;
+    // overflow-y: auto;
 
     > div.question-prompt-container {
       height: 100%;
+      background-color: var(--background-color);
 
       > p.question-prompt {
         font-size: 1rem;

@@ -122,3 +122,48 @@
     }
   }
 }
+
+// 列表頁的模式 / PASS-FAIL 徽章
+.flow-mode-chip,
+.official-result-chip {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border: 2px solid var(--gray-color-13);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  vertical-align: middle;
+  background-color: var(--background-color);
+}
+
+.flow-mode-chip {
+  color: var(--foreground-500);
+
+  &.pvqc_official {
+    border-color: var(--primary-color);
+    color: var(--blue-600);
+  }
+
+  &.pvqc_custom {
+    border-color: var(--orange-400);
+    color: var(--orange-600);
+  }
+
+  &.standard {
+    border-color: var(--gray-color-12);
+    color: var(--foreground-500);
+  }
+}
+
+.official-result-chip {
+  &.passed {
+    border-color: var(--correct-border-color);
+    color: var(--correct-text-color);
+  }
+
+  &.failed {
+    border-color: var(--wrong-border-color);
+    color: var(--wrong-text-color);
+  }
+}

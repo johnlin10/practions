@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import './App.scss'
 
 // pages
@@ -12,9 +12,12 @@ import PVQCSetup from './pages/PVQC/PVQCSetup'
 
 // components
 import Results from './components/Results/Results'
-import Navigate from './components/Navigate/Navigate'
+import BottomNav from './components/BottomNav/BottomNav'
 import SingleBank from './pages/Bank/ui/SingleBank'
 import SingleHistory from './pages/History/ui/SingleHistory'
+
+// data
+import { runMigrations } from '@/data/migrations'
 
 /**
  * App component
@@ -22,19 +25,13 @@ import SingleHistory from './pages/History/ui/SingleHistory'
  */
 function App(): React.ReactElement {
   useEffect(() => {
-    // 清理舊版本的歷史記錄
-    localStorage.removeItem('quizHistory-v2')
-
-    // 檢查是否已經完成 v2 到 v3 的遷移
-    if (localStorage.getItem('transfer-v2-to-v3')) {
-      return
-    }
-    localStorage.setItem('transfer-v2-to-v3', 'true')
+    // 執行跨版本資料遷移（集中於 data/migrations）
+    runMigrations()
   }, [])
 
   return (
     <>
-      <Navigate />
+      <BottomNav />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/quiz" element={<Quiz />} />
@@ -43,11 +40,13 @@ function App(): React.ReactElement {
         <Route path="/history" element={<History />}>
           <Route path=":id" element={<SingleHistory />} />
         </Route>
-        <Route path="/results" element={<Results />} />
         <Route path="/bank" element={<Bank />}>
           <Route path=":subjectId" element={<SingleBank />} />
         </Route>
+        <Route path="/results" element={<Results />} />
         <Route path="/settings" element={<Settings />} />
+        {/* 未知路徑導回首頁 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   )

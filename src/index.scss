@@ -114,6 +114,17 @@ input[type='text'] {
   -ms-border-radius: 12px;
   -o-border-radius: 12px;
 }
+input[type='number'] {
+  height: 28px;
+  padding: 0 6px;
+  border: 2px solid var(--border-color);
+  font-size: 0.9rem;
+  border-radius: 6px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+}
 
 input {
   &:focus {

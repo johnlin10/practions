@@ -9,6 +9,9 @@
 # production
 /build
 
+# auto-generated CSS (src 全面採用 SCSS，由 Vite 編譯；防止 Live Sass Compiler 等工具誤產生並提交)
+/src/**/*.css
+
 # misc
 .DS_Store
 .env

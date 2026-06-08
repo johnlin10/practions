@@ -1,5 +1,5 @@
 .quiz-page {
-  padding: 48px 24px 48px 24px;
+  padding: 24px 24px 48px 24px;
 
   .quiz-container {
     position: relative;
@@ -11,7 +11,7 @@
       justify-content: space-between;
       position: relative;
       background: var(--background-color);
-      height: 100%;
+      height: calc(100% - 27px);
       max-height: 100%;
       padding: 0 0;
       border-radius: 5px;
@@ -22,6 +22,17 @@
           font-size: 0.85rem;
           color: var(--foreground-400);
           margin-bottom: 12px;
+        }
+
+        > p.stage-progress {
+          font-size: 0.8rem;
+          color: var(--foreground-400);
+          margin-bottom: 8px;
+          opacity: 0.85;
+
+          > .stage-label {
+            opacity: 0.85;
+          }
         }
 
         h2 {
@@ -48,7 +59,6 @@
         flex-direction: column;
         justify-content: space-between;
         height: 100%;
-        padding-bottom: 48px;
 
         p {
           color: var(--text-color);
@@ -62,15 +72,20 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: absolute;
-      bottom: 0;
-      left: 50%;
+      // position: absolute;
+      // bottom: 0;
+      // left: 50%;
       height: fit-content;
       min-height: fit-content;
       gap: 18px;
       width: 100%;
       max-width: 640px;
       // background: var(--background-color);
+      // transform: translateX(-50%);
+      // -webkit-transform: translateX(-50%);
+      // -moz-transform: translateX(-50%);
+      // -ms-transform: translateX(-50%);
+      // -o-transform: translateX(-50%);
 
       > .quiz-buttons {
         display: flex;
@@ -133,11 +148,6 @@
           }
         }
       }
-      transform: translateX(-50%);
-      -webkit-transform: translateX(-50%);
-      -moz-transform: translateX(-50%);
-      -ms-transform: translateX(-50%);
-      -o-transform: translateX(-50%);
     }
 
     // 預覽所有題目的彈窗
