@@ -3,6 +3,15 @@
 /.pnp
 .pnp.js
 
+.claude/
+.claude/*
+
+.cursor/
+.cursor/*
+
+.vscode/
+.vscode/*
+
 # testing
 /coverage
 
