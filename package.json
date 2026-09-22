@@ -1,6 +1,6 @@
 {
   "name": "practions",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -21,7 +21,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "deploy": "firebase deploy --only hosting",
-    "build-deploy": "pnpm build && pnpm deploy",
+    "build-deploy": "pnpm build && firebase deploy --only hosting",
+    "og-image": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --hide-scrollbars --allow-file-access-from-files --virtual-time-budget=5000 --window-size=1200,630 --screenshot=public/og-image.png \"file://$PWD/scripts/og-image.html\"",
     "migrate-history": "node scripts/migrate-history-records.js"
   },
   "devDependencies": {

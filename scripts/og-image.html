@@ -1,0 +1,85 @@
+<!doctype html>
+<!-- 社群分享封面圖模板，執行 `pnpm og-image` 輸出至 public/og-image.png（1200×630） -->
+<html lang="zh-Hant-TW">
+
+<head>
+  <meta charset="utf-8" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;800&family=Noto+Sans+TC:wght@500&display=swap"
+    rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      gap: 72px;
+      padding: 0 110px;
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255, 255, 255, .18), transparent 45%),
+        linear-gradient(135deg, #34b3e1, #1383ac);
+      color: #fff;
+      font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
+    }
+
+    .logo {
+      flex: none;
+      width: 260px;
+      height: 260px;
+      padding: 12px;
+      background: #fff;
+      border-radius: 78px;
+      box-shadow: 0 24px 60px rgba(5, 59, 78, .35);
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    h1 {
+      font-size: 104px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    p {
+      margin-top: 28px;
+      font: 500 36px/1.5 'Noto Sans TC', sans-serif;
+      opacity: .92;
+    }
+
+    .url {
+      position: absolute;
+      right: 56px;
+      bottom: 40px;
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      opacity: .55;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="logo"><img src="../public/icons/r/practions-r-1024.png" alt="" /></div>
+  <div>
+    <h1>Practions</h1>
+    <p>線上題庫測驗平台<br />隨時隨地練習、即時評分</p>
+  </div>
+  <div class="url">practions.web.app</div>
+</body>
+
+</html>

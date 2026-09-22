@@ -11,6 +11,12 @@ import { usePVQCSettings } from '../../hooks/useSettings'
 
 // data
 import { buildOfficialFlow } from '../../data/pvqc-official'
+import { subjects } from '../../data/subjects'
+
+// 可用於 PVQC 的題庫：所有單字題庫
+const PVQC_SUBJECTS = Object.values(subjects).filter(
+  (s) => s.baseQuestionType === 'vocabulary'
+)
 
 // 設定模式
 type SetupMode = 'official' | 'custom'
@@ -36,8 +42,10 @@ function PVQCSetup(): React.ReactElement {
   const { pvqcSettings } = usePVQCSettings()
   // 設定模式：官方模擬 / 自訂測驗
   const [setupMode, setSetupMode] = useState<SetupMode>('official')
+  // 選擇的科目題庫
+  const [subjectId, setSubjectId] = useState<string>(PVQC_SUBJECTS[0]?.id ?? '')
   // 官方模式：是否包含 Spelling 選考
-  const [includeSpelling, setIncludeSpelling] = useState<boolean>(true)
+  const [includeSpelling, setIncludeSpelling] = useState<boolean>(false)
   // 選擇的測驗模式
   const [selectedModes, setSelectedModes] = useState<string[]>([])
   // 每個測驗題數
@@ -121,7 +129,7 @@ function PVQCSetup(): React.ReactElement {
     }
 
     // 導航到測驗頁面，並傳遞配置
-    navigate('/quiz/pvqc_ai', {
+    navigate(`/quiz/${subjectId}`, {
       state: {
         customFlowConfig: flowConfig,
       },
@@ -139,6 +147,24 @@ function PVQCSetup(): React.ReactElement {
     <div className="page pvqc-setup-page">
       <div className="page-container">
         <h1>PVQC 測驗設定</h1>
+
+        <div className="pvqc-setup-section">
+          <h2>科目</h2>
+          <div className="subject-select">
+            <select
+              aria-label="科目"
+              value={subjectId}
+              onChange={(e) => setSubjectId(e.target.value)}
+            >
+              {PVQC_SUBJECTS.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}（{s.questions.length} 字）
+                </option>
+              ))}
+            </select>
+            <span className="material-symbols-rounded">expand_more</span>
+          </div>
+        </div>
 
         {/* 模式切換 */}
         <div className="setup-mode-switch">
