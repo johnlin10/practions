@@ -5,7 +5,7 @@
   justify-content: center;
   align-items: center;
   position: fixed;
-  bottom: 48px;
+  bottom: 36px;
   left: 50%;
   width: calc(100vw - 48px);
   height: 60px;
@@ -16,6 +16,21 @@
   -moz-transform: translateX(-50%) translateY(calc(48px + 66px));
   -ms-transform: translateX(-50%) translateY(calc(48px + 66px));
   -o-transform: translateX(-50%) translateY(calc(48px + 66px));
+
+  // 導航欄底下到螢幕底部的漸變遮罩，讓滾動內容淡出，增加層級感
+  &::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    left: 50%;
+    bottom: -36px;
+    width: 100vw;
+    height: calc(60px + 36px);
+    background: linear-gradient(transparent, var(--background-color));
+    transform: translateX(-50%);
+    border-radius: 0;
+    pointer-events: none;
+  }
 
   &.show {
     transform: translateX(-50%) translateY(0) !important;
