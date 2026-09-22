@@ -105,8 +105,8 @@ function Quiz(): React.ReactElement {
       ([stageId, questions]) =>
         questions.every(
           (question) =>
-            quizState.answers[answerKey(stageId, question.id)] !== undefined
-        )
+            quizState.answers[answerKey(stageId, question.id)] !== undefined,
+        ),
     )
   }, [quizState.allStagesQuestions, quizState.answers])
 
@@ -125,7 +125,7 @@ function Quiz(): React.ReactElement {
     // 檢查當前階段的所有題目是否都已回答（用 compound key）
     return quizState.currentQuestions.every(
       (question) =>
-        quizState.answers[answerKey(stageId, question.id)] !== undefined
+        quizState.answers[answerKey(stageId, question.id)] !== undefined,
     )
   }, [quizState.currentQuestions, quizState.answers, quizState.currentStage])
 
@@ -183,8 +183,8 @@ function Quiz(): React.ReactElement {
       ([stageId, questions]) =>
         questions.every(
           (question) =>
-            quizState.answers[answerKey(stageId, question.id)] !== undefined
-        )
+            quizState.answers[answerKey(stageId, question.id)] !== undefined,
+        ),
     )
 
     if (!allAnswered) {
@@ -232,7 +232,7 @@ function Quiz(): React.ReactElement {
     ) {
       // 取得所有單字題目
       const allVocabQuestions = currentQuestions.filter(
-        (q) => q.type === 'vocabulary'
+        (q) => q.type === 'vocabulary',
       ) as VocabularyQuestion[]
 
       // 遍歷當前階段的單字題目
@@ -247,7 +247,7 @@ function Quiz(): React.ReactElement {
             // 生成發音選項
             const { options } = generatePVQCPronunciationOptions(
               vocabQuestion,
-              allVocabQuestions
+              allVocabQuestions,
             )
             // 緩存發音選項
             cache[question.id] = options
@@ -265,7 +265,7 @@ function Quiz(): React.ReactElement {
               currentStage.mode as
                 | 'pvqc_read'
                 | 'pvqc_listen_chinese'
-                | 'pvqc_listen_english'
+                | 'pvqc_listen_english',
             )
             // 緩存文字選項
             cache[question.id] = options
@@ -404,8 +404,7 @@ function Quiz(): React.ReactElement {
             //* 如果有 subjectId，顯示測驗頁面
             <>
               {(() => {
-                const enforce =
-                  quizState.flowConfig.enforceStageTimer === true
+                const enforce = quizState.flowConfig.enforceStageTimer === true
                 const stage = quizState.currentStage
                 // 啟用分階段強制計時 → 用當前階段 timeLimit
                 // 未啟用 → 沿用舊行為（總時長一次倒數）
@@ -527,7 +526,6 @@ function Quiz(): React.ReactElement {
             {/* PVQC 測驗入口 */}
             <div className="pvqc-section">
               <div className="subject-card pvqc-card">
-                <span className="new-badge">NEW</span>
                 <div className="pvqc-card-title">
                   <p className="subject-name">
                     <span className="material-symbols-rounded">psychology</span>
@@ -555,11 +553,14 @@ function Quiz(): React.ReactElement {
                 // 計算總題數（所有階段的題數總和）
                 const totalQuestions = subject.flowConfig.stages.reduce(
                   (sum, stage) => sum + stage.questionCount,
-                  0
+                  0,
                 )
 
                 return (
                   <div key={subject.id} className="subject-card">
+                    {subject.id === 'erp_distribution' && (
+                      <span className="new-badge">NEW</span>
+                    )}
                     <p className="subject-name">{subject.name}</p>
                     <div className="subject-card-content">
                       <div className="subject-info">

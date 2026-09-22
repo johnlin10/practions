@@ -13,7 +13,7 @@ function Home(): React.ReactElement {
   useEffect(() => {
     // 選取所有背景矩形元素
     const squares = document.querySelectorAll(
-      '.square-1, .square-2, .square-3, .square-4'
+      '.square-1, .square-2, .square-3, .square-4',
     ) as NodeListOf<HTMLElement>
 
     // 動畫函數
@@ -59,7 +59,6 @@ function Home(): React.ReactElement {
           onClick={() => navigate('/pvqc')}
           title="前往 PVQC 測驗設定"
         >
-          <span className="new-badge">NEW</span>
           <span className="material-symbols-rounded">psychology</span>
           PVQC 測驗
         </button>
