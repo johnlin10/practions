@@ -242,6 +242,9 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       state.currentStage.mode !== 'pvqc_pronunciation'
     // 是否不是 PVQC 寫題
     const notPvqcWriteMode = state.currentStage.mode !== 'pvqc_write'
+    // 是否不是 PVQC 讀聽題
+    const notPvqcReadListenMode =
+      state.currentStage.mode !== 'pvqc_read_listen'
 
     // 更新使用者答案，並返回新的測驗狀態
     return {
@@ -256,9 +259,10 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
           stageId: state.currentStage.stageId,
         },
       },
-      // 如果不是 PVQC 發音題或寫題，則自動跳下一題
+      // 如果不是 PVQC 發音題、寫題或讀聽題，則自動跳下一題
       ...(notPvqcPronunciationMode &&
-        notPvqcWriteMode && {
+        notPvqcWriteMode &&
+        notPvqcReadListenMode && {
           currentQuestionIndex: Math.min(
             state.currentQuestionIndex + 1,
             state.currentQuestions.length - 1

@@ -459,7 +459,16 @@ function Quiz(): React.ReactElement {
                   <button onClick={handlePrev} title="上一題">
                     <span className="material-symbols-rounded">arrow_back</span>
                   </button>
-                  <button onClick={() => handleNext()} title="下一題">
+                  <button
+                    onClick={() => handleNext()}
+                    title="下一題"
+                    className={
+                      quizState.currentStage.mode === 'pvqc_pronunciation' ||
+                      quizState.currentStage.mode === 'pvqc_read_listen'
+                        ? 'manual-next-button'
+                        : undefined
+                    }
+                  >
                     <span className="material-symbols-rounded">
                       arrow_forward
                     </span>

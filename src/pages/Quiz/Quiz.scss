@@ -146,6 +146,11 @@
           &.preview-all-questions-btn {
             width: fit-content;
           }
+
+          // PVQC 發音題、讀聽題需手動切換：下一題按鈕為上一題的兩倍寬
+          &.manual-next-button {
+            width: 100%;
+          }
         }
       }
     }
