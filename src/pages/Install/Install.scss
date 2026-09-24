@@ -26,6 +26,18 @@
     font-size: 0.95rem;
     color: var(--foreground-900);
 
+    > li > .copy-button {
+      display: inline-flex;
+      margin-left: 6px;
+      padding: 2px;
+      vertical-align: middle;
+
+      > span {
+        font-size: 1rem;
+        color: var(--gray-color-10);
+      }
+    }
+
     > li::marker {
       font-weight: 600;
       color: var(--primary-color);
