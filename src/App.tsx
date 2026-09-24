@@ -9,6 +9,7 @@ import Bank from './pages/Bank/Bank'
 import History from './pages/History/History'
 import Settings from './pages/Settings/Settings'
 import PVQCSetup from './pages/PVQC/PVQCSetup'
+import Install from './pages/Install/Install'
 
 // components
 import Results from './components/Results/Results'
@@ -45,6 +46,7 @@ function App(): React.ReactElement {
         </Route>
         <Route path="/results" element={<Results />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/settings/install" element={<Install />} />
         {/* 未知路徑導回首頁 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

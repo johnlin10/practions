@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Settings.scss'
 import packageJson from '../../../package.json'
 import { DEFAULT_SETTINGS } from '../../types'
@@ -10,6 +11,7 @@ import { useQuizHistory } from '@/hooks/useQuizHistory'
  * 設定頁面，包含測驗記錄管理和開發資訊
  */
 function Settings(): React.ReactElement {
+  const navigate = useNavigate()
   // 測驗紀錄（由資料層提供，清除後即時反映，無需 reload）
   const { history, clearHistory: clearAllHistory } = useQuizHistory()
   const hasHistory = history.length > 0
@@ -138,6 +140,24 @@ function Settings(): React.ReactElement {
               ) : (
                 <p className="info">{history.length} 筆紀錄</p>
               )}
+            </div>
+          </div>
+
+          <div className="settings-list-group has-title">
+            <h5>應用程式</h5>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => navigate('/settings/install')}
+            >
+              <p>
+                <span className="material-symbols-outlined icon">
+                  add_to_home_screen
+                </span>
+                加入主畫面
+              </p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
             </div>
           </div>
 

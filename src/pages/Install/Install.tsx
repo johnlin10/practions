@@ -1,0 +1,52 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+import './Install.scss'
+
+// 安裝步驟（對應教學影片流程）
+const STEPS = [
+  '使用 Safari 開啟 practions.web.app',
+  '點選網址列左側的「≡」選單，再點選「分享」',
+  '展開更多選項，點選「加入主畫面」',
+  '確認已開啟「以網頁 App 打開」，點選右上角「加入」',
+  '從主畫面開啟 Practions，即可全螢幕使用',
+]
+
+/**
+ * [page] Install component
+ * 教學頁面：在 iOS 將 Practions 加入主畫面（安裝 PWA）
+ */
+function Install(): React.ReactElement {
+  return (
+    <div className="page">
+      <div className="page-container">
+        <h1>
+          <Link className="pre-path no-style" to="/settings">
+            設定 /
+          </Link>{' '}
+          加入主畫面
+        </h1>
+        <p>在 iPhone 上將 Practions 加入主畫面，像 App 一樣全螢幕使用。</p>
+
+        <div className="install">
+          <video
+            className="install-video"
+            src="/videos/install-pwa.mp4"
+            poster="/videos/install-pwa-poster.jpg"
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-label="在 Safari 將 Practions 加入主畫面的操作示範影片"
+          />
+          <ol className="install-steps">
+            {STEPS.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Install
