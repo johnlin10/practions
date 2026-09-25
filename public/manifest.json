@@ -79,5 +79,11 @@
       "form_factor": "wide",
       "label": "PVQC 測驗設定"
     }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://practions.web.app/manifest.json"
+    }
   ]
 }

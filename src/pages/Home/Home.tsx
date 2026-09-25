@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Home.scss'
+import InstallBanner from '@/components/InstallBanner/InstallBanner'
 
 /**
  * [page] Home page
@@ -68,6 +69,8 @@ function Home(): React.ReactElement {
       <div className="square-2"></div>
       <div className="square-3"></div>
       <div className="square-4"></div>
+
+      <InstallBanner />
     </div>
   )
 }

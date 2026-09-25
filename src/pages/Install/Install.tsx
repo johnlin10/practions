@@ -94,7 +94,10 @@ function Install(): React.ReactElement {
           </Link>{' '}
           加入主畫面
         </h1>
-        <p>將 Practions 加入手機主畫面，像 App 一樣全螢幕使用。</p>
+        <p>
+          將 Practions 加入手機主畫面，像 App
+          一樣全螢幕使用，測驗紀錄也會長期保存，不會因為一段時間沒開啟就被清除。
+        </p>
 
         {/* 平台切換（沿用 PVQC 設定頁的切換樣式） */}
         <div className="setup-mode-switch">
