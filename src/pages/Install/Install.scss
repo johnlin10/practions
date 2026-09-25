@@ -18,6 +18,42 @@
     flex-shrink: 0;
   }
 
+  // Android 沒有影片，按鈕、提示、步驟直向排列
+  &.android {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  > .install-button {
+    gap: 6px;
+    padding: 12px;
+    font-weight: 600;
+    color: #fff;
+    background-color: var(--blue-500);
+    border-color: var(--blue-600);
+    box-shadow: 0 3px 0 var(--blue-600);
+
+    &:hover {
+      background-color: var(--blue-600);
+      border-color: var(--blue-700);
+      box-shadow: 0 3px 0 var(--blue-700);
+    }
+  }
+
+  > .install-hint {
+    margin-bottom: -12px;
+    font-size: 0.9rem;
+    color: var(--gray-color-10);
+  }
+
+  > .install-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
   > .install-steps {
     display: flex;
     flex-direction: column;
