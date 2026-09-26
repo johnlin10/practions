@@ -27,6 +27,11 @@ import { VocabularyQuestion } from '../../types/questions'
 
 // data
 import { subjects } from '../../data/subjects'
+import {
+  subjectGroups,
+  SubjectGroup,
+  groupSubjects,
+} from '../../data/subject-groups'
 
 // utils
 import { answerKey } from '../../utils/answer-key'
@@ -37,6 +42,11 @@ interface PreviewAllQuestionsProps {
   close: () => void
   pvqcOptionsCache: Record<string, string[]>
 }
+
+// 科目列表：只列出開放測驗的題庫，並依題組分組
+const quizSections = groupSubjects(
+  Object.values(subjects).filter((subject) => subject.quizOpen),
+)
 
 /**
  * [page] Quiz page
@@ -557,42 +567,55 @@ function Quiz(): React.ReactElement {
 
             {/* 科目列表 */}
             <div className="subject-list">
-              {Object.values(subjects).map((subject: SubjectConfig) => {
-                if (!subject.quizOpen) return null
+              {quizSections.map(({ group, subjects: members }) => {
+                const cards = members.map((subject) => {
+                  // 計算總題數（所有階段的題數總和）
+                  const totalQuestions = subject.flowConfig.stages.reduce(
+                    (sum, stage) => sum + stage.questionCount,
+                    0,
+                  )
 
-                // 計算總題數（所有階段的題數總和）
-                const totalQuestions = subject.flowConfig.stages.reduce(
-                  (sum, stage) => sum + stage.questionCount,
-                  0,
-                )
-
-                return (
-                  <div key={subject.id} className="subject-card">
-                    {subject.id === 'erp_distribution' && (
-                      <span className="new-badge">NEW</span>
-                    )}
-                    <p className="subject-name">{subject.name}</p>
-                    <div className="subject-card-content">
-                      <div className="subject-info">
-                        <p>{totalQuestions} 題</p>
-                        <p>{subject.flowConfig.totalTimeLimit} 分鐘</p>
+                  return (
+                    <div key={subject.id} className="subject-card">
+                      {subject.id === 'erp_distribution' && (
+                        <span className="new-badge">NEW</span>
+                      )}
+                      <p className="subject-name">{subject.name}</p>
+                      <div className="subject-card-content">
+                        <div className="subject-info">
+                          <p>{totalQuestions} 題</p>
+                          <p>{subject.flowConfig.totalTimeLimit} 分鐘</p>
+                        </div>
+                        <button
+                          className="start-quiz-btn"
+                          onClick={() => {
+                            if (isSubjectLocked(subject)) {
+                              alert('此科目目前處於鎖定狀態，無法完成測驗')
+                              return
+                            }
+                            navigate(`/quiz/${subject.id}`)
+                          }}
+                        >
+                          <span className="material-symbols-rounded fill">
+                            play_arrow
+                          </span>
+                          {/* 開始測驗 */}
+                        </button>
                       </div>
-                      <button
-                        className="start-quiz-btn"
-                        onClick={() => {
-                          if (isSubjectLocked(subject)) {
-                            alert('此科目目前處於鎖定狀態，無法完成測驗')
-                            return
-                          }
-                          navigate(`/quiz/${subject.id}`)
-                        }}
-                      >
-                        <span className="material-symbols-rounded fill">
-                          play_arrow
-                        </span>
-                        {/* 開始測驗 */}
-                      </button>
                     </div>
+                  )
+                })
+
+                if (!group) return cards
+                const { title, showTitle = true }: SubjectGroup =
+                  subjectGroups[group]
+                return (
+                  <div
+                    key={group}
+                    className={`subject-group${showTitle ? ' has-title' : ''}`}
+                  >
+                    {showTitle && <h5>{title}</h5>}
+                    {cards}
                   </div>
                 )
               })}

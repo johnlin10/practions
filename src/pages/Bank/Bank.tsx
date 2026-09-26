@@ -7,7 +7,7 @@ import { subjects } from '../../data/subjects'
 import {
   subjectGroups,
   SubjectGroup,
-  SubjectGroupId,
+  groupSubjects,
 } from '../../data/subject-groups'
 
 // utils
@@ -17,21 +17,10 @@ import {
   formatLockTime,
 } from './utils/bankHelpers'
 
-// types
-import { SubjectConfig } from '../../types/quiz-flows'
-
 // 標上 [NEW] 標籤的題庫 id
 const NEW_SUBJECT_IDS = ['erp_distribution', 'pvqc_healthcare']
 
-// 依 group 分組，同組的題庫歸在第一個成員的位置；沒有 group 的題庫各自一組
-const subjectSections: { group?: SubjectGroupId; subjects: SubjectConfig[] }[] =
-  []
-for (const subject of Object.values(subjects)) {
-  const section =
-    subject.group && subjectSections.find((s) => s.group === subject.group)
-  if (section) section.subjects.push(subject)
-  else subjectSections.push({ group: subject.group, subjects: [subject] })
-}
+const subjectSections = groupSubjects(Object.values(subjects))
 
 /**
  * [page] Bank page
