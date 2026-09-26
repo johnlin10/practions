@@ -93,18 +93,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 18px;
       background-color: var(--background-color, #ffffff);
       transition: opacity 0.5s ease;
     }
 
+    /* 圖示與名稱預先合成為一張圖（3 倍解析度），避免字體晚載入導致文字變化；固定寬度、高度依比例 */
     .splash img {
-      width: 96px;
-      height: 96px;
-    }
-
-    .splash img,
-    .splash p {
+      width: 139px;
+      height: auto;
       transition: transform 0.5s ease;
     }
 
@@ -120,17 +116,8 @@
       pointer-events: none;
     }
 
-    .splash.hide img,
-    .splash.hide p {
+    .splash.hide img {
       transform: scale(1.15);
-    }
-
-    .splash p {
-      margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--primary-color, #34b3e1);
     }
   </style>
 
@@ -141,8 +128,7 @@
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
   <div class="splash">
-    <img src="/icons/r/practions-r-256.png" alt="" />
-    <p>Practions</p>
+    <img src="/splash.png" width="414" height="441" alt="Practions" />
   </div>
   <script type="module" src="/src/index.tsx"></script>
 </body>
