@@ -23,8 +23,9 @@
     border: 2px solid var(--gray-color-13);
     transition: all 0.3s ease;
 
+    // 只換顏色，列表內沒有外框的項目才不會在 hover 時多出邊框
     &:hover {
-      border: 2px solid var(--gray-color-12);
+      border-color: var(--gray-color-12);
     }
 
     @media (min-width: 800px) {
@@ -98,6 +99,45 @@
         background: var(--gray-color-13);
       }
     }
+  }
+}
+
+// 同一天的紀錄合為一個列表，日期在框外左上方（外觀同題庫頁的題組）
+.history-section.history-day {
+  position: relative;
+  gap: 0;
+  margin-top: 48px;
+  border: 2px solid var(--gray-color-13);
+
+  > h5 {
+    position: absolute;
+    top: -24px;
+    left: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-color-12);
+  }
+
+  > .history-item {
+    border: none;
+    border-radius: 0;
+
+    &:not(:last-child) {
+      border-bottom: 2px solid var(--gray-color-13);
+    }
+    &:last-child {
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+    &:hover {
+      border-color: var(--gray-color-13);
+      background-color: var(--gray-color-13);
+    }
+  }
+
+  > h5 + .history-item {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
   }
 }
 
