@@ -1,3 +1,5 @@
+@use '../../styles/fade';
+
 .navigate {
   z-index: 1000;
   display: flex;
@@ -26,7 +28,7 @@
     bottom: -36px;
     width: 100vw;
     height: calc(60px + 36px);
-    background: linear-gradient(transparent, var(--background-color));
+    background: fade.fade-gradient(var(--background-color), to top);
     transform: translateX(-50%);
     border-radius: 0;
     pointer-events: none;

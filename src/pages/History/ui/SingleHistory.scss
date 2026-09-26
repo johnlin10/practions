@@ -1,3 +1,5 @@
+@use '../../../styles/fade';
+
 // 單一歷史紀錄樣式
 .single-history {
   z-index: 90;
@@ -48,11 +50,22 @@
       align-items: flex-start;
       justify-content: center;
       position: sticky;
-      padding: 12px 0;
+      padding-top: 12px;
       top: 0;
       width: 100%;
-      // box-shadow: 0 -24px 12px 36px var(--background-color);
       background-color: var(--background-color);
+
+      // 底部白色漸層，內容往上滾動時逐漸淡出，而不是被邊緣切斷
+      &::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: 24px;
+        background: fade.fade-gradient(var(--background-color));
+        pointer-events: none;
+      }
 
       > h2 {
         text-align: center;
@@ -101,6 +114,8 @@
       }
     }
 
+    // 「只顯示錯誤題目」「依題號排序」切換按鈕
+    // 按下的動畫沿用全域 button（與 PVQC 測驗類型卡片相同）；啟用後藍底藍框，維持按下去的狀態
     > .filters {
       display: flex;
       flex-direction: row;
@@ -110,21 +125,19 @@
       padding-top: 12px;
 
       > .filter-switch {
-        display: flex;
-        align-items: center;
         gap: 3px;
         padding: 6px 9px;
-        width: fit-content;
         font-size: 0.8rem;
         color: var(--gray-color-10);
-        background: var(--background-color);
-        border: 2px solid var(--gray-color-13);
-        cursor: pointer;
+        background-color: var(--background-color);
+        border-color: var(--gray-color-13);
 
         &.active {
-          background: var(--primary-background-color);
           border: 2px solid var(--primary-color);
-          color: var(--primary-color-text);
+          background-color: var(--primary-background-color);
+          box-shadow: 0 0 0 var(--primary-color);
+          transform: translateY(3px);
+          color: var(--blue-600);
         }
 
         > span {

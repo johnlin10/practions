@@ -1,0 +1,29 @@
+@use 'sass:list';
+
+// 漸層淡出曲線：(位置, 不透明度)，比線性漸層更柔和
+$fade-curve: (
+  (0, 1),
+  (0.124, 0.977),
+  (0.248, 0.909),
+  (0.372, 0.793),
+  (0.496, 0.619),
+  (0.716, 0.203),
+  (0.774, 0.118),
+  (0.831, 0.064),
+  (0.916, 0.014),
+  (1, 0)
+);
+
+// 依 $fade-curve 產生由 $color 淡出到透明的漸層
+// $direction 為淡出的方向，例如 to bottom（往下淡出）、to top（往上淡出）
+@function fade-gradient($color, $direction: to bottom) {
+  $stops: ($direction,);
+  @each $pos, $alpha in $fade-curve {
+    $stops: list.append(
+      $stops,
+      color-mix(in srgb, #{$color} #{$alpha * 100%}, transparent) #{$pos * 100%},
+      $separator: comma
+    );
+  }
+  @return linear-gradient($stops...);
+}

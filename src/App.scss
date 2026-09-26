@@ -1,3 +1,5 @@
+@use './styles/fade';
+
 @use 'sass:color';
 
 .App {
@@ -74,7 +76,32 @@
     top: -36px;
     font-size: 1.75rem;
     background-color: var(--background-color);
-    box-shadow: 0 -24px 12px 36px var(--background-color);
+
+    // 標題上方的實色遮擋與底部的往下淡出，都延伸到螢幕左右邊緣（.page 已隱藏橫向溢出）
+    &::before,
+    &::after {
+      content: '';
+      z-index: -1;
+      position: absolute;
+      left: 50%;
+      width: 100vw;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    // 往上遮住捲動到標題上方的內容
+    &::before {
+      top: -36px;
+      bottom: 0;
+      background-color: var(--background-color);
+    }
+
+    // 內容捲到標題下方時逐漸消失
+    &::after {
+      top: 100%;
+      height: 24px;
+      background: fade.fade-gradient(var(--background-color));
+    }
 
     > a.pre-path {
       font-size: 1rem;

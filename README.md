@@ -108,7 +108,7 @@ pnpm install
 src/
 ├── types/              # TypeScript 型別定義（題目、測驗模式、測驗流程、答案、設定）
 ├── schemas/            # zod 資料驗證（歷史紀錄、設定）
-├── components/         # 共用元件（底部導航、計時器、結果頁、安裝提示）
+├── components/         # 共用元件（底部導航、計時器、安裝提示）
 ├── pages/              # 頁面元件
 │   ├── Home/           # 首頁
 │   ├── Quiz/           # 測驗頁面
@@ -120,8 +120,7 @@ src/
 ├── context/            # React Context
 ├── hooks/              # 自訂 Hooks（歷史紀錄、設定、PWA 安裝）
 ├── data/               # 題庫、PVQC 官方規範、歷史紀錄與設定的儲存
-├── utils/              # 評分策略、結果分析、儲存、語音播放
-└── styles/             # 共用樣式
+└── utils/              # 評分策略、結果分析、儲存、語音播放
 ```
 
 ## 版本歷程

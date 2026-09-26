@@ -12,7 +12,6 @@ import PVQCSetup from './pages/PVQC/PVQCSetup'
 import Install from './pages/Install/Install'
 
 // components
-import Results from './components/Results/Results'
 import BottomNav from './components/BottomNav/BottomNav'
 import SingleBank from './pages/Bank/ui/SingleBank'
 import SingleHistory from './pages/History/ui/SingleHistory'
@@ -44,7 +43,6 @@ function App(): React.ReactElement {
         <Route path="/bank" element={<Bank />}>
           <Route path=":subjectId" element={<SingleBank />} />
         </Route>
-        <Route path="/results" element={<Results />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/install" element={<Install />} />
         {/* 未知路徑導回首頁 */}

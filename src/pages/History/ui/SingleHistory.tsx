@@ -799,20 +799,22 @@ function SingleHistory(): React.ReactElement {
         </div>
 
         <div className="filters">
-          <div
+          <button
             className={`filter-switch ${showWrongOnly ? 'active' : ''}`}
             onClick={() => setShowWrongOnly(!showWrongOnly)}
+            aria-pressed={showWrongOnly}
           >
             <span className="material-symbols-rounded fill">filter_list</span>
             <p>只顯示錯誤題目</p>
-          </div>
-          <div
+          </button>
+          <button
             className={`filter-switch ${sortByQuestionId ? 'active' : ''}`}
             onClick={() => setSortByQuestionId(!sortByQuestionId)}
+            aria-pressed={sortByQuestionId}
           >
             <span className="material-symbols-outlined">swap_vert</span>
             <p>依題號排序</p>
-          </div>
+          </button>
         </div>
 
         <div className="questions-list">
