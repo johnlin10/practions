@@ -10,6 +10,7 @@ import History from './pages/History/History'
 import Settings from './pages/Settings/Settings'
 import PVQCSetup from './pages/PVQC/PVQCSetup'
 import Install from './pages/Install/Install'
+import Changelog from './pages/Changelog/Changelog'
 
 // components
 import BottomNav from './components/BottomNav/BottomNav'
@@ -45,6 +46,7 @@ function App(): React.ReactElement {
         </Route>
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/install" element={<Install />} />
+        <Route path="/settings/changelog" element={<Changelog />} />
         {/* 未知路徑導回首頁 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

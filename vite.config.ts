@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { defineConfig, type Plugin } from 'vitest/config'
@@ -49,8 +50,44 @@ function installPageHtml(): Plugin {
   }
 }
 
+/**
+ * 讀取 git 中標題以 v*.*.* 開頭的提交，作為設定頁的更新紀錄（新到舊）
+ * 在 dev 啟動與 build 時執行一次；需在 git repo 中建置
+ */
+function readChangelog(): ChangelogEntry[] {
+  // 以 \x1f 分隔欄位、\x1e 分隔提交，避免與提交內容衝突
+  const log = execSync(
+    'git log --format=%h%x1f%ad%x1f%s%x1f%b%x1e --date=short',
+    {
+      encoding: 'utf-8',
+    },
+  )
+  const entries: ChangelogEntry[] = []
+  for (const record of log.split('\x1e')) {
+    const [hash, date, subject, body = ''] = record.trim().split('\x1f')
+    const match = subject?.match(
+      /^(v\d+\.\d+\.\d+(?: Beta(?: \d+)?)?)[\s：:]*(.*)$/,
+    )
+    if (!match) continue
+    entries.push({
+      hash,
+      date,
+      version: match[1],
+      title: match[2],
+      // 移除 Co-Authored-By 等署名行
+      body: body
+        .replace(/^(Co-Authored-By|🤖 Generated with).*$/gim, '')
+        .trim(),
+    })
+  }
+  return entries
+}
+
 export default defineConfig({
   plugins: [react(), installPageHtml()],
+  define: {
+    __CHANGELOG__: JSON.stringify(readChangelog()),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

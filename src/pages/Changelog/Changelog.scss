@@ -1,0 +1,46 @@
+@use '../../styles/fade';
+
+// 沿用設定頁的 .settings-list 列表，改為直向排列版本、標題與內容
+.settings-list-group.changelog {
+  > .changelog-entry {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+
+    > .changelog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      > .changelog-version {
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+      > .info {
+        font-size: 0.8rem;
+        color: var(--gray-color-10);
+      }
+    }
+
+    > .changelog-title {
+      font-weight: 500;
+    }
+
+    // 保留提交內容的換行與縮排；收合時限制高度並往下淡出
+    > .changelog-body {
+      display: block;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      color: var(--gray-color-10);
+      max-height: 5.2em;
+      overflow: hidden;
+      mask-image: fade.fade-gradient(#000);
+    }
+
+    &.open > .changelog-body {
+      max-height: none;
+      mask-image: none;
+    }
+  }
+}

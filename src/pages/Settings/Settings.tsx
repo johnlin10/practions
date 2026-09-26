@@ -169,6 +169,15 @@ function Settings(): React.ReactElement {
             </div>
             <div
               className="settings-list-group-item action"
+              onClick={() => navigate('/settings/changelog')}
+            >
+              <p>更新紀錄</p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
+            </div>
+            <div
+              className="settings-list-group-item action"
               onClick={() => openLink('https://github.com/johnlin10/practions')}
             >
               <p>開放原始碼</p>
