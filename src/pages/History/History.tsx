@@ -50,7 +50,10 @@ function History(): React.ReactElement {
           <div className="history-list">
             {days.length > 0 ? (
               days.map(({ date, records }) => (
-                <div key={date} className="history-section history-day">
+                <div
+                  key={date}
+                  className="history-section history-day has-title"
+                >
                   <h5>{date}</h5>
                   {records.map((record) => {
                     const flowMode =

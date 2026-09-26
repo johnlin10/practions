@@ -1,0 +1,28 @@
+// 分組列表：外框與框外左上方的標題（h5）
+// 設定、更新紀錄、題庫、測驗、測驗紀錄共用，間距只在這裡調整
+$title-space: 32px; // 標題（中文約 23px 高）加上與外框的間距
+$title-gap: 7px; // 標題底部與外框的距離
+// 題庫、測驗的卡片之間已有 9px 間距，列表上方改用較小的空間
+$compact-title-space: 28px;
+
+@mixin titled-list($space: $title-space) {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--gray-color-13);
+
+  &.has-title {
+    margin-top: $space;
+  }
+
+  // 以底部定位，標題高度不同（純英文較矮）時與外框的距離仍一致
+  // absolute 從 padding box 起算，需再加上 2px 外框
+  > h5 {
+    position: absolute;
+    bottom: calc(100% + #{$title-gap} + 2px);
+    left: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-color-12);
+  }
+}

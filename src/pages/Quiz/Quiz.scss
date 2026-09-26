@@ -1,3 +1,5 @@
+@use '../../styles/list-group';
+
 .quiz-page {
   padding: 24px 24px 48px 24px;
 
@@ -382,23 +384,7 @@ h1.quiz-to-history {
 
 // 題組：同組題庫合為一個列表，外觀同題庫頁的題組
 .subject-list > .subject-group {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  border: 2px solid var(--gray-100);
-
-  &.has-title {
-    margin-top: 24px;
-  }
-
-  > h5 {
-    position: absolute;
-    top: -24px;
-    left: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--gray-color-12);
-  }
+  @include list-group.titled-list(list-group.$compact-title-space);
 
   > .subject-card {
     border: none;

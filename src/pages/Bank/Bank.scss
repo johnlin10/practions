@@ -1,3 +1,5 @@
+@use '../../styles/list-group';
+
 .subjects-section {
   margin-bottom: 30px;
 
@@ -54,24 +56,8 @@
 
   // 題組：外觀同設定頁的分組列表，標題在框外左上方
   .subject-group {
-    position: relative;
-    display: flex;
-    flex-direction: column;
+    @include list-group.titled-list(list-group.$compact-title-space);
     width: 100%;
-    border: 2px solid var(--gray-color-13);
-
-    &.has-title {
-      margin-top: 24px;
-    }
-
-    > h5 {
-      position: absolute;
-      top: -24px;
-      left: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--gray-color-12);
-    }
 
     > .subject-card {
       border: none;

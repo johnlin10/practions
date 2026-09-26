@@ -1,3 +1,5 @@
+@use '../../styles/list-group';
+
 .settings-list {
   display: flex;
   flex-direction: column;
@@ -6,23 +8,7 @@
   gap: 24px;
 
   .settings-list-group {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border: 2px solid var(--gray-color-13);
-
-    &.has-title {
-      margin-top: 32px;
-    }
-
-    > h5 {
-      position: absolute;
-      top: -32px;
-      left: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--gray-color-12);
-    }
+    @include list-group.titled-list;
 
     .settings-list-group-item {
       display: flex;
