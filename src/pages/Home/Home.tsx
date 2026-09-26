@@ -60,6 +60,7 @@ function Home(): React.ReactElement {
           onClick={() => navigate('/pvqc')}
           title="前往 PVQC 測驗設定"
         >
+          <span className="hot-badge">HOT</span>
           <span className="material-symbols-rounded">psychology</span>
           PVQC 測驗
         </button>

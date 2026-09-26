@@ -535,6 +535,7 @@ function Quiz(): React.ReactElement {
             {/* PVQC 測驗入口 */}
             <div className="pvqc-section">
               <div className="subject-card pvqc-card">
+                <span className="hot-badge">HOT</span>
                 <div className="pvqc-card-title">
                   <p className="subject-name">
                     <span className="material-symbols-rounded">psychology</span>

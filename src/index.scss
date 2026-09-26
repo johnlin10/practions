@@ -178,3 +178,18 @@ a {
   -ms-border-radius: 12px;
   -o-border-radius: 12px;
 }
+
+// [HOT] 標籤（樣式同 Quiz 的 .new-badge，改用橘紅色）
+.hot-badge {
+  position: absolute;
+  top: -6px;
+  left: -12px;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: normal;
+  background-color: #f0501e;
+  border: 2px solid var(--foreground-100);
+  color: var(--white);
+  border-radius: 6px;
+}
