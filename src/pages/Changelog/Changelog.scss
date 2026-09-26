@@ -38,6 +38,11 @@
       mask-image: fade.fade-gradient(#000);
     }
 
+    // 不沿用設定頁 .action 的 hover 底色，只保留可點擊的游標
+    &.collapsible {
+      cursor: pointer;
+    }
+
     &.open > .changelog-body {
       max-height: none;
       mask-image: none;

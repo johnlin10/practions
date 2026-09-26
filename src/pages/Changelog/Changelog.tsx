@@ -40,7 +40,7 @@ function Changelog(): React.ReactElement {
                 <div
                   key={entry.hash}
                   className={`settings-list-group-item changelog-entry${
-                    latest ? '' : ' action'
+                    latest ? '' : ' collapsible'
                   }${open ? ' open' : ''}`}
                   {...(!latest && {
                     role: 'button',
