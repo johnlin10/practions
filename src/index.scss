@@ -52,6 +52,9 @@ button {
   background-color: var(--background);
   border: 2px solid var(--border-color);
   box-shadow: 0 3px 0 var(--border-color);
+  // 往上抬一個陰影高度，讓「本體 + 陰影」整體對齊版面；
+  // 按下時的 transform: translateY(3px) 與此抵銷，剛好回到原位
+  translate: 0 -3px;
 
   -webkit-appearance: none; /* Safari and Chrome */
   -moz-appearance: none; /* Firefox */
