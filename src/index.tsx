@@ -25,3 +25,19 @@ root.render(
     </ErrorBoundary>
   </React.StrictMode>
 )
+
+// 從主畫面開啟（PWA）時，首屏至少顯示 SPLASH_MIN_MS（從開啟頁面起算），再淡出露出畫面
+// 瀏覽器開啟時首屏已由 CSS 隱藏，直接移除
+const SPLASH_MIN_MS = 1000
+const splash = document.querySelector('.splash')
+if (splash && !window.matchMedia('(display-mode: standalone)').matches) {
+  splash.remove()
+} else if (splash) {
+  setTimeout(
+    () => {
+      splash.classList.add('hide')
+      setTimeout(() => splash.remove(), 500) // 對應 index.html 的 transition 時間
+    },
+    Math.max(0, SPLASH_MIN_MS - performance.now()),
+  )
+}

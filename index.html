@@ -84,21 +84,45 @@
         'opsz' 24
     }
 
-    /* 首屏：JS 載入前就顯示，React 渲染時會取代 #root 的內容而自動消失 */
+    /* 首屏：JS 載入前就顯示，至少停留一段時間後由 index.tsx 加上 .hide 淡出 */
     .splash {
       position: fixed;
       inset: 0;
+      z-index: 9999;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 18px;
       background-color: var(--background-color, #ffffff);
+      transition: opacity 0.5s ease;
     }
 
     .splash img {
       width: 96px;
       height: 96px;
+    }
+
+    .splash img,
+    .splash p {
+      transition: transform 0.5s ease;
+    }
+
+    /* 只有從主畫面開啟（PWA）才顯示首屏 */
+    @media not all and (display-mode: standalone) {
+      .splash {
+        display: none;
+      }
+    }
+
+    .splash.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .splash.hide img,
+    .splash.hide p {
+      transform: scale(1.15);
     }
 
     .splash p {
@@ -115,11 +139,10 @@
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root">
-    <div class="splash">
-      <img src="/icons/r/practions-r-256.png" alt="" />
-      <p>Practions</p>
-    </div>
+  <div id="root"></div>
+  <div class="splash">
+    <img src="/icons/r/practions-r-256.png" alt="" />
+    <p>Practions</p>
   </div>
   <script type="module" src="/src/index.tsx"></script>
 </body>
