@@ -3,12 +3,30 @@ import { Link } from 'react-router-dom'
 import '../Settings/Settings.scss'
 import './Changelog.scss'
 
-const changelog = __CHANGELOG__
+// 最新一則為「目前版本」，其餘為「歷史版本」
+const [current, ...history] = __CHANGELOG__
+
+/**
+ * [function] entryContent
+ * 單則更新紀錄的內容：版本號、日期、標題與更新內容
+ */
+function entryContent(entry: ChangelogEntry): React.ReactElement {
+  return (
+    <>
+      <div className="changelog-header">
+        <p className="changelog-version">{entry.version}</p>
+        <p className="info">{entry.date}</p>
+      </div>
+      <p className="changelog-title">{entry.title}</p>
+      {entry.body && <p className="changelog-body">{entry.body}</p>}
+    </>
+  )
+}
 
 /**
  * [page] Changelog component
  * 更新紀錄：列出 git 中 v*.*.* 開頭的提交（新到舊）
- * 最新一則完整顯示；其餘預設收合，同時只展開一則
+ * 目前版本完整顯示；歷史版本預設收合，同時只展開一則
  */
 function Changelog(): React.ReactElement {
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -32,39 +50,42 @@ function Changelog(): React.ReactElement {
         </h1>
 
         <div className="settings-list">
-          <div className="settings-list-group changelog">
-            {changelog.map((entry, index) => {
-              const latest = index === 0
-              const open = latest || expanded === entry.hash
-              return (
-                <div
-                  key={entry.hash}
-                  className={`settings-list-group-item changelog-entry${
-                    latest ? '' : ' collapsible'
-                  }${open ? ' open' : ''}`}
-                  {...(!latest && {
-                    role: 'button',
-                    tabIndex: 0,
-                    'aria-expanded': open,
-                    onClick: (e: React.MouseEvent<HTMLDivElement>) =>
-                      toggle(entry.hash, e.currentTarget),
-                    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
+          {current && (
+            <div className="settings-list-group has-title changelog">
+              <h5>目前版本</h5>
+              <div className="settings-list-group-item changelog-entry open">
+                {entryContent(current)}
+              </div>
+            </div>
+          )}
+
+          {history.length > 0 && (
+            <div className="settings-list-group has-title changelog">
+              <h5>歷史版本</h5>
+              {history.map((entry) => {
+                const open = expanded === entry.hash
+                return (
+                  <div
+                    key={entry.hash}
+                    className={`settings-list-group-item changelog-entry collapsible${
+                      open ? ' open' : ''
+                    }`}
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={open}
+                    onClick={(e) => toggle(entry.hash, e.currentTarget)}
+                    onKeyDown={(e) => {
                       if (e.key !== 'Enter' && e.key !== ' ') return
                       e.preventDefault()
                       toggle(entry.hash, e.currentTarget)
-                    },
-                  })}
-                >
-                  <div className="changelog-header">
-                    <p className="changelog-version">{entry.version}</p>
-                    <p className="info">{entry.date}</p>
+                    }}
+                  >
+                    {entryContent(entry)}
                   </div>
-                  <p className="changelog-title">{entry.title}</p>
-                  {entry.body && <p className="changelog-body">{entry.body}</p>}
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
