@@ -197,16 +197,19 @@ function PVQCSetup(): React.ReactElement {
                 所有階段都需達到及格門檻才算整體通過。
               </p>
 
-              <label className="spelling-toggle">
-                <input
-                  type="checkbox"
-                  checked={includeSpelling}
-                  onChange={(e) => setIncludeSpelling(e.target.checked)}
-                />
-                <span>
-                  包含 <strong>Spelling 選考</strong>（測驗一：看中拼英 / 20 分鐘 / 及格 40）
+              <button
+                className={`spelling-toggle ${includeSpelling ? 'selected' : ''}`}
+                onClick={() => setIncludeSpelling(!includeSpelling)}
+                aria-pressed={includeSpelling}
+              >
+                <span className="material-symbols-rounded">
+                  {includeSpelling ? 'check_box' : 'check_box_outline_blank'}
                 </span>
-              </label>
+                <div>
+                  <h3>包含 Spelling 選考</h3>
+                  <p>測驗一：看中拼英 / 20 分鐘 / 及格 40</p>
+                </div>
+              </button>
 
               <div className="official-stages-preview">
                 {officialPreview.stages.map((stage, idx) => (
