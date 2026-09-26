@@ -402,21 +402,6 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       correctCount: detailedResults.totalCorrect,
     }
 
-    // 如果是舊格式（單階段），添加舊的 answers 和 questions 欄位
-    if (recordType === 'standard' && detailedResults.questionResults) {
-      // 收集所有題目
-      const allQuestions: Question[] = []
-      // 遍歷所有階段
-      Object.values(quizState.allStagesQuestions).forEach((stageQuestions) => {
-        allQuestions.push(...stageQuestions)
-      })
-
-      // 收集所有答案
-      historyRecord.answers = quizState.answers
-      // 收集所有題目
-      historyRecord.questions = allQuestions
-    }
-
     // 透過資料層新增歷史記錄（集中持久化並通知所有訂閱者）
     addHistoryRecord(historyRecord)
 
