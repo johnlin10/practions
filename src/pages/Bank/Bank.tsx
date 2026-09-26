@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, Link, Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import './Bank.scss'
 
 // data
 import { subjects } from '../../data/subjects'
+import {
+  subjectGroups,
+  SubjectGroup,
+  SubjectGroupId,
+} from '../../data/subject-groups'
 
 // utils
 import {
@@ -15,8 +20,17 @@ import {
 // types
 import { SubjectConfig } from '../../types/quiz-flows'
 
-interface BankParams extends Record<string, string | undefined> {
-  subjectId?: string
+// 標上 [NEW] 標籤的題庫 id
+const NEW_SUBJECT_IDS = ['erp_distribution', 'pvqc_healthcare']
+
+// 依 group 分組，同組的題庫歸在第一個成員的位置；沒有 group 的題庫各自一組
+const subjectSections: { group?: SubjectGroupId; subjects: SubjectConfig[] }[] =
+  []
+for (const subject of Object.values(subjects)) {
+  const section =
+    subject.group && subjectSections.find((s) => s.group === subject.group)
+  if (section) section.subjects.push(subject)
+  else subjectSections.push({ group: subject.group, subjects: [subject] })
 }
 
 /**
@@ -24,10 +38,6 @@ interface BankParams extends Record<string, string | undefined> {
  * 題庫頁面，顯示所有可用的科目
  */
 function Bank(): React.ReactElement {
-  // 取得科目 ID
-  const { subjectId } = useParams<BankParams>()
-  // 選中的科目
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
   // 當前時間
   const [currentTime, setCurrentTime] = useState<Date>(new Date())
 
@@ -43,13 +53,6 @@ function Bank(): React.ReactElement {
     return () => clearInterval(intervalId)
   }, [])
 
-  // 更新選中的科目
-  useEffect(() => {
-    if (subjectId) {
-      setSelectedSubject(subjectId)
-    }
-  }, [subjectId])
-
   return (
     <>
       <Outlet />
@@ -58,50 +61,71 @@ function Bank(): React.ReactElement {
           <h1>題庫</h1>
           <div className="subjects-section">
             <div className="subjects-grid">
-              {Object.values(subjects).map((subject: SubjectConfig) => {
-                const locked = isSubjectLocked(subject)
-                const lockStatus = getLockStatus(subject, currentTime)
-                const cardClassName = `subject-card no-style${
-                  selectedSubject === subject.id ? ' selected' : ''
-                }${locked ? ' locked' : ''}`
-                const cardContent = (
-                  <>
-                    <p className="subject-name">
-                      {locked && (
-                        <span className="material-symbols-rounded">lock</span>
+              {subjectSections.map(({ group, subjects: members }) => {
+                const cards = members.map((subject) => {
+                  const locked = isSubjectLocked(subject)
+                  const lockStatus = getLockStatus(subject, currentTime)
+                  const cardClassName = `subject-card no-style${
+                    locked ? ' locked' : ''
+                  }`
+                  const cardContent = (
+                    <>
+                      {NEW_SUBJECT_IDS.includes(subject.id) && (
+                        <span className="new-badge">NEW</span>
                       )}
-                      {subject.name}
-                    </p>
+                      <p className="subject-name">
+                        {locked && (
+                          <span className="material-symbols-rounded">lock</span>
+                        )}
+                        {subject.name}
+                      </p>
 
-                    <p>
-                      {subject.lockTime && lockStatus.status !== 'none' && (
-                        <span className={`lock-time ${locked ? 'locked' : ''}`}>
-                          {lockStatus.text}{' '}
-                          {lockStatus.time && formatLockTime(lockStatus.time)}{' '}
-                        </span>
-                      )}
-                      {subject.questions.length} 題
-                    </p>
-                  </>
-                )
+                      <p>
+                        {subject.lockTime && lockStatus.status !== 'none' && (
+                          <span
+                            className={`lock-time ${locked ? 'locked' : ''}`}
+                          >
+                            {lockStatus.text}{' '}
+                            {lockStatus.time &&
+                              formatLockTime(lockStatus.time)}{' '}
+                          </span>
+                        )}
+                        {subject.questions.length} 題
+                      </p>
+                    </>
+                  )
 
-                // 鎖定的科目渲染為不可點的 div，取代原本 to="" 的無效導航 hack
-                return locked ? (
+                  // 鎖定的科目渲染為不可點的 div，取代原本 to="" 的無效導航 hack
+                  return locked ? (
+                    <div
+                      key={subject.id}
+                      className={cardClassName}
+                      aria-disabled="true"
+                    >
+                      {cardContent}
+                    </div>
+                  ) : (
+                    <Link
+                      key={subject.id}
+                      className={cardClassName}
+                      to={`/bank/${subject.id}`}
+                    >
+                      {cardContent}
+                    </Link>
+                  )
+                })
+
+                if (!group) return cards
+                const { title, showTitle = true }: SubjectGroup =
+                  subjectGroups[group]
+                return (
                   <div
-                    key={subject.id}
-                    className={cardClassName}
-                    aria-disabled="true"
+                    key={group}
+                    className={`subject-group${showTitle ? ' has-title' : ''}`}
                   >
-                    {cardContent}
+                    {showTitle && <h5>{title}</h5>}
+                    {cards}
                   </div>
-                ) : (
-                  <Link
-                    key={subject.id}
-                    className={cardClassName}
-                    to={`/bank/${subject.id}`}
-                  >
-                    {cardContent}
-                  </Link>
                 )
               })}
             </div>

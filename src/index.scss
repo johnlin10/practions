@@ -182,17 +182,21 @@ a {
   -o-border-radius: 12px;
 }
 
-// [HOT] 標籤（樣式同 Quiz 的 .new-badge，改用橘紅色）
+// [NEW] / [HOT] 標籤，貼在父層（需 position: relative）的左上角
+.new-badge,
 .hot-badge {
   position: absolute;
   top: -6px;
   left: -12px;
   padding: 2px 6px;
   font-size: 0.8rem;
-  font-weight: 500;
   line-height: normal;
-  background-color: #f0501e;
+  background-color: var(--primary-color);
   border: 2px solid var(--foreground-100);
   color: var(--white);
   border-radius: 6px;
+}
+.hot-badge {
+  font-weight: 500;
+  background-color: #f0501e;
 }

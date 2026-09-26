@@ -327,22 +327,6 @@ h1.quiz-to-history {
     padding: 12px;
     border: 2px solid var(--gray-100);
 
-    > .new-badge {
-      position: absolute;
-      top: -6px;
-      left: -12px;
-      padding: 2px 6px;
-      font-size: 0.8rem;
-      background-color: var(--primary-color);
-      border: 2px solid var(--foreground-100);
-      color: var(--white);
-      border-radius: 6px;
-      -webkit-border-radius: 6px;
-      -moz-border-radius: 6px;
-      -ms-border-radius: 6px;
-      -o-border-radius: 6px;
-    }
-
     > p {
       display: flex;
       align-items: center;

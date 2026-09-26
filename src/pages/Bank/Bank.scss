@@ -10,6 +10,7 @@
   }
 
   .subject-card {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -21,12 +22,13 @@
     background: white;
     border: 2px solid var(--gray-color-13);
 
-    &:hover {
-      border: 2px solid var(--gray-color-12);
-    }
+    // 同設定頁的列表項目：hover 時換底色、題數轉為主色，邊框不變
+    &:not(.locked):hover {
+      background-color: var(--gray-color-13);
 
-    &.selected {
-      border: 2px solid var(--primary-color);
+      > p:not(.subject-name) {
+        color: var(--primary-color);
+      }
     }
 
     &.locked {
@@ -47,6 +49,48 @@
           margin-right: 6px;
         }
       }
+    }
+  }
+
+  // 題組：外觀同設定頁的分組列表，標題在框外左上方
+  .subject-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 2px solid var(--gray-color-13);
+
+    &.has-title {
+      margin-top: 24px;
+    }
+
+    > h5 {
+      position: absolute;
+      top: -24px;
+      left: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-color-12);
+    }
+
+    > .subject-card {
+      border: none;
+      border-radius: 0;
+
+      &:not(:last-child) {
+        border-bottom: 2px solid var(--gray-color-13);
+      }
+      &:last-child {
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+    }
+
+    // 第一張卡片（前面可能有標題 h5）
+    > .subject-card:first-child,
+    > h5 + .subject-card {
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
     }
   }
 }

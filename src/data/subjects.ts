@@ -1,5 +1,6 @@
 import { Question, QuestionTypeId } from '../types/questions'
 import { SubjectConfig, QuizFlowConfig } from '../types/quiz-flows'
+import type { SubjectGroupId } from './subject-groups'
 
 // 定義舊格式的型別（向後兼容）
 export interface Subject {
@@ -10,6 +11,7 @@ export interface Subject {
   questionCount: number
   timeLimit: number
   lockTime?: string[]
+  group?: SubjectGroupId // 所屬題組（見 data/subject-groups.ts）
   questions: Question[]
 }
 
@@ -65,6 +67,7 @@ export function convertToSubjectConfig(subject: Subject): SubjectConfig {
     flowConfig,
     quizOpen: subject.quizOpen,
     lockTime: subject.lockTime,
+    group: subject.group,
     questions: subject.questions,
   }
 }
@@ -6790,6 +6793,7 @@ const rawSubjects: Subjects = {
   pvqc_ai: {
     id: 'pvqc_ai',
     name: 'PVQC AI',
+    group: 'pvqc',
     quizOpen: false,
     questionCount: 20,
     timeLimit: 10,
@@ -8388,6 +8392,7 @@ const rawSubjects: Subjects = {
   },
   pvqc_healthcare: {
     id: 'pvqc_healthcare',
+    group: 'pvqc',
     name: 'PVQC 醫療照護',
     quizOpen: false,
     questionCount: 20,
@@ -11398,6 +11403,7 @@ const rawSubjects: Subjects = {
   },
   ail_certification_exam_once_choice: {
     id: 'ail_certification_exam_once_choice',
+    group: 'ail_certification',
     name: 'AIL 證照檢定（單選）',
     quizType: 'once_choice',
     quizOpen: true,
@@ -12824,6 +12830,7 @@ const rawSubjects: Subjects = {
   },
   ail_certification_exam_multiple_choice: {
     id: 'ail_certification_exam_multiple_choice',
+    group: 'ail_certification',
     name: 'AIL 證照檢定（多選）',
     quizType: 'multiple_choice',
     quizOpen: true,
@@ -13538,6 +13545,7 @@ const rawSubjects: Subjects = {
   },
   ail_certification_exam_true_false: {
     id: 'ail_certification_exam_true_false',
+    group: 'ail_certification',
     name: 'AIL 證照檢定（是非）',
     quizType: 'true_false',
     quizOpen: true,

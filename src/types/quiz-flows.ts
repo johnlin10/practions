@@ -1,5 +1,6 @@
 import { Question, QuestionTypeId } from './questions'
 import { QuizModeId } from './quiz-modes'
+import type { SubjectGroupId } from '../data/subject-groups'
 
 // 測驗流程模式：標準單階段、PVQC 自訂、PVQC 官方模擬
 export type FlowMode = 'standard' | 'pvqc_custom' | 'pvqc_official'
@@ -37,5 +38,6 @@ export interface SubjectConfig {
   flowConfig: QuizFlowConfig // 測驗流程配置
   quizOpen: boolean
   lockTime?: string[]
+  group?: SubjectGroupId // 所屬題組（見 data/subject-groups.ts）
   questions: Question[]
 }
