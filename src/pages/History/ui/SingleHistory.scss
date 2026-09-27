@@ -212,43 +212,28 @@
       width: 100%;
 
       > .question-group {
-        width: 100%;
-
-        > .group-header {
+        // 標題列右側的階段分數
+        .group-stats {
           display: flex;
-          align-items: baseline;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 6px 12px;
-          margin: 0 12px 7px;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.875rem;
+          color: var(--gray-color-10);
 
-          > .group-title {
-            font-size: 1rem;
-            font-weight: 600;
-          }
-
-          > .group-stats {
+          > .group-score {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.875rem;
-            color: var(--gray-color-10);
+            font-weight: 600;
+            color: var(--foreground-color);
 
-            > .group-score {
-              display: flex;
-              align-items: center;
-              font-weight: 600;
-              color: var(--foreground-color);
-
-              > span {
-                font-size: 1.1rem;
-              }
-              &.passed {
-                color: var(--correct-text-color);
-              }
-              &.failed {
-                color: var(--wrong-text-color);
-              }
+            > span {
+              font-size: 1.1rem;
+            }
+            &.passed {
+              color: var(--correct-text-color);
+            }
+            &.failed {
+              color: var(--wrong-text-color);
             }
           }
         }

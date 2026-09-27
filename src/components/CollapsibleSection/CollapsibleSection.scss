@@ -1,0 +1,59 @@
+// 帶標題列的段落：標題列在內容上方，可收合時左側顯示方向箭頭、整列可點擊
+.collapsible-section {
+  width: 100%;
+
+  > .collapsible-section-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 0 12px 7px;
+    border-radius: 0;
+
+    > .collapsible-section-title {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    > .collapsible-section-extra {
+      border-radius: 0;
+    }
+  }
+
+  &.collapsible {
+    > .collapsible-section-header {
+      padding-left: 6px;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      // 分割線常駐、展開時透明；只切換顏色，避免全域 transition 從預設的黑色漸變
+      border-bottom: 2px solid transparent;
+      // 隱藏原生的三角形標記
+      list-style: none;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      > .collapsible-section-icon {
+        font-size: 1.4rem;
+        color: var(--gray-color-10);
+        transition: transform 0.3s ease;
+      }
+
+      &:hover > .collapsible-section-icon {
+        color: var(--primary-color);
+      }
+    }
+
+    &[open] > .collapsible-section-header > .collapsible-section-icon {
+      transform: rotate(90deg);
+    }
+
+    // 收合時底部顯示分割線
+    &:not([open]) > .collapsible-section-header {
+      border-bottom-color: var(--gray-color-13);
+    }
+  }
+}

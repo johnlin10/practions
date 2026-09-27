@@ -2,6 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import './SingleHistory.scss'
 
+// components
+import CollapsibleSection from '@/components/CollapsibleSection/CollapsibleSection'
+
 // utils
 import { isSubjectLocked } from '../../Bank/utils/bankHelpers'
 import { getStageDisplayName } from '../../../utils/detailed-results'
@@ -781,40 +784,45 @@ function SingleHistory(): React.ReactElement {
 
         <div className="questions-list">
           {questionGroups.map((group, groupIndex) => (
-            <div key={`group-${groupIndex}`} className="question-group">
-              <div className="group-header">
-                <h2 className="group-title">{group.title}</h2>
-                {typeof group.correctCount === 'number' &&
-                  typeof group.totalCount === 'number' && (
-                    <p className="group-stats">
-                      <span
-                        className={`group-score${
-                          group.passed === true
-                            ? ' passed'
-                            : group.passed === false
-                            ? ' failed'
-                            : ''
-                        }`}
-                      >
-                        {typeof group.passed === 'boolean' && (
-                          <span className="material-symbols-rounded">
-                            {group.passed ? 'check' : 'close'}
-                          </span>
-                        )}
-                        {group.correctCount}/{group.totalCount}
-                      </span>
-                      {typeof group.passingScore === 'number' && (
-                        <span>及格 {group.passingScore}</span>
+            // PVQC 各階段可收合、預設收合；標準測驗的題型分組維持固定展開
+            <CollapsibleSection
+              key={`group-${groupIndex}`}
+              className="question-group"
+              collapsible={!!group.stageId}
+              title={group.title}
+              extra={
+                typeof group.correctCount === 'number' &&
+                typeof group.totalCount === 'number' && (
+                  <p className="group-stats">
+                    <span
+                      className={`group-score${
+                        group.passed === true
+                          ? ' passed'
+                          : group.passed === false
+                          ? ' failed'
+                          : ''
+                      }`}
+                    >
+                      {typeof group.passed === 'boolean' && (
+                        <span className="material-symbols-rounded">
+                          {group.passed ? 'check' : 'close'}
+                        </span>
                       )}
-                    </p>
-                  )}
-              </div>
+                      {group.correctCount}/{group.totalCount}
+                    </span>
+                    {typeof group.passingScore === 'number' && (
+                      <span>及格 {group.passingScore}</span>
+                    )}
+                  </p>
+                )
+              }
+            >
               <div className="group-questions">
                 {group.questions.map((analyzed) =>
                   renderQuestionContent(analyzed, group.mode)
                 )}
               </div>
-            </div>
+            </CollapsibleSection>
           ))}
         </div>
       </div>
