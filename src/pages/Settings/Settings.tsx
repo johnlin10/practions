@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Settings.scss'
 import packageJson from '../../../package.json'
 import { DEFAULT_SETTINGS } from '../../types'
 import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
+import { exportHistory, importHistory } from '@/data/historyStore'
 
 /**
  * Settings component
@@ -19,10 +20,10 @@ function Settings(): React.ReactElement {
   // PVQC 設定管理
   const { pvqcSettings, updatePVQCSettings } = usePVQCSettings()
   const [tempQuestionCount, setTempQuestionCount] = useState(
-    pvqcSettings.defaultQuestionCount
+    pvqcSettings.defaultQuestionCount,
   )
   const [tempTimePerStage, setTempTimePerStage] = useState(
-    pvqcSettings.defaultTimePerStage
+    pvqcSettings.defaultTimePerStage,
   )
 
   const clearHistory = (): void => {
@@ -34,6 +35,36 @@ function Settings(): React.ReactElement {
   const handleClearHistoryClick = (): void => {
     if (!hasHistory) return
     clearHistory()
+  }
+
+  const handleExportClick = (): void => {
+    if (!hasHistory) return
+    const url = URL.createObjectURL(
+      new Blob([exportHistory()], { type: 'application/json' }),
+    )
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `practions-history-${new Date().toLocaleDateString('sv')}.json`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const importInputRef = useRef<HTMLInputElement>(null)
+  const handleImportFile = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): Promise<void> => {
+    const file = e.target.files?.[0]
+    // 清空讓同一個檔案可以再選一次
+    e.target.value = ''
+    if (!file) return
+    try {
+      const count = importHistory(await file.text())
+      window.alert(
+        count > 0 ? `已匯入 ${count} 筆測驗紀錄` : '沒有新的測驗紀錄可匯入',
+      )
+    } catch (error) {
+      window.alert(`匯入失敗：${(error as Error).message}`)
+    }
   }
 
   const openLink = (url: string): void => {
@@ -125,6 +156,33 @@ function Settings(): React.ReactElement {
 
           <div className="settings-list-group has-title">
             <h5>測驗紀錄</h5>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".json,application/json"
+              hidden
+              onChange={handleImportFile}
+            />
+            <div
+              className={`settings-list-group-item action ${
+                !hasHistory ? 'disabled' : ''
+              }`}
+              onClick={handleExportClick}
+            >
+              <p>
+                <span className="material-symbols-outlined icon">download</span>
+                匯出測驗紀錄
+              </p>
+            </div>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => importInputRef.current?.click()}
+            >
+              <p>
+                <span className="material-symbols-outlined icon">upload</span>
+                匯入測驗紀錄
+              </p>
+            </div>
             <div
               className={`settings-list-group-item action ${
                 !hasHistory ? 'disabled' : ''

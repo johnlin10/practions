@@ -228,6 +228,68 @@ export function clearHistory(): void {
   emit()
 }
 
+const BACKUP_APP = 'practions'
+const BACKUP_VERSION = 1
+
+/** 匯出備份：localStorage 的原始記錄與快照原樣輸出，匯入後位元組不變。 */
+export function exportHistory(): string {
+  getSnapshot()
+  return JSON.stringify({
+    app: BACKUP_APP,
+    version: BACKUP_VERSION,
+    exportedAt: new Date().toISOString(),
+    history: raw,
+    snapshots,
+  })
+}
+
+/**
+ * 匯入備份：依 id 合併，已存在或無效的記錄略過，不會覆蓋現有記錄。
+ * 回傳實際新增的筆數；檔案格式不符時丟出帶訊息的 Error。
+ */
+export function importHistory(text: string): number {
+  let data: {
+    app?: unknown
+    version?: unknown
+    history?: unknown
+    snapshots?: unknown
+  }
+  try {
+    data = JSON.parse(text)
+  } catch {
+    throw new Error('檔案不是有效的 JSON')
+  }
+  if (data?.app !== BACKUP_APP || !Array.isArray(data.history)) {
+    throw new Error('這不是 Practions 的測驗紀錄備份檔')
+  }
+  if (typeof data.version !== 'number' || data.version > BACKUP_VERSION) {
+    throw new Error('備份檔版本較新，請先更新 Practions')
+  }
+
+  const before = getSnapshot().length
+  const ids = new Set(raw.map((item) => (item as { id?: unknown })?.id))
+  const added: unknown[] = []
+  for (const item of data.history) {
+    const result = historyRecordSchema.safeParse(item)
+    if (!result.success || ids.has(result.data.id)) continue
+    ids.add(result.data.id)
+    added.push(item)
+  }
+  if (data.snapshots && typeof data.snapshots === 'object') {
+    // 快照鍵含內容雜湊，同鍵即同內容，合併不會互相覆蓋
+    for (const [key, question] of Object.entries(data.snapshots)) {
+      snapshots[key] ??= question as Question
+    }
+  }
+
+  write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
+  write(STORAGE_KEYS.QUIZ_HISTORY, [...raw, ...added])
+  // 從 localStorage 重新載入：寫入失敗（例如容量不足）時畫面與筆數仍反映實際狀態
+  cache = load()
+  emit()
+  return cache.length - before
+}
+
 /**
  * React hook：訂閱歷史記錄，內容變動時自動重渲染。
  * 回傳的陣列為唯讀快照，請勿直接 mutate（需要排序/反轉時先複製）。

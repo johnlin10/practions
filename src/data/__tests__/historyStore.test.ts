@@ -316,6 +316,55 @@ describe('新記錄：題目快照', () => {
   })
 })
 
+describe('匯出 / 匯入', () => {
+  it('匯出後匯入到空的裝置，記錄與 localStorage 內容完全相同', async () => {
+    localStorage.setItem(STORAGE_KEYS.QUIZ_HISTORY, JSON.stringify(oldRecords))
+    const store = await loadStore()
+    store.addHistoryRecord(newStandard())
+    store.addHistoryRecord(newPvqc())
+    const records = store.getAllHistory()
+    const history = localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)
+    const backup = store.exportHistory()
+
+    localStorage.clear()
+    const fresh = await loadStore()
+    // v1 沒有 id 無法去重，不匯入
+    expect(fresh.importHistory(backup)).toBe(records.length)
+    expect(fresh.getAllHistory()).toEqual(records)
+    expect(
+      JSON.parse(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)!),
+    ).toEqual(JSON.parse(history!).slice(1))
+    expect((await loadStore()).getAllHistory()).toEqual(records)
+  })
+
+  it('依 id 合併：重複的略過，現有記錄保留', async () => {
+    const store = await loadStore()
+    store.addHistoryRecord(newStandard('r1'))
+    const backup = store.exportHistory()
+    store.clearHistory()
+    store.addHistoryRecord(newStandard('r2'))
+
+    expect(store.importHistory(backup)).toBe(1)
+    expect(store.importHistory(backup)).toBe(0)
+    expect(store.getAllHistory().map((r) => r.id)).toEqual(['r2', 'r1'])
+  })
+
+  it.each([
+    ['非 JSON', 'not json'],
+    ['別的檔案', JSON.stringify({ foo: 1 })],
+    [
+      '較新版本',
+      JSON.stringify({ app: 'practions', version: 99, history: [] }),
+    ],
+  ])('%s：丟出錯誤且不動現有記錄', async (_, text) => {
+    const store = await loadStore()
+    store.addHistoryRecord(newStandard())
+    const before = localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)
+    expect(() => store.importHistory(text)).toThrow()
+    expect(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)).toBe(before)
+  })
+})
+
 it('每個科目的題目 id 都不重複', () => {
   for (const subject of Object.values(subjects)) {
     const ids = subject.questions.map((q) => q.id)
