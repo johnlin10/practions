@@ -397,6 +397,44 @@ function SingleHistory(): React.ReactElement {
   }, [record, analyzedQuestions, showWrongOnly, sortByQuestionId])
 
   /**
+   * [function] renderQuestionHeader
+   * 題號（左）與對錯標籤（右）同一列，所有題型共用
+   * @param {AnalyzedQuestion} analyzed - 分析後的題目資料
+   * @returns {JSX.Element} - 題號與對錯標籤
+   */
+  const renderQuestionHeader = (analyzed: AnalyzedQuestion): JSX.Element => {
+    const status = analyzed.isCorrect
+      ? 'correct'
+      : analyzed.isUnanswered
+      ? 'unanswered'
+      : 'wrong'
+    return (
+      <div className="question-header">
+        <h3>#{analyzed.question.id}</h3>
+        <p className={`answer-status ${status}`}>
+          <span className="material-symbols-rounded fill">
+            {status === 'correct' ? 'check' : status === 'wrong' ? 'close' : 'remove'}
+          </span>
+          {status === 'correct' ? '答對' : status === 'wrong' ? '答錯' : '未作答'}
+        </p>
+      </div>
+    )
+  }
+
+  /**
+   * [function] renderUserAnswer
+   * 「你的答案」列，是非題與單字題共用（選擇題由選項顏色表示）
+   * @param {string | undefined} text - 使用者答案文字
+   * @returns {JSX.Element} - 你的答案列
+   */
+  const renderUserAnswer = (text: string | undefined): JSX.Element => (
+    <div className="user-answer-display">
+      <span className="answer-label">你的答案</span>
+      <span className="answer-value">{text || '未作答'}</span>
+    </div>
+  )
+
+  /**
    * [function] renderQuestionContent
    * 渲染題目內容
    * @param {AnalyzedQuestion} analyzed - 分析後的題目資料
@@ -435,30 +473,22 @@ function SingleHistory(): React.ReactElement {
    */
   const renderChoiceQuestion = (analyzed: AnalyzedQuestion): JSX.Element => {
     // 取得題目
-    const { question, userAnswer, isCorrect, isUnanswered } = analyzed
-    // 正確答案文字
-    let correctAnswerText = ''
+    const { question, userAnswer } = analyzed
     // 取得選項
     let options: string[] = []
 
     if (question.type === 'single_choice') {
-      // 如果題型為單選題，則設定選項和正確答案文字
+      // 如果題型為單選題，則設定選項
       // 取得單選題
       const q = question as SingleChoiceQuestion
       // 設定選項
       options = q.options
-      // 設定正確答案文字
-      correctAnswerText = String.fromCharCode(65 + q.correctIndex)
     } else if (question.type === 'multiple_choice') {
-      // 如果題型為多選題，則設定選項和正確答案文字
+      // 如果題型為多選題，則設定選項
       // 取得多選題
       const q = question as MultipleChoiceQuestion
       // 設定選項
       options = q.options
-      // 設定正確答案文字
-      correctAnswerText = q.correctIndexes
-        .map((idx) => String.fromCharCode(65 + idx))
-        .join(', ')
     }
 
     // 返回渲染選擇題
@@ -466,29 +496,9 @@ function SingleHistory(): React.ReactElement {
       <div
         id={question.id}
         key={question.id}
-        className={`question-item${' ' + question.type}${
-          isCorrect ? ' correct' : ' wrong'
-        }${isUnanswered ? ' unanswered' : ''}`}
+        className="question-item"
       >
-        <h3>#{question.id}</h3>
-        <div className={`answer-status${isCorrect ? ' correct' : ' wrong'}`}>
-          {isUnanswered ? (
-            '未作答'
-          ) : isCorrect ? (
-            <p className="correct">
-              <span className="material-symbols-rounded fill">check</span>
-              答對
-            </p>
-          ) : (
-            <>
-              <p className="wrong">
-                <span className="material-symbols-rounded fill">close</span>
-                答錯
-              </p>
-              <p className="correct-answer">正確答案：{correctAnswerText}</p>
-            </>
-          )}
-        </div>
+        {renderQuestionHeader(analyzed)}
         <p>
           {'question' in question
             ? (question as SingleChoiceQuestion | MultipleChoiceQuestion)
@@ -537,7 +547,7 @@ function SingleHistory(): React.ReactElement {
    */
   const renderTrueFalseQuestion = (analyzed: AnalyzedQuestion): JSX.Element => {
     // 取得題目
-    const { question, userAnswer, isCorrect, isUnanswered } = analyzed
+    const { question, userAnswer } = analyzed
     // 取得是非題
     const q = question as TrueFalseQuestion
 
@@ -546,31 +556,9 @@ function SingleHistory(): React.ReactElement {
       <div
         id={question.id}
         key={question.id}
-        className={`question-item${isCorrect ? ' correct' : ' wrong'}${
-          isUnanswered ? ' unanswered' : ''
-        }`}
+        className="question-item"
       >
-        <h3>#{question.id}</h3>
-        <div className={`answer-status ${isCorrect ? ' correct' : ' wrong'}`}>
-          {isUnanswered ? (
-            '未作答'
-          ) : isCorrect ? (
-            <p className="correct">
-              <span className="material-symbols-rounded fill">check</span>
-              答對
-            </p>
-          ) : (
-            <>
-              <p className="wrong">
-                <span className="material-symbols-rounded fill">close</span>
-                答錯
-              </p>
-              <p className="correct-answer">
-                正確答案：{q.correctAnswer ? 'O' : 'X'}
-              </p>
-            </>
-          )}
-        </div>
+        {renderQuestionHeader(analyzed)}
         <p className="true-false-question">
           {q.correctAnswer ? (
             <span className="true-answer">O</span>
@@ -579,16 +567,9 @@ function SingleHistory(): React.ReactElement {
           )}
           {q.question}
         </p>
-        <div className="user-answer-display">
-          <p className="answer-label">你的答案：</p>
-          <p className="answer-value">
-            {typeof userAnswer === 'boolean'
-              ? userAnswer
-                ? 'O'
-                : 'X'
-              : '未作答'}
-          </p>
-        </div>
+        {renderUserAnswer(
+          typeof userAnswer === 'boolean' ? (userAnswer ? 'O' : 'X') : undefined
+        )}
       </div>
     )
   }
@@ -605,7 +586,7 @@ function SingleHistory(): React.ReactElement {
     mode?: string
   ): JSX.Element => {
     // 取得題目
-    const { question, userAnswer, isCorrect, isUnanswered } = analyzed
+    const { question, userAnswer, isCorrect } = analyzed
     // 取得單字題
     const q = question as VocabularyQuestion
 
@@ -632,28 +613,9 @@ function SingleHistory(): React.ReactElement {
       <div
         id={question.id}
         key={question.id}
-        className={`question-item${isCorrect ? ' correct' : ' rong'}${
-          isUnanswered ? ' unanswered' : ''
-        }`}
+        className="question-item"
       >
-        <h3>#{question.id}</h3>
-        <div className={`answer-status${isCorrect ? ' correct' : ' wrong'}`}>
-          {isUnanswered ? (
-            '未作答'
-          ) : isCorrect ? (
-            <p className="correct">
-              <span className="material-symbols-rounded fill">check</span>
-              答對
-            </p>
-          ) : (
-            <>
-              <p className="wrong">
-                <span className="material-symbols-rounded fill">close</span>
-                答錯
-              </p>
-            </>
-          )}
-        </div>
+        {renderQuestionHeader(analyzed)}
         <div
           className="vocabulary-content"
           onClick={() => isEnglishQuestion && playWord(q)}
@@ -669,14 +631,7 @@ function SingleHistory(): React.ReactElement {
             <span className="material-symbols-rounded">volume_up</span>
           )}
         </div>
-        <div className="user-answer-display">
-          <span className="answer-label">你的答案</span>
-          <span className="answer-value">
-            {typeof userAnswer === 'string'
-              ? userAnswer
-              : userAnswer?.toString() || '未作答'}
-          </span>
-        </div>
+        {renderUserAnswer(userAnswer?.toString())}
         {!isCorrect && (
           <div className="correct-answer-display">
             <p className="correct-answer">正確答案</p>
@@ -719,6 +674,29 @@ function SingleHistory(): React.ReactElement {
     )
   }
 
+  const flowMode =
+    record.flowMode ||
+    (record.recordType === 'pvqc' ? 'pvqc_custom' : 'standard')
+  const flowModeLabel =
+    flowMode === 'pvqc_official'
+      ? 'PVQC 官方模擬'
+      : flowMode === 'pvqc_custom'
+      ? 'PVQC 自訂'
+      : '標準測驗'
+  // 只有官方模擬有整體通過與否
+  const overallPassed =
+    flowMode === 'pvqc_official' ? record.results?.overallPassed : undefined
+  const correctRate =
+    record.results?.overallCorrectRate || record.correctRate || '0%'
+  const totalCount =
+    record.results?.questionResults?.length ||
+    record.results?.stageResults?.reduce(
+      (sum, stage) => sum + stage.questionResults.length,
+      0
+    ) ||
+    record.questions?.length ||
+    0
+
   // 渲染單一歷史記錄頁面
   return (
     <div className={`single-history ${pageAnimation ? 'page-animation' : ''}`}>
@@ -729,8 +707,8 @@ function SingleHistory(): React.ReactElement {
 
         <div className="single-history-header">
           <h2>{record.subject?.name || '未知測驗'}</h2>
-          <p className="date-text">
-            #
+          <p className="meta">
+            {flowModeLabel} · #
             {new Date(record.date)
               .toLocaleString('zh-TW', {
                 year: 'numeric',
@@ -744,58 +722,42 @@ function SingleHistory(): React.ReactElement {
               .replace(/[/-]/g, '')
               .replace(/[\s:]/g, '')}
           </p>
-          {(() => {
-            const flowMode =
-              record.flowMode ||
-              (record.recordType === 'pvqc' ? 'pvqc_custom' : 'standard')
-            const label =
-              flowMode === 'pvqc_official'
-                ? 'PVQC 官方模擬'
-                : flowMode === 'pvqc_custom'
-                ? '自訂 PVQC'
-                : '標準測驗'
-            return (
-              <span className={`flow-mode-badge ${flowMode}`}>{label}</span>
-            )
-          })()}
         </div>
 
-        {record.flowMode === 'pvqc_official' &&
-          typeof record.results?.overallPassed === 'boolean' && (
-            <div
-              className={`official-banner ${
-                record.results.overallPassed ? 'passed' : 'failed'
-              }`}
-            >
-              <span className="material-symbols-rounded fill">
-                {record.results.overallPassed ? 'verified' : 'cancel'}
-              </span>
-              <span className="banner-text">
-                {record.results.overallPassed
-                  ? 'PASS · 通過 PVQC 官方模擬'
-                  : 'FAIL · 未通過 PVQC 官方模擬'}
-              </span>
-            </div>
-          )}
-
+        {/* 成績卡：正確率與通過與否在上，答對比例進度條居中，題數與用時在下 */}
         <div className="summary">
-          <h1>
-            {record.results?.overallCorrectRate || record.correctRate}{' '}
-            <span>
-              {record.results?.totalCorrect || record.correctCount}/
-              {record.results?.questionResults?.length ||
-                record.results?.stageResults?.reduce(
-                  (sum, stage) => sum + stage.questionResults.length,
-                  0
-                ) ||
-                record.questions?.length ||
-                0}
-            </span>
-          </h1>
-          <p>
-            用時 {Math.floor(record.duration / 60000)} 分{' '}
-            {Math.floor((record.duration % 60000) / 1000)} 秒
-          </p>
+          <div className="summary-main">
+            <h1>{correctRate}</h1>
+            {typeof overallPassed === 'boolean' && (
+              <p className={`verdict ${overallPassed ? 'passed' : 'failed'}`}>
+                <span className="material-symbols-rounded">
+                  {overallPassed ? 'check' : 'close'}
+                </span>
+                {overallPassed ? '通過' : '未通過'}
+              </p>
+            )}
+          </div>
+          <div className="summary-bar">
+            <div style={{ width: correctRate }} />
+          </div>
+          <div className="summary-stats">
+            <div>
+              <p className="label">答對</p>
+              <p className="value">
+                {record.results?.totalCorrect || record.correctCount || 0}
+                <span> / {totalCount} 題</span>
+              </p>
+            </div>
+            <div>
+              <p className="label">用時</p>
+              <p className="value">
+                {Math.floor(record.duration / 60000)}
+                <span> 分 </span>
+                {Math.floor((record.duration % 60000) / 1000)}
+                <span> 秒</span>
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="filters">
@@ -819,37 +781,32 @@ function SingleHistory(): React.ReactElement {
 
         <div className="questions-list">
           {questionGroups.map((group, groupIndex) => (
-            <div
-              key={`group-${groupIndex}`}
-              className={`question-group ${group.mode}`}
-            >
+            <div key={`group-${groupIndex}`} className="question-group">
               <div className="group-header">
                 <h2 className="group-title">{group.title}</h2>
                 {typeof group.correctCount === 'number' &&
                   typeof group.totalCount === 'number' && (
-                    <div
-                      className={`stage-badge ${
-                        group.passed === true
-                          ? 'passed'
-                          : group.passed === false
-                          ? 'failed'
-                          : ''
-                      }`}
-                    >
-                      <span className="stage-score">
+                    <p className="group-stats">
+                      <span
+                        className={`group-score${
+                          group.passed === true
+                            ? ' passed'
+                            : group.passed === false
+                            ? ' failed'
+                            : ''
+                        }`}
+                      >
+                        {typeof group.passed === 'boolean' && (
+                          <span className="material-symbols-rounded">
+                            {group.passed ? 'check' : 'close'}
+                          </span>
+                        )}
                         {group.correctCount}/{group.totalCount}
                       </span>
                       {typeof group.passingScore === 'number' && (
-                        <span className="stage-threshold">
-                          （及格 {group.passingScore}）
-                        </span>
+                        <span>及格 {group.passingScore}</span>
                       )}
-                      {typeof group.passed === 'boolean' && (
-                        <span className="stage-passed">
-                          {group.passed ? '✓ 通過' : '✗ 未通過'}
-                        </span>
-                      )}
-                    </div>
+                    </p>
                   )}
               </div>
               <div className="group-questions">

@@ -48,6 +48,8 @@
       justify-content: center;
       position: relative;
       width: 100%;
+      // 右側留給絕對定位的正確率，避免文字與其重疊
+      padding-right: 100px;
 
       p.history-subject {
         font-size: 1rem;
@@ -161,47 +163,15 @@
   }
 }
 
-// 列表頁的模式 / PASS-FAIL 徽章
-.flow-mode-chip,
-.official-result-chip {
-  display: inline-block;
-  margin-left: 8px;
-  padding: 2px 8px;
-  border: 2px solid var(--gray-color-13);
-  border-radius: 6px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  vertical-align: middle;
-  background-color: var(--background-color);
-}
+// 官方模擬通過與否，與灰色資訊同一行，只以顏色區分
+.official-result {
+  font-weight: 600;
 
-.flow-mode-chip {
-  color: var(--foreground-500);
-
-  &.pvqc_official {
-    border-color: var(--primary-color);
-    color: var(--blue-600);
-  }
-
-  &.pvqc_custom {
-    border-color: var(--orange-400);
-    color: var(--orange-600);
-  }
-
-  &.standard {
-    border-color: var(--gray-color-12);
-    color: var(--foreground-500);
-  }
-}
-
-.official-result-chip {
   &.passed {
-    border-color: var(--correct-border-color);
     color: var(--correct-text-color);
   }
 
   &.failed {
-    border-color: var(--wrong-border-color);
     color: var(--wrong-text-color);
   }
 }

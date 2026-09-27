@@ -67,7 +67,7 @@ function History(): React.ReactElement {
                         : flowMode === 'pvqc_custom'
                           ? 'PVQC 自訂'
                           : '標準'
-                    // 官方模式：顯示 PASS / FAIL 徽章
+                    // 官方模擬：顯示通過與否
                     const officialPassed =
                       flowMode === 'pvqc_official'
                         ? record.results?.overallPassed
@@ -82,21 +82,9 @@ function History(): React.ReactElement {
                         <div className="history-info">
                           <p className="history-subject">
                             {record.subject?.name || '未知測驗'}
-                            <span className={`flow-mode-chip ${flowMode}`}>
-                              {modeLabel}
-                            </span>
-                            {typeof officialPassed === 'boolean' && (
-                              <span
-                                className={`official-result-chip ${
-                                  officialPassed ? 'passed' : 'failed'
-                                }`}
-                              >
-                                {officialPassed ? 'PASS' : 'FAIL'}
-                              </span>
-                            )}
                           </p>
                           <p>
-                            #
+                            {modeLabel} · #
                             {new Date(record.date)
                               .toLocaleString('zh-TW', {
                                 year: 'numeric',
@@ -109,6 +97,18 @@ function History(): React.ReactElement {
                               })
                               .replace(/[/-]/g, '')
                               .replace(/[\s:]/g, '')}
+                            {typeof officialPassed === 'boolean' && (
+                              <>
+                                {' · '}
+                                <span
+                                  className={`official-result ${
+                                    officialPassed ? 'passed' : 'failed'
+                                  }`}
+                                >
+                                  {officialPassed ? '通過' : '未通過'}
+                                </span>
+                              </>
+                            )}
                           </p>
                           <p className="correct-rate">
                             {record.results?.overallCorrectRate ||
