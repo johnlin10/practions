@@ -3,8 +3,6 @@
 
 // 單一歷史紀錄樣式
 .single-history {
-  // 從底部滑入的頁面轉場（動畫在 App.scss）
-  view-transition-name: sheet;
   min-height: 100dvh;
   background-color: var(--background-color);
 

@@ -2,7 +2,7 @@
 
 .navigate {
   z-index: 1000;
-  // 頁面轉場時維持在詳情頁上方（同一般狀態）
+  // 頁面轉場時單獨擷取，保留滑動動畫並維持在最上層（App.scss）
   view-transition-name: bottom-nav;
   display: flex;
   flex-direction: row;
@@ -21,18 +21,37 @@
   -ms-transform: translateX(-50%) translateY(calc(48px + 66px));
   -o-transform: translateX(-50%) translateY(calc(48px + 66px));
 
-  // 導航欄底下到螢幕底部的漸變遮罩，讓滾動內容淡出，增加層級感
+  // 導航欄底下到螢幕底部的遮罩，讓滾動內容淡出，增加層級感：
+  // 上段為漸變（::before），最底部 $edge-height 為實色（.navigate-edge），最不透明處對齊畫面底部
+  $edge-height: 12px;
+
   &::before {
     content: '';
     z-index: -1;
     position: absolute;
     left: 50%;
-    bottom: -36px;
+    bottom: calc(-36px + #{$edge-height});
     width: 100vw;
-    height: calc(60px + 36px);
+    height: calc(60px + 36px - #{$edge-height});
     background: fade.fade-gradient(var(--background-color), to top);
     transform: translateX(-50%);
     border-radius: 0;
+    pointer-events: none;
+  }
+
+  // 遮罩最底部的實色段，接在漸變最不透明的一端
+  // iOS Safari 會在視窗底邊中點找「fixed、接近全寬、高度 > 10px、background-color 為實色」的元素，
+  // 找到就把工具列周圍塗成該顏色；漸變背景不算，所以這段要獨立成 fixed 元素。
+  // 導航欄有 transform，fixed 會以導航欄為基準，隨導航欄一起滑入 / 滑出
+  > .navigate-edge {
+    z-index: -1;
+    position: fixed;
+    left: 50%;
+    bottom: -36px;
+    width: 100vw;
+    height: $edge-height;
+    background-color: var(--background-color);
+    transform: translateX(-50%);
     pointer-events: none;
   }
 

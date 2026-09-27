@@ -70,6 +70,8 @@ function BottomNav(): React.ReactElement {
   // 渲染導航欄
   return (
     <div className={`navigate${showNavigate ? ' show' : ''}`}>
+      {/* 貼齊視窗底部的實色條，讓 iOS Safari 將工具列周圍變為不透明（見 BottomNav.scss） */}
+      <div className="navigate-edge" aria-hidden="true" />
       <div className="navigate-links">
         {/* 渲染導航連結 */}
         {linkList.map((link) => (

@@ -48,7 +48,7 @@ function Bank(): React.ReactElement {
 
   return (
     <>
-      <div className="page sheet-underlay">
+      <div className="page">
         <div className="page-container">
           <h1>題庫</h1>
           <div className="subjects-section">

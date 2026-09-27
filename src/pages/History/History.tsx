@@ -42,7 +42,7 @@ function History(): React.ReactElement {
 
   return (
     <>
-      <div className="page sheet-underlay">
+      <div className="page">
         <div className="page-container">
           <h1>
             <Link className="pre-path no-style" to="/quiz">

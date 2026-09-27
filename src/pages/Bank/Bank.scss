@@ -109,8 +109,6 @@ span.lock-time {
 
 // single bank list
 .single-bank {
-  // 從底部滑入的頁面轉場（動畫在 App.scss）
-  view-transition-name: sheet;
   min-height: 100dvh;
   background-color: var(--background-color);
   padding: 48px 12px 48px 12px;

@@ -27,19 +27,6 @@ function App(): React.ReactElement {
     runMigrations()
   }, [])
 
-  // 換頁前記下捲動位置，詳情頁滑出時只顯示當時畫面內的部分（App.scss 的 sheet 轉場）
-  // 點擊（連結、關閉按鈕）與瀏覽器返回都在轉場擷取畫面之前觸發
-  useEffect(() => {
-    const save = (): void =>
-      document.documentElement.style.setProperty('--scroll-y', `${scrollY}px`)
-    addEventListener('click', save, true)
-    addEventListener('popstate', save)
-    return () => {
-      removeEventListener('click', save, true)
-      removeEventListener('popstate', save)
-    }
-  }, [])
-
   return (
     <>
       <ScrollRestoration getKey={scrollKey} />
