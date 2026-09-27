@@ -16,6 +16,14 @@ body {
   min-height: -webkit-fill-available;
   overflow: hidden;
 }
+
+// iOS：頁面都在內層容器捲動，系統深色模式下捲動指示器會變成白色，在白底上看不見；
+// 指定深色的 scrollbar-color 讓 iOS 改用深色指示器。只套用在 iOS，桌機維持原生外觀
+@supports (-webkit-touch-callout: none) {
+  :root {
+    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+  }
+}
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
