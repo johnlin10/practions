@@ -3,35 +3,10 @@
 
 // 單一歷史紀錄樣式
 .single-history {
-  z-index: 90;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100vw;
-  height: 100dvh;
-  margin: 0 auto;
+  // 從底部滑入的頁面轉場（動畫在 App.scss）
+  view-transition-name: sheet;
+  min-height: 100dvh;
   background-color: var(--background-color);
-  overflow: hidden;
-  overflow-y: auto;
-  border-radius: 0;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  -ms-border-radius: 0;
-  -o-border-radius: 0;
-  transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1);
-  -webkit-transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1);
-  -moz-transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1);
-  -ms-transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1);
-  -o-transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1);
-
-  &.page-animation {
-    transform: translateY(100%);
-    -webkit-transform: translateY(100%);
-    -moz-transform: translateY(100%);
-    -ms-transform: translateY(100%);
-    -o-transform: translateY(100%);
-  }
 
   // 資訊層級只有三層：主要（藍色大字）、狀態（綠 / 紅）、次要（灰色小字）
   // 不使用外框標籤，對錯一律以同一組圖示（check / close / remove）表示

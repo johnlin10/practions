@@ -1,28 +1,25 @@
 import React, { useEffect } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Outlet, ScrollRestoration, type Location } from 'react-router-dom'
 import './App.scss'
-
-// pages
-import Home from './pages/Home/Home'
-import Quiz from './pages/Quiz/Quiz'
-import Bank from './pages/Bank/Bank'
-import History from './pages/History/History'
-import Settings from './pages/Settings/Settings'
-import PVQCSetup from './pages/PVQC/PVQCSetup'
-import Install from './pages/Install/Install'
-import Changelog from './pages/Changelog/Changelog'
 
 // components
 import BottomNav from './components/BottomNav/BottomNav'
-import SingleBank from './pages/Bank/ui/SingleBank'
-import SingleHistory from './pages/History/ui/SingleHistory'
 
 // data
 import { runMigrations } from '@/data/migrations'
 
 /**
+ * 捲動位置還原的鍵：列表頁依路徑記住位置（從詳情頁返回時停在原處），
+ * 詳情頁每次開啟都是新的鍵，從頂端開始
+ */
+const scrollKey = (location: Location): string =>
+  /^\/(bank|history)\/./.test(location.pathname)
+    ? location.key
+    : location.pathname
+
+/**
  * App component
- * 應用程式的根元件，包含路由配置和全域設置
+ * 所有頁面共用的外層：導覽列、捲動位置還原與全域設置
  */
 function App(): React.ReactElement {
   useEffect(() => {
@@ -30,26 +27,24 @@ function App(): React.ReactElement {
     runMigrations()
   }, [])
 
+  // 換頁前記下捲動位置，詳情頁滑出時只顯示當時畫面內的部分（App.scss 的 sheet 轉場）
+  // 點擊（連結、關閉按鈕）與瀏覽器返回都在轉場擷取畫面之前觸發
+  useEffect(() => {
+    const save = (): void =>
+      document.documentElement.style.setProperty('--scroll-y', `${scrollY}px`)
+    addEventListener('click', save, true)
+    addEventListener('popstate', save)
+    return () => {
+      removeEventListener('click', save, true)
+      removeEventListener('popstate', save)
+    }
+  }, [])
+
   return (
     <>
+      <ScrollRestoration getKey={scrollKey} />
       <BottomNav />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/quiz" element={<Quiz />} />
-        <Route path="/quiz/:subjectId" element={<Quiz />} />
-        <Route path="/pvqc" element={<PVQCSetup />} />
-        <Route path="/history" element={<History />}>
-          <Route path=":id" element={<SingleHistory />} />
-        </Route>
-        <Route path="/bank" element={<Bank />}>
-          <Route path=":subjectId" element={<SingleBank />} />
-        </Route>
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/settings/install" element={<Install />} />
-        <Route path="/settings/changelog" element={<Changelog />} />
-        {/* 未知路徑導回首頁 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Outlet />
     </>
   )
 }

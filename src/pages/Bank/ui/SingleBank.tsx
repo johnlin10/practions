@@ -34,8 +34,6 @@ interface SingleBankParams extends Record<string, string | undefined> {
  * 單一科目的題庫詳細頁面，顯示該科目的所有題目
  */
 const SingleBank: React.FC = () => {
-  // 頁面載入動畫
-  const [pageAnimation, setPageAnimation] = useState<boolean>(true)
   // 取得科目 ID
   const { subjectId } = useParams<SingleBankParams>()
   // 導航
@@ -46,13 +44,6 @@ const SingleBank: React.FC = () => {
   const [isLocked, setIsLocked] = useState<boolean>(false)
   // 當前時間
   const [currentTime, setCurrentTime] = useState<Date>(new Date())
-
-  // 頁面載入動畫
-  useEffect(() => {
-    setTimeout(() => {
-      setPageAnimation(false)
-    }, 100)
-  }, [])
 
   // 更新當前時間
   useEffect(() => {
@@ -341,12 +332,8 @@ const SingleBank: React.FC = () => {
    * @returns {void}
    */
   const handleClose = (): void => {
-    // 設定頁面動畫
-    setPageAnimation(true)
-    // 延遲 500 毫秒退出動畫後，跳轉到題庫列表
-    setTimeout(() => {
-      navigate('/bank')
-    }, 500)
+    // 滑出動畫由頁面轉場負責（App.scss）
+    navigate('/bank', { viewTransition: true })
   }
 
   // 如果科目 ID 不存在，則顯示錯誤訊息
@@ -381,7 +368,7 @@ const SingleBank: React.FC = () => {
 
   // 渲染單一題庫頁面
   return (
-    <div className={`single-bank ${pageAnimation ? 'page-animation' : ''}`}>
+    <div className="single-bank">
       <button className="close-btn" onClick={handleClose}>
         <span className="material-symbols-rounded">close</span>
       </button>

@@ -1,6 +1,12 @@
 @use '../../styles/list-group';
 
+// 作答畫面固定全螢幕，不跟著整頁捲動（其餘頁面都是整頁捲動）
 .quiz-page {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  overflow: hidden;
+  overflow-y: auto;
   padding: 24px 24px 48px 24px;
 
   .quiz-container {

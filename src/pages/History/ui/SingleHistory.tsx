@@ -56,8 +56,6 @@ interface HistoryParams extends Record<string, string | undefined> {
  * 單一歷史記錄詳細頁面
  */
 function SingleHistory(): React.ReactElement {
-  // 頁面載入動畫
-  const [pageAnimation, setPageAnimation] = useState<boolean>(true)
   // 取得歷史記錄 ID
   const { id } = useParams<HistoryParams>()
   // 導航
@@ -68,13 +66,6 @@ function SingleHistory(): React.ReactElement {
   const [showWrongOnly, setShowWrongOnly] = useState<boolean>(false)
   // 是否按題號排序
   const [sortByQuestionId, setSortByQuestionId] = useState<boolean>(false)
-
-  // 頁面載入動畫
-  useEffect(() => {
-    setTimeout(() => {
-      setPageAnimation(false)
-    }, 100)
-  }, [])
 
   // 獲取歷史記錄
   useEffect(() => {
@@ -135,12 +126,8 @@ function SingleHistory(): React.ReactElement {
    * @returns {void}
    */
   const handleClose = (): void => {
-    // 設定頁面動畫
-    setPageAnimation(true)
-    // 延遲 500 毫秒退出動畫後，跳轉到歷史記錄列表
-    setTimeout(() => {
-      navigate('/history')
-    }, 500)
+    // 滑出動畫由頁面轉場負責（App.scss）
+    navigate('/history', { viewTransition: true })
   }
 
   /**
@@ -702,7 +689,7 @@ function SingleHistory(): React.ReactElement {
 
   // 渲染單一歷史記錄頁面
   return (
-    <div className={`single-history ${pageAnimation ? 'page-animation' : ''}`}>
+    <div className="single-history">
       <div className="single-history-container">
         <button className="close-btn" onClick={handleClose}>
           <span className="material-symbols-rounded">close</span>

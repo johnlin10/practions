@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import '@/index.scss'
-import App from '@/App'
-import { BrowserRouter } from 'react-router-dom'
+import { router } from '@/router'
+import { RouterProvider } from 'react-router-dom'
 import { QuizProvider } from '@/context/QuizContext'
 import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary'
 
@@ -15,13 +15,9 @@ const root = ReactDOM.createRoot(rootElement)
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <QuizProvider>
-          <App />
-        </QuizProvider>
-      </BrowserRouter>
+      <QuizProvider>
+        <RouterProvider router={router} future={{ v7_startTransition: true }} />
+      </QuizProvider>
     </ErrorBoundary>
   </React.StrictMode>
 )

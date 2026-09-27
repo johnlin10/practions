@@ -1,4 +1,5 @@
 import React from 'react'
+import { useRouteError } from 'react-router-dom'
 import './ErrorBoundary.scss'
 
 interface ErrorBoundaryProps {
@@ -57,6 +58,23 @@ class ErrorBoundary extends React.Component<
 
     return this.props.children
   }
+}
+
+/**
+ * 路由頁面發生錯誤時，data router 會先攔下並改顯示路由的 errorElement；
+ * 這裡把錯誤重新丟出，交給 ErrorBoundary 顯示與其他錯誤相同的畫面
+ */
+function RethrowRouteError(): never {
+  throw useRouteError()
+}
+
+/** [component] 路由的 errorElement */
+export function RouteErrorBoundary(): React.ReactElement {
+  return (
+    <ErrorBoundary>
+      <RethrowRouteError />
+    </ErrorBoundary>
+  )
 }
 
 export default ErrorBoundary

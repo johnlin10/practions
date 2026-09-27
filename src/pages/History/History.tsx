@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, useOutlet } from 'react-router-dom'
 import './History.scss'
 
 // data
@@ -12,6 +12,8 @@ import { useQuizHistory } from '@/hooks/useQuizHistory'
 function History(): React.ReactElement {
   // 歷史記錄（由資料層提供）；複製後依時間新到舊排序，以免 mutate 唯讀快照
   const { history: rawHistory } = useQuizHistory()
+  // 開啟單筆紀錄時只顯示詳情頁（整頁捲動，不疊在列表上）
+  const outlet = useOutlet()
   const history = [...rawHistory].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   )
@@ -36,10 +38,11 @@ function History(): React.ReactElement {
     else days.push({ date, records: [record] })
   }
 
+  if (outlet) return outlet
+
   return (
     <>
-      <Outlet />
-      <div className="page">
+      <div className="page sheet-underlay">
         <div className="page-container">
           <h1>
             <Link className="pre-path no-style" to="/quiz">
@@ -78,6 +81,7 @@ function History(): React.ReactElement {
                         key={record.id}
                         className="history-item no-style"
                         to={`/history/${record.id}`}
+                        viewTransition
                       >
                         <div className="history-info">
                           <p className="history-subject">

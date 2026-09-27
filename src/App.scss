@@ -40,23 +40,11 @@
 }
 
 .page {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100dvh;
-  margin: 0 auto;
+  min-height: 100dvh;
   background-color: var(--background-color);
   padding: 48px 18px calc(48px + 60px + 48px) 18px;
-  overflow: hidden;
-  overflow-y: auto;
-  border-radius: 0;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  -ms-border-radius: 0;
-  -o-border-radius: 0;
+  // 標題的遮擋延伸到 100vw，裁掉橫向溢出；clip 不會產生捲動容器，sticky 仍以整頁為準
+  overflow-x: clip;
 
   @media (min-width: 800px) {
     padding: 48px 24px;
@@ -73,7 +61,8 @@
     z-index: 10;
     position: sticky;
     padding: 0 6px;
-    top: -36px;
+    // 原本以 .page（上方 padding 48px）為捲動容器時的 -36px，改為整頁捲動後補回 48px
+    top: 12px;
     font-size: 1.75rem;
     background-color: var(--background-color);
 
@@ -125,4 +114,76 @@
   -moz-border-radius: 0;
   -ms-border-radius: 0;
   -o-border-radius: 0;
+}
+
+// 詳情頁（題庫題目、測驗紀錄）的頁面轉場：開啟時從底部滑入，關閉時往下滑出
+// 列表（sheet-underlay）與詳情頁（sheet）各自命名：開啟時列表只在舊畫面、詳情頁只在新畫面，
+// 關閉時相反；兩個方向都讓列表靜止不動，詳情頁在上層移動，不需要另外判斷方向
+.sheet-underlay {
+  view-transition-name: sheet-underlay;
+}
+
+::view-transition-old(root),
+::view-transition-new(root),
+::view-transition-old(sheet-underlay),
+::view-transition-new(sheet-underlay) {
+  animation: none;
+}
+
+::view-transition-group(sheet) {
+  z-index: 1;
+}
+
+// 詳情頁上邊緣外側的柔和漸層：一條背景色、往上淡出的帶子，與詳情頁同步移動
+// fixed 在畫面上緣之外，平常看不到；轉場時位於當下可見範圍的頂端外側，開啟與關閉都自動對齊。
+// 帶子自己命名（sheet-edge），與詳情頁分開擷取，底下透出的才會是列表而非詳情頁畫面外的內容
+$sheet-edge: 120px;
+
+.single-bank,
+.single-history {
+  &::before {
+    content: '';
+    view-transition-name: sheet-edge;
+    position: fixed;
+    top: -$sheet-edge;
+    left: 0;
+    right: 0;
+    height: $sheet-edge;
+    background: fade.fade-gradient(var(--background-color), to top);
+    pointer-events: none;
+  }
+}
+
+::view-transition-group(sheet-edge) {
+  z-index: 1;
+}
+
+::view-transition-new(sheet):only-child,
+::view-transition-new(sheet-edge):only-child {
+  animation: sheet-in 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+::view-transition-old(sheet):only-child,
+::view-transition-old(sheet-edge):only-child {
+  animation: sheet-out 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+// 擷取的是整個詳情頁，只保留離開當下畫面內的部分（--scroll-y 由 App.tsx 設定）
+::view-transition-old(sheet):only-child {
+  clip-path: inset(
+    var(--scroll-y, 0px) 0 calc(100% - var(--scroll-y, 0px) - 100vh) 0
+  );
+}
+
+// 位移用視窗高度：詳情頁可能長達數萬 px，用 100% 會從畫面外很遠的地方開始
+@keyframes sheet-in {
+  from {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes sheet-out {
+  to {
+    transform: translateY(100vh);
+  }
 }

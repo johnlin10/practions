@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, useOutlet } from 'react-router-dom'
 import './Bank.scss'
 
 // data
@@ -27,6 +27,8 @@ const subjectSections = groupSubjects(Object.values(subjects))
  * 題庫頁面，顯示所有可用的科目
  */
 function Bank(): React.ReactElement {
+  // 開啟題庫時只顯示題目頁（整頁捲動，不疊在列表上）
+  const outlet = useOutlet()
   // 當前時間
   const [currentTime, setCurrentTime] = useState<Date>(new Date())
 
@@ -42,10 +44,11 @@ function Bank(): React.ReactElement {
     return () => clearInterval(intervalId)
   }, [])
 
+  if (outlet) return outlet
+
   return (
     <>
-      <Outlet />
-      <div className="page">
+      <div className="page sheet-underlay">
         <div className="page-container">
           <h1>題庫</h1>
           <div className="subjects-section">
@@ -98,6 +101,7 @@ function Bank(): React.ReactElement {
                       key={subject.id}
                       className={cardClassName}
                       to={`/bank/${subject.id}`}
+                      viewTransition
                     >
                       {cardContent}
                     </Link>
