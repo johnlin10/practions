@@ -38,6 +38,11 @@
       border-color: var(--primary-darker-color);
       box-shadow: 0 3px 0 var(--primary-darker-color);
     }
+
+    // 上面的 :hover 權重高於全域 button 的 :active，需另外收回陰影，否則按下時陰影不會消失
+    &:active {
+      box-shadow: 0 0 0 var(--primary-darker-color);
+    }
   }
 
   > .install-hint {
