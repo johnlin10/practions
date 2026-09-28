@@ -1,4 +1,6 @@
 :root {
+  color-scheme: light dark; /* 原生表單元件、捲軸跟著系統深淺色 */
+
   /* Colors */
   /* white and black */
   --white: #ffffff;
@@ -134,4 +136,57 @@
   /* 警告 */
   --warning-color: #c8372d;
   --warning-secondary-color: #f4a5a0;
+}
+
+/* 深色模式：只覆寫語意變數，色票不變 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 背景 */
+    --background-color: var(--gray-950);
+    --background-secondary: var(--gray-900);
+    --fill-color: var(--gray-900);
+    --fill-strong-color: var(--gray-800);
+
+    /* 文字 */
+    --text-color: var(--gray-100);
+    --text-muted-color: var(--gray-500);
+    --text-faint-color: var(--gray-700);
+
+    /* 前景：改為白色透明度階層 */
+    --foreground-900: #ffffffed;
+    --foreground-800: #ffffffd3;
+    --foreground-700: #ffffffb9;
+    --foreground-600: #ffffff98;
+    --foreground-500: #ffffff80;
+    --foreground-400: #ffffff6c;
+    --foreground-300: #ffffff55;
+    --foreground-200: #ffffff3c;
+    --foreground-100: #ffffff26;
+
+    /* 邊框 */
+    --border-strong-color: var(--gray-700);
+    --divider-color: var(--gray-900);
+
+    /* 主色：實心按鈕維持原色，淺藍底改為深藍底 */
+    --primary-text-color: var(--blue-200);
+    --primary-background-color: var(--blue-800);
+
+    /* 停用按鈕 */
+    --disabled-color: var(--gray-800);
+    --disabled-dark-color: var(--gray-700);
+
+    /* 答對 / 答錯 */
+    --correct-background-color: var(--green-900);
+    --correct-text-color: var(--green-500);
+
+    --wrong-background-color: var(--red-800);
+    --wrong-text-color: var(--red-400);
+
+    --danger-background-color: var(--red-800);
+    --danger-text-color: var(--red-300);
+
+    /* 警告 */
+    --warning-color: var(--red-400);
+    --warning-secondary-color: var(--red-700);
+  }
 }
