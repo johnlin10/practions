@@ -16,6 +16,17 @@
   border: 3px solid var(--border-color);
   box-shadow: 0 3px 0 var(--border-color);
   border-radius: 12px;
+  transition:
+    opacity 0.3s ease,
+    translate 0.3s ease,
+    visibility 0.3s;
+
+  // 往下捲時收起（InstallBanner.tsx）
+  &.hidden {
+    opacity: 0;
+    translate: 0 12px;
+    visibility: hidden;
+  }
 
   > img {
     width: 40px;

@@ -109,6 +109,7 @@
   --primary-darker-color: var(--blue-700); /* 實心按鈕 hover 的底邊 */
   --primary-text-color: var(--blue-600); /* 淺藍底上的文字 */
   --primary-background-color: #c8f0ff; /* 選中狀態的淺藍底 */
+  --primary-card-color: var(--white); /* 淺藍底上的卡片 */
 
   /* 實心綠色按鈕 */
   --success-color: var(--green-500);
@@ -174,6 +175,9 @@
   /* 主色：實心按鈕維持原色，淺藍底改為深藍底 */
   --primary-text-color: var(--blue-200);
   --primary-background-color: var(--blue-800);
+  --primary-card-color: var(
+    --gray-900
+  ); /* 比背景亮一階，在深藍底上不會顯得太黑 */
 
   /* 停用按鈕 */
   --disabled-color: var(--gray-800);

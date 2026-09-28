@@ -44,6 +44,15 @@ function InstallBanner(): React.ReactElement | null {
   const { canInstall, install } = useInstallPrompt()
   const [dismissed, setDismissed] = useState<boolean>(isDismissed)
   const [installed, setInstalled] = useState<boolean>(false)
+  // 往下捲時收起，避免蓋住首頁的介紹內容；捲回頂端再出現
+  const [scrolled, setScrolled] = useState<boolean>(false)
+
+  useEffect(() => {
+    const onScroll = (): void => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     if (isStandalone) return
@@ -101,7 +110,11 @@ function InstallBanner(): React.ReactElement | null {
   }
 
   return (
-    <div className="install-banner" role="dialog" aria-label={content.title}>
+    <div
+      className={`install-banner${scrolled ? ' hidden' : ''}`}
+      role="dialog"
+      aria-label={content.title}
+    >
       <img src="/icons/r/practions-r-128.png" alt="" />
       <div className="install-banner-text">
         <h3>{content.title}</h3>
