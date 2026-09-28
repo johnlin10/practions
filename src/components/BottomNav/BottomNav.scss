@@ -97,8 +97,17 @@
 
       $border-width: 3px;
       $button-active-height: 3px;
+      // 相鄰項目之間平時沒有側邊框（透明邊框會在轉角與上下邊框斜接出缺口），
+      // 改用同寬的 padding 保留位置，hover / 選中出現側邊框時 padding 同步歸零，圖示不會左右位移；
+      // padding 與邊框寬度不做轉場，才會在同一格切換
+      padding: 0 $border-width;
+      transition-property:
+        color, background-color, border-color, box-shadow, transform;
+      // 側邊框未畫出時也先指定顏色，否則預設為 currentColor（文字色），出現時會從文字色漸變
+      border-color: var(--border-color);
       &:first-child {
         border-left: $border-width solid var(--border-color);
+        padding-left: 0;
         border-top: $border-width solid var(--border-color);
         border-bottom: $border-width solid var(--border-color);
         box-shadow: 0 0 0 var(--border-color);
@@ -116,6 +125,7 @@
 
       &:last-child {
         border-right: $border-width solid var(--border-color);
+        padding-right: 0;
         border-top: $border-width solid var(--border-color);
         border-bottom: $border-width solid var(--border-color);
         box-shadow: 0 0 0 var(--border-color);
@@ -128,6 +138,7 @@
 
       &:hover {
         border: $border-width solid var(--border-hover-color) !important;
+        padding: 0;
         box-shadow: 0 calc($button-active-height / 2) 0
           var(--border-hover-color) !important;
         transform: translateY(calc(0px - $button-active-height / 2));
@@ -138,6 +149,7 @@
       }
 
       &[data-active='true'] {
+        padding: 0;
         color: var(--primary-color);
         background-color: var(--primary-background-color);
         border: $border-width solid var(--primary-color) !important;

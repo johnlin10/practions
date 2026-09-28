@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useSyncExternalStore } from 'react'
 import { Link } from 'react-router-dom'
 import './Install.scss'
 import { INSTALL_TITLE, INSTALL_DESCRIPTION } from './meta'
@@ -22,6 +22,14 @@ const ANDROID_STEPS = [
   '在跳出的視窗點選「安裝」',
   '從主畫面或應用程式列表開啟 Practions，即可全螢幕使用',
 ]
+
+// 教學影片跟著系統深淺色切換，系統切換時立即更換
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
+const subscribeDark = (onChange: () => void): (() => void) => {
+  darkQuery.addEventListener('change', onChange)
+  return () => darkQuery.removeEventListener('change', onChange)
+}
+const getIsDark = (): boolean => darkQuery.matches
 
 /**
  * [component] CopyUrlButton
@@ -58,6 +66,10 @@ function CopyUrlButton(): React.ReactElement {
  * 教學頁面：在 iOS / Android 將 Practions 加入主畫面（安裝 PWA）
  */
 function Install(): React.ReactElement {
+  const videoTheme = useSyncExternalStore(subscribeDark, getIsDark)
+    ? 'dark'
+    : 'light'
+
   // 進入頁面時設定標題與描述，離開時還原
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>(
@@ -123,8 +135,8 @@ function Install(): React.ReactElement {
           <div className="install">
             <video
               className="install-video"
-              src="/videos/install-pwa.mp4"
-              poster="/videos/install-pwa-poster.jpg"
+              src={`/videos/install-pwa-${videoTheme}.mp4`}
+              poster={`/videos/install-pwa-${videoTheme}-poster.jpg`}
               autoPlay
               loop
               muted
