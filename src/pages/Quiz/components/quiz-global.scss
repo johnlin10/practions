@@ -43,8 +43,8 @@
 
         &.selected {
           border-color: var(--primary-color);
-          color: var(--blue-600) !important;
-          background-color: var(--blue-100);
+          color: var(--primary-text-color) !important;
+          background-color: var(--primary-background-color);
 
           box-shadow: 0 3px 0 var(--primary-color);
           &:active {
@@ -54,8 +54,8 @@
         }
         &:not(:disabled) {
           &:active {
-            color: var(--blue-600) !important;
-            background-color: var(--blue-100);
+            color: var(--primary-text-color) !important;
+            background-color: var(--primary-background-color);
             border-color: var(--primary-color);
             box-shadow: 0 0 0 var(--primary-color);
             transform: translateY(3px);

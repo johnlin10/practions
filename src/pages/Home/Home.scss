@@ -34,7 +34,7 @@
 
     p {
       font-size: 1rem;
-      color: var(--gray-color-12);
+      color: var(--text-faint-color);
       margin-bottom: 96px;
     }
 
@@ -53,7 +53,7 @@
       border: 2px solid var(--border-color);
 
       &:hover {
-        background: var(--gray-color-13);
+        background: var(--fill-color);
       }
 
       > .material-symbols-rounded {
@@ -70,7 +70,7 @@
     position: fixed;
     width: 720px;
     height: 720px;
-    border: 12px solid var(--gray-color-13);
+    border: 12px solid var(--divider-color);
     //opacity: 0.6;
     transition: 8s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translate(50%, 50%);

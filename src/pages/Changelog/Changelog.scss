@@ -18,7 +18,7 @@
       }
       > .info {
         font-size: 0.8rem;
-        color: var(--gray-color-10);
+        color: var(--text-muted-color);
       }
     }
 
@@ -32,7 +32,7 @@
       font-size: 0.8rem;
       line-height: 1.6;
       white-space: pre-wrap;
-      color: var(--gray-color-10);
+      color: var(--text-muted-color);
       max-height: 5.2em;
       overflow: hidden;
       mask-image: fade.fade-gradient(#000);

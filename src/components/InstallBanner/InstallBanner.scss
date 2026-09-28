@@ -33,22 +33,22 @@
     }
     > p {
       font-size: 0.8rem;
-      color: var(--gray-color-10);
+      color: var(--text-muted-color);
     }
   }
 
   > .install-banner-install {
     white-space: nowrap;
     font-weight: 600;
-    color: #fff;
-    background-color: var(--blue-500);
-    border-color: var(--blue-600);
-    box-shadow: 0 3px 0 var(--blue-600);
+    color: var(--text-white);
+    background-color: var(--primary-color);
+    border-color: var(--primary-dark-color);
+    box-shadow: 0 3px 0 var(--primary-dark-color);
 
     &:hover {
-      background-color: var(--blue-600);
-      border-color: var(--blue-700);
-      box-shadow: 0 3px 0 var(--blue-700);
+      background-color: var(--primary-dark-color);
+      border-color: var(--primary-darker-color);
+      box-shadow: 0 3px 0 var(--primary-darker-color);
     }
   }
 
@@ -66,7 +66,7 @@
 
     > span {
       font-size: 1.2rem;
-      color: var(--gray-color-10);
+      color: var(--text-muted-color);
     }
   }
 }

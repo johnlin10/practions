@@ -28,22 +28,22 @@
     gap: 6px;
     padding: 12px;
     font-weight: 600;
-    color: #fff;
-    background-color: var(--blue-500);
-    border-color: var(--blue-600);
-    box-shadow: 0 3px 0 var(--blue-600);
+    color: var(--text-white);
+    background-color: var(--primary-color);
+    border-color: var(--primary-dark-color);
+    box-shadow: 0 3px 0 var(--primary-dark-color);
 
     &:hover {
-      background-color: var(--blue-600);
-      border-color: var(--blue-700);
-      box-shadow: 0 3px 0 var(--blue-700);
+      background-color: var(--primary-dark-color);
+      border-color: var(--primary-darker-color);
+      box-shadow: 0 3px 0 var(--primary-darker-color);
     }
   }
 
   > .install-hint {
     margin-bottom: -12px;
     font-size: 0.9rem;
-    color: var(--gray-color-10);
+    color: var(--text-muted-color);
   }
 
   > .install-status {
@@ -70,7 +70,7 @@
 
       > span {
         font-size: 1rem;
-        color: var(--gray-color-10);
+        color: var(--text-muted-color);
       }
     }
 

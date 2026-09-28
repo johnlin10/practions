@@ -13,7 +13,7 @@
 
     .material-symbols-rounded {
       font-size: 3rem;
-      color: var(--primary-color, #2196f3);
+      color: var(--primary-color);
       margin-bottom: 12px;
     }
 
@@ -23,7 +23,7 @@
     }
 
     p {
-      color: var(--gray-color-10, #888);
+      color: var(--text-muted-color);
       margin-bottom: 16px;
     }
 
@@ -32,7 +32,7 @@
       white-space: pre-wrap;
       word-break: break-word;
       font-size: 0.8rem;
-      background: var(--gray-color-3, rgba(127, 127, 127, 0.1));
+      background: rgb(127 127 127 / 10%);
       border-radius: 8px;
       padding: 12px;
       margin-bottom: 16px;
@@ -42,8 +42,8 @@
 
     button {
       padding: 12px 24px;
-      background: var(--primary-color, #2196f3);
-      color: white;
+      background: var(--primary-color);
+      color: var(--text-white);
       border: none;
       border-radius: 8px;
       cursor: pointer;

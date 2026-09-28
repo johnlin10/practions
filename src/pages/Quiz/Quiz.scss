@@ -51,7 +51,7 @@
 
           > span.question-count {
             font-size: 0.8rem;
-            color: var(--gray-color-10);
+            color: var(--text-muted-color);
           }
 
           > span.question-type {
@@ -111,19 +111,19 @@
             width: 50%;
             min-width: max-content;
             font-weight: bold;
-            background: var(--green-500);
-            border: 2px solid var(--green-600);
-            box-shadow: 0 3px 0 var(--green-600);
-            color: white;
+            background: var(--success-color);
+            border: 2px solid var(--success-dark-color);
+            box-shadow: 0 3px 0 var(--success-dark-color);
+            color: var(--text-white);
 
             &:hover {
-              background: var(--green-600);
-              border: 2px solid var(--green-700);
-              box-shadow: 0 3px 0 var(--green-700);
+              background: var(--success-dark-color);
+              border: 2px solid var(--success-darker-color);
+              box-shadow: 0 3px 0 var(--success-darker-color);
             }
 
             &:active {
-              box-shadow: 0 0 0 var(--green-600);
+              box-shadow: 0 0 0 var(--success-dark-color);
               transform: translateY(3px);
             }
           }
@@ -133,12 +133,12 @@
             min-width: max-content;
             font-weight: bold;
             background: var(--primary-color);
-            border: 2px solid var(--blue-600);
-            box-shadow: 0 3px 0 var(--blue-600);
-            color: white;
+            border: 2px solid var(--primary-dark-color);
+            box-shadow: 0 3px 0 var(--primary-dark-color);
+            color: var(--text-white);
 
             &:active {
-              box-shadow: 0 0 0 var(--blue-600);
+              box-shadow: 0 0 0 var(--primary-dark-color);
               transform: translateY(3px);
             }
           }
@@ -146,7 +146,7 @@
           &.active {
             border: 2px solid var(--primary-color);
             background: var(--primary-background-color);
-            color: var(--blue-600);
+            color: var(--primary-text-color);
             box-shadow: 0 0 0 var(--primary-color);
             transform: translateY(3px);
           }
@@ -177,7 +177,7 @@
       max-height: 50%;
       width: 100%;
       max-width: 640px;
-      border: 2px solid var(--gray-color-13);
+      border: 2px solid var(--divider-color);
       background-color: var(--background-color);
       box-shadow: 0 0 24px 0 #0000000a;
       overflow-y: auto;
@@ -236,7 +236,7 @@
           position: relative;
           height: 54px;
           border-radius: 8px;
-          border: 2px solid var(--gray-color-13);
+          border: 2px solid var(--divider-color);
           display: flex;
           justify-content: center;
           align-items: center;
@@ -244,7 +244,7 @@
           transition: all 0.2s ease;
 
           &:hover {
-            background-color: var(--gray-color-13);
+            background-color: var(--fill-color);
           }
           &.current {
             border-width: 2px;
@@ -258,7 +258,7 @@
           &.five-in-row {
             .question-number {
               font-weight: bold;
-              color: #0000005f;
+              color: var(--foreground-300);
             }
           }
 
@@ -267,7 +267,7 @@
             top: 5px;
             left: 5px;
             font-size: 0.8rem;
-            color: #0000003f;
+            color: var(--foreground-200);
           }
 
           .question-answer {
@@ -302,10 +302,10 @@ h1.quiz-to-history {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    color: var(--gray-color-12);
+    color: var(--text-faint-color);
 
     &:hover {
-      color: var(--gray-color-10);
+      color: var(--text-muted-color);
     }
 
     > p {
@@ -333,17 +333,17 @@ h1.quiz-to-history {
     justify-content: space-between;
     background: var(--background-color);
     padding: 12px;
-    border: 2px solid var(--gray-100);
+    border: 2px solid var(--divider-color);
 
     > p {
       display: flex;
       align-items: center;
       margin: 0;
-      color: #666;
+      color: var(--foreground-600);
 
       &.subject-name {
         font-weight: 500;
-        color: #333;
+        color: var(--foreground-800);
 
         > span {
           margin-right: 6px;
@@ -367,7 +367,7 @@ h1.quiz-to-history {
 
       > .subject-info {
         font-size: 0.8rem;
-        color: var(--gray-color-10);
+        color: var(--text-muted-color);
       }
 
       > button {
@@ -375,7 +375,7 @@ h1.quiz-to-history {
 
         &:hover {
           background: var(--primary-background-color);
-          color: var(--blue-600);
+          color: var(--primary-text-color);
           border: 2px solid var(--primary-color);
           box-shadow: 0 3px 0 var(--primary-color);
         }
@@ -397,7 +397,7 @@ h1.quiz-to-history {
     border-radius: 0;
 
     &:not(:last-child) {
-      border-bottom: 2px solid var(--gray-100);
+      border-bottom: 2px solid var(--divider-color);
     }
     &:last-child {
       border-bottom-left-radius: 10px;
@@ -424,7 +424,7 @@ h1.quiz-to-history {
     flex-direction: row;
     justify-content: space-between;
     padding: 12px;
-    border: 2px solid var(--gray-100);
+    border: 2px solid var(--divider-color);
 
     > div.pvqc-card-title {
       display: flex;
@@ -439,14 +439,14 @@ h1.quiz-to-history {
         justify-content: center;
         gap: 3px;
         font-weight: 600;
-        color: #333;
+        color: var(--foreground-800);
       }
     }
     > .subject-card-content {
       > button {
         &:hover {
           background: var(--primary-background-color);
-          color: var(--blue-600);
+          color: var(--primary-text-color);
           border: 2px solid var(--primary-color);
           box-shadow: 0 3px 0 var(--primary-color);
         }
@@ -471,7 +471,11 @@ h1.quiz-to-history {
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(52, 179, 225, 0.05);
+      background-color: color-mix(
+        in srgb,
+        var(--primary-color) 5%,
+        transparent
+      );
       pointer-events: none;
     }
   }

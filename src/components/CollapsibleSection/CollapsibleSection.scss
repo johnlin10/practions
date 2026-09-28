@@ -38,7 +38,7 @@
 
       > .collapsible-section-icon {
         font-size: 1.4rem;
-        color: var(--gray-color-10);
+        color: var(--text-muted-color);
         transition: transform 0.3s ease;
       }
 
@@ -53,7 +53,7 @@
 
     // 收合時底部顯示分割線
     &:not([open]) > .collapsible-section-header {
-      border-bottom-color: var(--gray-color-13);
+      border-bottom-color: var(--divider-color);
     }
   }
 }

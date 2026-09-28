@@ -9,7 +9,7 @@ $compact-title-space: 28px;
   position: relative;
   display: flex;
   flex-direction: column;
-  border: 2px solid var(--gray-color-13);
+  border: 2px solid var(--divider-color);
 
   &.has-title {
     margin-top: $space;
@@ -23,6 +23,6 @@ $compact-title-space: 28px;
     left: 12px;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--gray-color-12);
+    color: var(--text-faint-color);
   }
 }
