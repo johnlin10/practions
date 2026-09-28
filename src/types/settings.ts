@@ -11,10 +11,15 @@ export interface PVQCSettings {
   defaultTimePerStage: number
 }
 
+// 主題：跟隨系統（自動模式），或手動指定淺色 / 深色
+export type ThemeSetting = 'system' | 'light' | 'dark'
+
 // 通用設定介面
 export interface AppSettings {
   // PVQC 測驗設定
   pvqc: PVQCSettings
+  // 主題
+  theme: ThemeSetting
   // 未來可以擴展更多設定分類
   // ui: UISettings
   // notifications: NotificationSettings
@@ -39,6 +44,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     defaultQuestionCount: 50,
     defaultTimePerStage: 10,
   },
+  theme: 'system',
 }
 
 // 本地存儲鍵值

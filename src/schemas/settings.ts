@@ -18,4 +18,6 @@ export const pvqcSettingsSchema = z.object({
 
 export const appSettingsSchema = z.object({
   pvqc: pvqcSettingsSchema.default(DEFAULT_SETTINGS.pvqc),
+  // 缺漏或不合法時退回預設，不讓整份設定（含 PVQC）一起被丟棄
+  theme: z.enum(['system', 'light', 'dark']).catch(DEFAULT_SETTINGS.theme),
 })

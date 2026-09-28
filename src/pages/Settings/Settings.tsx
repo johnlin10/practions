@@ -6,6 +6,17 @@ import { DEFAULT_SETTINGS } from '../../types'
 import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { exportHistory, importHistory } from '@/data/historyStore'
+import { updateSettings, useSettingsStore } from '@/data/settingsStore'
+import {
+  getSystemTheme,
+  useResolvedTheme,
+  type ResolvedTheme,
+} from '@/utils/theme'
+
+const THEME_OPTIONS: { value: ResolvedTheme; label: string; icon: string }[] = [
+  { value: 'light', label: '淺色', icon: 'light_mode' },
+  { value: 'dark', label: '深色', icon: 'dark_mode' },
+]
 
 /**
  * Settings component
@@ -25,6 +36,16 @@ function Settings(): React.ReactElement {
   const [tempTimePerStage, setTempTimePerStage] = useState(
     pvqcSettings.defaultTimePerStage,
   )
+
+  // 主題：自動模式跟隨系統；關閉時沿用當下的深淺色，之後記住使用者的選擇
+  const isAutoTheme = useSettingsStore().theme === 'system'
+  const resolvedTheme = useResolvedTheme()
+
+  const handleAutoThemeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    updateSettings({ theme: e.target.checked ? 'system' : getSystemTheme() })
+  }
 
   const clearHistory = (): void => {
     if (window.confirm(`確定要清除 ${history.length} 筆測驗紀錄嗎？`)) {
@@ -105,6 +126,46 @@ function Settings(): React.ReactElement {
         <h1>設定</h1>
 
         <div className="settings-list">
+          <div className="settings-list-group has-title">
+            <h5>主題設定</h5>
+            <label className="settings-list-group-item action">
+              <p>自動模式</p>
+              <input
+                type="checkbox"
+                role="switch"
+                className="switch"
+                checked={isAutoTheme}
+                onChange={handleAutoThemeChange}
+              />
+            </label>
+            {THEME_OPTIONS.map(({ value, label, icon }) => (
+              <label
+                key={value}
+                className={`settings-list-group-item action ${
+                  isAutoTheme ? 'disabled' : ''
+                }`}
+              >
+                <p>
+                  <span className="material-symbols-outlined icon">{icon}</span>
+                  {label}
+                </p>
+                <input
+                  type="radio"
+                  name="theme"
+                  className="visually-hidden"
+                  checked={resolvedTheme === value}
+                  disabled={isAutoTheme}
+                  onChange={() => updateSettings({ theme: value })}
+                />
+                {resolvedTheme === value && (
+                  <span className="material-symbols-rounded icon selected">
+                    check
+                  </span>
+                )}
+              </label>
+            ))}
+          </div>
+
           <div className="settings-list-group has-title">
             <h5>PVQC 測驗設定</h5>
             <div className="settings-list-group-item">

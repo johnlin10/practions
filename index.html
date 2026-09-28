@@ -6,8 +6,7 @@
   <link rel="icon" href="/icons/r/practions-r-64.png" />
   <meta name="viewport"
     content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#151515" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="description" content="Practions 線上題庫測驗平台，隨時隨地練習、即時評分。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://practions.web.app/" />
@@ -40,6 +39,23 @@
   <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-touch-icon/apple-touch-icon-72x72.png" />
 
   <link rel="stylesheet" href="/theme.css" />
+  <script>
+    // 首次繪製前套用主題，避免先閃過另一種深淺色；之後由 src/utils/theme.ts 接手，兩邊邏輯需一致
+    // 放在 theme.css 之後，才讀得到對應主題的背景色
+    (function () {
+      var theme
+      try {
+        theme = JSON.parse(localStorage.getItem('practions_settings_v1')).theme
+      } catch (e) {}
+      if (theme !== 'light' && theme !== 'dark') {
+        theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      }
+      var root = document.documentElement
+      root.dataset.theme = theme
+      document.querySelector('meta[name="theme-color"]').content =
+        getComputedStyle(root).getPropertyValue('--background-color').trim()
+    })()
+  </script>
   <link rel="manifest" href="/manifest.json" />
 
   <style>

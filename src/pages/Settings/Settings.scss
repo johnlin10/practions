@@ -67,6 +67,17 @@
       > .icon {
         font-size: 1.2rem;
         color: var(--text-muted-color);
+
+        // 主題設定中目前套用的深淺色
+        &.selected {
+          color: var(--primary-color);
+        }
+      }
+
+      // 隱藏的單選框取得鍵盤焦點時，框出整列
+      &:has(.visually-hidden:focus-visible) {
+        outline: 2px solid var(--primary-color);
+        outline-offset: -2px;
       }
       > .pvqc-settings-input-container {
         display: flex;
@@ -85,6 +96,62 @@
       -o-border-radius: 0;
     }
   }
+}
+
+// 開關（主題設定的自動模式）
+.switch {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 26px;
+  border: 2px solid var(--border-color);
+  border-radius: 13px;
+  background-color: var(--fill-color);
+  cursor: pointer;
+
+  // 圓鈕（偽元素不受全域 * 的 transition 影響，需另外設定）
+  &::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--text-white);
+    box-shadow: 0 1px 2px var(--foreground-300);
+    transition: translate 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  // 覆蓋全域 input:focus 的主色邊框，點擊後關閉的開關才不會看起來像開啟；鍵盤操作時另外框出
+  &:focus {
+    border-color: var(--border-color);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  &:checked {
+    border-color: var(--primary-dark-color);
+    background-color: var(--primary-color);
+
+    &::before {
+      translate: 18px 0;
+    }
+  }
+}
+
+// 只給螢幕閱讀器與鍵盤操作的元素
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .developer-info {

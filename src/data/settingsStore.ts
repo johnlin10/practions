@@ -28,7 +28,7 @@ function emit(): void {
   listeners.forEach((listener) => listener())
 }
 
-function subscribe(listener: () => void): () => void {
+export function subscribeSettings(listener: () => void): () => void {
   listeners.add(listener)
   return () => {
     listeners.delete(listener)
@@ -66,5 +66,5 @@ export function resetSettings(): void {
 
 /** React hook：訂閱設定，內容變動時自動重渲染。 */
 export function useSettingsStore(): AppSettings {
-  return useSyncExternalStore(subscribe, getSnapshot)
+  return useSyncExternalStore(subscribeSettings, getSnapshot)
 }
