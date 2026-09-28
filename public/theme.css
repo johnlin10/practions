@@ -172,7 +172,10 @@
   --border-strong-color: var(--gray-700);
   --divider-color: var(--gray-900);
 
-  /* 主色：實心按鈕維持原色，淺藍底改為深藍底 */
+  /* 主色：整組降一階，原色在深色背景上太亮、比淺色模式更搶眼；淺藍底改為深藍底 */
+  --primary-color: var(--blue-600);
+  --primary-dark-color: var(--blue-700);
+  --primary-darker-color: var(--blue-800);
   --primary-text-color: var(--blue-200);
   --primary-background-color: var(--blue-800);
   --primary-card-color: var(

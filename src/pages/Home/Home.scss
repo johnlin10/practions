@@ -16,6 +16,7 @@
     justify-content: center;
     width: 100%;
     height: 100dvh;
+    padding-bottom: 96px;
 
     h1 {
       font-size: 2.5rem;
@@ -26,7 +27,7 @@
     p {
       font-size: 1rem;
       color: var(--text-faint-color);
-      margin-bottom: 96px;
+      margin-bottom: 54px;
     }
 
     > .pvqc-entrance-btn {
@@ -94,7 +95,7 @@
   .home-intro {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 48px;
     max-width: 640px;
     margin: 0 auto;
     // 底部留出導航列的空間（同 .page）
@@ -188,6 +189,9 @@
       border-color: var(--primary-color);
       box-shadow: 0 3px 0 var(--primary-color);
 
+      > h5 {
+        color: var(--primary-color);
+      }
       > h3 {
         color: var(--primary-text-color);
       }
