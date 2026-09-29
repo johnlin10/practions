@@ -209,7 +209,7 @@ export const STORAGE_KEYS = {
 
 // 重新導出設定相關型別
 export type { AppSettings, PVQCSettings, UseSettingsReturn } from './settings'
-export { DEFAULT_SETTINGS } from './settings'
+export { DEFAULT_SETTINGS, PVQC_LIMITS } from './settings'
 
 // 重新導出流程相關型別
 export type { FlowMode, QuizFlowConfig, QuizStageConfig, SubjectConfig } from './quiz-flows'

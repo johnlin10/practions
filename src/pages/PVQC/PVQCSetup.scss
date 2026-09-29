@@ -100,26 +100,26 @@
     }
   }
 
+  // 與設定頁的列表一致：左側說明、右側步進器，列與列之間以分隔線隔開
   > .config-inputs {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 6px;
-    margin-bottom: 6px;
+    margin-top: 12px;
+    border: 2px solid var(--divider-color);
+    border-radius: 6px;
 
-    > label {
-      color: var(--foreground-700);
-      font-size: 0.95rem;
+    > .config-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border-radius: 0; // 覆蓋全域 div 圓角，避免分隔線兩端彎曲
 
-      > input {
-        margin: 0 6px;
-        padding: 3px 5px;
-        border: 2px solid var(--border-color);
-        border-radius: 6px;
-        -webkit-border-radius: 6px;
-        -moz-border-radius: 6px;
-        -ms-border-radius: 6px;
-        -o-border-radius: 6px;
+      &:not(:last-child) {
+        border-bottom: 2px solid var(--divider-color);
+      }
+
+      > p {
+        color: var(--foreground-700);
+        font-size: 0.95rem;
       }
     }
   }

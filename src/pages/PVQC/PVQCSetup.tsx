@@ -5,6 +5,10 @@ import './PVQCSetup.scss'
 // types
 import { QuizModeId } from '../../types/quiz-modes'
 import { QuizFlowConfig } from '../../types/quiz-flows'
+import { PVQC_LIMITS } from '../../types/settings'
+
+// components
+import Stepper from '../../components/Stepper/Stepper'
 
 // hooks
 import { usePVQCSettings } from '../../hooks/useSettings'
@@ -262,27 +266,26 @@ function PVQCSetup(): React.ReactElement {
             <div className="pvqc-setup-section">
               <h2>測驗設定</h2>
               <div className="config-inputs">
-                <label>
-                  每個測驗題數
-                  <input
-                    type="number"
+                <div className="config-row">
+                  <p>每個測驗題數</p>
+                  <Stepper
+                    label="每個測驗題數"
                     value={questionCount}
-                    onChange={(e) => setQuestionCount(Number(e.target.value))}
-                    min={5}
-                    max={50}
+                    onChange={setQuestionCount}
+                    {...PVQC_LIMITS.questionCount}
+                    unit="題"
                   />
-                </label>
-                <label>
-                  每個測驗時間
-                  <input
-                    type="number"
+                </div>
+                <div className="config-row">
+                  <p>每個測驗時間</p>
+                  <Stepper
+                    label="每個測驗時間"
                     value={timePerStage}
-                    onChange={(e) => setTimePerStage(Number(e.target.value))}
-                    min={1}
-                    max={30}
+                    onChange={setTimePerStage}
+                    {...PVQC_LIMITS.timePerStage}
+                    unit="分鐘"
                   />
-                  分鐘
-                </label>
+                </div>
               </div>
             </div>
           </>

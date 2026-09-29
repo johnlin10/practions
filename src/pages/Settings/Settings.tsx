@@ -1,8 +1,9 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Settings.scss'
 import packageJson from '../../../package.json'
-import { DEFAULT_SETTINGS } from '../../types'
+import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types'
+import Stepper from '../../components/Stepper/Stepper'
 import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { exportHistory, importHistory } from '@/data/historyStore'
@@ -30,12 +31,6 @@ function Settings(): React.ReactElement {
 
   // PVQC 設定管理
   const { pvqcSettings, updatePVQCSettings } = usePVQCSettings()
-  const [tempQuestionCount, setTempQuestionCount] = useState(
-    pvqcSettings.defaultQuestionCount,
-  )
-  const [tempTimePerStage, setTempTimePerStage] = useState(
-    pvqcSettings.defaultTimePerStage,
-  )
 
   // 主題：自動模式跟隨系統；關閉時沿用當下的深淺色，之後記住使用者的選擇
   const isAutoTheme = useSettingsStore().theme === 'system'
@@ -97,28 +92,13 @@ function Settings(): React.ReactElement {
   }
 
   // PVQC 設定相關函數
-  // const handleSavePVQCSettings = (): void => {
-  //   updatePVQCSettings({
-  //     defaultQuestionCount: tempQuestionCount,
-  //     defaultTimePerStage: tempTimePerStage,
-  //   })
-  // }
-
   const handleResetPVQCSettings = (): void => {
     // 重置 PVQC 設定為預設值
     updatePVQCSettings({
       defaultQuestionCount: DEFAULT_SETTINGS.pvqc.defaultQuestionCount,
       defaultTimePerStage: DEFAULT_SETTINGS.pvqc.defaultTimePerStage,
     })
-    // 同時更新臨時狀態
-    setTempQuestionCount(DEFAULT_SETTINGS.pvqc.defaultQuestionCount)
-    setTempTimePerStage(DEFAULT_SETTINGS.pvqc.defaultTimePerStage)
   }
-
-  // 是否有未保存的設定
-  // const hasUnsavedChanges =
-  //   tempQuestionCount !== pvqcSettings.defaultQuestionCount ||
-  //   tempTimePerStage !== pvqcSettings.defaultTimePerStage
 
   return (
     <div className="page">
@@ -170,39 +150,25 @@ function Settings(): React.ReactElement {
             <h5>PVQC 測驗設定</h5>
             <div className="settings-list-group-item">
               <p>預設題目數</p>
-              <div className="pvqc-settings-input-container">
-                <input
-                  type="number"
-                  value={tempQuestionCount}
-                  onChange={(e) => {
-                    setTempQuestionCount(Number(e.target.value))
-                    updatePVQCSettings({
-                      defaultQuestionCount: Number(e.target.value),
-                    })
-                  }}
-                  min={5}
-                  max={50}
-                />
-                <span className="unit">題</span>
-              </div>
+              <Stepper
+                label="預設題目數"
+                value={pvqcSettings.defaultQuestionCount}
+                onChange={(v) =>
+                  updatePVQCSettings({ defaultQuestionCount: v })
+                }
+                {...PVQC_LIMITS.questionCount}
+                unit="題"
+              />
             </div>
             <div className="settings-list-group-item">
               <p>預設時間</p>
-              <div className="pvqc-settings-input-container">
-                <input
-                  type="number"
-                  value={tempTimePerStage}
-                  onChange={(e) => {
-                    setTempTimePerStage(Number(e.target.value))
-                    updatePVQCSettings({
-                      defaultTimePerStage: Number(e.target.value),
-                    })
-                  }}
-                  min={1}
-                  max={30}
-                />
-                <span className="unit">分鐘</span>
-              </div>
+              <Stepper
+                label="預設時間"
+                value={pvqcSettings.defaultTimePerStage}
+                onChange={(v) => updatePVQCSettings({ defaultTimePerStage: v })}
+                {...PVQC_LIMITS.timePerStage}
+                unit="分鐘"
+              />
             </div>
             <div className="settings-list-group-item">
               <p>重置設定</p>

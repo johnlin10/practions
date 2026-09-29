@@ -79,16 +79,6 @@
         outline: 2px solid var(--primary-color);
         outline-offset: -2px;
       }
-      > .pvqc-settings-input-container {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-
-        span {
-          font-size: 0.9rem;
-          color: var(--foreground-500);
-        }
-      }
       border-radius: 0;
       -webkit-border-radius: 0;
       -moz-border-radius: 0;

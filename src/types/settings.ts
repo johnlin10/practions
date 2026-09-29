@@ -47,5 +47,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'system',
 }
 
+// PVQC 自訂測驗可調整的範圍（含）與每次增減的量，設定頁與測驗設定頁共用
+export const PVQC_LIMITS = {
+  questionCount: { min: 5, max: 50, step: 5 },
+  timePerStage: { min: 5, max: 30, step: 5 },
+}
+
 // 本地存儲鍵值
 export const SETTINGS_STORAGE_KEY = 'practions_settings_v1'
