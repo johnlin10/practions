@@ -40,6 +40,9 @@ button {
   // 往上抬一個陰影高度，讓「本體 + 陰影」整體對齊版面；
   // 按下時的 transform: translateY(3px) 與此抵銷，剛好回到原位
   translate: 0 -3px;
+  // 只列按鈕實際會變的屬性（hover 換色、按下位移），不用 all，避免切換主題時整頁漸變
+  transition: 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  transition-property: background-color, border-color, box-shadow, transform;
 
   -webkit-appearance: none; /* Safari and Chrome */
   -moz-appearance: none; /* Firefox */

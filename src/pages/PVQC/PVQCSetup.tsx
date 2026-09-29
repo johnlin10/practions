@@ -15,7 +15,7 @@ import { subjects } from '../../data/subjects'
 
 // 可用於 PVQC 的題庫：所有單字題庫
 const PVQC_SUBJECTS = Object.values(subjects).filter(
-  (s) => s.baseQuestionType === 'vocabulary'
+  (s) => s.baseQuestionType === 'vocabulary',
 )
 
 // 設定模式
@@ -49,9 +49,13 @@ function PVQCSetup(): React.ReactElement {
   // 選擇的測驗模式
   const [selectedModes, setSelectedModes] = useState<string[]>([])
   // 每個測驗題數
-  const [questionCount, setQuestionCount] = useState<number>(pvqcSettings.defaultQuestionCount)
+  const [questionCount, setQuestionCount] = useState<number>(
+    pvqcSettings.defaultQuestionCount,
+  )
   // 每個測驗時間
-  const [timePerStage, setTimePerStage] = useState<number>(pvqcSettings.defaultTimePerStage)
+  const [timePerStage, setTimePerStage] = useState<number>(
+    pvqcSettings.defaultTimePerStage,
+  )
 
   // 當設定改變時，更新本地狀態（如果用戶還沒修改過）
   useEffect(() => {
@@ -69,7 +73,7 @@ function PVQCSetup(): React.ReactElement {
     setSelectedModes((prev) =>
       prev.includes(modeId)
         ? prev.filter((id) => id !== modeId)
-        : [...prev, modeId]
+        : [...prev, modeId],
     )
   }
 
@@ -90,7 +94,7 @@ function PVQCSetup(): React.ReactElement {
           `· ${stageCount} 階段，總時長 ${totalMin} 分鐘\n` +
           `· 每階段 100 題，時間到自動進入下一階段\n` +
           `· 不可中途調整設定\n\n` +
-          `確定要開始嗎？`
+          `確定要開始嗎？`,
       )
       if (!ok) return
     } else {
@@ -136,8 +140,7 @@ function PVQCSetup(): React.ReactElement {
     })
   }
 
-  const isStartDisabled =
-    setupMode === 'custom' && selectedModes.length === 0
+  const isStartDisabled = setupMode === 'custom' && selectedModes.length === 0
 
   // 官方模擬模式預覽資訊
   const officialPreview = buildOfficialFlow(includeSpelling)
@@ -149,7 +152,6 @@ function PVQCSetup(): React.ReactElement {
         <h1>PVQC 測驗設定</h1>
 
         <div className="pvqc-setup-section">
-          <h2>科目</h2>
           <div className="subject-select">
             <select
               aria-label="科目"
@@ -193,7 +195,8 @@ function PVQCSetup(): React.ReactElement {
             <div className="pvqc-setup-section">
               <h2>PVQC 官方模擬</h2>
               <p className="setup-description">
-                依官方規範：每階段 100 題，時間到自動進入下一階段，未作答視為錯誤。
+                依官方規範：每階段 100
+                題，時間到自動進入下一階段，未作答視為錯誤。
                 所有階段都需達到及格門檻才算整體通過。
               </p>
 
