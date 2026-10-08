@@ -33,7 +33,7 @@ function installPageHtml(): Plugin {
           `$1${INSTALL_DESCRIPTION}`,
         ],
         [
-          /(<meta property="og:url" content="https:\/\/practions\.web\.app)\/"/,
+          /(<meta property="og:url" content="https:\/\/[^/"]+)\/"/,
           `$1${INSTALL_PATH}"`,
         ],
       ]

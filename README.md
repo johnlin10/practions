@@ -4,7 +4,7 @@
 
 線上題庫測驗平台，提供多種題型測驗、PVQC 多階段與官方模擬測驗、題庫瀏覽及歷史紀錄查詢。可加入手機主畫面，像 App 一樣全螢幕使用。
 
-🔗 [practions.web.app](https://practions.web.app)
+🔗 [practions.app](https://practions.app)
 
 ## 核心功能
 

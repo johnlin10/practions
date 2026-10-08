@@ -83,7 +83,7 @@
   "related_applications": [
     {
       "platform": "webapp",
-      "url": "https://practions.web.app/manifest.json"
+      "url": "https://practions.app/manifest.json"
     }
   ]
 }
