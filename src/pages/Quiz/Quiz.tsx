@@ -162,8 +162,11 @@ function Quiz(): React.ReactElement {
     }
 
     if (hasNextStage()) {
-      void showAlert('本階段時間到，自動進入下一階段。')
-      finishStage()
+      // 按下確定才進入下一階段，下一階段的計時從那時開始
+      void showAlert('準備好就開始下一階段，計時會在按下後開始。', {
+        title: '本階段時間到',
+        confirmText: '開始下一階段',
+      }).then(finishStage)
     } else {
       // 最後一階段時間到 → 強制結算整份
       handleFinish(true)
