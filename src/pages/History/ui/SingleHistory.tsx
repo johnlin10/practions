@@ -26,6 +26,7 @@ import { AnswerRecord } from '../../../types/answers'
 
 // data
 import { subjects } from '../../../data/subjects'
+import { showAlert } from '../../../utils/dialog'
 
 // interfaces
 interface AnalyzedQuestion {
@@ -81,9 +82,7 @@ function SingleHistory(): React.ReactElement {
       // 顯示錯誤訊息
       console.warn('找不到指定的歷史記錄:', id)
       navigate('/history')
-      setTimeout(() => {
-        alert('找不到此歷史記錄')
-      }, 100)
+      void showAlert('找不到此歷史記錄')
       return
     }
 
@@ -91,9 +90,7 @@ function SingleHistory(): React.ReactElement {
     if (!selectedRecord.subject || !selectedRecord.subject.id) {
       console.warn('歷史記錄中的 subject 資料不完整:', selectedRecord)
       navigate('/history')
-      setTimeout(() => {
-        alert('此歷史記錄資料不完整，無法查看')
-      }, 100)
+      void showAlert('此歷史記錄資料不完整，無法查看')
       return
     }
 
@@ -108,9 +105,7 @@ function SingleHistory(): React.ReactElement {
       // 如果科目存在且被鎖定，則顯示錯誤訊息
       if (subject && isSubjectLocked(subject)) {
         navigate('/history')
-        setTimeout(() => {
-          alert('此科目目前處於鎖定狀態，無法查看歷史紀錄')
-        }, 100)
+        void showAlert('此科目目前處於鎖定狀態，無法查看歷史紀錄')
         return
       }
     }

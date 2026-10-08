@@ -9,6 +9,7 @@ import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { exportHistory, importHistory } from '@/data/historyStore'
 import { updateSettings, useSettingsStore } from '@/data/settingsStore'
 import { signIn, signOut, useAuth } from '@/data/authStore'
+import { showAlert, showConfirm } from '@/utils/dialog'
 import {
   getSystemTheme,
   useResolvedTheme,
@@ -86,7 +87,7 @@ function Settings(): React.ReactElement {
     try {
       await signIn()
     } catch (error) {
-      window.alert((error as Error).message)
+      void showAlert((error as Error).message)
     } finally {
       setAuthBusy(false)
     }
@@ -94,31 +95,37 @@ function Settings(): React.ReactElement {
 
   const handleSignOut = async (): Promise<void> => {
     if (authBusy) return
-    if (
-      !window.confirm('確定要登出嗎？測驗紀錄會保留在雲端，下次登入即可看到。')
-    )
-      return
+    const ok = await showConfirm('測驗紀錄會保留在雲端，下次登入即可看到。', {
+      title: '確定要登出嗎？',
+      confirmText: '登出',
+    })
+    if (!ok) return
     setAuthBusy(true)
     try {
       await signOut()
     } catch (error) {
-      window.alert((error as Error).message)
+      void showAlert((error as Error).message)
       setAuthBusy(false)
     }
   }
 
-  const clearHistory = (): void => {
-    const message = signedIn
-      ? `確定要清除 ${history.length} 筆測驗紀錄嗎？雲端與所有裝置上的紀錄都會一併刪除。`
-      : `確定要清除 ${history.length} 筆測驗紀錄嗎？`
-    if (window.confirm(message)) {
-      clearAllHistory()
-    }
+  const clearHistory = async (): Promise<void> => {
+    const ok = await showConfirm(
+      signedIn
+        ? '雲端與所有裝置上的紀錄都會一併刪除，且無法復原。'
+        : '清除後無法復原。',
+      {
+        title: `確定要清除 ${history.length} 筆測驗紀錄嗎？`,
+        confirmText: '清除',
+        danger: true,
+      },
+    )
+    if (ok) clearAllHistory()
   }
 
   const handleClearHistoryClick = (): void => {
     if (!hasHistory) return
-    clearHistory()
+    void clearHistory()
   }
 
   const handleExportClick = (): void => {
@@ -143,11 +150,11 @@ function Settings(): React.ReactElement {
     if (!file) return
     try {
       const count = importHistory(await file.text())
-      window.alert(
+      void showAlert(
         count > 0 ? `已匯入 ${count} 筆測驗紀錄` : '沒有新的測驗紀錄可匯入',
       )
     } catch (error) {
-      window.alert(`匯入失敗：${(error as Error).message}`)
+      void showAlert((error as Error).message, { title: '匯入失敗' })
     }
   }
 
