@@ -8,44 +8,63 @@ import {
   INSTALL_TITLE,
   INSTALL_DESCRIPTION,
 } from './src/pages/Install/meta'
+import {
+  TRANSFER_PATH,
+  TRANSFER_TITLE,
+  TRANSFER_DESCRIPTION,
+} from './src/pages/Transfer/meta'
+
+// 需要自己的標題與描述（分享連結預覽）的頁面
+const PAGES = [
+  {
+    path: INSTALL_PATH,
+    title: INSTALL_TITLE,
+    description: INSTALL_DESCRIPTION,
+  },
+  {
+    path: TRANSFER_PATH,
+    title: TRANSFER_TITLE,
+    description: TRANSFER_DESCRIPTION,
+  },
+]
 
 /**
- * 建置後複製 index.html 為 settings/install.html，換上教學頁的標題與描述，
- * 讓不跑 JS 的 bot 也讀得到。Firebase Hosting 需開啟 cleanUrls，
+ * 建置後為 PAGES 各複製一份 index.html（例如 settings/install.html），換上該頁的標題與描述，
+ * 讓不跑 JS 的 bot（LINE、Facebook 等連結預覽）也讀得到。Firebase Hosting 需開啟 cleanUrls，
  * /settings/install 才會回傳這個檔案
  */
-function installPageHtml(): Plugin {
+function pageHtml(): Plugin {
   return {
-    name: 'install-page-html',
+    name: 'page-html',
     apply: 'build',
     closeBundle() {
       const outDir = path.resolve(__dirname, 'build')
-      let html = fs.readFileSync(path.join(outDir, 'index.html'), 'utf-8')
-      const replacements: [RegExp, string][] = [
-        [/<title>.*?<\/title>/, `<title>${INSTALL_TITLE}</title>`],
-        [
-          /(<meta name="description" content=")[^"]*/,
-          `$1${INSTALL_DESCRIPTION}`,
-        ],
-        [/(<meta property="og:title" content=")[^"]*/, `$1${INSTALL_TITLE}`],
-        [
-          /(<meta property="og:description" content=")[^"]*/,
-          `$1${INSTALL_DESCRIPTION}`,
-        ],
-        [
-          /(<meta property="og:url" content="https:\/\/[^/"]+)\/"/,
-          `$1${INSTALL_PATH}"`,
-        ],
-      ]
-      for (const [pattern, value] of replacements) {
-        // index.html 的 meta 改過格式時直接中斷建置，避免默默產生沒換到的頁面
-        if (!pattern.test(html))
-          throw new Error(`install-page-html: 找不到 ${pattern}`)
-        html = html.replace(pattern, value)
+      const index = fs.readFileSync(path.join(outDir, 'index.html'), 'utf-8')
+      for (const { path: pagePath, title, description } of PAGES) {
+        let html = index
+        const replacements: [RegExp, string][] = [
+          [/<title>.*?<\/title>/, `<title>${title}</title>`],
+          [/(<meta name="description" content=")[^"]*/, `$1${description}`],
+          [/(<meta property="og:title" content=")[^"]*/, `$1${title}`],
+          [
+            /(<meta property="og:description" content=")[^"]*/,
+            `$1${description}`,
+          ],
+          [
+            /(<meta property="og:url" content="https:\/\/[^/"]+)\/"/,
+            `$1${pagePath}"`,
+          ],
+        ]
+        for (const [pattern, value] of replacements) {
+          // index.html 的 meta 改過格式時直接中斷建置，避免默默產生沒換到的頁面
+          if (!pattern.test(html))
+            throw new Error(`page-html: 找不到 ${pattern}`)
+          html = html.replace(pattern, value)
+        }
+        const file = path.join(outDir, `${pagePath}.html`)
+        fs.mkdirSync(path.dirname(file), { recursive: true })
+        fs.writeFileSync(file, html)
       }
-      const file = path.join(outDir, `${INSTALL_PATH}.html`)
-      fs.mkdirSync(path.dirname(file), { recursive: true })
-      fs.writeFileSync(file, html)
     },
   }
 }
@@ -84,7 +103,7 @@ function readChangelog(): ChangelogEntry[] {
 }
 
 export default defineConfig({
-  plugins: [react(), installPageHtml()],
+  plugins: [react(), pageHtml()],
   define: {
     __CHANGELOG__: JSON.stringify(readChangelog()),
   },

@@ -1,7 +1,9 @@
 import React, { useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Transfer.scss'
+import { TRANSFER_TITLE, TRANSFER_DESCRIPTION } from './meta'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
+import { usePageMeta } from '@/hooks/usePageMeta'
 import { downloadBackup, importBackup } from '@/utils/backup'
 
 /**
@@ -44,6 +46,7 @@ function Transfer(): React.ReactElement {
   const navigate = useNavigate()
   const { history } = useQuizHistory()
   const importInputRef = useRef<HTMLInputElement>(null)
+  usePageMeta(TRANSFER_TITLE, TRANSFER_DESCRIPTION)
 
   const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0]

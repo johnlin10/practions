@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Install.scss'
 import { INSTALL_TITLE, INSTALL_DESCRIPTION } from './meta'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
+import { usePageMeta } from '@/hooks/usePageMeta'
 import { useResolvedTheme } from '@/utils/theme'
 
 const SITE_URL = 'practions.app'
@@ -62,20 +63,7 @@ function Install(): React.ReactElement {
   // 教學影片跟著主題切換
   const videoTheme = useResolvedTheme()
 
-  // 進入頁面時設定標題與描述，離開時還原
-  useEffect(() => {
-    const meta = document.querySelector<HTMLMetaElement>(
-      'meta[name="description"]',
-    )
-    const prevTitle = document.title
-    const prevDescription = meta?.content
-    document.title = INSTALL_TITLE
-    if (meta) meta.content = INSTALL_DESCRIPTION
-    return () => {
-      document.title = prevTitle
-      if (meta && prevDescription !== undefined) meta.content = prevDescription
-    }
-  }, [])
+  usePageMeta(INSTALL_TITLE, INSTALL_DESCRIPTION)
 
   // 預設顯示使用者裝置對應的教學，其餘（iPhone、電腦）預設 iOS
   const [platform, setPlatform] = useState<Platform>(() =>
