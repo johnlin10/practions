@@ -6,8 +6,10 @@ import { RouterProvider } from 'react-router-dom'
 import { QuizProvider } from '@/context/QuizContext'
 import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary'
 import { initTheme } from '@/utils/theme'
+import { initAuth } from '@/data/authStore'
 
 initTheme()
+initAuth()
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {

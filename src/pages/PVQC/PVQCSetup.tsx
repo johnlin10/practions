@@ -16,6 +16,7 @@ import { usePVQCSettings } from '../../hooks/useSettings'
 // data
 import { buildOfficialFlow } from '../../data/pvqc-official'
 import { subjects } from '../../data/subjects'
+import { showAlert, showConfirm } from '../../utils/dialog'
 
 // 可用於 PVQC 的題庫：所有單字題庫
 const PVQC_SUBJECTS = Object.values(subjects).filter(
@@ -86,25 +87,25 @@ function PVQCSetup(): React.ReactElement {
    * 開始 PVQC 測驗
    * @returns {void}
    */
-  const startPVQC = (): void => {
+  const startPVQC = async (): Promise<void> => {
     let flowConfig: QuizFlowConfig
 
     if (setupMode === 'official') {
       flowConfig = buildOfficialFlow(includeSpelling)
       const stageCount = flowConfig.stages.length
       const totalMin = flowConfig.totalTimeLimit
-      const ok = window.confirm(
-        `即將開始 PVQC 官方模擬：\n` +
-          `· ${stageCount} 階段，總時長 ${totalMin} 分鐘\n` +
-          `· 每階段 100 題，時間到自動進入下一階段\n` +
-          `· 不可中途調整設定\n\n` +
-          `確定要開始嗎？`,
+      const ok = await showConfirm(
+        `· ${stageCount} 階段，總時長 ${totalMin} 分鐘\n` +
+          `· 每階段 100 題\n` +
+          `· 時間到自動進入下一階段\n` +
+          `· 不可中途調整設定`,
+        { title: '即將開始 PVQC 官方模擬', confirmText: '開始' },
       )
       if (!ok) return
     } else {
       // 自訂模式
       if (selectedModes.length === 0) {
-        alert('請至少選擇一種測驗類型')
+        void showAlert('請至少選擇一種測驗類型')
         return
       }
       const totalTimeLimit = selectedModes.length * timePerStage

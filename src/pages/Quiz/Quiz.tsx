@@ -35,6 +35,7 @@ import {
 
 // utils
 import { answerKey } from '../../utils/answer-key'
+import { showAlert } from '../../utils/dialog'
 
 // interfaces
 // 預覽所有題目的彈窗元件 Props 介面
@@ -161,12 +162,11 @@ function Quiz(): React.ReactElement {
     }
 
     if (hasNextStage()) {
-      // 提示後再進入下一階段
-      // 為避免阻塞 timer 觸發的 state 更新，alert 包在 setTimeout 內
-      setTimeout(() => {
-        alert(`本階段時間到，自動進入下一階段。`)
-      }, 0)
-      finishStage()
+      // 按下確定才進入下一階段，下一階段的計時從那時開始
+      void showAlert('準備好就開始下一階段，計時會在按下後開始。', {
+        title: '本階段時間到',
+        confirmText: '開始下一階段',
+      }).then(finishStage)
     } else {
       // 最後一階段時間到 → 強制結算整份
       handleFinish(true)
@@ -210,7 +210,7 @@ function Quiz(): React.ReactElement {
       } else {
         // 時間未到，但未回答所有問題
         setPreviewAllQuestions(true)
-        alert('請回答所有問題')
+        void showAlert('請回答所有問題')
         return
       }
     } else {
@@ -590,7 +590,9 @@ function Quiz(): React.ReactElement {
                           className="start-quiz-btn"
                           onClick={() => {
                             if (isSubjectLocked(subject)) {
-                              alert('此科目目前處於鎖定狀態，無法完成測驗')
+                              void showAlert(
+                                '此科目目前處於鎖定狀態，無法完成測驗',
+                              )
                               return
                             }
                             navigate(`/quiz/${subject.id}`)

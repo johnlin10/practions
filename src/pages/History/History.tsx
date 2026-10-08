@@ -4,6 +4,7 @@ import './History.scss'
 
 // data
 import { useQuizHistory } from '@/hooks/useQuizHistory'
+import { useHistoryReady } from '@/data/historyStore'
 
 /**
  * [page] History page
@@ -12,6 +13,8 @@ import { useQuizHistory } from '@/hooks/useQuizHistory'
 function History(): React.ReactElement {
   // 歷史記錄（由資料層提供）；複製後依時間新到舊排序，以免 mutate 唯讀快照
   const { history: rawHistory } = useQuizHistory()
+  // 登入中的雲端紀錄尚未到達時顯示載入中，不閃出「尚無測驗紀錄」
+  const ready = useHistoryReady()
   // 開啟單筆紀錄時只顯示詳情頁（整頁捲動，不疊在列表上）
   const outlet = useOutlet()
   const history = [...rawHistory].sort(
@@ -127,7 +130,7 @@ function History(): React.ReactElement {
               ))
             ) : (
               <div className="history-section">
-                <p>尚無測驗紀錄</p>
+                <p>{ready ? '尚無測驗紀錄' : '正在載入測驗紀錄…'}</p>
               </div>
             )}
           </div>

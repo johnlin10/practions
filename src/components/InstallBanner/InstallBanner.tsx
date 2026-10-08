@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './InstallBanner.scss'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
+import { isLegacySite } from '@/data/authStore'
 
 // 使用者關閉提示後，隔一段時間才再顯示
 const DISMISS_KEY = 'installBannerDismissedAt'
@@ -38,6 +39,7 @@ type NavigatorWithRelatedApps = Navigator & {
  * - 瀏覽器判定可安裝（收到 beforeinstallprompt）：提供一鍵安裝按鈕
  * - 已安裝但仍用瀏覽器開啟（Android Chrome 可偵測）：提醒從主畫面開啟
  * - iOS 無法一鍵安裝，也偵測不到是否已安裝：提供按鈕前往加入主畫面教學頁
+ * 舊網址改為顯示「網址已搬家」：主畫面 App 也顯示、不能關閉，引導到轉移教學頁
  */
 function InstallBanner(): React.ReactElement | null {
   const navigate = useNavigate()
@@ -73,10 +75,23 @@ function InstallBanner(): React.ReactElement | null {
     }
   }
 
-  if (dismissed || isStandalone) return null
+  if (!isLegacySite && (dismissed || isStandalone)) return null
 
   let content: { title: string; text: string; action?: React.ReactElement }
-  if (canInstall) {
+  if (isLegacySite) {
+    content = {
+      title: '網址已搬家',
+      text: '請改用 practions.app，並轉移測驗紀錄',
+      action: (
+        <button
+          className="install-banner-install"
+          onClick={() => navigate('/settings/transfer')}
+        >
+          看說明
+        </button>
+      ),
+    }
+  } else if (canInstall) {
     content = {
       title: '安裝 Practions',
       text: '全螢幕使用，測驗紀錄長期保存',
@@ -121,13 +136,15 @@ function InstallBanner(): React.ReactElement | null {
         <p>{content.text}</p>
       </div>
       {content.action}
-      <button
-        className="install-banner-close"
-        onClick={dismiss}
-        aria-label="關閉提示"
-      >
-        <span className="material-symbols-rounded">close</span>
-      </button>
+      {!isLegacySite && (
+        <button
+          className="install-banner-close"
+          onClick={dismiss}
+          aria-label="關閉提示"
+        >
+          <span className="material-symbols-rounded">close</span>
+        </button>
+      )}
     </div>
   )
 }

@@ -13,6 +13,7 @@ import Settings from './pages/Settings/Settings'
 import PVQCSetup from './pages/PVQC/PVQCSetup'
 import Install from './pages/Install/Install'
 import Changelog from './pages/Changelog/Changelog'
+import Transfer from './pages/Transfer/Transfer'
 
 // components
 import { RouteErrorBoundary } from './components/ErrorBoundary/ErrorBoundary'
@@ -41,6 +42,7 @@ export const router = createBrowserRouter(
         { path: '/settings', element: <Settings /> },
         { path: '/settings/install', element: <Install /> },
         { path: '/settings/changelog', element: <Changelog /> },
+        { path: '/settings/transfer', element: <Transfer /> },
         // 未知路徑導回首頁
         { path: '*', element: <Navigate to="/" replace /> },
       ],

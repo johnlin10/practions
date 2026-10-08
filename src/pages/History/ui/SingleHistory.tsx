@@ -11,7 +11,7 @@ import { getStageDisplayName } from '../../../utils/detailed-results'
 import { speakEnglish } from '../../../utils/tts'
 
 // data
-import { getHistoryById } from '@/data/historyStore'
+import { getHistoryById, useHistoryReady } from '@/data/historyStore'
 
 // types
 import { HistoryRecord, DetailedQuestionResult } from '../../../types'
@@ -26,6 +26,7 @@ import { AnswerRecord } from '../../../types/answers'
 
 // data
 import { subjects } from '../../../data/subjects'
+import { showAlert } from '../../../utils/dialog'
 
 // interfaces
 interface AnalyzedQuestion {
@@ -67,8 +68,12 @@ function SingleHistory(): React.ReactElement {
   // 是否按題號排序
   const [sortByQuestionId, setSortByQuestionId] = useState<boolean>(false)
 
+  // 登入中的雲端紀錄到達前不判斷「找不到」
+  const ready = useHistoryReady()
+
   // 獲取歷史記錄
   useEffect(() => {
+    if (!ready) return
     // 從資料層依 id 取得記錄
     const selectedRecord = getHistoryById(id ?? '')
 
@@ -77,9 +82,7 @@ function SingleHistory(): React.ReactElement {
       // 顯示錯誤訊息
       console.warn('找不到指定的歷史記錄:', id)
       navigate('/history')
-      setTimeout(() => {
-        alert('找不到此歷史記錄')
-      }, 100)
+      void showAlert('找不到此歷史記錄')
       return
     }
 
@@ -87,9 +90,7 @@ function SingleHistory(): React.ReactElement {
     if (!selectedRecord.subject || !selectedRecord.subject.id) {
       console.warn('歷史記錄中的 subject 資料不完整:', selectedRecord)
       navigate('/history')
-      setTimeout(() => {
-        alert('此歷史記錄資料不完整，無法查看')
-      }, 100)
+      void showAlert('此歷史記錄資料不完整，無法查看')
       return
     }
 
@@ -104,9 +105,7 @@ function SingleHistory(): React.ReactElement {
       // 如果科目存在且被鎖定，則顯示錯誤訊息
       if (subject && isSubjectLocked(subject)) {
         navigate('/history')
-        setTimeout(() => {
-          alert('此科目目前處於鎖定狀態，無法查看歷史紀錄')
-        }, 100)
+        void showAlert('此科目目前處於鎖定狀態，無法查看歷史紀錄')
         return
       }
     }
@@ -118,7 +117,7 @@ function SingleHistory(): React.ReactElement {
     setRecord(selectedRecord)
     // 清除每 5 秒檢查一次科目是否鎖定
     return () => clearInterval(intervalId)
-  }, [id, navigate])
+  }, [id, navigate, ready])
 
   /**
    * [function] handleClose

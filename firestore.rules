@@ -1,0 +1,15 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 測驗紀錄：只有本人能讀寫；data 為整筆紀錄的 JSON 字串，date 供排序
+    match /users/{uid}/records/{recordId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['date', 'data'])
+        && request.resource.data.date is string
+        && request.resource.data.data is string;
+    }
+    // 其他路徑一律拒絕（未列出的 match 預設即拒絕）
+  }
+}

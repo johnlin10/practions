@@ -4,6 +4,7 @@ import './App.scss'
 
 // components
 import BottomNav from './components/BottomNav/BottomNav'
+import Dialog from './components/Dialog/Dialog'
 
 // data
 import { runMigrations } from '@/data/migrations'
@@ -32,6 +33,7 @@ function App(): React.ReactElement {
       <ScrollRestoration getKey={scrollKey} />
       <BottomNav />
       <Outlet />
+      <Dialog />
     </>
   )
 }

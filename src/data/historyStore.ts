@@ -13,12 +13,17 @@
  *
  * 舊記錄原樣保留：raw 保存 localStorage 讀到的原始物件，寫回時位元組不變；
  * 每題都帶 question 全文的舊記錄完全不經過補題。
+ *
+ * 雲端模式（登入中）：cloud.ts 透過 attachCloud 接上 Firestore，之後讀寫改走雲端，
+ * 記憶體中的 raw / snapshots / cache 結構不變，對外 API 與頁面都不用改。
+ * 登入時 syncLocalToCloud 把本機紀錄併入雲端，伺服器確認後才刪除本機存檔。
+ * 登入中新增（交卷、匯入）的紀錄也先存本機，伺服器確認後才刪除，任何一步失敗紀錄都還在。
  */
 import { useSyncExternalStore } from 'react'
 import type { DetailedQuestionResult, HistoryRecord } from '@/types'
 import { STORAGE_KEYS } from '@/types'
 import { historyRecordSchema } from '@/schemas/history'
-import { write } from '@/utils/storage'
+import { readRaw, remove, write } from '@/utils/storage'
 import { subjects } from '@/data/subjects'
 import type { Question } from '@/types/questions'
 
@@ -41,26 +46,39 @@ function readJson(key: string): unknown {
   }
 }
 
-/**
- * 從 localStorage 載入並逐筆驗證。壞掉的記錄略過。
- */
-function load(): HistoryRecord[] {
+/** 讀取 localStorage 的原始記錄與快照（不驗證）。 */
+function readLocal(): {
+  history: unknown[]
+  snapshots: Record<string, Question>
+} {
   const storedSnapshots = readJson(STORAGE_KEYS.QUESTION_SNAPSHOTS)
-  snapshots =
-    storedSnapshots && typeof storedSnapshots === 'object'
-      ? (storedSnapshots as Record<string, Question>)
-      : {}
-
-  raw = []
   const parsed = readJson(STORAGE_KEYS.QUIZ_HISTORY)
-  if (parsed === undefined) return []
-  if (!Array.isArray(parsed)) {
+  if (parsed !== undefined && !Array.isArray(parsed)) {
     console.warn('[historyStore] 歷史記錄非陣列，視為空紀錄')
-    return []
   }
+  return {
+    history: Array.isArray(parsed) ? parsed : [],
+    snapshots:
+      storedSnapshots && typeof storedSnapshots === 'object'
+        ? (storedSnapshots as Record<string, Question>)
+        : {},
+  }
+}
 
+/** 從 localStorage 載入並逐筆驗證。壞掉的記錄略過。 */
+function load(): HistoryRecord[] {
+  const local = readLocal()
+  snapshots = local.snapshots
+  return parse(local.history)
+}
+
+/**
+ * 逐筆驗證並補題，同時把原始物件存進 raw。壞掉的記錄略過。
+ */
+function parse(items: unknown[]): HistoryRecord[] {
+  raw = []
   const valid: HistoryRecord[] = []
-  parsed.forEach((item, index) => {
+  items.forEach((item, index) => {
     // 無效記錄也原樣留在 raw，寫回時不會被刪掉
     raw.push(item)
     const result = historyRecordSchema.safeParse(item)
@@ -211,27 +229,41 @@ export function getHistoryById(id: string): HistoryRecord | undefined {
 /** 新增一筆記錄並持久化、通知所有訂閱者。 */
 export function addHistoryRecord(record: HistoryRecord): void {
   cache = [...getSnapshot(), record]
-  raw = [...raw, slim(record)]
-  // 先寫快照：記錄寫入失敗只會多出沒被引用的快照，反過來則會缺快照
-  write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
-  write(STORAGE_KEYS.QUIZ_HISTORY, raw)
+  const item = slim(record)
+  raw = [...raw, item]
+  if (cloud) {
+    saveToCloud([item])
+  } else {
+    // 先寫快照：記錄寫入失敗只會多出沒被引用的快照，反過來則會缺快照
+    write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
+    write(STORAGE_KEYS.QUIZ_HISTORY, raw)
+  }
   emit()
 }
 
-/** 清空全部記錄與快照並持久化、通知所有訂閱者。 */
+/** 清空全部記錄與快照並持久化、通知所有訂閱者。登入中會刪除雲端紀錄。 */
 export function clearHistory(): void {
+  const ids = raw.map(idOf).filter((id): id is string => !!id)
   cache = []
   raw = []
   snapshots = {}
-  write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
-  write(STORAGE_KEYS.QUIZ_HISTORY, raw)
+  if (cloud) {
+    cloud.remove(ids).catch((error) => {
+      console.error('[historyStore] 雲端刪除失敗：', error)
+    })
+    // 還沒確認上傳的本機備份也一併清除，避免下次登入又同步回來
+    dropLocal(ids)
+  } else {
+    write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
+    write(STORAGE_KEYS.QUIZ_HISTORY, raw)
+  }
   emit()
 }
 
 const BACKUP_APP = 'practions'
 const BACKUP_VERSION = 1
 
-/** 匯出備份：localStorage 的原始記錄與快照原樣輸出，匯入後位元組不變。 */
+/** 匯出備份：原始記錄與快照原樣輸出，匯入後位元組不變。登入中匯出雲端紀錄。 */
 export function exportHistory(): string {
   getSnapshot()
   return JSON.stringify({
@@ -241,6 +273,46 @@ export function exportHistory(): string {
     history: raw,
     snapshots,
   })
+}
+
+function idOf(item: unknown): unknown {
+  return (item as { id?: unknown })?.id
+}
+
+/**
+ * 依 id 合併記錄：已存在或無效的略過，不覆蓋現有記錄。
+ * 未登入寫入 localStorage；登入中只更新畫面，回傳的 added 由呼叫端寫入雲端。
+ */
+function merge(
+  history: unknown[],
+  incomingSnapshots: unknown,
+): { count: number; added: unknown[] } {
+  const before = getSnapshot().length
+  const ids = new Set(raw.map(idOf))
+  const added: unknown[] = []
+  for (const item of history) {
+    const result = historyRecordSchema.safeParse(item)
+    if (!result.success || ids.has(result.data.id)) continue
+    ids.add(result.data.id)
+    added.push(item)
+  }
+  if (incomingSnapshots && typeof incomingSnapshots === 'object') {
+    // 快照鍵含內容雜湊，同鍵即同內容，合併不會互相覆蓋
+    for (const [key, question] of Object.entries(incomingSnapshots)) {
+      snapshots[key] ??= question as Question
+    }
+  }
+
+  if (cloud) {
+    cache = parse([...raw, ...added])
+  } else {
+    write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
+    write(STORAGE_KEYS.QUIZ_HISTORY, [...raw, ...added])
+    // 從 localStorage 重新載入：寫入失敗（例如容量不足）時畫面與筆數仍反映實際狀態
+    cache = load()
+  }
+  emit()
+  return { count: cache.length - before, added }
 }
 
 /**
@@ -265,29 +337,185 @@ export function importHistory(text: string): number {
   if (typeof data.version !== 'number' || data.version > BACKUP_VERSION) {
     throw new Error('備份檔版本較新，請先更新 Practions')
   }
+  const { count, added } = merge(data.history, data.snapshots)
+  saveToCloud(added)
+  return count
+}
 
-  const before = getSnapshot().length
-  const ids = new Set(raw.map((item) => (item as { id?: unknown })?.id))
-  const added: unknown[] = []
-  for (const item of data.history) {
-    const result = historyRecordSchema.safeParse(item)
-    if (!result.success || ids.has(result.data.id)) continue
-    ids.add(result.data.id)
-    added.push(item)
-  }
-  if (data.snapshots && typeof data.snapshots === 'object') {
-    // 快照鍵含內容雜湊，同鍵即同內容，合併不會互相覆蓋
-    for (const [key, question] of Object.entries(data.snapshots)) {
-      snapshots[key] ??= question as Question
+/* ------------------------------ 雲端模式 ------------------------------ */
+
+/** 雲端的一筆紀錄：data 為原始記錄與其引用快照的 JSON，原樣保存避開 Firestore 的型別限制。 */
+export interface CloudEntry {
+  id: string
+  date: string
+  data: string
+}
+
+/** 雲端寫入端（由 cloud.ts 提供），Promise 在伺服器確認後完成。 */
+export interface CloudSink {
+  save: (entries: CloudEntry[]) => Promise<void>
+  remove: (ids: string[]) => Promise<void>
+}
+
+let cloud: CloudSink | null = null
+// 登入過的瀏覽器在雲端資料到達前視為載入中，避免先閃出「沒有紀錄」
+let ready = !readRaw(STORAGE_KEYS.SIGNED_IN)
+
+// Firestore 單次寫入上限 500 筆、10 MiB：每批最多 100 筆、約 4 MiB
+const BATCH_COUNT = 100
+const BATCH_BYTES = 4 * 1024 * 1024
+
+/** 這筆原始記錄引用到的快照。 */
+function usedSnapshots(item: unknown): Record<string, Question> {
+  const record = item as {
+    results?: {
+      questionResults?: StoredResult[]
+      stageResults?: { questionResults?: StoredResult[] }[]
     }
   }
+  const used: Record<string, Question> = {}
+  const lists = [
+    record.results?.questionResults,
+    ...(record.results?.stageResults?.map((s) => s.questionResults) ?? []),
+  ]
+  for (const list of lists) {
+    for (const r of list ?? []) {
+      if (r.snapshot && snapshots[r.snapshot])
+        used[r.snapshot] = snapshots[r.snapshot]
+    }
+  }
+  return used
+}
 
-  write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
-  write(STORAGE_KEYS.QUIZ_HISTORY, [...raw, ...added])
-  // 從 localStorage 重新載入：寫入失敗（例如容量不足）時畫面與筆數仍反映實際狀態
-  cache = load()
+/** 原始記錄打包成雲端格式：只帶這筆記錄引用到的快照，文件自給自足。 */
+function toCloudEntry(item: unknown): CloudEntry {
+  const record = item as { id: string; date: string | Date }
+  return {
+    id: record.id,
+    date: new Date(record.date).toISOString(),
+    data: JSON.stringify({ record: item, snapshots: usedSnapshots(item) }),
+  }
+}
+
+/**
+ * 依筆數與大小分批寫入雲端。所有批次同時送出：離線時全部排進 Firestore 的佇列，
+ * 不會卡在第一批等確認。Promise 在全部批次都被伺服器確認後完成。
+ */
+function saveEntries(sink: CloudSink, items: unknown[]): Promise<void> {
+  const batches: CloudEntry[][] = []
+  let bytes = 0
+  for (const entry of items.map(toCloudEntry)) {
+    // UTF-16 長度 ×3 為 UTF-8 位元組數的上限
+    const size = entry.data.length * 3
+    const last = batches[batches.length - 1]
+    if (last && last.length < BATCH_COUNT && bytes + size <= BATCH_BYTES) {
+      last.push(entry)
+      bytes += size
+    } else {
+      batches.push([entry])
+      bytes = size
+    }
+  }
+  return Promise.all(batches.map((batch) => sink.save(batch))).then(() => {})
+}
+
+/** 記錄加進 localStorage（含引用的快照）。 */
+function appendLocal(items: unknown[]): void {
+  const local = readLocal()
+  write(STORAGE_KEYS.QUESTION_SNAPSHOTS, {
+    ...local.snapshots,
+    ...Object.assign({}, ...items.map(usedSnapshots)),
+  })
+  write(STORAGE_KEYS.QUIZ_HISTORY, [...local.history, ...items])
+}
+
+/** 從 localStorage 移除指定 id 的記錄；沒有剩下的記錄時連快照一起清除。 */
+function dropLocal(ids: unknown[]): void {
+  const drop = new Set(ids)
+  const rest = readLocal().history.filter((item) => !drop.has(idOf(item)))
+  if (rest.length > 0) {
+    write(STORAGE_KEYS.QUIZ_HISTORY, rest)
+  } else {
+    remove(STORAGE_KEYS.QUIZ_HISTORY)
+    remove(STORAGE_KEYS.QUESTION_SNAPSHOTS)
+  }
+}
+
+/**
+ * 登入中寫入雲端：先在本機存一份，伺服器確認後才刪除。
+ * 離線時關閉 App、雲端拒絕寫入，紀錄都還在本機，下次登入時同步。
+ */
+function saveToCloud(items: unknown[]): void {
+  if (!cloud || items.length === 0) return
+  appendLocal(items)
+  saveEntries(cloud, items)
+    .then(() => dropLocal(items.map(idOf)))
+    .catch((error) => {
+      console.error('[historyStore] 雲端寫入失敗，紀錄保留在本機：', error)
+    })
+}
+
+/** 登入：改用雲端，清空畫面等雲端資料到達。 */
+export function attachCloud(sink: CloudSink): void {
+  cloud = sink
+  ready = false
+  raw = []
+  snapshots = {}
+  cache = []
   emit()
-  return cache.length - before
+}
+
+/** 收到雲端的全部紀錄（依日期排序）。 */
+export function receiveCloud(entries: string[]): void {
+  const items: unknown[] = []
+  snapshots = {}
+  for (const data of entries) {
+    try {
+      const parsed = JSON.parse(data) as {
+        record: unknown
+        snapshots?: Record<string, Question>
+      }
+      Object.assign(snapshots, parsed.snapshots)
+      items.push(parsed.record)
+    } catch (error) {
+      console.warn('[historyStore] 略過無法解析的雲端紀錄：', error)
+    }
+  }
+  cache = parse(items)
+  ready = true
+  emit()
+}
+
+/** 登出或確認未登入：回到 localStorage。 */
+export function detachCloud(): void {
+  cloud = null
+  ready = true
+  cache = null
+  emit()
+}
+
+/**
+ * 把這個瀏覽器的本機紀錄合併進雲端，伺服器確認後刪除本機存檔。
+ * 回傳新增到雲端的筆數。寫入失敗時保留本機存檔，下次登入再試。
+ */
+export async function syncLocalToCloud(): Promise<number> {
+  const local = readLocal()
+  if (!cloud || local.history.length === 0) return 0
+  const { count, added } = merge(local.history, local.snapshots)
+  await saveEntries(cloud, added)
+  // 只刪除這次同步的記錄：等待確認期間新交卷的記錄有自己的本機備份
+  // ponytail: 驗證不過的本機紀錄（本來就不會顯示）不上傳，一併刪除
+  dropLocal(local.history.map(idOf))
+  return count
+}
+
+function getReady(): boolean {
+  return ready
+}
+
+/** React hook：雲端紀錄是否已載入（未登入時永遠為 true）。 */
+export function useHistoryReady(): boolean {
+  return useSyncExternalStore(subscribe, getReady)
 }
 
 /**

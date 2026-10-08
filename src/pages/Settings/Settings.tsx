@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Settings.scss'
 import packageJson from '../../../package.json'
@@ -6,8 +6,10 @@ import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types'
 import Stepper from '../../components/Stepper/Stepper'
 import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
-import { exportHistory, importHistory } from '@/data/historyStore'
+import { downloadBackup, importBackup } from '@/utils/backup'
 import { updateSettings, useSettingsStore } from '@/data/settingsStore'
+import { isLegacySite, signIn, signOut, useAuth } from '@/data/authStore'
+import { showAlert, showConfirm } from '@/utils/dialog'
 import {
   getSystemTheme,
   useResolvedTheme,
@@ -18,6 +20,37 @@ const THEME_OPTIONS: { value: ResolvedTheme; label: string; icon: string }[] = [
   { value: 'light', label: '淺色', icon: 'light_mode' },
   { value: 'dark', label: '深色', icon: 'dark_mode' },
 ]
+
+// 帳號列的同步狀態
+const SYNC_LABELS = {
+  synced: { icon: 'check', label: '已同步' },
+  syncing: { icon: 'sync', label: '同步中' },
+  offline: { icon: 'cloud_off', label: '離線' },
+} as const
+
+/** Google 標誌（官方配色） */
+function GoogleIcon(): React.ReactElement {
+  return (
+    <svg className="google-icon" viewBox="0 0 48 48" aria-hidden="true">
+      <path
+        fill="#EA4335"
+        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+      />
+      <path
+        fill="#4285F4"
+        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+      />
+    </svg>
+  )
+}
 
 /**
  * Settings component
@@ -42,45 +75,69 @@ function Settings(): React.ReactElement {
     updateSettings({ theme: e.target.checked ? 'system' : getSystemTheme() })
   }
 
-  const clearHistory = (): void => {
-    if (window.confirm(`確定要清除 ${history.length} 筆測驗紀錄嗎？`)) {
-      clearAllHistory()
+  // 帳號：登入後測驗紀錄改存雲端
+  const auth = useAuth()
+  const signedIn = auth.status === 'signed-in'
+  const [authBusy, setAuthBusy] = useState<boolean>(false)
+  const [avatarFailed, setAvatarFailed] = useState<boolean>(false)
+
+  const handleSignIn = async (): Promise<void> => {
+    if (authBusy || auth.status !== 'guest') return
+    setAuthBusy(true)
+    try {
+      await signIn()
+    } catch (error) {
+      void showAlert((error as Error).message)
+    } finally {
+      setAuthBusy(false)
     }
+  }
+
+  const handleSignOut = async (): Promise<void> => {
+    if (authBusy) return
+    const ok = await showConfirm('測驗紀錄會保留在雲端，下次登入即可看到。', {
+      title: '確定要登出嗎？',
+      confirmText: '登出',
+    })
+    if (!ok) return
+    setAuthBusy(true)
+    try {
+      await signOut()
+    } catch (error) {
+      void showAlert((error as Error).message)
+      setAuthBusy(false)
+    }
+  }
+
+  const clearHistory = async (): Promise<void> => {
+    const ok = await showConfirm(
+      signedIn
+        ? '雲端與所有裝置上的紀錄都會一併刪除，且無法復原。'
+        : '清除後無法復原。',
+      {
+        title: `確定要清除 ${history.length} 筆測驗紀錄嗎？`,
+        confirmText: '清除',
+        danger: true,
+      },
+    )
+    if (ok) clearAllHistory()
   }
 
   const handleClearHistoryClick = (): void => {
     if (!hasHistory) return
-    clearHistory()
+    void clearHistory()
   }
 
   const handleExportClick = (): void => {
-    if (!hasHistory) return
-    const url = URL.createObjectURL(
-      new Blob([exportHistory()], { type: 'application/json' }),
-    )
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `practions-history-${new Date().toLocaleDateString('sv')}.json`
-    link.click()
-    URL.revokeObjectURL(url)
+    if (hasHistory) void downloadBackup()
   }
 
   const importInputRef = useRef<HTMLInputElement>(null)
-  const handleImportFile = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ): Promise<void> => {
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0]
     // 清空讓同一個檔案可以再選一次
     e.target.value = ''
-    if (!file) return
-    try {
-      const count = importHistory(await file.text())
-      window.alert(
-        count > 0 ? `已匯入 ${count} 筆測驗紀錄` : '沒有新的測驗紀錄可匯入',
-      )
-    } catch (error) {
-      window.alert(`匯入失敗：${(error as Error).message}`)
-    }
+    if (file) void importBackup(file)
   }
 
   const openLink = (url: string): void => {
@@ -106,6 +163,116 @@ function Settings(): React.ReactElement {
         <h1>設定</h1>
 
         <div className="settings-list">
+          <div className="settings-list-group has-title">
+            <h5>帳號</h5>
+            {isLegacySite ? (
+              <>
+                {/* 先說明為什麼，再依順序列出動作：先轉移紀錄，再前往新網址 */}
+                <div className="settings-list-group-item notice">
+                  <p>
+                    <span className="material-symbols-outlined icon">info</span>
+                    <span>
+                      網址已改為
+                      practions.app，登入功能只在新網址提供。請先轉移測驗紀錄，再到新網址登入。
+                    </span>
+                  </p>
+                </div>
+                <div
+                  className="settings-list-group-item action"
+                  onClick={() => navigate('/settings/transfer')}
+                >
+                  <p>
+                    <span className="material-symbols-outlined icon">
+                      swap_horiz
+                    </span>
+                    如何轉移資料
+                  </p>
+                  <span className="material-symbols-rounded icon">
+                    chevron_right
+                  </span>
+                </div>
+                <div
+                  className="settings-list-group-item action"
+                  onClick={() => openLink('https://practions.app')}
+                >
+                  <p>
+                    <span className="material-symbols-outlined icon">
+                      open_in_new
+                    </span>
+                    前往新網址 practions.app
+                  </p>
+                </div>
+              </>
+            ) : signedIn ? (
+              <>
+                <div className="settings-list-group-item account">
+                  <p>
+                    {auth.photoURL && !avatarFailed ? (
+                      <img
+                        className="avatar"
+                        src={auth.photoURL}
+                        alt=""
+                        // Google 頭像帶 Referer 時可能被拒
+                        referrerPolicy="no-referrer"
+                        onError={() => setAvatarFailed(true)}
+                      />
+                    ) : (
+                      <span className="material-symbols-outlined icon">
+                        account_circle
+                      </span>
+                    )}
+                    <span className="email" title={auth.email}>
+                      {auth.email}
+                    </span>
+                  </p>
+                  <p className="info">
+                    <span className="material-symbols-outlined icon">
+                      {SYNC_LABELS[auth.sync ?? 'syncing'].icon}
+                    </span>
+                    {SYNC_LABELS[auth.sync ?? 'syncing'].label}
+                  </p>
+                </div>
+                <div
+                  className={`settings-list-group-item action ${
+                    authBusy ? 'disabled' : ''
+                  }`}
+                  onClick={handleSignOut}
+                >
+                  <p>
+                    <span className="material-symbols-outlined icon">
+                      logout
+                    </span>
+                    登出
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div
+                className={`settings-list-group-item action ${
+                  auth.status !== 'guest' || authBusy ? 'disabled' : ''
+                }`}
+                onClick={handleSignIn}
+              >
+                <p>
+                  <GoogleIcon />
+                  {auth.status === 'checking'
+                    ? '正在確認登入狀態'
+                    : '使用 Google 登入'}
+                </p>
+              </div>
+            )}
+            {auth.error && (
+              <div className="settings-list-group-item">
+                <p className="info">{auth.error}</p>
+              </div>
+            )}
+          </div>
+          {!isLegacySite && !signedIn && (
+            <p className="settings-list-note">
+              登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。
+            </p>
+          )}
+
           <div className="settings-list-group has-title">
             <h5>主題設定</h5>
             <label className="settings-list-group-item action">
@@ -209,6 +376,20 @@ function Settings(): React.ReactElement {
                 <span className="material-symbols-outlined icon">upload</span>
                 匯入測驗紀錄
               </p>
+            </div>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => navigate('/settings/transfer')}
+            >
+              <p>
+                <span className="material-symbols-outlined icon">
+                  swap_horiz
+                </span>
+                如何轉移資料
+              </p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
             </div>
             <div
               className={`settings-list-group-item action ${

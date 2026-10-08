@@ -5,7 +5,7 @@ import { INSTALL_TITLE, INSTALL_DESCRIPTION } from './meta'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { useResolvedTheme } from '@/utils/theme'
 
-const SITE_URL = 'practions.web.app'
+const SITE_URL = 'practions.app'
 
 type Platform = 'ios' | 'android'
 

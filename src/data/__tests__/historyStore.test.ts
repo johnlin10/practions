@@ -365,6 +365,172 @@ describe('匯出 / 匯入', () => {
   })
 })
 
+describe('登入後的雲端模式', () => {
+  // 模擬 Firestore：save 存進 Map，receive 模擬 onSnapshot 依日期送回全部紀錄
+  // pause() 後的寫入要等 release() 才被確認（模擬離線），batches 記錄每批筆數
+  const fakeCloud = (failSave = false) => {
+    const docs = new Map<string, { date: string; data: string }>()
+    const batches: number[] = []
+    const held: (() => void)[] = []
+    let paused = false
+    return {
+      docs,
+      batches,
+      pause: () => {
+        paused = true
+      },
+      release: () => held.shift()?.(),
+      sink: {
+        save: async (entries: { id: string; date: string; data: string }[]) => {
+          batches.push(entries.length)
+          if (paused) await new Promise<void>((resolve) => held.push(resolve))
+          if (failSave) throw new Error('permission-denied')
+          entries.forEach(({ id, ...d }) => docs.set(id, d))
+        },
+        remove: async (ids: string[]) => {
+          ids.forEach((id) => docs.delete(id))
+        },
+      },
+      all: () =>
+        [...docs.values()]
+          .sort((a, b) => a.date.localeCompare(b.date))
+          .map((d) => d.data),
+    }
+  }
+
+  it('登入時本機紀錄併入雲端（重複 id 略過），確認寫入後刪除本機存檔', async () => {
+    const a = newStandard('20260925000000-aaaa')
+    const b = newStandard('20260926000000-bbbb', accounting.slice(3, 5))
+    const local = await loadStore()
+    local.addHistoryRecord(a)
+    local.addHistoryRecord(b)
+
+    // 另一台裝置已經上傳過 a
+    const cloud = fakeCloud()
+    const other = await loadStore()
+    other.attachCloud(cloud.sink)
+    other.receiveCloud([])
+    other.addHistoryRecord(a)
+    await Promise.resolve()
+
+    const store = await loadStore()
+    store.attachCloud(cloud.sink)
+    store.receiveCloud(cloud.all())
+    expect(await store.syncLocalToCloud()).toBe(1)
+    expect(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)).toBeNull()
+    expect(localStorage.getItem(STORAGE_KEYS.QUESTION_SNAPSHOTS)).toBeNull()
+
+    // 換一台裝置登入：從雲端讀回，與交卷當下相同
+    const fresh = await loadStore()
+    fresh.attachCloud(cloud.sink)
+    expect(fresh.getAllHistory()).toEqual([])
+    fresh.receiveCloud(cloud.all())
+    expect(fresh.getAllHistory()).toEqual([a, b])
+  })
+
+  it('雲端拒絕寫入時，同步保留本機存檔，新紀錄存回本機', async () => {
+    const a = newStandard('20260925000000-aaaa')
+    ;(await loadStore()).addHistoryRecord(a)
+    const before = localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)
+
+    const store = await loadStore()
+    store.attachCloud(fakeCloud(true).sink)
+    store.receiveCloud([])
+    await expect(store.syncLocalToCloud()).rejects.toThrow()
+    expect(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)).toBe(before)
+
+    const b = newStandard('20260926000000-bbbb', accounting.slice(3, 5))
+    store.addHistoryRecord(b)
+    await new Promise((resolve) => setTimeout(resolve))
+    store.detachCloud()
+    expect(store.getAllHistory()).toEqual([a, b])
+  })
+
+  const flush = () => new Promise((resolve) => setTimeout(resolve))
+
+  it('登入中交卷先存本機：離線關閉 App 紀錄還在，雲端確認後才刪除本機備份', async () => {
+    const a = newStandard('20260925000000-aaaa')
+    const cloud = fakeCloud()
+    cloud.pause()
+    const store = await loadStore()
+    store.attachCloud(cloud.sink)
+    store.receiveCloud([])
+    store.addHistoryRecord(a)
+
+    // 還沒確認就關閉 App：重新開啟時從本機讀得到
+    expect((await loadStore()).getAllHistory()).toEqual([a])
+
+    cloud.release()
+    await flush()
+    expect(cloud.docs.has(a.id)).toBe(true)
+    expect(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)).toBeNull()
+    expect(localStorage.getItem(STORAGE_KEYS.QUESTION_SNAPSHOTS)).toBeNull()
+  })
+
+  it('同步等待確認期間交卷，新紀錄的本機備份不會被同步刪除', async () => {
+    const a = newStandard('20260925000000-aaaa')
+    const b = newStandard('20260926000000-bbbb', accounting.slice(3, 5))
+    ;(await loadStore()).addHistoryRecord(a)
+
+    const cloud = fakeCloud()
+    cloud.pause()
+    const store = await loadStore()
+    store.attachCloud(cloud.sink)
+    store.receiveCloud([])
+    const syncing = store.syncLocalToCloud()
+    store.addHistoryRecord(b)
+
+    // 同步先確認：只刪 a，b 還在等確認
+    cloud.release()
+    expect(await syncing).toBe(1)
+    expect(stored()).toEqual([expect.objectContaining({ id: b.id })])
+
+    cloud.release()
+    await flush()
+    expect(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)).toBeNull()
+    expect([...cloud.docs.keys()]).toEqual([a.id, b.id])
+  })
+
+  it('登入中匯入時雲端拒絕寫入，紀錄保留在本機', async () => {
+    const a = newStandard('20260925000000-aaaa')
+    const guest = await loadStore()
+    guest.addHistoryRecord(a)
+    const backup = guest.exportHistory()
+    localStorage.clear()
+
+    const store = await loadStore()
+    store.attachCloud(fakeCloud(true).sink)
+    store.receiveCloud([])
+    expect(store.importHistory(backup)).toBe(1)
+    await flush()
+    store.detachCloud()
+    expect(store.getAllHistory()).toEqual([a])
+  })
+
+  it('大量紀錄依筆數與大小分批上傳', async () => {
+    const store = await loadStore()
+    const cloud = fakeCloud()
+    store.attachCloud(cloud.sink)
+    store.receiveCloud([])
+    const backup = (history: unknown[]) =>
+      JSON.stringify({ app: 'practions', version: 1, history, snapshots: {} })
+
+    // 每批最多 100 筆
+    store.importHistory(
+      backup(Array.from({ length: 250 }, (_, i) => newStandard(`count-${i}`))),
+    )
+    expect(cloud.batches).toEqual([100, 100, 50])
+
+    // 每批約 4 MiB：每筆約 1.5 MB，兩筆一批
+    cloud.batches.length = 0
+    const big = (id: string) => ({ ...newStandard(id), note: 'x'.repeat(5e5) })
+    store.importHistory(backup([big('big-1'), big('big-2'), big('big-3')]))
+    expect(cloud.batches).toEqual([2, 1])
+    await flush()
+    expect(cloud.docs.size).toBe(253)
+  })
+})
+
 it('每個科目的題目 id 都不重複', () => {
   for (const subject of Object.values(subjects)) {
     const ids = subject.questions.map((q) => q.id)
