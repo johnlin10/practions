@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './Settings.scss'
 import packageJson from '../../../package.json'
 import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types'
@@ -8,7 +8,13 @@ import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { downloadBackup, importBackup } from '@/utils/backup'
 import { updateSettings, useSettingsStore } from '@/data/settingsStore'
-import { isLegacySite, signIn, signOut, useAuth } from '@/data/authStore'
+import {
+  deleteAccount,
+  isLegacySite,
+  signIn,
+  signOut,
+  useAuth,
+} from '@/data/authStore'
 import { showAlert, showConfirm } from '@/utils/dialog'
 import {
   getSystemTheme,
@@ -103,6 +109,29 @@ function Settings(): React.ReactElement {
     setAuthBusy(true)
     try {
       await signOut()
+    } catch (error) {
+      void showAlert((error as Error).message)
+      setAuthBusy(false)
+    }
+  }
+
+  const handleDeleteAccount = async (): Promise<void> => {
+    if (authBusy) return
+    const ok = await showConfirm(
+      `您在 Practions 的帳號與所有雲端測驗紀錄${
+        hasHistory ? `（${history.length} 筆）` : ''
+      }都會永久刪除，這台裝置上的紀錄也會一併清除，且無法復原。\n\n需要保留紀錄的話，請先匯出測驗紀錄。`,
+      {
+        title: '確定要刪除帳號嗎？',
+        confirmText: '刪除帳號',
+        danger: true,
+      },
+    )
+    if (!ok) return
+    setAuthBusy(true)
+    try {
+      // 成功時會重新整理頁面；取消確認身分時恢復按鈕
+      if (!(await deleteAccount())) setAuthBusy(false)
     } catch (error) {
       void showAlert((error as Error).message)
       setAuthBusy(false)
@@ -269,7 +298,9 @@ function Settings(): React.ReactElement {
           </div>
           {!isLegacySite && !signedIn && (
             <p className="settings-list-note">
-              登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。
+              登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。登入即表示同意
+              <Link to="/settings/terms">使用條款</Link>與
+              <Link to="/settings/privacy">隱私權政策</Link>。
             </p>
           )}
 
@@ -466,6 +497,46 @@ function Settings(): React.ReactElement {
               <p className="info">johnlin@johnlin.me</p>
             </div>
           </div>
+          <div className="settings-list-group has-title">
+            <h5>條款與隱私政策</h5>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => navigate('/settings/terms')}
+            >
+              <p>使用條款</p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
+            </div>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => navigate('/settings/privacy')}
+            >
+              <p>隱私權政策</p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
+            </div>
+          </div>
+          {/* 不常用的操作放最下面，避免太顯眼 */}
+          {signedIn && (
+            <div className="settings-list-group has-title">
+              <h5>帳號管理</h5>
+              <div
+                className={`settings-list-group-item action ${
+                  authBusy ? 'disabled' : ''
+                }`}
+                onClick={handleDeleteAccount}
+              >
+                <p>
+                  <span className="material-symbols-outlined icon">
+                    person_remove
+                  </span>
+                  刪除帳號
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="copyright">

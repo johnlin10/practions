@@ -13,6 +13,14 @@ import {
   TRANSFER_TITLE,
   TRANSFER_DESCRIPTION,
 } from './src/pages/Transfer/meta'
+import {
+  PRIVACY_PATH,
+  PRIVACY_TITLE,
+  PRIVACY_DESCRIPTION,
+  TERMS_PATH,
+  TERMS_TITLE,
+  TERMS_DESCRIPTION,
+} from './src/pages/Legal/meta'
 
 // 需要自己的標題與描述（分享連結預覽）的頁面
 const PAGES = [
@@ -26,6 +34,12 @@ const PAGES = [
     title: TRANSFER_TITLE,
     description: TRANSFER_DESCRIPTION,
   },
+  {
+    path: PRIVACY_PATH,
+    title: PRIVACY_TITLE,
+    description: PRIVACY_DESCRIPTION,
+  },
+  { path: TERMS_PATH, title: TERMS_TITLE, description: TERMS_DESCRIPTION },
 ]
 
 /**
