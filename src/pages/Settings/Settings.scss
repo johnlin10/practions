@@ -137,6 +137,17 @@
       -moz-border-radius: 0;
       -ms-border-radius: 0;
       -o-border-radius: 0;
+
+    }
+
+    // 首末項配合外框內緣圓角（12px - 2px 外框），hover 背景才不會凸出
+    > .settings-list-group-item:nth-child(1 of .settings-list-group-item) {
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+    > .settings-list-group-item:last-child {
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
     }
   }
 
