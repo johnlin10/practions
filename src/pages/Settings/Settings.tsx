@@ -6,7 +6,7 @@ import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types'
 import Stepper from '../../components/Stepper/Stepper'
 import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
-import { exportHistory, importHistory } from '@/data/historyStore'
+import { downloadBackup, importBackup } from '@/utils/backup'
 import { updateSettings, useSettingsStore } from '@/data/settingsStore'
 import { signIn, signOut, useAuth } from '@/data/authStore'
 import { showAlert, showConfirm } from '@/utils/dialog'
@@ -129,33 +129,15 @@ function Settings(): React.ReactElement {
   }
 
   const handleExportClick = (): void => {
-    if (!hasHistory) return
-    const url = URL.createObjectURL(
-      new Blob([exportHistory()], { type: 'application/json' }),
-    )
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `practions-history-${new Date().toLocaleDateString('sv')}.json`
-    link.click()
-    URL.revokeObjectURL(url)
+    if (hasHistory) void downloadBackup()
   }
 
   const importInputRef = useRef<HTMLInputElement>(null)
-  const handleImportFile = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ): Promise<void> => {
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0]
     // 清空讓同一個檔案可以再選一次
     e.target.value = ''
-    if (!file) return
-    try {
-      const count = importHistory(await file.text())
-      void showAlert(
-        count > 0 ? `已匯入 ${count} 筆測驗紀錄` : '沒有新的測驗紀錄可匯入',
-      )
-    } catch (error) {
-      void showAlert((error as Error).message, { title: '匯入失敗' })
-    }
+    if (file) void importBackup(file)
   }
 
   const openLink = (url: string): void => {
@@ -356,6 +338,20 @@ function Settings(): React.ReactElement {
                 <span className="material-symbols-outlined icon">upload</span>
                 匯入測驗紀錄
               </p>
+            </div>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => navigate('/settings/transfer')}
+            >
+              <p>
+                <span className="material-symbols-outlined icon">
+                  swap_horiz
+                </span>
+                如何轉移資料
+              </p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
             </div>
             <div
               className={`settings-list-group-item action ${

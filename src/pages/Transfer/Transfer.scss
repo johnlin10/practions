@@ -1,0 +1,79 @@
+.transfer-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 24px;
+  padding-left: 1.5em;
+  color: var(--foreground-900);
+
+  // 維持 list-item 才會顯示編號，不能改成 flex
+  > li {
+    > * + * {
+      margin-top: 8px;
+    }
+
+    &::marker {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    > h3 {
+      font-size: 1rem;
+    }
+
+    > p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-color);
+    }
+  }
+}
+
+.transfer-steps > li > .transfer-button {
+  width: fit-content;
+  gap: 6px;
+  margin-top: 12px;
+
+  > span {
+    font-size: 1.2rem;
+  }
+
+  &.primary {
+    font-weight: 600;
+    color: var(--text-white);
+    background-color: var(--primary-color);
+    border-color: var(--primary-dark-color);
+    box-shadow: 0 3px 0 var(--primary-dark-color);
+
+    &:not(:disabled):hover {
+      background-color: var(--primary-dark-color);
+      border-color: var(--primary-darker-color);
+      box-shadow: 0 3px 0 var(--primary-darker-color);
+    }
+
+    // 上面的 :hover 權重高於全域 button 的 :active，需另外收回陰影
+    &:not(:disabled):active {
+      box-shadow: 0 0 0 var(--primary-darker-color);
+    }
+  }
+}
+
+// 提高權重：蓋過 App.scss 頁面描述段落（.page-container > p）的淡色
+.page-container > .transfer-note {
+  display: flex;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 12px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--foreground-700);
+  // 與設定頁列表相同的外框
+  border: 2px solid var(--divider-color);
+  border-radius: 12px;
+
+  > span {
+    font-size: 1.2rem;
+    line-height: 1.44rem;
+    color: var(--text-muted-color);
+  }
+}
