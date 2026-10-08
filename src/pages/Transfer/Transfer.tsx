@@ -5,6 +5,37 @@ import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { downloadBackup, importBackup } from '@/utils/backup'
 
 /**
+ * [component] PlatformNotes
+ * iPhone 與 Android 操作不同的地方，兩者並列說明
+ */
+function PlatformNotes({
+  ios,
+  android,
+}: {
+  ios: string
+  android: string
+}): React.ReactElement {
+  return (
+    <ul className="transfer-platforms">
+      <li>
+        <span className="material-symbols-rounded">phone_iphone</span>
+        <span>
+          <strong>iPhone</strong>
+          {ios}
+        </span>
+      </li>
+      <li>
+        <span className="material-symbols-rounded">android</span>
+        <span>
+          <strong>Android</strong>
+          {android}
+        </span>
+      </li>
+    </ul>
+  )
+}
+
+/**
  * [page] Transfer component
  * 教學頁面：把測驗紀錄從舊網址（practions.web.app）或舊手機轉移到新的 Practions
  * 舊網址與 practions.app 的紀錄分開保存，主畫面 App 也與瀏覽器分開，只能用備份檔搬
@@ -40,9 +71,12 @@ function Transfer(): React.ReactElement {
             <h3>在舊的 Practions 匯出紀錄</h3>
             <p>
               開啟原本使用的 Practions（舊的主畫面 App 或
-              practions.web.app），到「設定」點「匯出測驗紀錄」。iPhone
-              會跳出分享選單，請點「儲存到檔案」。
+              practions.web.app），到「設定」點「匯出測驗紀錄」，把備份檔存到手機。
             </p>
+            <PlatformNotes
+              ios="在跳出的分享選單點「儲存到檔案」"
+              android="備份檔會直接存到「下載」資料夾"
+            />
             <button
               className="transfer-button primary"
               disabled={history.length === 0}
@@ -56,9 +90,8 @@ function Transfer(): React.ReactElement {
           </li>
           <li>
             <h3>安裝新的 Practions</h3>
-            <p>
-              用 Safari（Android 用 Chrome）開啟 practions.app，加入主畫面。
-            </p>
+            <p>開啟 practions.app，加入主畫面。</p>
+            <PlatformNotes ios="使用 Safari 開啟" android="使用 Chrome 開啟" />
             <button
               className="transfer-button"
               onClick={() => navigate('/settings/install')}
@@ -75,6 +108,10 @@ function Transfer(): React.ReactElement {
               從主畫面開啟新的
               Practions，到「設定」點「匯入測驗紀錄」，選擇剛剛儲存的備份檔。已經有的紀錄不會重複匯入。
             </p>
+            <PlatformNotes
+              ios="備份檔在「檔案」App 裡"
+              android="備份檔在「下載」資料夾裡"
+            />
             <input
               ref={importInputRef}
               type="file"

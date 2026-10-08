@@ -22,6 +22,17 @@
         border-bottom: 2px solid var(--divider-color);
       }
 
+      // 多行說明（舊網址的帳號區塊）：圖示對齊第一行
+      &.notice > p {
+        align-items: flex-start;
+        gap: 6px;
+        line-height: 1.6;
+
+        > .icon {
+          line-height: 1.44rem;
+        }
+      }
+
       &.action {
         cursor: pointer;
 

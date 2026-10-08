@@ -29,6 +29,34 @@
   }
 }
 
+// iPhone 與 Android 並列：同樣的圖示、字級與排版
+.transfer-steps > li > .transfer-platforms {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  list-style: none;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-color);
+
+  > li {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+
+    > .material-symbols-rounded {
+      font-size: 1.1rem;
+      line-height: 1.44rem;
+      color: var(--text-muted-color);
+    }
+
+    strong {
+      margin-right: 6px;
+      font-weight: 600;
+    }
+  }
+}
+
 .transfer-steps > li > .transfer-button {
   width: fit-content;
   gap: 6px;

@@ -167,15 +167,14 @@ function Settings(): React.ReactElement {
             <h5>帳號</h5>
             {isLegacySite ? (
               <>
-                <div
-                  className="settings-list-group-item action"
-                  onClick={() => openLink('https://practions.app')}
-                >
+                {/* 先說明為什麼，再依順序列出動作：先轉移紀錄，再前往新網址 */}
+                <div className="settings-list-group-item notice">
                   <p>
-                    <span className="material-symbols-outlined icon">
-                      open_in_new
+                    <span className="material-symbols-outlined icon">info</span>
+                    <span>
+                      網址已改為
+                      practions.app，登入功能只在新網址提供。請先轉移測驗紀錄，再到新網址登入。
                     </span>
-                    前往新網址 practions.app
                   </p>
                 </div>
                 <div
@@ -191,6 +190,17 @@ function Settings(): React.ReactElement {
                   <span className="material-symbols-rounded icon">
                     chevron_right
                   </span>
+                </div>
+                <div
+                  className="settings-list-group-item action"
+                  onClick={() => openLink('https://practions.app')}
+                >
+                  <p>
+                    <span className="material-symbols-outlined icon">
+                      open_in_new
+                    </span>
+                    前往新網址 practions.app
+                  </p>
                 </div>
               </>
             ) : signedIn ? (
@@ -257,17 +267,10 @@ function Settings(): React.ReactElement {
               </div>
             )}
           </div>
-          {isLegacySite ? (
+          {!isLegacySite && !signedIn && (
             <p className="settings-list-note">
-              網址已改為
-              practions.app，登入功能只在新網址提供。請先轉移測驗紀錄，再到新網址登入。
+              登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。
             </p>
-          ) : (
-            !signedIn && (
-              <p className="settings-list-note">
-                登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。
-              </p>
-            )
           )}
 
           <div className="settings-list-group has-title">
