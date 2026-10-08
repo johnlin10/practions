@@ -230,3 +230,10 @@
   font-size: 0.8rem;
   color: var(--text-muted-color);
 }
+
+// 登入說明裡的條款連結
+.settings-list > .settings-list-note > a {
+  color: inherit;
+  text-decoration: underline;
+  border-radius: 0;
+}

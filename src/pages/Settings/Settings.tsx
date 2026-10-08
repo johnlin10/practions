@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './Settings.scss'
 import packageJson from '../../../package.json'
 import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types'
@@ -269,7 +269,9 @@ function Settings(): React.ReactElement {
           </div>
           {!isLegacySite && !signedIn && (
             <p className="settings-list-note">
-              登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。
+              登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。登入即表示同意
+              <Link to="/settings/terms">使用條款</Link>與
+              <Link to="/settings/privacy">隱私權政策</Link>。
             </p>
           )}
 
@@ -464,6 +466,27 @@ function Settings(): React.ReactElement {
             >
               <p>聯絡方式</p>
               <p className="info">johnlin@johnlin.me</p>
+            </div>
+          </div>
+          <div className="settings-list-group has-title">
+            <h5>條款與隱私政策</h5>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => navigate('/settings/terms')}
+            >
+              <p>使用條款</p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
+            </div>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => navigate('/settings/privacy')}
+            >
+              <p>隱私權政策</p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
             </div>
           </div>
         </div>
