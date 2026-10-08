@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Settings.scss'
 import packageJson from '../../../package.json'
@@ -8,6 +8,7 @@ import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { exportHistory, importHistory } from '@/data/historyStore'
 import { updateSettings, useSettingsStore } from '@/data/settingsStore'
+import { signIn, signOut, useAuth } from '@/data/authStore'
 import {
   getSystemTheme,
   useResolvedTheme,
@@ -42,8 +43,43 @@ function Settings(): React.ReactElement {
     updateSettings({ theme: e.target.checked ? 'system' : getSystemTheme() })
   }
 
+  // 帳號：登入後測驗紀錄改存雲端
+  const auth = useAuth()
+  const signedIn = auth.status === 'signed-in'
+  const [authBusy, setAuthBusy] = useState<boolean>(false)
+
+  const handleSignIn = async (): Promise<void> => {
+    if (authBusy || auth.status !== 'guest') return
+    setAuthBusy(true)
+    try {
+      await signIn()
+    } catch (error) {
+      window.alert((error as Error).message)
+    } finally {
+      setAuthBusy(false)
+    }
+  }
+
+  const handleSignOut = async (): Promise<void> => {
+    if (authBusy) return
+    if (
+      !window.confirm('確定要登出嗎？測驗紀錄會保留在雲端，下次登入即可看到。')
+    )
+      return
+    setAuthBusy(true)
+    try {
+      await signOut()
+    } catch (error) {
+      window.alert((error as Error).message)
+      setAuthBusy(false)
+    }
+  }
+
   const clearHistory = (): void => {
-    if (window.confirm(`確定要清除 ${history.length} 筆測驗紀錄嗎？`)) {
+    const message = signedIn
+      ? `確定要清除 ${history.length} 筆測驗紀錄嗎？雲端與所有裝置上的紀錄都會一併刪除。`
+      : `確定要清除 ${history.length} 筆測驗紀錄嗎？`
+    if (window.confirm(message)) {
       clearAllHistory()
     }
   }
@@ -106,6 +142,60 @@ function Settings(): React.ReactElement {
         <h1>設定</h1>
 
         <div className="settings-list">
+          <div className="settings-list-group has-title">
+            <h5>帳號</h5>
+            {signedIn ? (
+              <>
+                <div className="settings-list-group-item">
+                  <p>
+                    <span className="material-symbols-outlined icon">
+                      account_circle
+                    </span>
+                    {auth.email}
+                  </p>
+                  <p className="info">
+                    {auth.synced
+                      ? `已同步 ${auth.synced} 筆本機紀錄`
+                      : '紀錄已同步'}
+                  </p>
+                </div>
+                <div
+                  className={`settings-list-group-item action ${
+                    authBusy ? 'disabled' : ''
+                  }`}
+                  onClick={handleSignOut}
+                >
+                  <p>
+                    <span className="material-symbols-outlined icon">
+                      logout
+                    </span>
+                    登出
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div
+                className={`settings-list-group-item action ${
+                  auth.status !== 'guest' || authBusy ? 'disabled' : ''
+                }`}
+                onClick={handleSignIn}
+              >
+                <p>
+                  <span className="material-symbols-outlined icon">login</span>
+                  {auth.status === 'checking'
+                    ? '正在確認登入狀態'
+                    : '使用 Google 登入'}
+                </p>
+                <p className="info">紀錄自動同步到雲端</p>
+              </div>
+            )}
+            {auth.error && (
+              <div className="settings-list-group-item">
+                <p className="info">{auth.error}</p>
+              </div>
+            )}
+          </div>
+
           <div className="settings-list-group has-title">
             <h5>主題設定</h5>
             <label className="settings-list-group-item action">

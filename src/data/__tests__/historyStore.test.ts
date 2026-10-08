@@ -365,6 +365,77 @@ describe('匯出 / 匯入', () => {
   })
 })
 
+describe('登入後的雲端模式', () => {
+  // 模擬 Firestore：save 存進 Map，receive 模擬 onSnapshot 依日期送回全部紀錄
+  const fakeCloud = (failSave = false) => {
+    const docs = new Map<string, { date: string; data: string }>()
+    return {
+      docs,
+      sink: {
+        save: async (entries: { id: string; date: string; data: string }[]) => {
+          if (failSave) throw new Error('permission-denied')
+          entries.forEach(({ id, ...d }) => docs.set(id, d))
+        },
+        remove: async (ids: string[]) => {
+          ids.forEach((id) => docs.delete(id))
+        },
+      },
+      all: () =>
+        [...docs.values()]
+          .sort((a, b) => a.date.localeCompare(b.date))
+          .map((d) => d.data),
+    }
+  }
+
+  it('登入時本機紀錄併入雲端（重複 id 略過），確認寫入後刪除本機存檔', async () => {
+    const a = newStandard('20260925000000-aaaa')
+    const b = newStandard('20260926000000-bbbb', accounting.slice(3, 5))
+    const local = await loadStore()
+    local.addHistoryRecord(a)
+    local.addHistoryRecord(b)
+
+    // 另一台裝置已經上傳過 a
+    const cloud = fakeCloud()
+    const other = await loadStore()
+    other.attachCloud(cloud.sink)
+    other.receiveCloud([])
+    other.addHistoryRecord(a)
+    await Promise.resolve()
+
+    const store = await loadStore()
+    store.attachCloud(cloud.sink)
+    store.receiveCloud(cloud.all())
+    expect(await store.syncLocalToCloud()).toBe(1)
+    expect(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)).toBeNull()
+    expect(localStorage.getItem(STORAGE_KEYS.QUESTION_SNAPSHOTS)).toBeNull()
+
+    // 換一台裝置登入：從雲端讀回，與交卷當下相同
+    const fresh = await loadStore()
+    fresh.attachCloud(cloud.sink)
+    expect(fresh.getAllHistory()).toEqual([])
+    fresh.receiveCloud(cloud.all())
+    expect(fresh.getAllHistory()).toEqual([a, b])
+  })
+
+  it('雲端拒絕寫入時，同步保留本機存檔，新紀錄存回本機', async () => {
+    const a = newStandard('20260925000000-aaaa')
+    ;(await loadStore()).addHistoryRecord(a)
+    const before = localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)
+
+    const store = await loadStore()
+    store.attachCloud(fakeCloud(true).sink)
+    store.receiveCloud([])
+    await expect(store.syncLocalToCloud()).rejects.toThrow()
+    expect(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)).toBe(before)
+
+    const b = newStandard('20260926000000-bbbb', accounting.slice(3, 5))
+    store.addHistoryRecord(b)
+    await new Promise((resolve) => setTimeout(resolve))
+    store.detachCloud()
+    expect(store.getAllHistory()).toEqual([a, b])
+  })
+})
+
 it('每個科目的題目 id 都不重複', () => {
   for (const subject of Object.values(subjects)) {
     const ids = subject.questions.map((q) => q.id)

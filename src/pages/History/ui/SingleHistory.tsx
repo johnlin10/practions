@@ -11,7 +11,7 @@ import { getStageDisplayName } from '../../../utils/detailed-results'
 import { speakEnglish } from '../../../utils/tts'
 
 // data
-import { getHistoryById } from '@/data/historyStore'
+import { getHistoryById, useHistoryReady } from '@/data/historyStore'
 
 // types
 import { HistoryRecord, DetailedQuestionResult } from '../../../types'
@@ -67,8 +67,12 @@ function SingleHistory(): React.ReactElement {
   // 是否按題號排序
   const [sortByQuestionId, setSortByQuestionId] = useState<boolean>(false)
 
+  // 登入中的雲端紀錄到達前不判斷「找不到」
+  const ready = useHistoryReady()
+
   // 獲取歷史記錄
   useEffect(() => {
+    if (!ready) return
     // 從資料層依 id 取得記錄
     const selectedRecord = getHistoryById(id ?? '')
 
@@ -118,7 +122,7 @@ function SingleHistory(): React.ReactElement {
     setRecord(selectedRecord)
     // 清除每 5 秒檢查一次科目是否鎖定
     return () => clearInterval(intervalId)
-  }, [id, navigate])
+  }, [id, navigate, ready])
 
   /**
    * [function] handleClose

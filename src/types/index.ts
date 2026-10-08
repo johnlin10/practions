@@ -205,6 +205,8 @@ export const STORAGE_KEYS = {
   QUIZ_HISTORY: 'quizHistory-v3',
   // 歷史紀錄引用的題目快照（快照鍵 → 交卷當下的題目內容）
   QUESTION_SNAPSHOTS: 'questionSnapshots',
+  // 這個瀏覽器登入過：開啟時才載入 Firebase，訪客不載入
+  SIGNED_IN: 'signedIn',
 } as const
 
 // 重新導出設定相關型別

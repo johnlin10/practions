@@ -356,7 +356,7 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     // 生成流程配置摘要（適用於 PVQC）
     const flowConfigSummary = generateFlowConfigSummary(quizState.flowConfig)
 
-    // 生成唯一 ID（YYYYMMDDHHMMSS 格式）
+    // 生成唯一 ID（YYYYMMDDHHMMSS-xxxx 格式）
     const generateRecordId = (date: Date): string => {
       // 取得年、月、日、時、分、秒
       const year = date.getFullYear()
@@ -366,10 +366,10 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       const minutes = String(date.getMinutes()).padStart(2, '0')
       const seconds = String(date.getSeconds()).padStart(2, '0')
 
-      // 隨機數用於避免重複（預留）
-      // const randomSuffix = Math.random().toString(36).substr(2, 3)
+      // 隨機字尾：登入後多台裝置共用紀錄，避免同一秒交卷撞號
+      const randomSuffix = Math.random().toString(36).slice(2, 6)
 
-      return `${year}${month}${day}${hours}${minutes}${seconds}`
+      return `${year}${month}${day}${hours}${minutes}${seconds}-${randomSuffix}`
     }
 
     // 生成唯一 ID
