@@ -6,8 +6,13 @@
  */
 import { useSyncExternalStore } from 'react'
 import { STORAGE_KEYS } from '@/types'
-import { readRaw } from '@/utils/storage'
+import { readRaw, remove } from '@/utils/storage'
 import { detachCloud } from './historyStore'
+
+// 登入只在新網址提供；舊網址（practions.web.app 等）引導使用者用備份檔轉移到 practions.app
+// 本機用 old.localhost:3000 開啟即可模擬舊網址
+const LOGIN_HOSTS = ['practions.app', 'beta.practions.app', 'localhost']
+export const isLegacySite = !LOGIN_HOSTS.includes(location.hostname)
 
 export interface AuthState {
   // checking：登入過的瀏覽器正在恢復登入狀態
@@ -20,7 +25,8 @@ export interface AuthState {
 }
 
 let state: AuthState = {
-  status: readRaw(STORAGE_KEYS.SIGNED_IN) ? 'checking' : 'guest',
+  status:
+    !isLegacySite && readRaw(STORAGE_KEYS.SIGNED_IN) ? 'checking' : 'guest',
 }
 const listeners = new Set<() => void>()
 
@@ -55,6 +61,11 @@ const loadCloud = () => import('./cloud')
 
 /** 應用程式啟動時呼叫：登入過的瀏覽器載入 Firebase 並恢復登入狀態。 */
 export function initAuth(): void {
+  // 舊網址曾經登入過（例如 Beta 測試）：清掉登入旗標，否則紀錄頁會一直等雲端資料
+  if (isLegacySite && readRaw(STORAGE_KEYS.SIGNED_IN)) {
+    remove(STORAGE_KEYS.SIGNED_IN)
+    detachCloud()
+  }
   if (state.status !== 'checking') return
   loadCloud()
     .then((cloud) => cloud.start())

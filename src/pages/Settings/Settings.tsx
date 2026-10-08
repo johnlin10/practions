@@ -8,7 +8,7 @@ import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { downloadBackup, importBackup } from '@/utils/backup'
 import { updateSettings, useSettingsStore } from '@/data/settingsStore'
-import { signIn, signOut, useAuth } from '@/data/authStore'
+import { isLegacySite, signIn, signOut, useAuth } from '@/data/authStore'
 import { showAlert, showConfirm } from '@/utils/dialog'
 import {
   getSystemTheme,
@@ -165,7 +165,35 @@ function Settings(): React.ReactElement {
         <div className="settings-list">
           <div className="settings-list-group has-title">
             <h5>帳號</h5>
-            {signedIn ? (
+            {isLegacySite ? (
+              <>
+                <div
+                  className="settings-list-group-item action"
+                  onClick={() => openLink('https://practions.app')}
+                >
+                  <p>
+                    <span className="material-symbols-outlined icon">
+                      open_in_new
+                    </span>
+                    前往新網址 practions.app
+                  </p>
+                </div>
+                <div
+                  className="settings-list-group-item action"
+                  onClick={() => navigate('/settings/transfer')}
+                >
+                  <p>
+                    <span className="material-symbols-outlined icon">
+                      swap_horiz
+                    </span>
+                    如何轉移資料
+                  </p>
+                  <span className="material-symbols-rounded icon">
+                    chevron_right
+                  </span>
+                </div>
+              </>
+            ) : signedIn ? (
               <>
                 <div className="settings-list-group-item account">
                   <p>
@@ -229,10 +257,17 @@ function Settings(): React.ReactElement {
               </div>
             )}
           </div>
-          {!signedIn && (
+          {isLegacySite ? (
             <p className="settings-list-note">
-              登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。
+              網址已改為
+              practions.app，登入功能只在新網址提供。請先轉移測驗紀錄，再到新網址登入。
             </p>
+          ) : (
+            !signedIn && (
+              <p className="settings-list-note">
+                登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。
+              </p>
+            )
           )}
 
           <div className="settings-list-group has-title">
