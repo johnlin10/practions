@@ -60,7 +60,7 @@ const db = initializeFirestore(app, {
   }),
 })
 
-// 單次批次上限 500 筆、10 MiB；一筆紀錄可能數十 KB，保守分批
+// 單次批次上限 500 筆；刪除只有 id，以筆數分批（寫入由 historyStore 依大小分好批）
 const BATCH_SIZE = 100
 
 let unsubscribe: Unsubscribe | null = null
@@ -85,27 +85,29 @@ function recordsOf(uid: string) {
 }
 
 function sinkFor(uid: string): CloudSink {
-  const inBatches = async <T>(
-    items: T[],
-    apply: (batch: ReturnType<typeof writeBatch>, item: T) => void,
-  ): Promise<void> => {
-    for (let i = 0; i < items.length; i += BATCH_SIZE) {
-      const batch = writeBatch(db)
-      items.slice(i, i + BATCH_SIZE).forEach((item) => apply(batch, item))
-      await batch.commit()
-    }
-  }
   return {
-    save: (entries: CloudEntry[]) =>
-      inBatches(entries, (batch, { id, date, data }) =>
+    save: (entries: CloudEntry[]) => {
+      const batch = writeBatch(db)
+      entries.forEach(({ id, date, data }) =>
         batch.set(doc(recordsOf(uid), id), { date, data }),
-      ),
-    remove: (ids: string[]) =>
-      inBatches(ids, (batch, id) => batch.delete(doc(recordsOf(uid), id))),
+      )
+      return batch.commit()
+    },
+    remove: async (ids: string[]) => {
+      const commits: Promise<void>[] = []
+      for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+        const batch = writeBatch(db)
+        ids
+          .slice(i, i + BATCH_SIZE)
+          .forEach((id) => batch.delete(doc(recordsOf(uid), id)))
+        commits.push(batch.commit())
+      }
+      await Promise.all(commits)
+    },
   }
 }
 
-/** 登入後把本機紀錄併入雲端；失敗時保留本機存檔，下次登入再試。 */
+/** 登入後把本機紀錄併入雲端；失敗時保留本機存檔，下次開啟再試。 */
 async function syncLocal(): Promise<void> {
   try {
     await syncLocalToCloud()

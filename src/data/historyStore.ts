@@ -17,6 +17,7 @@
  * 雲端模式（登入中）：cloud.ts 透過 attachCloud 接上 Firestore，之後讀寫改走雲端，
  * 記憶體中的 raw / snapshots / cache 結構不變，對外 API 與頁面都不用改。
  * 登入時 syncLocalToCloud 把本機紀錄併入雲端，伺服器確認後才刪除本機存檔。
+ * 登入中新增（交卷、匯入）的紀錄也先存本機，伺服器確認後才刪除，任何一步失敗紀錄都還在。
  */
 import { useSyncExternalStore } from 'react'
 import type { DetailedQuestionResult, HistoryRecord } from '@/types'
@@ -231,16 +232,7 @@ export function addHistoryRecord(record: HistoryRecord): void {
   const item = slim(record)
   raw = [...raw, item]
   if (cloud) {
-    cloud.save([toCloudEntry(item)]).catch((error) => {
-      // 雲端拒絕寫入（例如權限錯誤）時存回本機，下次登入會再同步
-      console.error('[historyStore] 雲端寫入失敗，改存本機：', error)
-      const local = readLocal()
-      write(STORAGE_KEYS.QUESTION_SNAPSHOTS, {
-        ...local.snapshots,
-        ...snapshots,
-      })
-      write(STORAGE_KEYS.QUIZ_HISTORY, [...local.history, item])
-    })
+    saveToCloud([item])
   } else {
     // 先寫快照：記錄寫入失敗只會多出沒被引用的快照，反過來則會缺快照
     write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
@@ -259,6 +251,8 @@ export function clearHistory(): void {
     cloud.remove(ids).catch((error) => {
       console.error('[historyStore] 雲端刪除失敗：', error)
     })
+    // 還沒確認上傳的本機備份也一併清除，避免下次登入又同步回來
+    dropLocal(ids)
   } else {
     write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
     write(STORAGE_KEYS.QUIZ_HISTORY, raw)
@@ -287,12 +281,12 @@ function idOf(item: unknown): unknown {
 
 /**
  * 依 id 合併記錄：已存在或無效的略過，不覆蓋現有記錄。
- * 未登入寫入 localStorage；登入中寫入雲端，回傳的 saved 在伺服器確認後完成。
+ * 未登入寫入 localStorage；登入中只更新畫面，回傳的 added 由呼叫端寫入雲端。
  */
 function merge(
   history: unknown[],
   incomingSnapshots: unknown,
-): { count: number; saved: Promise<void> } {
+): { count: number; added: unknown[] } {
   const before = getSnapshot().length
   const ids = new Set(raw.map(idOf))
   const added: unknown[] = []
@@ -309,9 +303,7 @@ function merge(
     }
   }
 
-  let saved = Promise.resolve()
   if (cloud) {
-    saved = cloud.save(added.map(toCloudEntry))
     cache = parse([...raw, ...added])
   } else {
     write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
@@ -320,7 +312,7 @@ function merge(
     cache = load()
   }
   emit()
-  return { count: cache.length - before, saved }
+  return { count: cache.length - before, added }
 }
 
 /**
@@ -345,7 +337,9 @@ export function importHistory(text: string): number {
   if (typeof data.version !== 'number' || data.version > BACKUP_VERSION) {
     throw new Error('備份檔版本較新，請先更新 Practions')
   }
-  return merge(data.history, data.snapshots).count
+  const { count, added } = merge(data.history, data.snapshots)
+  saveToCloud(added)
+  return count
 }
 
 /* ------------------------------ 雲端模式 ------------------------------ */
@@ -367,11 +361,13 @@ let cloud: CloudSink | null = null
 // 登入過的瀏覽器在雲端資料到達前視為載入中，避免先閃出「沒有紀錄」
 let ready = !readRaw(STORAGE_KEYS.SIGNED_IN)
 
-/** 原始記錄打包成雲端格式：只帶這筆記錄引用到的快照，文件自給自足。 */
-function toCloudEntry(item: unknown): CloudEntry {
+// Firestore 單次寫入上限 500 筆、10 MiB：每批最多 100 筆、約 4 MiB
+const BATCH_COUNT = 100
+const BATCH_BYTES = 4 * 1024 * 1024
+
+/** 這筆原始記錄引用到的快照。 */
+function usedSnapshots(item: unknown): Record<string, Question> {
   const record = item as {
-    id: string
-    date: string | Date
     results?: {
       questionResults?: StoredResult[]
       stageResults?: { questionResults?: StoredResult[] }[]
@@ -388,11 +384,75 @@ function toCloudEntry(item: unknown): CloudEntry {
         used[r.snapshot] = snapshots[r.snapshot]
     }
   }
+  return used
+}
+
+/** 原始記錄打包成雲端格式：只帶這筆記錄引用到的快照，文件自給自足。 */
+function toCloudEntry(item: unknown): CloudEntry {
+  const record = item as { id: string; date: string | Date }
   return {
     id: record.id,
     date: new Date(record.date).toISOString(),
-    data: JSON.stringify({ record: item, snapshots: used }),
+    data: JSON.stringify({ record: item, snapshots: usedSnapshots(item) }),
   }
+}
+
+/**
+ * 依筆數與大小分批寫入雲端。所有批次同時送出：離線時全部排進 Firestore 的佇列，
+ * 不會卡在第一批等確認。Promise 在全部批次都被伺服器確認後完成。
+ */
+function saveEntries(sink: CloudSink, items: unknown[]): Promise<void> {
+  const batches: CloudEntry[][] = []
+  let bytes = 0
+  for (const entry of items.map(toCloudEntry)) {
+    // UTF-16 長度 ×3 為 UTF-8 位元組數的上限
+    const size = entry.data.length * 3
+    const last = batches[batches.length - 1]
+    if (last && last.length < BATCH_COUNT && bytes + size <= BATCH_BYTES) {
+      last.push(entry)
+      bytes += size
+    } else {
+      batches.push([entry])
+      bytes = size
+    }
+  }
+  return Promise.all(batches.map((batch) => sink.save(batch))).then(() => {})
+}
+
+/** 記錄加進 localStorage（含引用的快照）。 */
+function appendLocal(items: unknown[]): void {
+  const local = readLocal()
+  write(STORAGE_KEYS.QUESTION_SNAPSHOTS, {
+    ...local.snapshots,
+    ...Object.assign({}, ...items.map(usedSnapshots)),
+  })
+  write(STORAGE_KEYS.QUIZ_HISTORY, [...local.history, ...items])
+}
+
+/** 從 localStorage 移除指定 id 的記錄；沒有剩下的記錄時連快照一起清除。 */
+function dropLocal(ids: unknown[]): void {
+  const drop = new Set(ids)
+  const rest = readLocal().history.filter((item) => !drop.has(idOf(item)))
+  if (rest.length > 0) {
+    write(STORAGE_KEYS.QUIZ_HISTORY, rest)
+  } else {
+    remove(STORAGE_KEYS.QUIZ_HISTORY)
+    remove(STORAGE_KEYS.QUESTION_SNAPSHOTS)
+  }
+}
+
+/**
+ * 登入中寫入雲端：先在本機存一份，伺服器確認後才刪除。
+ * 離線時關閉 App、雲端拒絕寫入，紀錄都還在本機，下次登入時同步。
+ */
+function saveToCloud(items: unknown[]): void {
+  if (!cloud || items.length === 0) return
+  appendLocal(items)
+  saveEntries(cloud, items)
+    .then(() => dropLocal(items.map(idOf)))
+    .catch((error) => {
+      console.error('[historyStore] 雲端寫入失敗，紀錄保留在本機：', error)
+    })
 }
 
 /** 登入：改用雲端，清空畫面等雲端資料到達。 */
@@ -440,12 +500,12 @@ export function detachCloud(): void {
  */
 export async function syncLocalToCloud(): Promise<number> {
   const local = readLocal()
-  if (local.history.length === 0) return 0
-  const { count, saved } = merge(local.history, local.snapshots)
-  await saved
-  // ponytail: 驗證不過的本機紀錄（本來就不會顯示）不上傳，會隨本機存檔一起刪除
-  remove(STORAGE_KEYS.QUIZ_HISTORY)
-  remove(STORAGE_KEYS.QUESTION_SNAPSHOTS)
+  if (!cloud || local.history.length === 0) return 0
+  const { count, added } = merge(local.history, local.snapshots)
+  await saveEntries(cloud, added)
+  // 只刪除這次同步的記錄：等待確認期間新交卷的記錄有自己的本機備份
+  // ponytail: 驗證不過的本機紀錄（本來就不會顯示）不上傳，一併刪除
+  dropLocal(local.history.map(idOf))
   return count
 }
 
