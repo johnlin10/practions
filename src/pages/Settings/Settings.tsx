@@ -8,7 +8,13 @@ import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { downloadBackup, importBackup } from '@/utils/backup'
 import { updateSettings, useSettingsStore } from '@/data/settingsStore'
-import { isLegacySite, signIn, signOut, useAuth } from '@/data/authStore'
+import {
+  deleteAccount,
+  isLegacySite,
+  signIn,
+  signOut,
+  useAuth,
+} from '@/data/authStore'
 import { showAlert, showConfirm } from '@/utils/dialog'
 import {
   getSystemTheme,
@@ -103,6 +109,29 @@ function Settings(): React.ReactElement {
     setAuthBusy(true)
     try {
       await signOut()
+    } catch (error) {
+      void showAlert((error as Error).message)
+      setAuthBusy(false)
+    }
+  }
+
+  const handleDeleteAccount = async (): Promise<void> => {
+    if (authBusy) return
+    const ok = await showConfirm(
+      `您在 Practions 的帳號與所有雲端測驗紀錄${
+        hasHistory ? `（${history.length} 筆）` : ''
+      }都會永久刪除，這台裝置上的紀錄也會一併清除，且無法復原。\n\n需要保留紀錄的話，請先匯出測驗紀錄。`,
+      {
+        title: '確定要刪除帳號嗎？',
+        confirmText: '刪除帳號',
+        danger: true,
+      },
+    )
+    if (!ok) return
+    setAuthBusy(true)
+    try {
+      // 成功時會重新整理頁面；取消確認身分時恢復按鈕
+      if (!(await deleteAccount())) setAuthBusy(false)
     } catch (error) {
       void showAlert((error as Error).message)
       setAuthBusy(false)
@@ -489,6 +518,25 @@ function Settings(): React.ReactElement {
               </span>
             </div>
           </div>
+          {/* 不常用的操作放最下面，避免太顯眼 */}
+          {signedIn && (
+            <div className="settings-list-group has-title">
+              <h5>帳號管理</h5>
+              <div
+                className={`settings-list-group-item action ${
+                  authBusy ? 'disabled' : ''
+                }`}
+                onClick={handleDeleteAccount}
+              >
+                <p>
+                  <span className="material-symbols-outlined icon">
+                    person_remove
+                  </span>
+                  刪除帳號
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="copyright">

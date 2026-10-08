@@ -8,9 +8,11 @@
 import { initializeApp } from 'firebase/app'
 import {
   GoogleAuthProvider,
+  deleteUser,
   getAuth,
   getRedirectResult,
   onAuthStateChanged,
+  reauthenticateWithPopup,
   signInWithPopup,
   signInWithRedirect,
   signOut as firebaseSignOut,
@@ -19,6 +21,7 @@ import {
   clearIndexedDbPersistence,
   collection,
   doc,
+  getDocsFromServer,
   initializeFirestore,
   onSnapshot,
   orderBy,
@@ -174,14 +177,19 @@ export function start(): void {
   })
 }
 
+// 主畫面 App（standalone）的彈出視窗回不到 App
+function isStandalone(): boolean {
+  return (
+    matchMedia('(display-mode: standalone)').matches ||
+    (navigator as { standalone?: boolean }).standalone === true
+  )
+}
+
 /** 使用 Google 登入：一般瀏覽器用彈出視窗，主畫面 App 用整頁導向。 */
 export async function signIn(): Promise<void> {
   start()
   const provider = new GoogleAuthProvider()
-  // 主畫面 App（standalone）的彈出視窗回不到 App
-  const standalone =
-    matchMedia('(display-mode: standalone)').matches ||
-    (navigator as { standalone?: boolean }).standalone === true
+  const standalone = isStandalone()
   const redirect = async (): Promise<void> => {
     // 導向回來時才會載入 Firebase 接手登入結果；取消登入時會在 start() 清掉
     redirecting = true
@@ -214,21 +222,90 @@ export async function signIn(): Promise<void> {
   }
 }
 
-/** 登出並清除這個瀏覽器的雲端快取，共用電腦的下一位使用者看不到紀錄。 */
-export async function signOut(): Promise<void> {
-  // 尚未上傳的紀錄會隨快取一起清掉，先確認都送出了
+/** 等尚未上傳的紀錄送出；5 秒內送不完就丟出錯誤。 */
+async function flushPendingWrites(message: string): Promise<void> {
   const timeout = new Promise<'timeout'>((resolve) =>
     setTimeout(() => resolve('timeout'), 5000),
   )
   if ((await Promise.race([waitForPendingWrites(db), timeout])) === 'timeout') {
-    throw new Error('還有紀錄尚未上傳到雲端，請連上網路後再登出')
+    throw new Error(message)
   }
-  unsubscribe?.()
-  unsubscribe = null
-  await firebaseSignOut(auth)
+}
+
+/** 清除這個瀏覽器的雲端快取並重新整理（terminate 後 Firestore 無法再使用）。 */
+async function resetAndReload(): Promise<void> {
   await terminate(db)
   // ponytail: 其他分頁開著時無法清除快取，資料仍受登入規則保護；要徹底清除需關閉其他分頁
   await clearIndexedDbPersistence(db).catch(() => {})
-  // 重新整理以重建 Firestore（terminate 後無法再使用）
   location.reload()
+}
+
+/** 登出並清除這個瀏覽器的雲端快取，共用電腦的下一位使用者看不到紀錄。 */
+export async function signOut(): Promise<void> {
+  // 尚未上傳的紀錄會隨快取一起清掉，先確認都送出了
+  await flushPendingWrites('還有紀錄尚未上傳到雲端，請連上網路後再登出')
+  unsubscribe?.()
+  unsubscribe = null
+  await firebaseSignOut(auth)
+  await resetAndReload()
+}
+
+// Firebase 刪除帳號要求最近登入過（約 5 分鐘內）
+const RECENT_LOGIN_MS = 5 * 60 * 1000
+
+/**
+ * 刪除帳號：雲端紀錄、Firebase 帳號、這台裝置上的紀錄全部清除，完成後重新整理。
+ * 先確認身分再刪除，避免紀錄刪了帳號卻刪不掉。使用者取消確認身分時回傳 false。
+ */
+export async function deleteAccount(): Promise<boolean> {
+  const user = auth.currentUser
+  if (!user) throw new Error('請先登入')
+  if (!navigator.onLine) throw new Error('請連上網路後再刪除帳號')
+
+  const lastSignIn = Date.parse(user.metadata.lastSignInTime ?? '')
+  if (!(Date.now() - lastSignIn < RECENT_LOGIN_MS)) {
+    // ponytail: 主畫面 App 無法用彈出視窗確認身分，請使用者重新登入；要免重登需改用導向並在回來後接續刪除
+    if (isStandalone()) {
+      throw new Error(
+        '為了確認是您本人，請先登出再重新登入，然後在 5 分鐘內刪除帳號。',
+      )
+    }
+    try {
+      await reauthenticateWithPopup(user, new GoogleAuthProvider())
+    } catch (error) {
+      const code = (error as { code?: string }).code
+      if (
+        code === 'auth/popup-closed-by-user' ||
+        code === 'auth/cancelled-popup-request'
+      )
+        return false
+      if (code === 'auth/user-mismatch')
+        throw Object.assign(new Error('請選擇目前登入的 Google 帳號'), {
+          cause: error,
+        })
+      console.error('[cloud] 確認身分失敗：', error)
+      throw Object.assign(new Error('無法確認身分，請再試一次'), {
+        cause: error,
+      })
+    }
+  }
+
+  try {
+    // 排隊中的寫入先送出，再以伺服器上的資料為準刪除全部紀錄
+    await flushPendingWrites('還有紀錄尚未上傳，請確認網路連線後再試一次')
+    const snapshot = await getDocsFromServer(recordsOf(user.uid))
+    await sinkFor(user.uid).remove(snapshot.docs.map((d) => d.id))
+    unsubscribe?.()
+    unsubscribe = null
+    await deleteUser(user)
+  } catch (error) {
+    console.error('[cloud] 刪除帳號失敗：', error)
+    throw Object.assign(new Error('刪除帳號失敗，請再試一次'), { cause: error })
+  }
+
+  remove(STORAGE_KEYS.QUIZ_HISTORY)
+  remove(STORAGE_KEYS.QUESTION_SNAPSHOTS)
+  remove(STORAGE_KEYS.SIGNED_IN)
+  await resetAndReload()
+  return true
 }

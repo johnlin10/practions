@@ -89,3 +89,9 @@ export async function signOut(): Promise<void> {
   const cloud = await loadCloud()
   await cloud.signOut()
 }
+
+/** 刪除帳號與所有測驗紀錄。取消確認身分時回傳 false，失敗時丟出帶訊息的 Error。 */
+export async function deleteAccount(): Promise<boolean> {
+  const cloud = await loadCloud()
+  return cloud.deleteAccount()
+}
