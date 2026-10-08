@@ -65,6 +65,20 @@ const BATCH_SIZE = 100
 
 let unsubscribe: Unsubscribe | null = null
 let started = false
+// 正在整頁導向登入：Firebase 啟動時回報的「未登入」不能清掉導向前寫入的旗標
+let redirecting = false
+// 最近一次雲端快照的狀態：fromCache 表示資料還沒跟伺服器確認過
+let lastMeta = { fromCache: true, hasPendingWrites: false }
+
+/** 依快照狀態與網路狀態更新同步狀態。 */
+function updateSync(): void {
+  if (!unsubscribe) return
+  const { fromCache, hasPendingWrites } = lastMeta
+  if (!navigator.onLine) patchAuthState({ sync: 'offline' })
+  // 還沒跟伺服器確認過（剛開啟、正在重新連線）或有紀錄在上傳
+  else if (fromCache || hasPendingWrites) patchAuthState({ sync: 'syncing' })
+  else patchAuthState({ sync: 'synced' })
+}
 
 function recordsOf(uid: string) {
   return collection(db, 'users', uid, 'records')
@@ -94,8 +108,7 @@ function sinkFor(uid: string): CloudSink {
 /** 登入後把本機紀錄併入雲端；失敗時保留本機存檔，下次登入再試。 */
 async function syncLocal(): Promise<void> {
   try {
-    const count = await syncLocalToCloud()
-    if (count > 0) patchAuthState({ synced: count })
+    await syncLocalToCloud()
   } catch (error) {
     console.error('[cloud] 本機紀錄同步失敗，保留本機存檔：', error)
   }
@@ -111,12 +124,16 @@ export function start(): void {
     patchAuthState({ error: '登入失敗，請再試一次' })
   })
 
+  // 網路斷線或恢復時 Firestore 不一定立刻通知，自己再更新一次
+  window.addEventListener('online', updateSync)
+  window.addEventListener('offline', updateSync)
+
   onAuthStateChanged(auth, (user) => {
     unsubscribe?.()
     unsubscribe = null
 
     if (!user) {
-      remove(STORAGE_KEYS.SIGNED_IN)
+      if (!redirecting) remove(STORAGE_KEYS.SIGNED_IN)
       detachCloud()
       setAuthState({ status: 'guest' })
       return
@@ -126,14 +143,20 @@ export function start(): void {
     setAuthState({
       status: 'signed-in',
       email: user.email ?? '',
+      photoURL: user.photoURL ?? undefined,
+      sync: navigator.onLine ? 'syncing' : 'offline',
     })
     attachCloud(sinkFor(user.uid))
 
     let first = true
     unsubscribe = onSnapshot(
       query(recordsOf(user.uid), orderBy('date')),
+      // 含 metadata 變化：寫入被伺服器確認時也會通知，用來顯示同步狀態
+      { includeMetadataChanges: true },
       (snapshot) => {
         receiveCloud(snapshot.docs.map((d) => d.get('data') as string))
+        lastMeta = snapshot.metadata
+        updateSync()
         if (first) {
           first = false
           void syncLocal()
@@ -157,11 +180,22 @@ export async function signIn(): Promise<void> {
   const standalone =
     matchMedia('(display-mode: standalone)').matches ||
     (navigator as { standalone?: boolean }).standalone === true
-  const redirect = (): Promise<never> => {
+  const redirect = async (): Promise<void> => {
     // 導向回來時才會載入 Firebase 接手登入結果；取消登入時會在 start() 清掉
+    redirecting = true
     write(STORAGE_KEYS.SIGNED_IN, true)
-    return signInWithRedirect(auth, provider)
+    try {
+      await signInWithRedirect(auth, provider)
+    } catch (error) {
+      redirecting = false
+      remove(STORAGE_KEYS.SIGNED_IN)
+      console.error('[cloud] 登入失敗：', error)
+      throw Object.assign(new Error('登入失敗，請再試一次'), { cause: error })
+    }
   }
+  // 已經是登入狀態（例如導向登入剛完成）就不再登入一次
+  await auth.authStateReady()
+  if (auth.currentUser) return
   if (standalone) return redirect()
   try {
     await signInWithPopup(auth, provider)

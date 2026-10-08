@@ -63,6 +63,48 @@
           font-size: 1.2rem;
           color: var(--text-muted-color);
         }
+
+        // 帳號列的頭像與 Google 標誌：約字高 1.5 倍
+        > .avatar {
+          width: 1.35rem;
+          height: 1.35rem;
+          margin-right: 4px;
+          border-radius: 50%;
+          object-fit: cover;
+          flex-shrink: 0;
+        }
+        > .google-icon {
+          width: 1.1rem;
+          height: 1.1rem;
+          margin-right: 4px;
+        }
+      }
+
+      // 帳號列：email 過長時截斷，同步狀態維持完整
+      &.account {
+        gap: 8px;
+
+        > p:first-child {
+          min-width: 0;
+
+          > .email {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+        // 同步狀態：小外框與同列內容區隔
+        > p.info {
+          flex-shrink: 0;
+          padding: 2px 8px 2px 6px;
+          border: 2px solid var(--divider-color);
+          border-radius: 999px;
+          font-size: 0.8rem;
+
+          > .icon {
+            font-size: 1rem;
+          }
+        }
       }
       > .icon {
         font-size: 1.2rem;
@@ -85,6 +127,14 @@
       -ms-border-radius: 0;
       -o-border-radius: 0;
     }
+  }
+
+  // 列表下方的附註說明（緊貼在上一個列表之下）
+  .settings-list-note {
+    margin-top: -16px;
+    padding: 0 12px;
+    font-size: 0.8rem;
+    color: var(--text-faint-color);
   }
 }
 

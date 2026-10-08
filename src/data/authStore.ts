@@ -13,8 +13,9 @@ export interface AuthState {
   // checking：登入過的瀏覽器正在恢復登入狀態
   status: 'guest' | 'checking' | 'signed-in'
   email?: string
-  // 登入後從本機同步到雲端的筆數（本次開啟期間顯示）
-  synced?: number
+  photoURL?: string
+  // synced：已連上伺服器且沒有待上傳的紀錄；syncing：上傳中或連線中；offline：裝置離線
+  sync?: 'synced' | 'syncing' | 'offline'
   error?: string
 }
 
