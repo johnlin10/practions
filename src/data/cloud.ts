@@ -185,6 +185,23 @@ function isStandalone(): boolean {
   )
 }
 
+/**
+ * 登入失敗的訊息。Firebase 登入前會檢查網域是否已授權，並記住第一次的結果（含失敗）：
+ * 連線失敗後，就算恢復網路，之後每次登入都會失敗，要重新開啟頁面才會再檢查。
+ */
+function signInError(error: unknown): Error {
+  const network =
+    (error as { code?: string }).code === 'auth/network-request-failed'
+  return Object.assign(
+    new Error(
+      network
+        ? '無法連線到 Google，請確認網路後重新開啟 App 再登入'
+        : '登入失敗，請再試一次',
+    ),
+    { cause: error },
+  )
+}
+
 /** 使用 Google 登入：一般瀏覽器用彈出視窗，主畫面 App 用整頁導向。 */
 export async function signIn(): Promise<void> {
   start()
@@ -200,7 +217,7 @@ export async function signIn(): Promise<void> {
       redirecting = false
       remove(STORAGE_KEYS.SIGNED_IN)
       console.error('[cloud] 登入失敗：', error)
-      throw Object.assign(new Error('登入失敗，請再試一次'), { cause: error })
+      throw signInError(error)
     }
   }
   // 已經是登入狀態（例如導向登入剛完成）就不再登入一次
@@ -218,7 +235,7 @@ export async function signIn(): Promise<void> {
     )
       return
     console.error('[cloud] 登入失敗：', error)
-    throw Object.assign(new Error('登入失敗，請再試一次'), { cause: error })
+    throw signInError(error)
   }
 }
 

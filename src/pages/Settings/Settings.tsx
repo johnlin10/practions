@@ -16,6 +16,7 @@ import {
   useAuth,
 } from '@/data/authStore'
 import { showAlert, showConfirm } from '@/utils/dialog'
+import { applyUpdate, useNewVersion } from '@/utils/serviceWorker'
 import {
   getSystemTheme,
   useResolvedTheme,
@@ -83,6 +84,8 @@ function Settings(): React.ReactElement {
 
   // 帳號：登入後測驗紀錄改存雲端
   const auth = useAuth()
+  // 有新版時為新版的版本號（取得前為空字串）
+  const newVersion = useNewVersion()
   const signedIn = auth.status === 'signed-in'
   const [authBusy, setAuthBusy] = useState<boolean>(false)
   const [avatarFailed, setAvatarFailed] = useState<boolean>(false)
@@ -458,6 +461,28 @@ function Settings(): React.ReactElement {
             </div>
           </div>
 
+          {newVersion !== null && (
+            <div className="settings-list-group has-title">
+              <h5>更新</h5>
+              <div className="settings-list-group-item">
+                <p>
+                  <span className="update-badge" aria-hidden="true">
+                    <span className="material-symbols-rounded">
+                      arrow_upward
+                    </span>
+                  </span>
+                  {newVersion ? `新版本 ${newVersion}` : '有新版本'}
+                </p>
+                <button
+                  className="settings-action-button primary"
+                  onClick={applyUpdate}
+                >
+                  更新
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="settings-list-group has-title">
             <h5>開發資訊</h5>
             <div className="settings-list-group-item">
@@ -540,7 +565,9 @@ function Settings(): React.ReactElement {
         </div>
 
         <div className="copyright">
-          <p>© 2025–{new Date().getFullYear()} Practions. All rights reserved.</p>
+          <p>
+            © 2025–{new Date().getFullYear()} Practions. All rights reserved.
+          </p>
         </div>
       </div>
     </div>

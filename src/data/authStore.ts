@@ -80,6 +80,8 @@ export function initAuth(): void {
 
 /** 使用 Google 登入。失敗時丟出帶訊息的 Error。 */
 export async function signIn(): Promise<void> {
+  // 離線時不要讓 Firebase 嘗試：它會記住失敗結果，連上網路後也一直失敗（見 cloud.ts 的 signInError）
+  if (!navigator.onLine) throw new Error('目前沒有網路，請連上網路後再登入')
   const cloud = await loadCloud()
   await cloud.signIn()
 }

@@ -3,6 +3,9 @@
  *
  * 使用瀏覽器內建 Web Speech API 播放英文單字。
  * PVQC 聽力題會在切題時自動播放，也允許使用者手動重播。
+ *
+ * 部分語音是線上語音（localService 為 false，例如 Chrome 的 Google US English、
+ * Edge 的 Online (Natural)），離線時無法播放：離線時只用裝置內建語音，線上語音播放失敗時也改用內建語音重播。
  */
 
 let cachedVoices: SpeechSynthesisVoice[] = []
@@ -24,9 +27,12 @@ const PREFERRED_VOICE_NAMES = [
   'Microsoft David',
 ]
 
-function pickEnglishVoice(
-  voices: SpeechSynthesisVoice[]
+/** 挑選英文語音；localOnly 時只從裝置內建語音挑。 */
+export function pickEnglishVoice(
+  voices: SpeechSynthesisVoice[],
+  localOnly = false
 ): SpeechSynthesisVoice | null {
+  if (localOnly) voices = voices.filter((v) => v.localService)
   if (!voices || voices.length === 0) return null
 
   const enVoices = voices.filter((v) => v.lang && v.lang.startsWith('en'))
@@ -67,6 +73,8 @@ interface SpeakOptions {
   onStart?: () => void
   onEnd?: () => void
   onError?: (errorCode?: string) => void
+  // 只用裝置內建語音（線上語音播放失敗後重播時使用）
+  localOnly?: boolean
 }
 
 export function speakEnglish(text: string, opts: SpeakOptions = {}): void {
@@ -81,7 +89,10 @@ export function speakEnglish(text: string, opts: SpeakOptions = {}): void {
   if (synth.paused) synth.resume()
 
   const utterance = new SpeechSynthesisUtterance(text)
-  const voice = cachedPickedVoice
+  const localOnly = opts.localOnly || !navigator.onLine
+  const voice = localOnly
+    ? (pickEnglishVoice(cachedVoices, true) ?? cachedPickedVoice)
+    : cachedPickedVoice
 
   utterance.lang = voice?.lang || 'en-US'
   utterance.rate = opts.rate ?? 0.9
@@ -111,6 +122,15 @@ export function speakEnglish(text: string, opts: SpeakOptions = {}): void {
     const code = ev?.error
     if (code === 'canceled' || code === 'interrupted') {
       finish('end')
+      return
+    }
+
+    // 線上語音連不上：改用裝置內建語音重播一次
+    if (!localOnly && voice && !voice.localService) {
+      finished = true
+      if (watchdog) clearTimeout(watchdog)
+      if (activeUtterance === utterance) activeUtterance = null
+      speakEnglish(text, { ...opts, localOnly: true })
       return
     }
 

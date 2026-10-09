@@ -54,7 +54,7 @@
 - [x] 「加入主畫面」教學頁（iPhone 附操作影片、Android 支援一鍵安裝）
 - [x] 首頁依裝置自動顯示安裝提示
 - [x] 從主畫面開啟時顯示首屏畫面
-- [ ] 離線使用
+- [x] 離線使用（主畫面 App 預先快取整個 App 與字型，新版本提示更新、作答中不打擾）
 
 ## 🛠 技術架構
 
@@ -68,6 +68,7 @@
 - **建置工具**：Vite 8
 - **測試**：Vitest + Testing Library
 - **程式碼品質**：ESLint + Prettier
+- **字型**：Montserrat、Noto Sans TC、Material Symbols，自行託管於 `src/assets/fonts/`
 
 ### 後端服務
 
@@ -100,7 +101,7 @@ pnpm install
 | `pnpm build-deploy` | 建置並部署到 Firebase Hosting             |
 | `pnpm og-image`     | 由 `scripts/og-image.html` 產生社群分享圖 |
 
-`firebase.json` 不在版本控制中，部署前需自行準備（`public` 設為 `build`，並將所有路徑 rewrite 到 `/index.html`）。
+部署設定在 `firebase.json` 與 `.firebaserc`：正式站為 `hosting:live`，Beta 站為 `hosting:beta`（`pnpm deploy-beta`）。
 
 ## 📁 專案結構
 

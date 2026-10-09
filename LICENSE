@@ -25,11 +25,22 @@ SOFTWARE.
 Question bank content
 
 The license above applies to the source code only. The question bank content,
-namely src/data/subjects.ts (questions, answers, and related materials) and
-the audio files under public/vocabulary-audio/, is NOT covered by this license.
-Copyright in that content belongs to its respective original authors, and it
-may not be reused without their permission.
+namely src/data/subjects.ts (questions, answers, and related materials), is NOT
+covered by this license. Copyright in that content belongs to its respective
+original authors, and it may not be reused without their permission.
 
 以上 MIT 授權僅涵蓋程式碼。題庫內容，即 src/data/subjects.ts（題目、答案及
-相關資料）與 public/vocabulary-audio/ 底下的音檔，不在本授權範圍內，著作權
-屬於各原作者，未經原作者同意不得另行使用。
+相關資料），不在本授權範圍內，著作權屬於各原作者，未經原作者同意不得另行使用。
+
+---
+
+Fonts
+
+The fonts under src/assets/fonts/ are not covered by the MIT license above.
+Montserrat and Noto Sans TC are licensed under the SIL Open Font License 1.1,
+and Material Symbols under the Apache License 2.0. See the license file in
+each font folder.
+
+src/assets/fonts/ 底下的字型不適用上述 MIT 授權。Montserrat 與 Noto Sans TC
+採用 SIL Open Font License 1.1，Material Symbols 採用 Apache License 2.0，
+授權全文見各字型資料夾。

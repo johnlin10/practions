@@ -8,6 +8,7 @@ import Dialog from './components/Dialog/Dialog'
 
 // data
 import { runMigrations } from '@/data/migrations'
+import { useUpdatePrompt } from '@/utils/serviceWorker'
 
 /**
  * 捲動位置還原的鍵：列表頁依路徑記住位置（從詳情頁返回時停在原處），
@@ -23,6 +24,8 @@ const scrollKey = (location: Location): string =>
  * 所有頁面共用的外層：導覽列、捲動位置還原與全域設置
  */
 function App(): React.ReactElement {
+  useUpdatePrompt()
+
   useEffect(() => {
     // 執行跨版本資料遷移（集中於 data/migrations）
     runMigrations()

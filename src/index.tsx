@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import '@/assets/fonts/fonts.scss'
 import '@/index.scss'
 import { router } from '@/router'
 import { RouterProvider } from 'react-router-dom'
@@ -7,9 +8,11 @@ import { QuizProvider } from '@/context/QuizContext'
 import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary'
 import { initTheme } from '@/utils/theme'
 import { initAuth } from '@/data/authStore'
+import { registerServiceWorker } from '@/utils/serviceWorker'
 
 initTheme()
 initAuth()
+registerServiceWorker()
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {

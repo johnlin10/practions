@@ -70,9 +70,21 @@
           color: var(--text-muted-color);
         }
 
-        > .icon {
-          font-size: 1.2rem;
-          color: var(--text-muted-color);
+        // 更新區塊：綠色圓形向上箭頭
+        > .update-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 1.2rem;
+          height: 1.2rem;
+          margin-right: 4px;
+          border-radius: 50%;
+          background-color: var(--success-color);
+
+          > span {
+            font-size: 1rem;
+            color: #fff;
+          }
         }
 
         // 帳號列的頭像與 Google 標誌：約字高 1.5 倍

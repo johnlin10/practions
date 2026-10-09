@@ -37,7 +37,6 @@ export interface VocabularyQuestion {
   id: string
   english: string
   chinese: string
-  audioFile?: string
 }
 
 // 聯合型別
