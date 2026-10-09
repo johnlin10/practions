@@ -2,8 +2,8 @@ import { Question, QuestionTypeId } from './questions'
 import { QuizModeId } from './quiz-modes'
 import type { SubjectGroupId } from '../data/subject-groups'
 
-// 測驗流程模式：標準單階段、PVQC 自訂、PVQC 官方模擬
-export type FlowMode = 'standard' | 'pvqc_custom' | 'pvqc_official'
+// 測驗流程模式：標準單階段、PVQC 自訂、PVQC 官方模擬、錯題複習
+export type FlowMode = 'standard' | 'pvqc_custom' | 'pvqc_official' | 'review'
 
 // 測驗階段配置
 export interface QuizStageConfig {
@@ -12,6 +12,8 @@ export interface QuizStageConfig {
   questionCount: number
   // 出題組成：各題型抽幾題（混合題型的題庫才有），抽完全部打散
   composition?: Partial<Record<QuestionTypeId, number>>
+  // 只從這些題目出題（錯題複習用）
+  questionIds?: string[]
   timeLimit: number
   // 該階段及格題數（PVQC 官方模式才有；Spelling=40, 其餘=70）
   passingScore?: number

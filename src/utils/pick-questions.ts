@@ -12,14 +12,15 @@ export function shuffle<T>(list: readonly T[]): T[] {
 }
 
 /**
- * 依階段設定抽題：有出題組成時先照各題型的題數抽，
+ * 依階段設定抽題：有 questionIds 時只從這些題目抽；有出題組成時先照各題型的題數抽，
  * 不足 questionCount 的部分（含某題型題目不夠）從剩下的題目補滿，最後全部打散。
  */
 export function pickQuestions(
   questions: readonly Question[],
-  stage: Pick<QuizStageConfig, 'questionCount' | 'composition'>,
+  stage: Pick<QuizStageConfig, 'questionCount' | 'composition' | 'questionIds'>,
 ): Question[] {
-  const pool = shuffle(questions)
+  const ids = stage.questionIds && new Set(stage.questionIds)
+  const pool = shuffle(ids ? questions.filter((q) => ids.has(q.id)) : questions)
   if (!stage.composition) return pool.slice(0, stage.questionCount)
 
   const picked = new Set<Question>()

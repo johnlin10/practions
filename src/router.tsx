@@ -11,6 +11,7 @@ import History from './pages/History/History'
 import SingleHistory from './pages/History/ui/SingleHistory'
 import Settings from './pages/Settings/Settings'
 import PVQCSetup from './pages/PVQC/PVQCSetup'
+import Review from './pages/Review/Review'
 import Install from './pages/Install/Install'
 import Changelog from './pages/Changelog/Changelog'
 import Transfer from './pages/Transfer/Transfer'
@@ -42,6 +43,7 @@ export const router = createBrowserRouter(
         { path: '/quiz/:subjectId', element: <Quiz /> },
         ...legacyRedirects('/quiz'),
         { path: '/pvqc', element: <PVQCSetup /> },
+        { path: '/review', element: <Review /> },
         {
           path: '/history',
           element: <History />,

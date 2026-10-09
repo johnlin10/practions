@@ -137,6 +137,10 @@
   /* 警告 */
   --warning-color: #c8372d;
   --warning-secondary-color: #f4a5a0;
+
+  /* 錯題複習 */
+  --review-color: var(--orange-500);
+  --review-text-color: var(--orange-600);
 }
 
 /*
@@ -199,4 +203,8 @@
   /* 警告 */
   --warning-color: var(--red-400);
   --warning-secondary-color: var(--red-700);
+
+  /* 錯題複習 */
+  --review-color: var(--orange-600);
+  --review-text-color: var(--orange-300);
 }

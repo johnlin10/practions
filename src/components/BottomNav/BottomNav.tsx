@@ -36,7 +36,8 @@ function BottomNav(): React.ReactElement {
         active:
           pathname.includes('/quiz') ||
           pathname.includes('/history') ||
-          pathname.startsWith('/pvqc'),
+          pathname.startsWith('/pvqc') ||
+          pathname.startsWith('/review'),
       },
       {
         path: '/bank',

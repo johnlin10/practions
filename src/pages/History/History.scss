@@ -175,3 +175,9 @@
     color: var(--wrong-text-color);
   }
 }
+
+// 錯題複習紀錄的標示
+.review-label {
+  font-weight: 600;
+  color: var(--review-text-color);
+}

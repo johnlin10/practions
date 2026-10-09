@@ -660,7 +660,9 @@ function SingleHistory(): React.ReactElement {
     record.flowMode ||
     (record.recordType === 'pvqc' ? 'pvqc_custom' : 'standard')
   const flowModeLabel =
-    flowMode === 'pvqc_official'
+    flowMode === 'review'
+      ? '錯題複習'
+      : flowMode === 'pvqc_official'
       ? 'PVQC 官方模擬'
       : flowMode === 'pvqc_custom'
       ? 'PVQC 自訂'

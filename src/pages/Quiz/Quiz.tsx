@@ -27,6 +27,7 @@ import { QUESTION_TYPE_LABELS, VocabularyQuestion } from '../../types/questions'
 
 // data
 import { subjects } from '../../data/subjects'
+import { useWrongQuestions } from '../../data/wrongQuestions'
 import {
   subjectGroups,
   SubjectGroup,
@@ -64,6 +65,8 @@ function Quiz(): React.ReactElement {
   const subject = subjectId ? subjects[subjectId] || null : null
   // 預覽所有題目的狀態
   const [previewAllQuestions, setPreviewAllQuestions] = useState<boolean>(false)
+  // 錯題（測驗列表的錯題複習卡片）
+  const wrongGroups = useWrongQuestions()
 
   // 取得測驗上下文
   const {
@@ -240,8 +243,8 @@ function Quiz(): React.ReactElement {
         'pvqc_read_listen',
       ].includes(currentStage.mode)
     ) {
-      // 取得所有單字題目
-      const allVocabQuestions = currentQuestions.filter(
+      // 干擾選項從整個科目的單字庫抽：錯題複習的階段可能只有一兩題
+      const allVocabQuestions = (subject?.questions ?? currentQuestions).filter(
         (q) => q.type === 'vocabulary',
       ) as VocabularyQuestion[]
 
@@ -543,6 +546,29 @@ function Quiz(): React.ReactElement {
                 <span className="material-symbols-rounded">chevron_right</span>
               </Link>
             </h1>
+
+            {/* 錯題複習入口 */}
+            <Link className="review-entry no-style" to="/review">
+              <span className="review-entry-icon material-symbols-rounded fill">
+                replay
+              </span>
+              <span className="review-entry-title">錯題複習</span>
+              <span className="review-entry-count">
+                {wrongGroups.length > 0 ? (
+                  <>
+                    <strong>
+                      {wrongGroups.reduce((sum, g) => sum + g.items.length, 0)}
+                    </strong>{' '}
+                    題待複習
+                  </>
+                ) : (
+                  '目前沒有錯題'
+                )}
+              </span>
+              <span className="review-entry-arrow material-symbols-rounded">
+                chevron_right
+              </span>
+            </Link>
 
             {/* PVQC 測驗入口 */}
             <div className="pvqc-section">

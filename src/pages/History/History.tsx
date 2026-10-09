@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useOutlet } from 'react-router-dom'
 import './History.scss'
 
@@ -17,7 +17,14 @@ function History(): React.ReactElement {
   const ready = useHistoryReady()
   // 開啟單筆紀錄時只顯示詳情頁（整頁捲動，不疊在列表上）
   const outlet = useOutlet()
-  const history = [...rawHistory].sort(
+  // 篩選：全部 / 一般測驗 / 錯題複習
+  const [filter, setFilter] = useState<'all' | 'quiz' | 'review'>('all')
+  const history = rawHistory
+    .filter(
+      (record) =>
+        filter === 'all' || (record.flowMode === 'review') === (filter === 'review'),
+    )
+    .sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   )
 
@@ -53,6 +60,26 @@ function History(): React.ReactElement {
             </Link>{' '}
             紀錄
           </h1>
+          {/* 篩選（沿用 PVQC 設定頁的切換樣式） */}
+          {rawHistory.length > 0 && (
+            <div className="setup-mode-switch history-filter">
+              {(
+                [
+                  ['all', '全部'],
+                  ['quiz', '測驗'],
+                  ['review', '複習'],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  className={`setup-mode-tab ${filter === value ? 'active' : ''}`}
+                  onClick={() => setFilter(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="history-list">
             {days.length > 0 ? (
               days.map(({ date, records }) => (
@@ -68,7 +95,9 @@ function History(): React.ReactElement {
                         ? 'pvqc_custom'
                         : 'standard')
                     const modeLabel =
-                      flowMode === 'pvqc_official'
+                      flowMode === 'review'
+                        ? '錯題複習'
+                        : flowMode === 'pvqc_official'
                         ? 'PVQC 官方'
                         : flowMode === 'pvqc_custom'
                           ? 'PVQC 自訂'
@@ -91,7 +120,14 @@ function History(): React.ReactElement {
                             {record.subject?.name || '未知測驗'}
                           </p>
                           <p>
-                            {modeLabel} · #
+                            <span
+                              className={
+                                flowMode === 'review' ? 'review-label' : undefined
+                              }
+                            >
+                              {modeLabel}
+                            </span>{' '}
+                            · #
                             {new Date(record.date)
                               .toLocaleString('zh-TW', {
                                 year: 'numeric',
@@ -130,7 +166,13 @@ function History(): React.ReactElement {
               ))
             ) : (
               <div className="history-section">
-                <p>{ready ? '尚無測驗紀錄' : '正在載入測驗紀錄…'}</p>
+                <p>
+                  {!ready
+                    ? '正在載入測驗紀錄…'
+                    : filter === 'review'
+                      ? '尚無錯題複習紀錄'
+                      : '尚無測驗紀錄'}
+                </p>
               </div>
             )}
           </div>
