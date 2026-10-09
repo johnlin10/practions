@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import '@/assets/fonts/fonts.scss'
 import '@/index.scss'
 import { router } from '@/router'
 import { RouterProvider } from 'react-router-dom'

@@ -10,6 +10,6 @@ export const TERMS_DESCRIPTION =
   '使用 Practions 前請先了解的服務內容、題庫說明與使用規範。'
 
 // 兩份文件的最後更新日期，內容有改就要一起更新
-export const LEGAL_UPDATED = '2026 年 10 月 8 日'
+export const LEGAL_UPDATED = '2026 年 10 月 9 日'
 
 export const CONTACT_EMAIL = 'johnlin@johnlin.me'

@@ -72,13 +72,12 @@ function Privacy(): React.ReactElement {
               Firestore），伺服器位於台灣（asia-east1
               區域）。資料庫規則限定只有您本人登入後，才能讀取與修改自己的資料。
             </p>
-            <p>Practions 使用以下第三方服務：</p>
-            <ul>
-              <li>Google Firebase：登入、資料儲存與網站託管</li>
-              <li>Google Fonts：網站的字型與圖示</li>
-            </ul>
             <p>
-              使用這些服務時，Google 會依{' '}
+              Practions 使用 Google Firebase 提供登入、資料儲存與網站託管。
+              網站的字型與圖示由 Practions 自行提供，不會連線到 Google Fonts。
+            </p>
+            <p>
+              使用 Firebase 時，Google 會依{' '}
               <a
                 href="https://policies.google.com/privacy?hl=zh-TW"
                 target="_blank"
