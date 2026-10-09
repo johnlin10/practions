@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "practions-22f27"
+  },
+  "targets": {
+    "practions-22f27": {
+      "hosting": {
+        "live": [
+          "practions"
+        ],
+        "beta": [
+          "practions-beta"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
