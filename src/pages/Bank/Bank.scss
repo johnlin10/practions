@@ -1,4 +1,5 @@
 @use '../../styles/list-group';
+@use '../../styles/fade';
 
 .subjects-section {
   margin-bottom: 30px;
@@ -182,16 +183,46 @@ span.lock-time {
       }
     }
 
+    // 搜尋區：只有搜尋框是實色底，捲上來的題目從搜尋框底部開始淡出，
+    // 有題型篩選時漸層延伸到篩選器下方，篩選器浮在漸層上
     .search-section {
       z-index: 100;
-      margin: 0;
-      margin-bottom: 12px;
+      margin: 0 0 12px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
       position: sticky;
       top: 60px;
       width: 100%;
-      background-color: var(--background-color);
+
+      .search-box {
+        position: relative;
+        width: 100%;
+        background-color: var(--background-color);
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          height: 24px;
+          background: fade.fade-gradient(var(--background-color));
+          pointer-events: none;
+        }
+      }
+
+      // 篩選器（含間距與立體陰影）高約 44px，漸層再往下延伸一小段
+      &.has-filter .search-box::after {
+        height: 68px;
+      }
+
+      // 比搜尋框小、圓角也小，往內縮排（同設定頁列表標題與外框的關係）
+      .filter-chips {
+        position: relative;
+        padding-left: 12px;
+      }
 
       .search-input {
         width: 100%;
@@ -203,11 +234,6 @@ span.lock-time {
           border-color: var(--primary-color);
         }
       }
-      border-radius: 0 0 12px 12px;
-      -webkit-border-radius: 0 0 12px 12px;
-      -moz-border-radius: 0 0 12px 12px;
-      -ms-border-radius: 0 0 12px 12px;
-      -o-border-radius: 0 0 12px 12px;
     }
 
     .questions-list {

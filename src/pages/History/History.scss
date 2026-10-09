@@ -1,5 +1,13 @@
 @use '../../styles/list-group';
 
+// 標題列：右側放篩選
+h1.history-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
 // 各日期的列表間距同設定頁
 .history-list {
   display: flex;

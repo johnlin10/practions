@@ -97,7 +97,7 @@ const SingleBank: React.FC = () => {
    * @returns {React.ReactNode} - 渲染單選題
    */
   const renderSingleChoice = (
-    question: SingleChoiceQuestion
+    question: SingleChoiceQuestion,
   ): React.ReactNode => {
     return (
       <div key={question.id} className="question-item">
@@ -134,7 +134,7 @@ const SingleBank: React.FC = () => {
    * @returns {React.ReactNode} - 渲染多選題
    */
   const renderMultipleChoice = (
-    question: MultipleChoiceQuestion
+    question: MultipleChoiceQuestion,
   ): React.ReactNode => {
     return (
       <div key={question.id} className="question-item">
@@ -264,7 +264,7 @@ const SingleBank: React.FC = () => {
               ?.toLowerCase()
               .includes(searchTerm.toLowerCase()) ||
             question.options?.some((option) =>
-              option.toLowerCase().includes(searchTerm.toLowerCase())
+              option.toLowerCase().includes(searchTerm.toLowerCase()),
             )
           )
 
@@ -410,36 +410,46 @@ const SingleBank: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* 題型篩選（沿用 PVQC 設定頁的切換樣式） */}
-            {questionTypes.length > 1 && (
-              <div className="setup-mode-switch">
-                {[null, ...questionTypes].map((type) => (
-                  <button
-                    key={type ?? 'all'}
-                    className={`setup-mode-tab ${typeFilter === type ? 'active' : ''}`}
-                    onClick={() => setTypeFilter(type)}
-                  >
-                    {type ? QUESTION_TYPE_LABELS[type].replace('題', '') : '全部'}
-                  </button>
-                ))}
-              </div>
-            )}
-
             {/* 搜尋區域 */}
-            <div className="search-section">
-              <input
-                type="text"
-                placeholder={getSearchPlaceholder(subject.baseQuestionType)}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
+            <div
+              className={`search-section${questionTypes.length > 1 ? ' has-filter' : ''}`}
+            >
+              <div className="search-box">
+                <input
+                  type="text"
+                  placeholder={getSearchPlaceholder(subject.baseQuestionType)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+              {/* 題型篩選（混合題型的題庫才有），跟著搜尋框固定在頂部 */}
+              {questionTypes.length > 1 && (
+                <div
+                  className="filter-chips"
+                  role="group"
+                  aria-label="依題型篩選"
+                >
+                  {[null, ...questionTypes].map((type) => (
+                    <button
+                      key={type ?? 'all'}
+                      className={typeFilter === type ? 'active' : undefined}
+                      aria-pressed={typeFilter === type}
+                      onClick={() => setTypeFilter(type)}
+                    >
+                      {type
+                        ? QUESTION_TYPE_LABELS[type].replace('題', '')
+                        : '全部'}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 題目列表 */}
             <div className="questions-list">
               {getFilteredQuestions().map((question) =>
-                renderQuestionContent(question)
+                renderQuestionContent(question),
               )}
             </div>
           </>

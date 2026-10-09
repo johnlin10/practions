@@ -22,11 +22,10 @@ function History(): React.ReactElement {
   const history = rawHistory
     .filter(
       (record) =>
-        filter === 'all' || (record.flowMode === 'review') === (filter === 'review'),
+        filter === 'all' ||
+        (record.flowMode === 'review') === (filter === 'review'),
     )
-    .sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  )
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   // 依日期分組，同一天的紀錄放在同一個列表
   const days: { date: string; records: typeof history }[] = []
@@ -54,32 +53,35 @@ function History(): React.ReactElement {
     <>
       <div className="page">
         <div className="page-container">
-          <h1>
-            <Link className="pre-path no-style" to="/quiz">
-              測驗 /
-            </Link>{' '}
-            紀錄
+          <h1 className="history-title">
+            <span>
+              <Link className="pre-path no-style" to="/quiz">
+                測驗 /
+              </Link>{' '}
+              紀錄
+            </span>
+            {/* 篩選：跟著標題固定在頂部 */}
+            {rawHistory.length > 0 && (
+              <span className="filter-chips" role="group" aria-label="篩選紀錄">
+                {(
+                  [
+                    ['all', '全部'],
+                    ['quiz', '測驗'],
+                    ['review', '複習'],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    key={value}
+                    className={filter === value ? 'active' : undefined}
+                    aria-pressed={filter === value}
+                    onClick={() => setFilter(value)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </span>
+            )}
           </h1>
-          {/* 篩選（沿用 PVQC 設定頁的切換樣式） */}
-          {rawHistory.length > 0 && (
-            <div className="setup-mode-switch history-filter">
-              {(
-                [
-                  ['all', '全部'],
-                  ['quiz', '測驗'],
-                  ['review', '複習'],
-                ] as const
-              ).map(([value, label]) => (
-                <button
-                  key={value}
-                  className={`setup-mode-tab ${filter === value ? 'active' : ''}`}
-                  onClick={() => setFilter(value)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
           <div className="history-list">
             {days.length > 0 ? (
               days.map(({ date, records }) => (
@@ -98,10 +100,10 @@ function History(): React.ReactElement {
                       flowMode === 'review'
                         ? '錯題複習'
                         : flowMode === 'pvqc_official'
-                        ? 'PVQC 官方'
-                        : flowMode === 'pvqc_custom'
-                          ? 'PVQC 自訂'
-                          : '標準'
+                          ? 'PVQC 官方'
+                          : flowMode === 'pvqc_custom'
+                            ? 'PVQC 自訂'
+                            : '標準'
                     // 官方模擬：顯示通過與否
                     const officialPassed =
                       flowMode === 'pvqc_official'
@@ -122,7 +124,9 @@ function History(): React.ReactElement {
                           <p>
                             <span
                               className={
-                                flowMode === 'review' ? 'review-label' : undefined
+                                flowMode === 'review'
+                                  ? 'review-label'
+                                  : undefined
                               }
                             >
                               {modeLabel}
