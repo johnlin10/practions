@@ -5,6 +5,14 @@ export type QuestionTypeId =
   | 'true_false' // 是非題
   | 'vocabulary' // 單字題
 
+// 題型名稱（混合題型的測驗、題庫篩選、紀錄分組顯示用）
+export const QUESTION_TYPE_LABELS: Record<QuestionTypeId, string> = {
+  single_choice: '單選題',
+  multiple_choice: '多選題',
+  true_false: '是非題',
+  vocabulary: '單字題',
+}
+
 // 單選題
 export interface SingleChoiceQuestion {
   type: 'single_choice'

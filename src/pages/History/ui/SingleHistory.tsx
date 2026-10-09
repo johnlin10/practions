@@ -21,11 +21,12 @@ import {
   MultipleChoiceQuestion,
   TrueFalseQuestion,
   VocabularyQuestion,
+  QUESTION_TYPE_LABELS,
 } from '../../../types/questions'
 import { AnswerRecord } from '../../../types/answers'
 
 // data
-import { subjects } from '../../../data/subjects'
+import { findSubject } from '../../../data/subjects'
 import { showAlert } from '../../../utils/dialog'
 
 // interfaces
@@ -101,7 +102,7 @@ function SingleHistory(): React.ReactElement {
      */
     const checkLockStatus = (): void => {
       // 取得科目
-      const subject = subjects[selectedRecord.subject.id]
+      const subject = findSubject(selectedRecord.subject.id)
       // 如果科目存在且被鎖定，則顯示錯誤訊息
       if (subject && isSubjectLocked(subject)) {
         navigate('/history')
@@ -337,15 +338,7 @@ function SingleHistory(): React.ReactElement {
       // 按題型分組
       analyzedQuestions.forEach((analyzed) => {
         const typeName =
-          analyzed.question.type === 'single_choice'
-            ? '單選題'
-            : analyzed.question.type === 'multiple_choice'
-            ? '多選題'
-            : analyzed.question.type === 'true_false'
-            ? '是非題'
-            : analyzed.question.type === 'vocabulary'
-            ? '單字題'
-            : '其他題型'
+          QUESTION_TYPE_LABELS[analyzed.question.type] ?? '其他題型'
 
         // 如果分組不存在，則創建分組
         if (!groupedByType[typeName]) {

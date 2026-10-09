@@ -8,6 +8,8 @@ import { Question } from '../../../types/questions'
 interface Props {
   question: Question
   currentAnswer?: string | number | number[] | boolean
+  // 混合題型的測驗顯示這題的題型，取代「請回答以下問題」
+  typeLabel?: string
   onSubmit: (
     questionId: string,
     answer: string | number | number[] | boolean
@@ -23,7 +25,12 @@ interface Props {
  * @param {() => void} props.onSubmit - 提交答案的回調函數
  * @returns {React.ReactElement} - 標準題目元件
  */
-function StandardQuestion({ question, currentAnswer, onSubmit }: Props) {
+function StandardQuestion({
+  question,
+  currentAnswer,
+  typeLabel,
+  onSubmit,
+}: Props) {
   // 選擇的答案
   const [selectedAnswer, setSelectedAnswer] = useState<
     string | number | number[] | boolean | null
@@ -210,7 +217,7 @@ function StandardQuestion({ question, currentAnswer, onSubmit }: Props) {
   }
   return (
     <div className="question-block standard-question">
-      <h3>請回答以下問題</h3>
+      <h3>{typeLabel ?? '請回答以下問題'}</h3>
 
       <div className="question-content">
         {/* 題目顯示 */}

@@ -23,7 +23,7 @@ import {
 
 // types
 import { SubjectConfig, QuizFlowConfig } from '../../types/quiz-flows'
-import { VocabularyQuestion } from '../../types/questions'
+import { QUESTION_TYPE_LABELS, VocabularyQuestion } from '../../types/questions'
 
 // data
 import { subjects } from '../../data/subjects'
@@ -397,11 +397,13 @@ function Quiz(): React.ReactElement {
       }
     }
 
-    // 其他題型使用標準元件
+    // 其他題型使用標準元件；同一階段有多種題型時，標出這題的題型
+    const isMixed = new Set(currentQuestions.map((q) => q.type)).size > 1
     return (
       <StandardQuestion
         question={question}
         currentAnswer={currentAnswer}
+        typeLabel={isMixed ? QUESTION_TYPE_LABELS[question.type] : undefined}
         onSubmit={(id, answer) => submitAnswer(id, answer)}
       />
     )
@@ -706,7 +708,7 @@ const PreviewAllQuestions: React.FC<PreviewAllQuestionsProps> = ({
         className={`questions-grid ${
           quizState.currentStage.mode === 'pvqc_write' ? 'write-question' : ''
         } ${
-          quizState.baseQuestionType === 'multiple_choice'
+          questions.some((q) => q.type === 'multiple_choice')
             ? 'multiple-choice-question'
             : ''
         }`}

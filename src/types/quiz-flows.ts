@@ -10,6 +10,8 @@ export interface QuizStageConfig {
   stageId: string
   mode: QuizModeId
   questionCount: number
+  // 出題組成：各題型抽幾題（混合題型的題庫才有），抽完全部打散
+  composition?: Partial<Record<QuestionTypeId, number>>
   timeLimit: number
   // 該階段及格題數（PVQC 官方模式才有；Spelling=40, 其餘=70）
   passingScore?: number

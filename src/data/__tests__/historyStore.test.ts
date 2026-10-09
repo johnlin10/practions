@@ -23,8 +23,9 @@ const storedSnapshots = (): Record<string, unknown> =>
 
 const accounting = subjects.accounting.questions
 const vocab = subjects.pvqc_ai.questions as VocabularyQuestion[]
-const multi = subjects.ail_certification_exam_multiple_choice.questions[0]
-const trueFalse = subjects.ail_certification_exam_true_false.questions[0]
+const ail = subjects.ail_certification_exam.questions
+const multi = ail.find((q) => q.type === 'multiple_choice')!
+const trueFalse = ail.find((q) => q.type === 'true_false')!
 
 // 舊記錄存的題目與目前題庫不同（模擬題庫改過），用來證明舊記錄顯示的是自己存的版本
 const oldCopy = { ...accounting[0], question: '舊版題目文字' }
@@ -304,6 +305,31 @@ describe('新記錄：題目快照', () => {
     ])
     expect(loaded.results.totalCorrect).toBe(1)
     expect(loaded.results.totalQuestions).toBe(2)
+  })
+
+  it('AIL 合併前的舊紀錄快照遺失時，依舊科目 ID 與題號找回合併後的題目', async () => {
+    const record = newStandard('r1', [])
+    record.subject = {
+      id: 'ail_certification_exam_multiple_choice',
+      name: 'AIL 證照檢定（多選）',
+      baseQuestionType: 'multiple_choice',
+    }
+    record.results.questionResults = [
+      {
+        questionId: '5',
+        snapshot: 'ail_certification_exam_multiple_choice/5#gone',
+        userAnswer: [0],
+        correctAnswer: [0],
+        isCorrect: true,
+        isUnanswered: false,
+      } as never,
+    ]
+    localStorage.setItem(STORAGE_KEYS.QUIZ_HISTORY, JSON.stringify([record]))
+
+    const [loaded] = (await loadStore()).getAllHistory()
+    expect(loaded.results.questionResults![0].question).toEqual(
+      ail.find((q) => q.id === '205'),
+    )
   })
 
   it('清除紀錄時快照一起清空', async () => {

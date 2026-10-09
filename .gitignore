@@ -38,3 +38,6 @@ yarn-error.log*
 database.rules.json
 storage.rules
 
+
+# 本機測驗紀錄備份（含個人作答資料，不進版控）
+practions-history-*.json

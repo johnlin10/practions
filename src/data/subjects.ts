@@ -1,14 +1,20 @@
 import { Question, QuestionTypeId } from '../types/questions'
-import { SubjectConfig, QuizFlowConfig } from '../types/quiz-flows'
+import {
+  SubjectConfig,
+  QuizFlowConfig,
+  QuizStageConfig,
+} from '../types/quiz-flows'
 import type { SubjectGroupId } from './subject-groups'
 
 // 定義舊格式的型別（向後兼容）
 export interface Subject {
   id: string
   name: string
-  quizType: string
+  quizType?: string // 單一題型的題庫才需要；混合題型改用 composition
   quizOpen: boolean
   questionCount: number
+  // 混合題型：各題型抽幾題，不足 questionCount 的部分從其他題目隨機補滿
+  composition?: QuizStageConfig['composition']
   timeLimit: number
   lockTime?: string[]
   group?: SubjectGroupId // 所屬題組（見 data/subject-groups.ts）
@@ -41,7 +47,8 @@ export function convertToSubjectConfig(subject: Subject): SubjectConfig {
       baseQuestionType = 'vocabulary'
       break
     default:
-      baseQuestionType = 'single_choice'
+      // 混合題型沒有 quizType，以第一題的題型為代表
+      baseQuestionType = subject.questions[0]?.type ?? 'single_choice'
   }
 
   // 創建標準單階段流程配置
@@ -54,6 +61,7 @@ export function convertToSubjectConfig(subject: Subject): SubjectConfig {
         stageId: 'main',
         mode: 'standard',
         questionCount: subject.questionCount,
+        composition: subject.composition,
         timeLimit: subject.timeLimit,
       },
     ],
@@ -11174,13 +11182,13 @@ const rawSubjects: Subjects = {
       },
     ],
   },
-  ail_certification_exam_once_choice: {
-    id: 'ail_certification_exam_once_choice',
-    group: 'ail_certification',
-    name: 'AIL 證照檢定（單選）',
-    quizType: 'once_choice',
+  ail_certification_exam: {
+    id: 'ail_certification_exam',
+    name: 'AIL 證照檢定',
     quizOpen: true,
     questionCount: 50,
+    // 單選 35、多選 10、是非 5；題號：單選 1–、多選 201–、是非 301–
+    composition: { single_choice: 35, multiple_choice: 10, true_false: 5 },
     timeLimit: 30,
     questions: [
       {
@@ -12599,20 +12607,9 @@ const rawSubjects: Subjects = {
         ],
         correctIndex: 2,
       },
-    ],
-  },
-  ail_certification_exam_multiple_choice: {
-    id: 'ail_certification_exam_multiple_choice',
-    group: 'ail_certification',
-    name: 'AIL 證照檢定（多選）',
-    quizType: 'multiple_choice',
-    quizOpen: true,
-    questionCount: 20,
-    timeLimit: 15,
-    questions: [
       {
         type: 'multiple_choice',
-        id: '1',
+        id: '201',
         question:
           '在創建新零售時，至少要滿足_____________等四項需求。(請選擇二項)',
         options: [
@@ -12625,7 +12622,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '2',
+        id: '202',
         question:
           '弱人工智慧(weak AI)又稱為專用人工智慧(ANI, artificial narrow intelligence)，應用實例有_____________。(請選擇二項)',
         options: [
@@ -12638,7 +12635,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '3',
+        id: '203',
         question:
           '有專家將強人工智慧(strong AI)分成兩類，是指_____________。(請選擇二項)',
         options: [
@@ -12651,7 +12648,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '4',
+        id: '204',
         question:
           '下列_____________資訊服務利用了人工智慧的機器學習技術。(請選三項(含)以上)',
         options: [
@@ -12664,7 +12661,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '5',
+        id: '205',
         question:
           '下列屬於知識發現(knowledge discovery)的技術有_____________。(請選三項(含)以上)',
         options: [
@@ -12677,7 +12674,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '6',
+        id: '206',
         question:
           '人工智慧定義中的“智慧”，涉及到諸如_____________等問題。(請選三項(含)以上)',
         options: ['意識', '自我', '思維', '論證'],
@@ -12685,7 +12682,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '7',
+        id: '207',
         question:
           '人工智慧的發展突破了“三算”方面的制約因素，這“三算”包括_____________。(請選三項(含)以上)',
         options: ['算料', '演算法', '算力', '運算元'],
@@ -12693,7 +12690,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '8',
+        id: '208',
         question:
           '基於電腦視覺的圖像檢索，可以分為類似文本搜尋引擎的三個步驟，包括_____________。(請選三項(含)以上)',
         options: ['建立索引', '提取特徵', '查詢', '清晰'],
@@ -12701,7 +12698,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '9',
+        id: '209',
         question:
           '所謂“新零售”是指:個人、企業以互聯網為依託，涵蓋_____________的零售新模式。(請選三項(含)以上)',
         options: [
@@ -12714,7 +12711,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '10',
+        id: '210',
         question:
           '語音信號處理是一門多學科的綜合技術。它以_____________以及聲學等基本學科為基礎。(請選三項(含)以上)',
         options: ['生理學', '心理學', '語言學', '農業學'],
@@ -12722,7 +12719,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '11',
+        id: '211',
         question:
           'ANN(人工神經網路)從股票市場預測到_____________和許多其他應用領域都有突出的應用表現。(請選三項(含)以上)',
         options: ['汽車自主控制', '圖像模式識別', '語音辨識', '經濟預測'],
@@ -12730,7 +12727,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '12',
+        id: '212',
         question:
           '人工智慧AI與智慧城市的關係為_____________。(請選三項(含)以上)',
         options: [
@@ -12743,7 +12740,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '13',
+        id: '213',
         question:
           '大數據的混亂(chaos)資料，是指_____________。(請選三項(含)以上)',
         options: [
@@ -12756,7 +12753,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '14',
+        id: '214',
         question:
           '智慧醫療以人工智慧為核心的ICT群組技術支援包括_____________等，正在顛覆醫療觀念、體系與技術及服務。(請選三項(含)以上)',
         options: ['雲運算技術', '大數據分析', '物聯網技術', '穿戴式/移動裝置'],
@@ -12764,7 +12761,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '15',
+        id: '215',
         question:
           '相較於一般的監督式學習的機器學習系統，深度學習系統還存在_____________的問題。(請選兩項(含)以上)',
         options: [
@@ -12777,7 +12774,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '16',
+        id: '216',
         question:
           '自從SARS, MERS及新冠狀病毒COVID-19連續發生以來，作為智慧醫療體系中的區域衛生系統的發展就變成很重要，區域衛生系統可包括_____________等。(請選三項(含)以上)',
         options: [
@@ -12790,7 +12787,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '17',
+        id: '217',
         question:
           '關於資料結構化與非結構化的觀點，下列說法正確的是_____________。(請選三項(含)以上)',
         options: [
@@ -12803,7 +12800,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '18',
+        id: '218',
         question:
           '在知識發現(knowledge discovery)的處理流程中，有_____________等流程項目。(請選三項(含)以上)',
         options: [
@@ -12817,7 +12814,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '19',
+        id: '219',
         question:
           '下列_____________可能是由於醫療資訊不暢，醫療資源兩極化，醫療監督機制不全等原因導致的。(請選三項(含)以上)',
         options: [
@@ -12830,7 +12827,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '20',
+        id: '220',
         question:
           '人工智慧AI在數位醫療健康領域應用中已經扮演樞紐角色，應用於_____________等三大領域。(請選三項(含)以上)',
         options: ['數位醫療', '精准醫療', '專屬醫學', '預防醫學'],
@@ -12838,7 +12835,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '21',
+        id: '221',
         question:
           '人工智慧技術AI與三大新興技術跨領域結合，組成人工智慧物聯網，分別是指_____________。(請選三項(含)以上)',
         options: [
@@ -12851,7 +12848,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '22',
+        id: '222',
         question:
           '人工智慧生態系統中三項至關重要的相關技術基礎，包括_____________。(請選三項(含)以上)',
         options: ['信任', '安全性', '潛力性', '可靠性'],
@@ -12859,7 +12856,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '23',
+        id: '223',
         question:
           '使城市交通系統具備普及化泛在感知、互聯、分析、預測、控制、應用等能力，是建設智慧城市的必經之路，而在智慧交通體系中，道路交通資訊搜集主要包括_____________。(請選三項(含)以上)',
         options: ['路況監視', '車輛定位', '交通控制', '旅遊資訊'],
@@ -12867,7 +12864,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '24',
+        id: '224',
         question:
           '使城市交通系統具備普及化泛在感知、互聯、分析、預測、控制、應用等能力，是建設智慧城市的必經之路。而在智慧交通體系中，交通資訊發佈與路況管理主要包括_____________。(請選三項(含)以上)',
         options: ['公車到站信息', '用路人信息', '交通控制', '旅遊資訊'],
@@ -12875,7 +12872,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '25',
+        id: '225',
         question:
           '國際市場產業研究機構(IHS, Information Handling Services)曾指出，關於現代化的城市(city)主要須具備的功能有：移動(mobility)和運輸(transport)、能源(energy)與永續(sustainability)、_____________等城市功能(city functions)。(請選三項(含)以上)',
         options: [
@@ -12888,7 +12885,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '26',
+        id: '226',
         question:
           '大數據的特點可用5V或3V來代表，_____________就是3V的代表。(請選三項(含)以上)',
         options: [
@@ -12901,7 +12898,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '27',
+        id: '227',
         question:
           '得益於人工智慧技術的興起，一些行業崗位將呈現出顯著的增長趨勢。例如，下面_____________等三項即是。(請選三項(含)以上)',
         options: [
@@ -12914,7 +12911,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '28',
+        id: '228',
         question:
           '數位城市或智慧城市3S技術，是指_____________。(請選三項(含)以上)',
         options: [
@@ -12927,7 +12924,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '29',
+        id: '229',
         question: '智慧客服的核心價值在於_____________。(請選三項(含)以上)',
         options: [
           '對成本、效率、員工滿意度、客戶滿意度多方面解決問題與痛點',
@@ -12939,7 +12936,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '30',
+        id: '230',
         question:
           '機器視覺需要_____________，以及物體建模等處理。一個有能力的視覺系統應該把所有這些處理都緊密地集成在一起。(請選三項(含)以上)',
         options: ['幾何處理和推理', '圖像信號', '圖像聚合', '紋理和顏色建模'],
@@ -12947,7 +12944,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '31',
+        id: '231',
         question:
           '為了發展擬人化的特性(具有人工意識或人工大腦)，許多知名企業提出人工大腦的基本框架。例如，有企業將人工智慧大腦劃分為應用層、認知層、感知層、演算法層、大數據、及雲計算等幾個層。下列_____________是屬於認知層。(請選三項(含)以上)',
         options: ['自然語言處理', '知識圖譜', '圖像識別', '用戶畫像'],
@@ -12955,7 +12952,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '32',
+        id: '232',
         question:
           '要完全理解大多數機器學習演算法，需要對一些關鍵的數學概念有一個基本的理解。機器學習使用的數學知識主要包括_____________。(請選三項(含)以上)',
         options: ['線性代數', '微積分', '解析幾何', '概率和統計'],
@@ -12963,7 +12960,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '33',
+        id: '233',
         question:
           '要落實推動工業4.0需要先從技術面、行為面、與觀念面來瞭解工業4.0的重點內涵。其中的「虛實合一系統」是_____________。(請選三項(含)以上)',
         options: [
@@ -12976,7 +12973,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '34',
+        id: '234',
         question:
           '通過總結人工智慧發展歷程中的經驗和教訓，我們可以得到的啟示是_____________。(請選三項(含)以上)',
         options: [
@@ -12989,7 +12986,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '35',
+        id: '235',
         question:
           '關於大數據與小數據的差異性，下列說法正確的是_____________。(請選三項(含)以上)',
         options: [
@@ -13002,7 +12999,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '36',
+        id: '236',
         question: '關於大數據處理數據的觀點有_____________。(請選三項(含)以上)',
         options: [
           '紛繁的數據越多越好',
@@ -13014,7 +13011,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '37',
+        id: '237',
         question:
           '關於智慧工廠應變力的具體意義與功能有_____________。(請選三項(含)以上)',
         options: [
@@ -13027,7 +13024,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '38',
+        id: '238',
         question:
           '為了發展擬人化的特性(具有人工意識或人工大腦)，許多知名企業提出人工大腦的基本框架。例如，有企業將人工智慧大腦劃分為應用層、認知層、感知層、演算法層、大數據、及雲計算等幾個層。下列_____________是屬於感知層。(請選擇二項)',
         options: ['圖像識別', '機器學習', '語音辨識', '大數據'],
@@ -13035,7 +13032,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '39',
+        id: '239',
         question:
           '知識圖譜(knowledge graph)系統的生命週期包含四個重要環節：_____________、知識管理與知識應用。(請選兩項)',
         options: [
@@ -13048,7 +13045,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '40',
+        id: '240',
         question: '關於智慧交通的英文為_____________。(請選擇二項)',
         options: [
           'ITS',
@@ -13060,7 +13057,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '41',
+        id: '241',
         question:
           '人工智慧經常被並列稱為世界三大尖端技術之一，下列說法正確的是_____________。(請選三項(含)以上)',
         options: [
@@ -13073,7 +13070,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '42',
+        id: '242',
         question:
           '圖像識別的發展經歷了三個階段，包括_____________等。(請選三項(含)以上)',
         options: ['文字識別', '圖元識別', '物體識別', '數位影像處理與識別'],
@@ -13081,7 +13078,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '43',
+        id: '243',
         question:
           '在大規模個性化定制的生產需求下，企業從工業3.0自動化工廠升級為工業4.0智慧工廠的運作模式通常會考慮的處理方式有_____________。(請選三項(含)以上)',
         options: [
@@ -13094,7 +13091,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '44',
+        id: '244',
         question:
           '影像處理技術的主要內容包括3個部分，包括_____________等。(請選三項(含)以上)',
         options: ['匹配、描述和識別', '數據排序', '圖像壓縮', '增強和復原'],
@@ -13102,7 +13099,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '45',
+        id: '245',
         question:
           '智慧城市經常與_____________、無線城市、生態城市、低碳城市等區域發展概念相交叉，甚至與電子政務(行政事務)、智慧交通、智慧電網等行業資訊化概念產生重疊。(請選三項(含)以上)',
         options: ['數字城市', '宜居城市', '感知城市', '智能城市'],
@@ -13110,7 +13107,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '46',
+        id: '246',
         question:
           '有研究指出，人工智慧可能會給人類社會帶來潛在威脅，包括_____________。(請選三項(含)以上)',
         options: ['物理安全', '年長者安全', '數位安全', '政治安全'],
@@ -13118,7 +13115,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '47',
+        id: '247',
         question:
           '目前智慧客服還不能完全取代人工客服。企業將智慧客服更多地用於_____________等方式進行。(請選擇二項)',
         options: [
@@ -13131,7 +13128,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '48',
+        id: '248',
         question:
           '立足於大數據思維，將城市交通資料有條件地開放，其中_____________等，就是基於開放的資料(open data)進行資料融合、深度挖掘的實際應用案例。(請選兩項)',
         options: [
@@ -13144,7 +13141,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '49',
+        id: '249',
         question: '關於大數據說法正確的是_____________。(請選兩項)',
         options: [
           '從大數據中被挖掘出來的有用資訊去服務城市就叫做“智慧城市”，去服務交通就叫做“智慧交通”，去服務家庭就叫做“智慧家居”，去服務於醫院就叫做“智慧醫院”',
@@ -13156,7 +13153,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '50',
+        id: '250',
         question:
           'AGI ( artificial general intelligence)通用人工智慧又稱為強人工智慧，應用實例有_____________。(請選擇二項)',
         options: [
@@ -13169,7 +13166,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '51',
+        id: '251',
         question: '下面_____________是屬於深度學習的技術。(請選三項(含)以上)',
         options: [
           '專家系統',
@@ -13181,7 +13178,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '52',
+        id: '252',
         question:
           '人工智慧當前的發展具有“四新”特徵，包括新挑戰以及_____________等。(請選三項(含)以上)',
         options: ['新能源', '新突破', '新高地', '新動能'],
@@ -13189,7 +13186,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '53',
+        id: '253',
         question:
           '圖像識別的主要方法有三種模式，包括_____________等模式。(請選三項(含)以上)',
         options: ['圖元模式', '模糊模式', '結構模式', '統計模式'],
@@ -13197,7 +13194,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '54',
+        id: '254',
         question:
           '在圖像識別領域中，模式識別是一門與概率、統計緊密結合的科學，主要分為_____________模式識別等三種。(請選三項(含)以上)',
         options: ['智能', '句法', '統計', '模糊'],
@@ -13205,7 +13202,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '55',
+        id: '255',
         question:
           '目前深度學習(deep learning)各種神經網路的演算法，主要是基於_____________的方法。(請選三項(含)以上)',
         options: [
@@ -13218,7 +13215,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '56',
+        id: '256',
         question:
           '要建立一套語音理解系統需要有_____________等三類知識或技術的支援。(請選三項(含)以上)',
         options: ['知識處理', '語音知識', '語音辨識', '語音特徵'],
@@ -13226,7 +13223,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '57',
+        id: '257',
         question:
           '在智慧家居中，各網路家電要實現家電間互聯和資訊交換，需要解決的技術問題有_____________。(請選擇二項)',
         options: [
@@ -13239,7 +13236,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '58',
+        id: '258',
         question:
           '在電腦上實現人工智慧常見的有2種不同方式，其中，_____________等兩種是屬於模擬法(modeling approach)。(請選擇二項)',
         options: [
@@ -13252,7 +13249,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '59',
+        id: '259',
         question:
           '網路家電技術包括兩個層面。分別是__________。（請選擇二項(含)以上）',
         options: [
@@ -13265,7 +13262,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '60',
+        id: '260',
         question: '下列關於人工智慧的說法何者正確?',
         options: [
           '人工智慧是關於知識的學科―怎樣表示知識以及怎樣獲得知識並使用知識的科學。',
@@ -13277,7 +13274,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '61',
+        id: '261',
         question:
           '在知識發現(knowledge discovery)的流程中，屬於資料預處理(data preprocessing)的工作有_____________。(請選擇二項(含)以上)',
         options: [
@@ -13290,7 +13287,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '62',
+        id: '262',
         question:
           '物聯網IoT技術在醫療領域的應用潛力巨大，利用物聯網技術構建“電子醫療”服務體系，可以為醫療服務領域帶來進步。包括_____________等都是因物聯網技術帶來的便利。(請選擇二項(含)以上)',
         options: [
@@ -13303,7 +13300,7 @@ const rawSubjects: Subjects = {
       },
       {
         type: 'multiple_choice',
-        id: '63',
+        id: '263',
         question:
           '智慧家居產品被稱為“輕巧”型的產品，具有_____________的特點。(請選擇二項(含)以上)',
         options: [
@@ -13314,213 +13311,202 @@ const rawSubjects: Subjects = {
         ],
         correctIndexes: [0, 1, 3],
       },
-    ],
-  },
-  ail_certification_exam_true_false: {
-    id: 'ail_certification_exam_true_false',
-    group: 'ail_certification',
-    name: 'AIL 證照檢定（是非）',
-    quizType: 'true_false',
-    quizOpen: true,
-    questionCount: 29,
-    timeLimit: 10,
-    questions: [
       {
         type: 'true_false',
-        id: '1',
+        id: '301',
         question:
           '智慧城市實質上是運用現代資訊技術推動城市運行系統的互聯、整合、高效和智慧，以達到為城市人創造更加美好的生活，使城市發展更加舒適便利、安全和諧、更具活力。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '2',
+        id: '302',
         question:
           '建立在相關關係分析法(correlation analysis)基礎上的預測是大數據的核心。這種預測發生的頻率非常高，經常會有它的創新性，而且應用會越來越多。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '3',
+        id: '303',
         question:
           '當用戶量過大時，企業有限的客服能力會成為用戶滿意度下降的一個原因，而採用非人工的智慧客服方式就可幫助為企業解決這一問題。',
         correctAnswer: false,
       },
       {
         type: 'true_false',
-        id: '4',
+        id: '304',
         question:
           '世界衛生組織（WHO）對「智慧醫療」定義為：資訊通訊科技(ICT)在醫療及健康領域的應用，包括醫療照護、疾病管理、公共衛生監測、教育和研究。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '5',
+        id: '305',
         question:
           '大數據的混亂(chaos)資料，簡單地說就是隨著資料的增加，錯誤率也會相應增加。在整合來源不同的各類資訊的時候，因為它們通常不完全一致，所以也會讓大數據加大混亂程度。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '6',
+        id: '306',
         question:
           '若與一般未經訓練過的圖像識別系統相比較，人類的圖像識別能力是很強的。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '7',
+        id: '307',
         question:
           '隨著“新零售”模式的逐步落地，線上和線下將從原來的相對獨立、相互衝突逐漸轉化為互為促進、彼此融合，電子商務的表現形式和商業路徑必定會發生根本性的轉變。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '8',
+        id: '308',
         question:
           '工業4.0不僅是自動化，而是「整條價值鏈全週期管理與服務」的新觀念。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '9',
+        id: '309',
         question: '簡單地說，深度學習DL可以理解為進行“特徵學習”或“表示學習”。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '10',
+        id: '310',
         question: '未來的智慧交通將會是車車相聯、車路相聯的車聯網環境。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '12',
+        id: '312',
         question:
           '在機器學習眾多技術中，又以深度學習(DP)所取得的進步最為顯著。深度學習所帶來的重大技術革命之一，甚至有可能顛覆過去長期以來人們對互聯網技術的認知，實現技術體驗的跨越式發展。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '13',
+        id: '313',
         question:
           '全球各先進國家，在有些地區的城鎮開始探索如何以數位城市(digital city)建設的基礎上，繼續推動智慧城市的建設。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '14',
+        id: '314',
         question: '語音辨識是實現語音自動控制的基礎之一。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '15',
+        id: '315',
         question:
           '人工智慧AI是研究如何應用電腦的軟/硬體來類比人類某些智慧行為的基本理論、方法和技術。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '16',
+        id: '316',
         question:
           '在大數據時代中，雖然相關關係是無法預知未來的，但是它只能預測可能發生的事情。對大數據分析師而言，已經極其珍貴了。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '18',
+        id: '318',
         question:
           'AGV自動導引運輸車是智能製造中物流系統的關鍵設備之一，通常是以電池為動力，進行非接觸式導引。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '20',
+        id: '320',
         question:
           '谷歌的流感趨勢預測是透過分析整個資料庫，分析了全美國幾十億條互聯網檢索記錄。這樣才能提高微觀層面分析的準確性，甚至能夠推測出美國某特定城市的流感狀況。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '21',
+        id: '321',
         question:
           '在智慧醫療中，醫生工作站的核心工作是採集、存儲、傳輸、處理和瞭解病人健康狀況，和醫療資訊的查詢與應用。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '22',
+        id: '322',
         question:
           '機器學習ML新階段的重要表現之一是：機器學習成為新的邊緣學科，並且在很多大學成為一門課程。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '23',
+        id: '323',
         question:
           '從應用面而言，機器人專家將機器人分為兩大類，即製造環境下的工業機器人和非製造環境下的服務與仿人型機器人（特種機器人）。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '24',
+        id: '324',
         question:
           '在智慧製造的運作過程中，是允許被授權使用的客戶(網路用戶端)，可以透過網路，瞭解客戶本身的訂單執行的形況或結果。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '26',
+        id: '326',
         question:
           '目前人工智慧AI最關鍵的難題是機器自主創造性思維能力的塑造與提升。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '27',
+        id: '327',
         question:
           '深度學習DL的特徵學習(表徵學習)是通過機器學習技術自身來產生特徵，這種新的觀念與技術使機器學習向“全自動資料分析”又前進了一步。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '29',
+        id: '329',
         question:
           '人工智慧充滿未知且曲折起伏的探索道路，但可以預測人工智慧AI未來將無所不在(ubiquitous)的深入各行各業應用之中。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '30',
+        id: '330',
         question:
           '智慧製造、智慧醫療、智慧安防、智慧零售、智慧家居等商業和應用是屬於人工智慧生態系統的橫向。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '32',
+        id: '332',
         question:
           '在無法利用已有傳統管制技術的條件下，想要保障人類社會使用人工智慧的安全，必須另闢蹊徑，保證人工智慧技術本身及在各個領域的應用，都遵循人類社會所認同的倫理原則。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '33',
+        id: '333',
         question:
           '目前的人工智慧系統可謂：有聰明智能但沒智慧、有智商卻沒情商、會計算但不會“算計”、有專才卻無通才。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '34',
+        id: '334',
         question:
           '智慧交通的建設將推進智慧城市的發展成效，智慧城市的發展成果也反映在智慧交通。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
-        id: '35',
+        id: '335',
         question:
           '與傳統的辦公網路及純粹的“家庭局域網”相比，家用網路加入了很多家庭應用產品和系統。例如，家電設備、照明系統等。因此，家用網路相應技術標準也錯綜複雜，其發展趨勢是將智慧家居其它系統融合進去。',
         correctAnswer: true,
@@ -17076,3 +17062,24 @@ export const subjects: Record<string, SubjectConfig> = Object.fromEntries(
     convertToSubjectConfig(subject),
   ]),
 )
+
+/**
+ * 合併或改名前的舊科目 ID → 目前的科目與題號位移。
+ * 舊紀錄、舊網址仍指向舊 ID，查題庫、檢查鎖定時都要經過這裡。
+ */
+export const LEGACY_SUBJECTS: Record<string, { id: string; offset: number }> = {
+  ail_certification_exam_once_choice: { id: 'ail_certification_exam', offset: 0 },
+  ail_certification_exam_multiple_choice: { id: 'ail_certification_exam', offset: 200 },
+  ail_certification_exam_true_false: { id: 'ail_certification_exam', offset: 300 },
+}
+
+/** 依科目 ID 找題庫，舊 ID 會對應到目前的科目。 */
+export function findSubject(id: string): SubjectConfig | undefined {
+  return subjects[id] ?? subjects[LEGACY_SUBJECTS[id]?.id]
+}
+
+/** 舊科目的題號換成目前題庫的題號；不是舊科目就原樣回傳。 */
+export function currentQuestionId(subjectId: string, questionId: string): string {
+  const legacy = LEGACY_SUBJECTS[subjectId]
+  return legacy ? String(Number(questionId) + legacy.offset) : questionId
+}

@@ -24,7 +24,7 @@ import type { DetailedQuestionResult, HistoryRecord } from '@/types'
 import { STORAGE_KEYS } from '@/types'
 import { historyRecordSchema } from '@/schemas/history'
 import { readRaw, remove, write } from '@/utils/storage'
-import { subjects } from '@/data/subjects'
+import { currentQuestionId, findSubject } from '@/data/subjects'
 import type { Question } from '@/types/questions'
 
 // 寫入 localStorage 的原始物件（舊記錄不經任何轉換）
@@ -164,12 +164,12 @@ function hydrate(record: HistoryRecord): HistoryRecord {
   let bank: Map<string, Question> | undefined
   const fromBank = (id: string): Question | undefined => {
     bank ??= new Map(
-      (subjects[record.subject.id]?.questions ?? []).map((q) => [q.id, q]),
+      (findSubject(record.subject.id)?.questions ?? []).map((q) => [q.id, q]),
     )
     console.warn(
       `[historyStore] 找不到快照，改用目前題庫 ${record.subject.id}/${id}`,
     )
-    return bank.get(id)
+    return bank.get(currentQuestionId(record.subject.id, id))
   }
   const fill = (list: StoredResult[]): DetailedQuestionResult[] =>
     list.flatMap(({ snapshot, ...r }) => {
