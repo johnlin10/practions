@@ -20,6 +20,7 @@ import {
 } from '../types/quiz-flows'
 import { QUIZ_MODES } from '../types/quiz-modes'
 import { answerKey } from '../utils/answer-key'
+import { pickQuestions } from '../utils/pick-questions'
 
 type AnswerHandler = (
   state: QuizState,
@@ -69,13 +70,8 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
 
     // 遍歷所有階段
     flowConfig.stages.forEach((stage) => {
-      // 隨機打亂題目
-      const shuffled = [...questions]
-        .sort(() => 0.5 - Math.random())
-        .slice(0, stage.questionCount)
-
-      // 將階段題目存入 allStagesQuestions
-      allStagesQuestions[stage.stageId] = shuffled
+      // 依題數（與出題組成）隨機抽題
+      allStagesQuestions[stage.stageId] = pickQuestions(questions, stage)
     })
 
     // 取得第一階段

@@ -170,21 +170,17 @@ a {
   -o-border-radius: 12px;
 }
 
-// [NEW] / [HOT] 標籤，貼在父層（需 position: relative）的左上角
-.new-badge,
+// [HOT] 標籤，貼在父層（需 position: relative）的左上角
 .hot-badge {
   position: absolute;
   top: -6px;
   left: -12px;
   padding: 2px 6px;
   font-size: 0.8rem;
+  font-weight: 500;
   line-height: normal;
-  background-color: var(--primary-color);
+  background-color: #f0501e;
   border: 2px solid var(--foreground-100);
   color: var(--text-white);
   border-radius: 6px;
-}
-.hot-badge {
-  font-weight: 500;
-  background-color: #f0501e;
 }

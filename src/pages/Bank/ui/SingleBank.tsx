@@ -17,6 +17,8 @@ import {
   MultipleChoiceQuestion,
   TrueFalseQuestion,
   VocabularyQuestion,
+  QuestionTypeId,
+  QUESTION_TYPE_LABELS,
 } from '../../../types/questions'
 import { SubjectConfig } from '../../../types/quiz-flows'
 
@@ -40,6 +42,8 @@ const SingleBank: React.FC = () => {
   const navigate = useNavigate()
   // 搜尋關鍵字
   const [searchTerm, setSearchTerm] = useState<string>('')
+  // 題型篩選（混合題型的題庫才有，null 為全部）
+  const [typeFilter, setTypeFilter] = useState<QuestionTypeId | null>(null)
   // 是否鎖定
   const [isLocked, setIsLocked] = useState<boolean>(false)
   // 當前時間
@@ -93,7 +97,7 @@ const SingleBank: React.FC = () => {
    * @returns {React.ReactNode} - 渲染單選題
    */
   const renderSingleChoice = (
-    question: SingleChoiceQuestion
+    question: SingleChoiceQuestion,
   ): React.ReactNode => {
     return (
       <div key={question.id} className="question-item">
@@ -130,7 +134,7 @@ const SingleBank: React.FC = () => {
    * @returns {React.ReactNode} - 渲染多選題
    */
   const renderMultipleChoice = (
-    question: MultipleChoiceQuestion
+    question: MultipleChoiceQuestion,
   ): React.ReactNode => {
     return (
       <div key={question.id} className="question-item">
@@ -234,8 +238,10 @@ const SingleBank: React.FC = () => {
     // 如果科目不存在，則返回空陣列
     if (!subject) return []
 
-    // 取得科目題目
-    const currentQuestions = subject.questions
+    // 取得科目題目（依題型篩選）
+    const currentQuestions = typeFilter
+      ? subject.questions.filter((q) => q.type === typeFilter)
+      : subject.questions
     // 如果沒有搜尋關鍵字，則返回科目題目
     if (!searchTerm) return currentQuestions
 
@@ -258,7 +264,7 @@ const SingleBank: React.FC = () => {
               ?.toLowerCase()
               .includes(searchTerm.toLowerCase()) ||
             question.options?.some((option) =>
-              option.toLowerCase().includes(searchTerm.toLowerCase())
+              option.toLowerCase().includes(searchTerm.toLowerCase()),
             )
           )
 
@@ -366,6 +372,9 @@ const SingleBank: React.FC = () => {
     )
   }
 
+  // 題庫內的題型（超過一種才顯示篩選）
+  const questionTypes = [...new Set(subject.questions.map((q) => q.type))]
+
   // 渲染單一題庫頁面
   return (
     <div className="single-bank">
@@ -402,20 +411,45 @@ const SingleBank: React.FC = () => {
         ) : (
           <>
             {/* 搜尋區域 */}
-            <div className="search-section">
-              <input
-                type="text"
-                placeholder={getSearchPlaceholder(subject.baseQuestionType)}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
+            <div
+              className={`search-section${questionTypes.length > 1 ? ' has-filter' : ''}`}
+            >
+              <div className="search-box">
+                <input
+                  type="text"
+                  placeholder={getSearchPlaceholder(subject.baseQuestionType)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+              {/* 題型篩選（混合題型的題庫才有），跟著搜尋框固定在頂部 */}
+              {questionTypes.length > 1 && (
+                <div
+                  className="filter-chips"
+                  role="group"
+                  aria-label="依題型篩選"
+                >
+                  {[null, ...questionTypes].map((type) => (
+                    <button
+                      key={type ?? 'all'}
+                      className={typeFilter === type ? 'active' : undefined}
+                      aria-pressed={typeFilter === type}
+                      onClick={() => setTypeFilter(type)}
+                    >
+                      {type
+                        ? QUESTION_TYPE_LABELS[type].replace('題', '')
+                        : '全部'}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 題目列表 */}
             <div className="questions-list">
               {getFilteredQuestions().map((question) =>
-                renderQuestionContent(question)
+                renderQuestionContent(question),
               )}
             </div>
           </>

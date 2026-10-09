@@ -17,9 +17,6 @@ import {
   formatLockTime,
 } from './utils/bankHelpers'
 
-// 標上 [NEW] 標籤的題庫 id
-const NEW_SUBJECT_IDS = ['erp_distribution', 'pvqc_healthcare']
-
 const subjectSections = groupSubjects(Object.values(subjects))
 
 /**
@@ -62,9 +59,6 @@ function Bank(): React.ReactElement {
                   }`
                   const cardContent = (
                     <>
-                      {NEW_SUBJECT_IDS.includes(subject.id) && (
-                        <span className="new-badge">NEW</span>
-                      )}
                       <p className="subject-name">
                         {locked && (
                           <span className="material-symbols-rounded">lock</span>

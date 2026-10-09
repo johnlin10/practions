@@ -90,7 +90,7 @@
       background: fade.fade-gradient(var(--background-color));
     }
 
-    > a.pre-path {
+    a.pre-path {
       font-size: 1rem;
       color: var(--text-faint-color);
 
@@ -188,5 +188,32 @@ $sheet-edge: 120px;
 @keyframes sheet-out {
   to {
     transform: translateY(100vh);
+  }
+}
+
+// 小型篩選器（紀錄頁、題庫頁的題型篩選）：縮小版的立體按鈕，選中時同 PVQC 設定頁的切換樣式
+.filter-chips {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 6px;
+
+  > button {
+    padding: 3px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--foreground-500);
+    border-radius: 6px;
+
+    &.active,
+    &.active:not(:disabled):hover {
+      color: var(--primary-text-color);
+      background-color: var(--primary-background-color);
+      border-color: var(--primary-color);
+      box-shadow: 0 3px 0 var(--primary-color);
+    }
+
+    &.active:not(:disabled):active {
+      box-shadow: 0 0 0 var(--primary-color);
+    }
   }
 }

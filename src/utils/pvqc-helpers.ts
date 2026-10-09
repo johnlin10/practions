@@ -1,5 +1,6 @@
 import { VocabularyQuestion } from '../types/questions'
 import { QuizModeId } from '../types/quiz-modes'
+import { shuffle } from './pick-questions'
 
 // PVQC 測驗題目（運行時的資料結構）
 export interface PVQCQuizItem {
@@ -35,8 +36,7 @@ export function generatePVQCOptions(
   // 其他題目
   const otherQuestions = allQuestions.filter((q) => q.id !== targetQuestion.id)
   // 干擾選項
-  const distractors = otherQuestions
-    .sort(() => 0.5 - Math.random())
+  const distractors = shuffle(otherQuestions)
     .slice(0, optionCount - 1)
     .map((q) =>
       mode === 'pvqc_read' || mode === 'pvqc_listen_chinese'
@@ -45,9 +45,7 @@ export function generatePVQCOptions(
     )
 
   // 合併並隨機排序
-  const options = [...distractors, correctAnswer].sort(
-    () => 0.5 - Math.random()
-  )
+  const options = shuffle([...distractors, correctAnswer])
   // 正確答案索引
   const correctIndex = options.indexOf(correctAnswer)
 
@@ -73,15 +71,12 @@ export function generatePVQCPronunciationOptions(
 
   // 從其他題目中選擇干擾英文單字
   const otherQuestions = allQuestions.filter((q) => q.id !== targetQuestion.id)
-  const distractors = otherQuestions
-    .sort(() => 0.5 - Math.random())
+  const distractors = shuffle(otherQuestions)
     .slice(0, optionCount - 1)
     .map((q) => q.english)
 
   // 合併並隨機排序
-  const options = [...distractors, correctAnswer].sort(
-    () => 0.5 - Math.random()
-  )
+  const options = shuffle([...distractors, correctAnswer])
   // 正確答案索引
   const correctIndex = options.indexOf(correctAnswer)
   // 返回選項和正確答案索引

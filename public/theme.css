@@ -98,8 +98,10 @@
   --foreground-100: #00000026;
 
   /* 邊框 */
-  --border-color: var(--foreground-100); /* 按鈕、輸入框 */
-  --border-hover-color: var(--foreground-200);
+  /* 按鈕、輸入框：用實色（等同 foreground-100 / 200 疊在背景上），
+   * 半透明的邊框與底部立體陰影交疊時，交界處會多出一條較深的分界線 */
+  --border-color: #d9d9d9;
+  --border-hover-color: #c3c3c3;
   --border-strong-color: var(--gray-color-12);
   --divider-color: var(--gray-color-13); /* 卡片外框、分隔線 */
 
@@ -137,6 +139,10 @@
   /* 警告 */
   --warning-color: #c8372d;
   --warning-secondary-color: #f4a5a0;
+
+  /* 錯題複習 */
+  --review-color: var(--orange-500);
+  --review-text-color: var(--orange-600);
 }
 
 /*
@@ -168,7 +174,9 @@
   --foreground-200: #ffffff3c;
   --foreground-100: #ffffff26;
 
-  /* 邊框 */
+  /* 邊框（按鈕、輸入框的實色同上：白色 15% / 23.5% 疊在 gray-950 背景上） */
+  --border-color: #383838;
+  --border-hover-color: #4c4c4c;
   --border-strong-color: var(--gray-700);
   --divider-color: var(--gray-900);
 
@@ -199,4 +207,8 @@
   /* 警告 */
   --warning-color: var(--red-400);
   --warning-secondary-color: var(--red-700);
+
+  /* 錯題複習 */
+  --review-color: var(--orange-600);
+  --review-text-color: var(--orange-300);
 }

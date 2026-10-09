@@ -11,14 +11,25 @@ import History from './pages/History/History'
 import SingleHistory from './pages/History/ui/SingleHistory'
 import Settings from './pages/Settings/Settings'
 import PVQCSetup from './pages/PVQC/PVQCSetup'
+import Review from './pages/Review/Review'
 import Install from './pages/Install/Install'
 import Changelog from './pages/Changelog/Changelog'
 import Transfer from './pages/Transfer/Transfer'
 import Privacy from './pages/Legal/Privacy'
 import Terms from './pages/Legal/Terms'
 
+// data
+import { LEGACY_SUBJECTS } from './data/subjects'
+
 // components
 import { RouteErrorBoundary } from './components/ErrorBoundary/ErrorBoundary'
+
+// 舊科目 ID 的網址（書籤、分享連結）轉到目前的科目
+const legacyRedirects = (base: string) =>
+  Object.entries(LEGACY_SUBJECTS).map(([oldId, { id }]) => ({
+    path: `${base}/${oldId}`,
+    element: <Navigate to={`${base}/${id}`} replace />,
+  }))
 
 // data router：頁面轉場（viewTransition）與捲動位置還原（ScrollRestoration）都只支援 data router
 export const router = createBrowserRouter(
@@ -30,7 +41,9 @@ export const router = createBrowserRouter(
         { path: '/', element: <Home /> },
         { path: '/quiz', element: <Quiz /> },
         { path: '/quiz/:subjectId', element: <Quiz /> },
+        ...legacyRedirects('/quiz'),
         { path: '/pvqc', element: <PVQCSetup /> },
+        { path: '/review', element: <Review /> },
         {
           path: '/history',
           element: <History />,
@@ -39,7 +52,10 @@ export const router = createBrowserRouter(
         {
           path: '/bank',
           element: <Bank />,
-          children: [{ path: ':subjectId', element: <SingleBank /> }],
+          children: [
+            { path: ':subjectId', element: <SingleBank /> },
+            ...legacyRedirects('/bank'),
+          ],
         },
         { path: '/settings', element: <Settings /> },
         { path: '/settings/install', element: <Install /> },
