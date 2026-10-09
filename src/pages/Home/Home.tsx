@@ -18,7 +18,12 @@ const features = [
   {
     icon: 'visibility',
     title: '答案全公開',
-    text: '題庫、答案、測驗紀錄都能查看，錯題隨時回頭複習',
+    text: '題庫、答案、測驗紀錄都能查看',
+  },
+  {
+    icon: 'replay',
+    title: '錯題複習',
+    text: '答錯的題目自動整理，集中複習到熟',
   },
   {
     icon: 'cloud_sync',
