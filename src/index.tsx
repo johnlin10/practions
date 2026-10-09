@@ -8,9 +8,11 @@ import { QuizProvider } from '@/context/QuizContext'
 import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary'
 import { initTheme } from '@/utils/theme'
 import { initAuth } from '@/data/authStore'
+import { registerServiceWorker } from '@/utils/serviceWorker'
 
 initTheme()
 initAuth()
+registerServiceWorker()
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {

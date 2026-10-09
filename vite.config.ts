@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { defineConfig, type Plugin } from 'vitest/config'
@@ -83,6 +84,62 @@ function pageHtml(): Plugin {
   }
 }
 
+// Service Worker 預先快取的檔案：assets/ 全部（程式、樣式、字型），加上這些根目錄檔案
+const PRECACHE_ROOT_FILES = [
+  'index.html',
+  'theme.css',
+  'splash.png',
+  'manifest.json',
+]
+
+/**
+ * 建置後把預先快取清單與版本寫進 build/sw.js（原始檔在 public/sw.js）
+ * 版本是清單內所有檔案內容的 hash：任何檔案有變，sw.js 就跟著變，瀏覽器才會發現新版
+ */
+function serviceWorker(): Plugin {
+  return {
+    name: 'service-worker',
+    apply: 'build',
+    closeBundle() {
+      const outDir = path.resolve(__dirname, 'build')
+      const files = [
+        ...PRECACHE_ROOT_FILES,
+        ...fs
+          .readdirSync(path.join(outDir, 'assets'))
+          .map((f) => `assets/${f}`),
+      ].sort()
+      const hash = createHash('sha256')
+      for (const file of files)
+        hash.update(fs.readFileSync(path.join(outDir, file)))
+      const version = hash.digest('hex').slice(0, 12)
+      const appVersion = JSON.parse(
+        fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'),
+      ).version
+
+      const swFile = path.join(outDir, 'sw.js')
+      let sw = fs.readFileSync(swFile, 'utf-8')
+      const replacements: [RegExp, string][] = [
+        [/const VERSION = 'dev'/, `const VERSION = '${version}'`],
+        [
+          /const APP_VERSION = 'dev'/,
+          `const APP_VERSION = ${JSON.stringify(appVersion)}`,
+        ],
+        [
+          /const PRECACHE = \[\]/,
+          `const PRECACHE = ${JSON.stringify(files.map((f) => `/${f}`))}`,
+        ],
+      ]
+      for (const [pattern, value] of replacements) {
+        // sw.js 的寫法改過時直接中斷建置，避免部署出沒有清單的 Service Worker
+        if (!pattern.test(sw))
+          throw new Error(`service-worker: 找不到 ${pattern}`)
+        sw = sw.replace(pattern, value)
+      }
+      fs.writeFileSync(swFile, sw)
+    },
+  }
+}
+
 /**
  * 讀取 git 中標題以 v*.*.* 開頭的提交，作為設定頁的更新紀錄（新到舊）
  * 在 dev 啟動與 build 時執行一次；需在 git repo 中建置
@@ -117,7 +174,7 @@ function readChangelog(): ChangelogEntry[] {
 }
 
 export default defineConfig({
-  plugins: [react(), pageHtml()],
+  plugins: [react(), pageHtml(), serviceWorker()],
   define: {
     __CHANGELOG__: JSON.stringify(readChangelog()),
   },
