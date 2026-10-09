@@ -1,0 +1,35 @@
+MIT License
+
+Copyright (c) 2025-2026 John Lin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Question bank content
+
+The license above applies to the source code only. The question bank content,
+namely src/data/subjects.ts (questions, answers, and related materials) and
+the audio files under public/vocabulary-audio/, is NOT covered by this license.
+Copyright in that content belongs to its respective original authors, and it
+may not be reused without their permission.
+
+以上 MIT 授權僅涵蓋程式碼。題庫內容，即 src/data/subjects.ts（題目、答案及
+相關資料）與 public/vocabulary-audio/ 底下的音檔，不在本授權範圍內，著作權
+屬於各原作者，未經原作者同意不得另行使用。
