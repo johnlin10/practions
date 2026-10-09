@@ -13,7 +13,7 @@ const features = [
   {
     icon: 'install_mobile',
     title: '安裝成 App',
-    text: '加入主畫面後全螢幕使用，隨時打開',
+    text: '加入主畫面後全螢幕使用，沒有網路也能練習',
   },
   {
     icon: 'visibility',
