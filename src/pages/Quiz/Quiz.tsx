@@ -605,9 +605,6 @@ function Quiz(): React.ReactElement {
 
                   return (
                     <div key={subject.id} className="subject-card">
-                      {subject.id === 'erp_distribution' && (
-                        <span className="new-badge">NEW</span>
-                      )}
                       <p className="subject-name">{subject.name}</p>
                       <div className="subject-card-content">
                         <div className="subject-info">
