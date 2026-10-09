@@ -85,6 +85,7 @@ function pageHtml(): Plugin {
 }
 
 // Service Worker 預先快取的檔案：assets/ 全部（程式、樣式、字型），加上這些根目錄檔案
+// index.html 在快取清單裡寫成 /（Firebase Hosting 的 cleanUrls 會把 /index.html 導向 /）
 const PRECACHE_ROOT_FILES = [
   'index.html',
   'theme.css',
@@ -126,7 +127,9 @@ function serviceWorker(): Plugin {
         ],
         [
           /const PRECACHE = \[\]/,
-          `const PRECACHE = ${JSON.stringify(files.map((f) => `/${f}`))}`,
+          `const PRECACHE = ${JSON.stringify(
+            files.map((f) => (f === 'index.html' ? '/' : `/${f}`)),
+          )}`,
         ],
       ]
       for (const [pattern, value] of replacements) {

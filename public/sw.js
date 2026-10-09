@@ -3,7 +3,7 @@
  *
  * - install：把整個 App（程式、樣式、字型、題庫）下載進這個版本的快取
  * - activate：刪除舊版本的快取
- * - fetch：預先快取過的檔案從快取回傳；頁面導覽一律回傳快取的 index.html（SPA）
+ * - fetch：預先快取過的檔案從快取回傳；頁面導覽一律回傳快取的首頁 /（SPA）
  *
  * 更新流程：部署後這個檔案的 VERSION 會變，瀏覽器下載新版後進入 waiting，
  * 等使用者在更新提示按下更新（SKIP_WAITING），才接手並重新整理頁面，不會打斷作答。
@@ -32,8 +32,10 @@ self.addEventListener('install', (event) => {
           // /assets/ 的檔名帶 hash，內容不會變：舊版快取裡有就沿用，不重新下載
           const cached = url.startsWith('/assets/') && (await caches.match(url))
           const response = cached || (await fetch(url, { cache: 'reload' }))
-          // 任何一個檔案失敗就整個安裝失敗，下次開啟再試，不會留下缺檔的版本
-          if (!response.ok) throw new Error(`預先快取失敗：${url}`)
+          // 任何一個檔案失敗就整個安裝失敗，下次開啟再試，不會留下缺檔的版本。
+          // 被導向過的回應也不能存：Safari 拒絕用它回應頁面導覽，整個 App 會打不開
+          if (!response.ok || response.redirected)
+            throw new Error(`預先快取失敗：${url}`)
           await cache.put(url, response)
         }),
       )
@@ -68,8 +70,9 @@ self.addEventListener('fetch', (event) => {
   // Firebase 登入流程（/__/auth/handler 等）一律走網路，否則導向登入回來會拿到 index.html
   if (url.pathname.startsWith('/__/')) return
 
+  // 首頁存成 / 而不是 /index.html：Firebase Hosting 的 cleanUrls 會把 /index.html 301 導向 /
   if (request.mode === 'navigate') {
-    event.respondWith(fromCache('/index.html', request))
+    event.respondWith(fromCache('/', request))
   } else if (PRECACHED.has(url.pathname)) {
     event.respondWith(fromCache(url.pathname, request))
   }
