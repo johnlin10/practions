@@ -87,8 +87,10 @@
     a {
       z-index: 10;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
+      gap: 2px;
       height: 100%;
       width: 25%;
       font-size: 1.2rem;
@@ -101,6 +103,8 @@
       // 改用同寬的 padding 保留位置，hover / 選中出現側邊框時 padding 同步歸零，圖示不會左右位移；
       // padding 與邊框寬度不做轉場，才會在同一格切換
       padding: 0 $border-width;
+      // 全域 * 已不設 transition（避免切換主題時整頁漸變），時間與曲線需自行指定，與按鈕相同
+      transition: 0.35s cubic-bezier(0.23, 1, 0.32, 1);
       transition-property:
         color, background-color, border-color, box-shadow, transform;
       // 側邊框未畫出時也先指定顏色，否則預設為 currentColor（文字色），出現時會從文字色漸變
@@ -169,8 +173,13 @@
           -o-transform: translateY(0) !important;
         }
       }
-      span {
-        font-size: 1.6rem;
+      // 高度維持 60px（頁面留白、漸變遮罩等多處以此計算），圖示縮小讓出文字的空間
+      .material-symbols-rounded {
+        font-size: 1.4rem;
+      }
+      .navigate-label {
+        font-size: 0.7rem;
+        line-height: 1;
       }
       border-radius: 0;
       -webkit-border-radius: 0;

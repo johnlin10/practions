@@ -25,13 +25,13 @@ function BottomNav(): React.ReactElement {
     () => [
       {
         path: '/',
-        label: 'Home',
+        label: '首頁',
         icon: 'home',
         active: pathname === '/',
       },
       {
         path: '/quiz',
-        label: 'Quiz',
+        label: '測驗',
         icon: 'assignment_turned_in',
         active:
           pathname.includes('/quiz') ||
@@ -40,18 +40,18 @@ function BottomNav(): React.ReactElement {
       },
       {
         path: '/bank',
-        label: 'Bank',
+        label: '題庫',
         icon: 'library_books',
         active: pathname.includes('/bank'),
       },
       {
         path: '/settings',
-        label: 'Settings',
+        label: '設定',
         icon: 'settings',
         active: pathname.includes('/settings'),
       },
     ],
-    [pathname]
+    [pathname],
   )
 
   // 隱藏導航欄
@@ -81,7 +81,10 @@ function BottomNav(): React.ReactElement {
             data-active={link.active}
             to={link.path}
           >
-            <span className="material-symbols-rounded fill">{link.icon}</span>
+            <span className="material-symbols-rounded fill" aria-hidden="true">
+              {link.icon}
+            </span>
+            <span className="navigate-label">{link.label}</span>
           </Link>
         ))}
       </div>
