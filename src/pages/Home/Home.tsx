@@ -9,7 +9,7 @@ const CONTACT_EMAIL = 'johnlin@johnlin.me'
 
 // 平台特色
 const features = [
-  { icon: 'bolt', title: '打開就練', text: '不用帳號，選好題庫直接開始' },
+  { icon: 'bolt', title: '打開就練', text: '不用註冊，選好題庫直接開始' },
   {
     icon: 'install_mobile',
     title: '安裝成 App',
@@ -19,6 +19,11 @@ const features = [
     icon: 'visibility',
     title: '答案全公開',
     text: '題庫、答案、測驗紀錄都能查看，錯題隨時回頭複習',
+  },
+  {
+    icon: 'cloud_sync',
+    title: '紀錄雲端同步',
+    text: '想換裝置接著練，再用 Google 登入，紀錄自動同步',
   },
 ]
 
@@ -107,7 +112,7 @@ function Home(): React.ReactElement {
             </p>
             <p>
               Practions 只做一件事：<strong>打開就能練</strong>
-              。不用註冊、不用登入，題庫和答案都在這裡。
+              。不用註冊、不必登入，題庫和答案都在這裡。
             </p>
           </div>
         </section>
@@ -135,7 +140,7 @@ function Home(): React.ReactElement {
             不是考核平台
           </h3>
           <p>
-            為了讓練習盡量簡單，這裡沒有帳號：答案全部公開，測驗紀錄只存在各自的裝置上，無法確認是誰作答。
+            為了讓練習盡量簡單，答案全部公開，登入也不是必要的。測驗紀錄只有作答的人自己看得到，老師無法查看，也無法確認是誰作答。
           </p>
           <div className="intro-fit">
             <div className="fit-yes">
