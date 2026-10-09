@@ -196,18 +196,22 @@ span.lock-time {
       top: 60px;
       width: 100%;
 
+      // 漸層從搜尋框底部圓角開始的位置（往上 12px）起算，蓋住兩側圓角外露出的內容；
+      // 排在搜尋框後面（isolation 讓 z-index: -1 不會跑到整個區塊底下）
       .search-box {
         position: relative;
+        isolation: isolate;
         width: 100%;
         background-color: var(--background-color);
 
         &::after {
           content: '';
+          z-index: -1;
           position: absolute;
-          top: 100%;
+          top: calc(100% - 12px);
           left: 0;
           right: 0;
-          height: 24px;
+          height: 36px;
           background: fade.fade-gradient(var(--background-color));
           pointer-events: none;
         }
@@ -215,7 +219,7 @@ span.lock-time {
 
       // 篩選器（含間距與立體陰影）高約 44px，漸層再往下延伸一小段
       &.has-filter .search-box::after {
-        height: 68px;
+        height: 80px;
       }
 
       // 比搜尋框小、圓角也小，往內縮排（同設定頁列表標題與外框的關係）
