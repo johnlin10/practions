@@ -232,11 +232,8 @@
 }
 
 .copyright {
-  position: fixed;
-  left: 0;
-  bottom: 18px;
+  // 放在內容流的最後，由 .page 的底部留白讓開導航欄與漸變遮罩（原本 fixed 在底部會被遮罩蓋住）
   margin-top: 24px;
-  width: 100%;
   text-align: center;
   font-size: 0.8rem;
   color: var(--text-muted-color);

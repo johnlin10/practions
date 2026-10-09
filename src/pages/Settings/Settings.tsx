@@ -540,7 +540,7 @@ function Settings(): React.ReactElement {
         </div>
 
         <div className="copyright">
-          <p>© 2025 Practions. All rights reserved.</p>
+          <p>© 2025–{new Date().getFullYear()} Practions. All rights reserved.</p>
         </div>
       </div>
     </div>

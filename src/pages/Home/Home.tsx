@@ -200,7 +200,11 @@ function Home(): React.ReactElement {
           <p className="intro-contact-email">{CONTACT_EMAIL}</p>
         </section>
 
-        <p className="home-version">Practions v{packageJson.version}</p>
+        <p className="home-version">
+          Practions v{packageJson.version}
+          <br />© 2025–{new Date().getFullYear()} Practions. All rights
+          reserved.
+        </p>
       </div>
 
       <div className="square-1"></div>
