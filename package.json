@@ -1,6 +1,6 @@
 {
   "name": "practions",
-  "version": "3.6.0 Beta 3",
+  "version": "3.6.0",
   "private": true,
   "license": "MIT",
   "dependencies": {
