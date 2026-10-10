@@ -126,10 +126,7 @@ h1.history-title {
   @include list-group.titled-list;
   gap: 0;
 
-  > .history-item {
-    border: none;
-    border-radius: 0;
-
+  > .history-swipe {
     &:not(:last-child) {
       border-bottom: 2px solid var(--divider-color);
     }
@@ -137,15 +134,66 @@ h1.history-title {
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
     }
-    &:hover {
-      border-color: var(--divider-color);
-      background-color: var(--fill-color);
+
+    > .history-item {
+      border: none;
+      border-radius: 0;
+
+      &:hover {
+        border-color: var(--divider-color);
+        background-color: var(--fill-color);
+      }
     }
   }
 
-  > h5 + .history-item {
+  > h5 + .history-swipe {
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
+  }
+}
+
+// 左滑露出刪除按鈕：橫向捲動 + scroll-snap，慣性與回彈都是瀏覽器原生的，不用手勢程式
+.history-swipe {
+  display: flex;
+  // 全域的 div 有 12px 圓角，列之間的分隔線會跟著彎；外框的圓角由上方列表規則補回
+  border-radius: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  > .history-item {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+  }
+
+  // 蓋掉全域按鈕的外框、立體陰影與按下位移
+  > .delete-btn,
+  > .delete-btn:not(:disabled):hover,
+  > .delete-btn:not(:disabled):active {
+    flex: 0 0 80px;
+    flex-direction: column;
+    gap: 2px;
+    scroll-snap-align: end;
+    padding: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-white);
+    background: var(--warning-color);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    translate: none;
+  }
+
+  // 與 translate 放在不同規則：同一條規則裡同時有 transform 時，正式建置的 CSS 壓縮會把 translate 丟掉，
+  // 按鈕就會留著全域的往上 3px，下面多出空隙
+  > .delete-btn:not(:disabled):active {
+    transform: none;
   }
 }
 

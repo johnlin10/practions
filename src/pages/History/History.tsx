@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Link, useOutlet } from 'react-router-dom'
 import './History.scss'
 
 // data
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { useHistoryReady } from '@/data/historyStore'
+import { useAuth } from '@/data/authStore'
+import { showConfirm } from '@/utils/dialog'
 
 /**
  * [page] History page
@@ -12,7 +14,8 @@ import { useHistoryReady } from '@/data/historyStore'
  */
 function History(): React.ReactElement {
   // 歷史記錄（由資料層提供）；複製後依時間新到舊排序，以免 mutate 唯讀快照
-  const { history: rawHistory } = useQuizHistory()
+  const { history: rawHistory, deleteRecord } = useQuizHistory()
+  const signedIn = useAuth().status === 'signed-in'
   // 登入中的雲端紀錄尚未到達時顯示載入中，不閃出「尚無測驗紀錄」
   const ready = useHistoryReady()
   // 開啟單筆紀錄時只顯示詳情頁（整頁捲動，不疊在列表上）
@@ -45,6 +48,45 @@ function History(): React.ReactElement {
     const day = days[days.length - 1]
     if (day?.date === date) day.records.push(record)
     else days.push({ date, records: [record] })
+  }
+
+  // 一次只開一列：某一列滑開時，把原本滑開的那列滑回去
+  // 看各列自己的 scroll，手指、觸控板、鍵盤都適用；滑回去的動畫也會觸發 scroll，要略過
+  const openRow = useRef<HTMLDivElement | null>(null)
+  const closingRows = useRef(new Set<HTMLDivElement>())
+  const handleRowScroll = (event: React.UIEvent<HTMLDivElement>): void => {
+    const row = event.currentTarget
+    if (row.scrollLeft === 0) {
+      closingRows.current.delete(row)
+      if (openRow.current === row) openRow.current = null
+      return
+    }
+    if (openRow.current === row || closingRows.current.has(row)) return
+    const previous = openRow.current
+    openRow.current = row
+    if (previous?.isConnected) {
+      closingRows.current.add(previous)
+      previous.scrollTo({ left: 0, behavior: 'smooth' })
+    }
+  }
+
+  // 左滑後按刪除：確認後刪除，取消就把這一列滑回去
+  const confirmDelete = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    id: string,
+    label: string,
+  ): Promise<void> => {
+    const row = event.currentTarget.parentElement
+    const ok = await showConfirm(
+      `${label}\n${
+        signedIn
+          ? '雲端與所有裝置上的這筆紀錄都會一併刪除，且無法復原。'
+          : '刪除後無法復原。'
+      }`,
+      { title: '確定要刪除這筆紀錄嗎？', confirmText: '刪除', danger: true },
+    )
+    if (ok) deleteRecord(id)
+    else row?.scrollTo({ left: 0, behavior: 'smooth' })
   }
 
   if (outlet) return outlet
@@ -111,59 +153,83 @@ function History(): React.ReactElement {
                         : undefined
 
                     return (
-                      <Link
+                      <div
                         key={record.id}
-                        className="history-item no-style"
-                        to={`/history/${record.id}`}
-                        viewTransition
+                        className="history-swipe"
+                        onScroll={handleRowScroll}
                       >
-                        <div className="history-info">
-                          <p className="history-subject">
-                            {record.subject?.name || '未知測驗'}
-                          </p>
-                          <p>
-                            <span
-                              className={
-                                flowMode === 'review'
-                                  ? 'review-label'
-                                  : undefined
-                              }
-                            >
-                              {modeLabel}
-                            </span>{' '}
-                            · #
-                            {new Date(record.date)
-                              .toLocaleString('zh-TW', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                                hour12: false,
-                              })
-                              .replace(/[/-]/g, '')
-                              .replace(/[\s:]/g, '')}
-                            {typeof officialPassed === 'boolean' && (
-                              <>
-                                {' · '}
-                                <span
-                                  className={`official-result ${
-                                    officialPassed ? 'passed' : 'failed'
-                                  }`}
-                                >
-                                  {officialPassed ? '通過' : '未通過'}
-                                </span>
-                              </>
-                            )}
-                          </p>
-                          <p className="correct-rate">
-                            {record.results?.overallCorrectRate ||
-                              record.correctRate ||
-                              '0%'}
-                          </p>
-                        </div>
-                      </Link>
+                        <Link
+                          className="history-item no-style"
+                          to={`/history/${record.id}`}
+                          viewTransition
+                        >
+                          <div className="history-info">
+                            <p className="history-subject">
+                              {record.subject?.name || '未知測驗'}
+                            </p>
+                            <p>
+                              <span
+                                className={
+                                  flowMode === 'review'
+                                    ? 'review-label'
+                                    : undefined
+                                }
+                              >
+                                {modeLabel}
+                              </span>{' '}
+                              · #
+                              {new Date(record.date)
+                                .toLocaleString('zh-TW', {
+                                  year: 'numeric',
+                                  month: '2-digit',
+                                  day: '2-digit',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  second: '2-digit',
+                                  hour12: false,
+                                })
+                                .replace(/[/-]/g, '')
+                                .replace(/[\s:]/g, '')}
+                              {typeof officialPassed === 'boolean' && (
+                                <>
+                                  {' · '}
+                                  <span
+                                    className={`official-result ${
+                                      officialPassed ? 'passed' : 'failed'
+                                    }`}
+                                  >
+                                    {officialPassed ? '通過' : '未通過'}
+                                  </span>
+                                </>
+                              )}
+                            </p>
+                            <p className="correct-rate">
+                              {record.results?.overallCorrectRate ||
+                                record.correctRate ||
+                                '0%'}
+                            </p>
+                          </div>
+                        </Link>
+                        <button
+                          className="delete-btn"
+                          aria-label="刪除這筆紀錄"
+                          onClick={(event) =>
+                            void confirmDelete(
+                              event,
+                              record.id,
+                              `${record.subject?.name || '未知測驗'} · ${modeLabel}`,
+                            )
+                          }
+                        >
+                          <span
+                            className="material-symbols-rounded"
+                            aria-hidden="true"
+                          >
+                            delete
+                          </span>
+                          刪除
+                        </button>
+                      </div>
                     )
                   })}
                 </div>

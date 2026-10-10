@@ -340,6 +340,18 @@ describe('新記錄：題目快照', () => {
     expect(storedSnapshots()).toEqual({})
     expect((await loadStore()).getAllHistory()).toEqual([])
   })
+
+  it('刪除單筆紀錄：其他紀錄不變，只留下還有被引用的快照', async () => {
+    const a = newStandard('20260925000000-aaaa')
+    const b = newStandard('20260926000000-bbbb', accounting.slice(3, 5))
+    const { addHistoryRecord, deleteHistoryRecord } = await loadStore()
+    addHistoryRecord(a)
+    addHistoryRecord(b)
+    expect(Object.keys(storedSnapshots())).toHaveLength(4)
+    deleteHistoryRecord(a.id)
+    expect((await loadStore()).getAllHistory()).toEqual([b])
+    expect(Object.keys(storedSnapshots())).toHaveLength(2)
+  })
 })
 
 describe('匯出 / 匯入', () => {
@@ -491,6 +503,33 @@ describe('登入後的雲端模式', () => {
     expect(cloud.docs.has(a.id)).toBe(true)
     expect(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)).toBeNull()
     expect(localStorage.getItem(STORAGE_KEYS.QUESTION_SNAPSHOTS)).toBeNull()
+  })
+
+  it('登入中刪除尚未確認上傳的紀錄：雲端與本機備份都刪除，下次登入不會同步回來', async () => {
+    const a = newStandard('20260925000000-aaaa')
+    const b = newStandard('20260926000000-bbbb', accounting.slice(3, 5))
+    const cloud = fakeCloud()
+    const store = await loadStore()
+    store.attachCloud(cloud.sink)
+    store.receiveCloud([])
+    store.addHistoryRecord(a)
+    await flush()
+    cloud.pause()
+    store.addHistoryRecord(b)
+
+    // b 還沒確認上傳就刪除（Firestore 會依序送出新增與刪除，這裡只看本機備份）
+    store.deleteHistoryRecord(a.id)
+    store.deleteHistoryRecord(b.id)
+    await flush()
+    expect(store.getAllHistory()).toEqual([])
+    expect(cloud.docs.has(a.id)).toBe(false)
+    expect(localStorage.getItem(STORAGE_KEYS.QUIZ_HISTORY)).toBeNull()
+
+    const next = await loadStore()
+    next.attachCloud(cloud.sink)
+    next.receiveCloud(cloud.all())
+    expect(await next.syncLocalToCloud()).toBe(0)
+    expect(next.getAllHistory()).toEqual([])
   })
 
   it('同步等待確認期間交卷，新紀錄的本機備份不會被同步刪除', async () => {

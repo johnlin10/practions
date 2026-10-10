@@ -3,6 +3,7 @@ import type { HistoryRecord } from '@/types'
 import {
   addHistoryRecord as addHistoryRecordStore,
   clearHistory as clearHistoryStore,
+  deleteHistoryRecord,
   getHistoryById,
   useHistoryStore,
 } from '@/data/historyStore'
@@ -23,6 +24,10 @@ export function useQuizHistory() {
     clearHistoryStore()
   }, [])
 
+  const deleteRecord = useCallback((id: string) => {
+    deleteHistoryRecord(id)
+  }, [])
+
   const getById = useCallback(
     (id: string): HistoryRecord | undefined => getHistoryById(id),
     [],
@@ -32,6 +37,7 @@ export function useQuizHistory() {
     history,
     addRecord,
     clearHistory,
+    deleteRecord,
     getById,
   }
 }
