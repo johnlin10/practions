@@ -142,6 +142,8 @@
 
   /* 錯題複習 */
   --review-color: var(--orange-500);
+  --review-dark-color: var(--orange-600); /* 實心按鈕的底邊、hover 底色 */
+  --review-darker-color: var(--orange-700); /* 實心按鈕 hover 的底邊 */
   --review-text-color: var(--orange-600);
 }
 

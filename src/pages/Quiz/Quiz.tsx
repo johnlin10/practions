@@ -890,7 +890,6 @@ function Quiz(): React.ReactElement {
 
             {/* PVQC 測驗入口：要先經過設定頁，所以整列是連結，以向右箭頭表示進到下一層 */}
             <Link className="pvqc-entry no-style" to="/pvqc">
-              <span className="hot-badge">HOT</span>
               <span className="pvqc-entry-title">
                 <span className="material-symbols-rounded">psychology</span>
                 PVQC 測驗

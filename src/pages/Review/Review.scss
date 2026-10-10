@@ -104,29 +104,34 @@
   }
 }
 
-// 實心主色按鈕（同 PVQC 開始測驗）
+// 標題用錯題複習的橘色
+.review-title {
+  color: var(--review-text-color);
+}
+
+// 實心橘色按鈕（樣式同 PVQC 開始測驗，換成錯題複習的橘色）
 .review-start-btn {
   flex-shrink: 0;
   gap: 2px;
   padding: 6px 10px 6px 14px;
   font-weight: 600;
   color: var(--text-white);
-  background-color: var(--primary-color);
-  border-color: var(--primary-dark-color);
-  box-shadow: 0 3px 0 var(--primary-dark-color);
+  background-color: var(--review-color);
+  border-color: var(--review-dark-color);
+  box-shadow: 0 3px 0 var(--review-dark-color);
 
   .material-symbols-rounded {
     font-size: 1.25rem;
   }
 
   &:not(:disabled):hover {
-    background-color: var(--primary-dark-color);
-    border-color: var(--primary-darker-color);
-    box-shadow: 0 3px 0 var(--primary-darker-color);
+    background-color: var(--review-dark-color);
+    border-color: var(--review-darker-color);
+    box-shadow: 0 3px 0 var(--review-darker-color);
   }
 
   &:not(:disabled):active {
-    box-shadow: 0 0 0 var(--primary-darker-color);
+    box-shadow: 0 0 0 var(--review-darker-color);
   }
 }
 
