@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import '../Bank.scss'
+import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 
 // utils
 import {
@@ -425,24 +426,21 @@ const SingleBank: React.FC = () => {
               </div>
               {/* 題型篩選（混合題型的題庫才有），跟著搜尋框固定在頂部 */}
               {questionTypes.length > 1 && (
-                <div
-                  className="filter-chips"
-                  role="group"
-                  aria-label="依題型篩選"
-                >
-                  {[null, ...questionTypes].map((type) => (
-                    <button
-                      key={type ?? 'all'}
-                      className={typeFilter === type ? 'active' : undefined}
-                      aria-pressed={typeFilter === type}
-                      onClick={() => setTypeFilter(type)}
-                    >
-                      {type
-                        ? QUESTION_TYPE_LABELS[type].replace('題', '')
-                        : '全部'}
-                    </button>
-                  ))}
-                </div>
+                <SegmentedControl
+                  className="type-filter"
+                  label="依題型篩選"
+                  value={typeFilter ?? 'all'}
+                  onChange={(value) =>
+                    setTypeFilter(value === 'all' ? null : value)
+                  }
+                  options={[
+                    { value: 'all', label: '全部' },
+                    ...questionTypes.map((type) => ({
+                      value: type,
+                      label: QUESTION_TYPE_LABELS[type].replace('題', ''),
+                    })),
+                  ]}
+                />
               )}
             </div>
 

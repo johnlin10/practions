@@ -323,7 +323,7 @@ h1.quiz-to-history {
   display: flex;
   flex-direction: column;
   gap: 9px;
-  margin-top: 12px;
+  margin-top: 9px;
 
   .subject-card {
     position: relative;
@@ -413,49 +413,20 @@ h1.quiz-to-history {
   }
 }
 
-.pvqc-section {
-  display: flex;
-  flex-direction: column;
-  margin-top: 24px;
-
-  > .pvqc-card {
-    position: relative;
+.pvqc-entry {
+  .pvqc-entry-title {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 12px;
-    border: 2px solid var(--divider-color);
+    flex-grow: 1;
+    align-items: center;
+    gap: 3px;
+    // 與錯題複習入口的圖示方塊同高，兩列高度一致
+    min-height: 30px;
+    font-weight: 600;
+    color: var(--foreground-800);
+  }
 
-    > div.pvqc-card-title {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-
-      > .subject-name {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 3px;
-        font-weight: 600;
-        color: var(--foreground-800);
-      }
-    }
-    > .subject-card-content {
-      > button {
-        &:hover {
-          background: var(--primary-background-color);
-          color: var(--primary-text-color);
-          border: 2px solid var(--primary-color);
-          box-shadow: 0 3px 0 var(--primary-color);
-        }
-        &:active {
-          box-shadow: 0 0 0 var(--primary-color);
-          transform: translateY(3px);
-        }
-      }
-    }
+  .pvqc-entry-arrow {
+    color: var(--text-faint-color);
   }
 }
 
@@ -481,8 +452,10 @@ h1.quiz-to-history {
   }
 }
 
-// 錯題複習入口：外觀同科目卡片，以橘色圖示方塊區分
-.review-entry {
+// 錯題複習與 PVQC 入口：整列可點，外觀同科目卡片
+.review-entry,
+.pvqc-entry {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -496,7 +469,10 @@ h1.quiz-to-history {
   &:hover {
     border-color: var(--border-strong-color);
   }
+}
 
+// 錯題複習入口：以橘色圖示方塊區分
+.review-entry {
   .review-entry-icon {
     display: flex;
     align-items: center;
@@ -507,7 +483,7 @@ h1.quiz-to-history {
     font-size: 20px;
     color: var(--text-white);
     background: var(--review-color);
-    border-radius: 8px;
+    border-radius: 5px;
   }
 
   .review-entry-title {

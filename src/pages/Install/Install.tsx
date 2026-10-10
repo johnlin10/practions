@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Install.scss'
+import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 import { INSTALL_TITLE, INSTALL_DESCRIPTION } from './meta'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { usePageMeta } from '@/hooks/usePageMeta'
@@ -91,25 +92,18 @@ function Install(): React.ReactElement {
           一樣全螢幕使用，沒有網路也能瀏覽題庫和作答。測驗紀錄也會長期保存，不會因為一段時間沒開啟就被清除。
         </p>
 
-        {/* 平台切換（沿用 PVQC 設定頁的切換樣式） */}
-        <div className="setup-mode-switch">
-          <button
-            className={`setup-mode-tab ${platform === 'ios' ? 'active' : ''}`}
-            onClick={() => setPlatform('ios')}
-          >
-            <span className="material-symbols-rounded">phone_iphone</span>
-            iPhone
-          </button>
-          <button
-            className={`setup-mode-tab ${
-              platform === 'android' ? 'active' : ''
-            }`}
-            onClick={() => setPlatform('android')}
-          >
-            <span className="material-symbols-rounded">android</span>
-            Android
-          </button>
-        </div>
+        {/* 平台切換 */}
+        <SegmentedControl
+          className="setup-mode-switch"
+          size="lg"
+          label="裝置平台"
+          value={platform}
+          onChange={setPlatform}
+          options={[
+            { value: 'ios', label: 'iPhone', icon: 'phone_iphone' },
+            { value: 'android', label: 'Android', icon: 'android' },
+          ]}
+        />
 
         {platform === 'ios' ? (
           <div className="install">

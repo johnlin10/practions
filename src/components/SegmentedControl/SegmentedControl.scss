@@ -1,0 +1,94 @@
+// 連在一起的選擇器，外觀同底部導航欄：選項之間共用邊框，選中的選項凸起、其餘保持平面
+.segmented-control {
+  display: inline-flex;
+  flex-shrink: 0;
+  // 全域的 div 有 12px 圓角，這裡的圓角由各選項自己決定
+  border-radius: 0;
+
+  > button {
+    position: relative;
+    gap: 6px;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--foreground-500);
+    border-radius: 0;
+    // 蓋掉全域按鈕的立體陰影與往上 3px 的位移，平面選項貼齊基準線
+    // （translate 與 transform 放在不同規則，見下方；同規則時正式建置的 CSS 壓縮會丟掉 translate）
+    translate: none;
+    // 全域按鈕的轉場只列了 transform，這裡用 translate 抬起，要補上才有凸起的動畫
+    transition-property:
+      color, background-color, border-color, box-shadow, transform, translate;
+
+    // 相鄰選項共用一條邊框
+    &:not(:first-child) {
+      margin-left: -2px;
+    }
+    &:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+    &:last-child {
+      border-radius: 0 8px 8px 0;
+    }
+  }
+
+  // 平面選項：hover 只換色，不出現陰影；按下也不位移
+  > button:not(:disabled),
+  > button:not(:disabled):hover,
+  > button:not(:disabled):active {
+    box-shadow: none;
+  }
+
+  > button:not(:disabled):hover {
+    border-color: var(--border-hover-color);
+    z-index: 1;
+  }
+
+  > button:not(.active):not(:disabled):active {
+    transform: none;
+  }
+
+  // 選中：凸起（往上 3px，下方補一條陰影）、蓋在鄰居的邊框上
+  > button.active,
+  > button.active:not(:disabled):hover,
+  > button.active:not(:disabled):active {
+    z-index: 2;
+    color: var(--primary-text-color);
+    background-color: var(--primary-background-color);
+    border-color: var(--primary-color);
+    translate: 0 -3px;
+  }
+
+  > button.active:not(:disabled),
+  > button.active:not(:disabled):hover {
+    box-shadow: 0 3px 0 var(--primary-color);
+  }
+
+  // 按下時壓平：全域 :active 的 translateY(3px) 與 translate 抵銷，陰影收起
+  > button.active:not(:disabled):active {
+    box-shadow: 0 0 0 var(--primary-color);
+  }
+
+  // 大型：撐滿整行，選項平分寬度
+  &.lg {
+    display: flex;
+
+    > button {
+      flex: 1;
+      min-height: 42px;
+      padding: 9px 12px;
+      font-size: 1rem;
+
+      > .material-symbols-rounded {
+        font-size: 20px;
+      }
+    }
+
+    > button:first-child {
+      border-radius: 12px 0 0 12px;
+    }
+    > button:last-child {
+      border-radius: 0 12px 12px 0;
+    }
+  }
+}

@@ -1,8 +1,12 @@
+// 本頁組件的圓角，同 SegmentedControl 大型尺寸的外側圓角
+$radius: 12px;
+
+// 方框貼齊頁面邊緣（同其他頁面），只有文字（標題、說明）比照頁面標題內縮 6px
 .pvqc-setup-section {
   margin-top: 24px;
-  padding: 0 6px;
 
   > h2 {
+    padding: 0 6px;
     font-size: 1.2rem;
     color: var(--text-color);
   }
@@ -23,6 +27,7 @@
     gap: 9px;
     min-height: 72px;
     background-color: var(--background-color);
+    border-radius: $radius;
 
     &.selected {
       border: 2px solid var(--primary-color);
@@ -77,7 +82,7 @@
       color: var(--foreground-900);
       background-color: var(--background-color);
       border: 2px solid var(--divider-color);
-      border-radius: 6px;
+      border-radius: $radius;
       cursor: pointer;
       appearance: none;
       -webkit-appearance: none;
@@ -104,7 +109,7 @@
   > .config-inputs {
     margin-top: 12px;
     border: 2px solid var(--divider-color);
-    border-radius: 6px;
+    border-radius: $radius;
 
     > .config-row {
       display: flex;
@@ -134,6 +139,7 @@
   color: var(--text-white);
   border: 2px solid var(--primary-dark-color);
   box-shadow: 0 3px 0 var(--primary-dark-color);
+  border-radius: $radius;
 
   &:hover {
     background-color: var(--primary-dark-color);
@@ -155,49 +161,15 @@
   }
 }
 
-// 官方 / 自訂切換頁籤
+// 官方 / 自訂切換（SegmentedControl 的外層間距；安裝頁的平台切換也沿用）
 .setup-mode-switch {
-  display: flex;
-  gap: 6px;
-  margin: 8px 6px;
-
-  .setup-mode-tab {
-    flex: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 9px 12px;
-    min-height: 42px;
-    border: 2px solid var(--border-color);
-    background: var(--background-color);
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    color: var(--foreground-500);
-
-    .material-symbols-rounded {
-      font-size: 20px;
-    }
-
-    &.active {
-      background-color: var(--primary-background-color);
-      border-color: var(--primary-color);
-      color: var(--primary-text-color);
-      box-shadow: 0 3px 0 var(--primary-color);
-      transform: translateY(0);
-
-      &:active {
-        box-shadow: 0 0 0 var(--primary-color);
-        transform: translateY(3px);
-      }
-    }
-  }
+  margin: 8px 0;
 }
 
 // 官方模式說明
 .setup-description {
   margin: 8px 0 12px;
+  padding: 0 6px;
   color: var(--foreground-500);
   font-size: 0.95rem;
   line-height: 1.6;
@@ -214,7 +186,7 @@
   padding: 12px;
   background-color: var(--background-color);
   border: 2px solid var(--divider-color);
-  border-radius: 6px;
+  border-radius: $radius;
 
   .official-stage-row {
     display: flex;

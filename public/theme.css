@@ -23,7 +23,7 @@
   --orange-300: #f3a477;
   --orange-400: #eb854a;
   --orange-500: #e26e2b;
-  --orange-600: #b0521b;
+  --orange-600: #c4560f;
   --orange-700: #7b3912;
   --orange-800: #4f270f;
   --orange-900: #20120a;
@@ -209,6 +209,7 @@
   --warning-secondary-color: var(--red-700);
 
   /* 錯題複習 */
-  --review-color: var(--orange-600);
-  --review-text-color: var(--orange-300);
+  /* 橘色降一階會變褐色（不像藍色仍然飽和），所以深色模式沿用 orange-500 */
+  --review-color: var(--orange-500);
+  --review-text-color: var(--orange-400);
 }

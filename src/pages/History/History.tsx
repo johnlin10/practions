@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { Link, useOutlet } from 'react-router-dom'
 import './History.scss'
+import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 
 // data
 import { useQuizHistory } from '@/hooks/useQuizHistory'
@@ -104,24 +105,16 @@ function History(): React.ReactElement {
             </span>
             {/* 篩選：跟著標題固定在頂部 */}
             {rawHistory.length > 0 && (
-              <span className="filter-chips" role="group" aria-label="篩選紀錄">
-                {(
-                  [
-                    ['all', '全部'],
-                    ['quiz', '測驗'],
-                    ['review', '複習'],
-                  ] as const
-                ).map(([value, label]) => (
-                  <button
-                    key={value}
-                    className={filter === value ? 'active' : undefined}
-                    aria-pressed={filter === value}
-                    onClick={() => setFilter(value)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </span>
+              <SegmentedControl
+                label="篩選紀錄"
+                value={filter}
+                onChange={setFilter}
+                options={[
+                  { value: 'all', label: '全部' },
+                  { value: 'quiz', label: '測驗' },
+                  { value: 'review', label: '複習' },
+                ]}
+              />
             )}
           </h1>
           <div className="history-list">

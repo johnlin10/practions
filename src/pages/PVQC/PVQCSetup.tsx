@@ -9,6 +9,7 @@ import { PVQC_LIMITS } from '../../types/settings'
 
 // components
 import Stepper from '../../components/Stepper/Stepper'
+import SegmentedControl from '../../components/SegmentedControl/SegmentedControl'
 
 // hooks
 import { usePVQCSettings } from '../../hooks/useSettings'
@@ -174,26 +175,17 @@ function PVQCSetup(): React.ReactElement {
         </div>
 
         {/* 模式切換 */}
-        <div className="setup-mode-switch">
-          <button
-            className={`setup-mode-tab ${
-              setupMode === 'official' ? 'active' : ''
-            }`}
-            onClick={() => setSetupMode('official')}
-          >
-            <span className="material-symbols-rounded">verified</span>
-            官方模擬
-          </button>
-          <button
-            className={`setup-mode-tab ${
-              setupMode === 'custom' ? 'active' : ''
-            }`}
-            onClick={() => setSetupMode('custom')}
-          >
-            <span className="material-symbols-rounded">tune</span>
-            自訂測驗
-          </button>
-        </div>
+        <SegmentedControl
+          className="setup-mode-switch"
+          size="lg"
+          label="設定模式"
+          value={setupMode}
+          onChange={setSetupMode}
+          options={[
+            { value: 'official', label: '官方模擬', icon: 'verified' },
+            { value: 'custom', label: '自訂測驗', icon: 'tune' },
+          ]}
+        />
 
         {setupMode === 'official' ? (
           <>

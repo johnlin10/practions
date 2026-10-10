@@ -570,28 +570,17 @@ function Quiz(): React.ReactElement {
               </span>
             </Link>
 
-            {/* PVQC 測驗入口 */}
-            <div className="pvqc-section">
-              <div className="subject-card pvqc-card">
-                <span className="hot-badge">HOT</span>
-                <div className="pvqc-card-title">
-                  <p className="subject-name">
-                    <span className="material-symbols-rounded">psychology</span>
-                    PVQC 測驗
-                  </p>
-                </div>
-                <div className="subject-card-content">
-                  <button
-                    className="start-quiz-btn"
-                    onClick={() => navigate('/pvqc')}
-                  >
-                    <span className="material-symbols-rounded fill">
-                      play_arrow
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            {/* PVQC 測驗入口：要先經過設定頁，所以整列是連結，以向右箭頭表示進到下一層 */}
+            <Link className="pvqc-entry no-style" to="/pvqc">
+              <span className="hot-badge">HOT</span>
+              <span className="pvqc-entry-title">
+                <span className="material-symbols-rounded">psychology</span>
+                PVQC 測驗
+              </span>
+              <span className="pvqc-entry-arrow material-symbols-rounded">
+                chevron_right
+              </span>
+            </Link>
 
             {/* 科目列表 */}
             <div className="subject-list">
