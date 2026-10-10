@@ -259,7 +259,8 @@ function Quiz(): React.ReactElement {
   // 目前這題檢查的結果（還沒檢查是 undefined）
   const currentFeedback: boolean | undefined = quizState.feedback?.[currentKey]
   // 檢查出結果時播放答對／答錯音效（每題只播一次）
-  const soundedKey = useRef('')
+  // 上一份測驗的狀態會留在記憶體，回到測驗頁時最後一題已有結果，不能當成剛檢查而播放
+  const soundedKey = useRef(currentFeedback === undefined ? '' : currentKey)
   useEffect(() => {
     if (currentFeedback === undefined || soundedKey.current === currentKey)
       return
