@@ -905,8 +905,58 @@ h1.quiz-to-history {
   }
 }
 
+// 完美作答（沿用再練一次過渡畫面的版型）
+.quiz-perfect > .quiz-retry-intro-icon {
+  animation: quiz-perfect-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) 0.1s both;
+}
+
+// 彩帶：蓋住整個螢幕，從上緣外落到下緣外
+.quiz-perfect-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  pointer-events: none;
+
+  > span {
+    position: absolute;
+    top: -16px;
+    width: 8px;
+    height: 12px;
+    border-radius: 2px;
+    background: var(--review-color);
+    animation: quiz-perfect-fall 2s ease-in both;
+
+    &:nth-child(3n + 1) {
+      background: var(--success-color);
+    }
+
+    &:nth-child(3n + 2) {
+      background: var(--primary-color);
+    }
+  }
+}
+
+@keyframes quiz-perfect-pop {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes quiz-perfect-fall {
+  to {
+    transform: translateY(calc(100vh + 32px)) rotate(540deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .quiz-retry-intro {
+  .quiz-retry-intro,
+  .quiz-perfect > .quiz-retry-intro-icon {
     animation: none;
+  }
+
+  .quiz-perfect-confetti {
+    display: none;
   }
 }

@@ -40,7 +40,7 @@ import {
 
 // utils
 import { speakEnglish } from '../../utils/tts'
-import { playFeedbackSound } from '../../utils/sound'
+import { playFeedbackSound, playPerfectSound } from '../../utils/sound'
 import { needsCheckButton } from '../../types/quiz-modes'
 import {
   answerKey,
@@ -113,6 +113,13 @@ function CorrectAnswers({ question }: { question: Question }) {
 }
 
 // 科目列表：只列出開放測驗的題庫，並依題組分組
+// 完美作答畫面的彩帶：位置、延遲、落下速度隨機（顏色由 CSS 依序輪替）
+const confetti: React.CSSProperties[] = Array.from({ length: 36 }, () => ({
+  left: `${Math.random() * 100}%`,
+  animationDelay: `${Math.random() * 0.6}s`,
+  animationDuration: `${1.6 + Math.random() * 1.2}s`,
+}))
+
 const quizSections = groupSubjects(
   Object.values(subjects).filter((subject) => subject.quizOpen),
 )
@@ -142,6 +149,8 @@ function Quiz(): React.ReactElement {
   const prepareBarRef = useRef<HTMLDivElement>(null)
   // 已經按過「繼續」的再練一次階段（之前先顯示過渡畫面）
   const [retryIntroDone, setRetryIntroDone] = useState<string | null>(null)
+  // 錯題複習第一輪就全部答對：交卷前先顯示完美作答畫面
+  const [perfect, setPerfect] = useState(false)
 
   // 取得測驗上下文
   const {
@@ -294,7 +303,14 @@ function Quiz(): React.ReactElement {
 
   // 按「繼續」：全部做完就交卷
   const handleContinue = (): void => {
-    if (continueFeedback() === 'finish') handleFinish()
+    if (continueFeedback() !== 'finish') return
+    // 有答錯過就一定進過再練一次，所以全部是 true 代表第一輪就全對
+    if (Object.values(quizState.feedback).every(Boolean)) {
+      setPerfect(true)
+      playPerfectSound()
+    } else {
+      handleFinish()
+    }
   }
 
   // 進入下一階段
@@ -626,6 +642,32 @@ function Quiz(): React.ReactElement {
               </div>
               <p className="quiz-preparing-hint">正在準備題目</p>
             </div>
+          ) : subject && perfect ? (
+            //* 完美作答：第一輪就全部答對
+            <>
+              {/* 彩帶疊在整個畫面上，從螢幕上緣外落下 */}
+              <div className="quiz-perfect-confetti" aria-hidden>
+                {confetti.map((style, i) => (
+                  <span key={i} style={style} />
+                ))}
+              </div>
+              <div className="quiz-retry-intro quiz-perfect" role="status">
+                <span className="quiz-retry-intro-icon material-symbols-rounded">
+                  celebration
+                </span>
+                <p className="quiz-retry-intro-title">完美作答</p>
+                <p className="quiz-retry-intro-text">
+                  {Object.keys(quizState.feedback).length} 題全部一次答對
+                </p>
+                <button
+                  className="quiz-retry-intro-btn"
+                  onClick={() => handleFinish()}
+                  autoFocus
+                >
+                  查看結果
+                </button>
+              </div>
+            </>
           ) : subject && showRetryIntro ? (
             //* 再練一次的過渡畫面
             <div className="quiz-retry-intro" role="status">

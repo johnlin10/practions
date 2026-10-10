@@ -55,3 +55,15 @@ export function playFeedbackSound(correct: boolean): void {
     tone(164.8, 0.1, 0.4, 'sine', 0.12)
   }
 }
+
+/** 完美作答：「Ta-da」兩個和弦齊響，D 大短促 → G 大拉長，跟答對的單音上行區隔。設定關閉音效時不播。 */
+export function playPerfectSound(): void {
+  if (!ctx || ctx.state !== 'running' || !getSettings().sound) return
+  const chord = (notes: number[], start: number, duration: number): void =>
+    notes.forEach((f) => {
+      tone(f, start, duration, 'triangle', 0.14)
+      tone(f / 2, start, duration * 1.2, 'sine', 0.15)
+    })
+  chord([440, 587.33, 739.99], 0, 0.16)
+  chord([392, 493.88, 587.33, 783.99], 0.2, 1.2)
+}
