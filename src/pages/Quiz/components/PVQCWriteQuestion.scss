@@ -10,6 +10,20 @@
       &:focus {
         border-color: var(--primary-color);
       }
+
+      // 即時回饋：已檢查
+      &.correct {
+        color: var(--correct-text-color);
+        border-color: var(--correct-border-color);
+        background-color: var(--correct-background-color);
+      }
+
+      &.wrong {
+        color: var(--wrong-text-color);
+        border-color: var(--wrong-border-color);
+        background-color: var(--wrong-background-color);
+        text-decoration: line-through;
+      }
     }
   }
 }

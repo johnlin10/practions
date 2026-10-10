@@ -19,9 +19,9 @@ import {
   QuizStageConfig,
   SubjectConfig,
 } from '../types/quiz-flows'
-import { QUIZ_MODES } from '../types/quiz-modes'
+import { QUIZ_MODES, needsCheckButton } from '../types/quiz-modes'
 import { answerKey, isRetryStage, retryStageId } from '../utils/answer-key'
-import { pickQuestions } from '../utils/pick-questions'
+import { pickQuestions, shuffle } from '../utils/pick-questions'
 
 type AnswerHandler = (
   state: QuizState,
@@ -79,16 +79,31 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     // 取得第一階段
     const firstStage = flowConfig.stages[0]
 
+    // 打散各階段：所有題目混成一條流程，記下每題所屬的階段
+    const sequence = flowConfig.mixStages
+      ? shuffle(
+          flowConfig.stages.flatMap((stage) =>
+            allStagesQuestions[stage.stageId].map((question) => ({
+              stage,
+              question,
+            })),
+          ),
+        )
+      : null
+
     // 創建新的測驗狀態
-    const newState = {
+    const newState: QuizState = {
       subjectId: id,
       subjectName: name,
       baseQuestionType,
       flowConfig,
       currentStageIndex: 0,
-      currentStage: firstStage,
+      currentStage: sequence?.[0]?.stage ?? firstStage,
       allStagesQuestions,
-      currentQuestions: allStagesQuestions[firstStage.stageId],
+      currentQuestions: sequence
+        ? sequence.map((item) => item.question)
+        : allStagesQuestions[firstStage.stageId],
+      sequenceStages: sequence?.map((item) => item.stage),
       answers: {},
       feedback: {},
       currentQuestionIndex: 0,
@@ -333,10 +348,11 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       const next = handler(prev, questionId, answer)
       if (!instant || next === prev) return next
 
-      // 即時回饋：不自動跳題（按「繼續」才往下）；單選、是非點了就檢查
-      const autoCheck =
-        currentQuestion?.type === 'single_choice' ||
-        currentQuestion?.type === 'true_false'
+      // 即時回饋：不自動跳題（按「繼續」才往下）；不用按「檢查」的題目點了就檢查
+      const autoCheck = !needsCheckButton(
+        currentStage.mode,
+        currentQuestion?.type,
+      )
       return {
         ...next,
         currentQuestionIndex,
@@ -384,36 +400,56 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
       currentStage,
       allStagesQuestions,
       feedback,
+      sequenceStages,
     } = quizState
 
     if (currentQuestionIndex < currentQuestions.length - 1) {
-      setQuizState((prev) => ({
-        ...prev,
-        currentQuestionIndex: prev.currentQuestionIndex + 1,
-      }))
+      setQuizState((prev) => {
+        const index = prev.currentQuestionIndex + 1
+        return {
+          ...prev,
+          currentQuestionIndex: index,
+          // 打散各階段時，每題切到自己階段的作答方式
+          currentStage: prev.sequenceStages?.[index] ?? prev.currentStage,
+        }
+      })
       return 'continue'
     }
 
     // 第一輪做完：答錯的題目再練一次（只練一輪）
     if (!isRetryStage(currentStage.stageId)) {
-      const wrong = (allStagesQuestions[currentStage.stageId] ?? []).filter(
-        (question) =>
-          feedback[answerKey(currentStage.stageId, question.id)] === false,
+      // 這一輪的題目：打散時是全部階段，否則是目前階段
+      const round = sequenceStages
+        ? currentQuestions.map((question, i) => ({
+            question,
+            stage: sequenceStages[i],
+          }))
+        : (allStagesQuestions[currentStage.stageId] ?? []).map((question) => ({
+            question,
+            stage: currentStage,
+          }))
+      const wrong = round.filter(
+        ({ question, stage }) =>
+          feedback[answerKey(stage.stageId, question.id)] === false,
       )
       if (wrong.length > 0) {
+        const retryStages = wrong.map(({ stage }) => ({
+          ...stage,
+          stageId: retryStageId(stage.stageId),
+        }))
         setQuizState((prev) => ({
           ...prev,
-          currentStage: {
-            ...prev.currentStage,
-            stageId: retryStageId(prev.currentStage.stageId),
-          },
-          currentQuestions: wrong,
+          currentStage: retryStages[0],
+          currentQuestions: wrong.map(({ question }) => question),
           currentQuestionIndex: 0,
+          sequenceStages: prev.sequenceStages && retryStages,
         }))
         return 'continue'
       }
     }
 
+    // 打散各階段時沒有下一階段，全部做完就交卷
+    if (sequenceStages) return 'finish'
     return finishStage() ? 'continue' : 'finish'
   }
 

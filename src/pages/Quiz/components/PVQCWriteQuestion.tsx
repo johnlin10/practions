@@ -5,6 +5,8 @@ import './PVQCWriteQuestion.scss'
 interface Props {
   question: VocabularyQuestion
   currentAnswer?: string
+  // 即時回饋：已檢查，鎖定輸入並標出對錯
+  reveal?: boolean
   onSubmit: (questionId: string, answer: string) => void
   onNext?: () => void
 }
@@ -22,6 +24,7 @@ interface Props {
 function PVQCWriteQuestion({
   question,
   currentAnswer,
+  reveal = false,
   onSubmit,
   onNext,
 }: Props) {
@@ -55,6 +58,15 @@ function PVQCWriteQuestion({
         </div>
         <input
           type="text"
+          className={
+            reveal
+              ? input.trim().toLowerCase() ===
+                question.english.trim().toLowerCase()
+                ? 'correct'
+                : 'wrong'
+              : undefined
+          }
+          readOnly={reveal}
           value={input}
           onChange={(e) => {
             // 允許字元：a-zA-Z 和 空格 和 -

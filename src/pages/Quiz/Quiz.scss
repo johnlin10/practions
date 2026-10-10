@@ -764,8 +764,9 @@ h1.quiz-to-history {
       flex-direction: column;
       gap: 6px;
       max-height: 30vh;
-      margin: 0;
-      padding: 0;
+      // 捲動容器會裁掉超出的部分，上下留空間給播放按鈕的立體陰影與按下位移
+      margin: -4px 0;
+      padding: 4px 0;
       overflow-y: auto;
       list-style: none;
 
@@ -786,6 +787,22 @@ h1.quiz-to-history {
         > .material-symbols-outlined {
           font-size: 1.75rem;
           color: var(--feedback-text);
+        }
+
+        // 單字題：英文、中文與重聽發音
+        > strong {
+          font-size: 1.1rem;
+        }
+
+        > .quiz-feedback-speak {
+          align-self: center;
+          margin-left: auto;
+          padding: 4px 8px;
+          color: var(--feedback-text);
+
+          > .material-symbols-rounded {
+            font-size: 1.25rem;
+          }
         }
       }
     }

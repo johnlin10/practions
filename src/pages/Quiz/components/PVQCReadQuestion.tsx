@@ -2,11 +2,14 @@ import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect } from 'react'
 import './quiz-global.scss'
 import './PVQCReadQuestion.scss'
+import { OptionMark, revealClass } from './option-mark'
 
 interface Props {
   question: VocabularyQuestion
   options: string[] // 從外部傳入的選項（已緩存）
   currentAnswer?: string
+  // 即時回饋：已檢查，鎖定作答並標出對錯
+  reveal?: boolean
   onSubmit: (questionId: string, answer: string) => void
 }
 
@@ -24,6 +27,7 @@ function PVQCReadQuestion({
   question,
   options,
   currentAnswer,
+  reveal = false,
   onSubmit,
 }: Props) {
   // 選擇的選項
@@ -67,19 +71,30 @@ function PVQCReadQuestion({
         </div>
 
         {/* 答案選擇介面 */}
-        <div className="options">
-          {options.map((option, index) => (
-            <button
-              key={index}
-              className={`option ${selectedOption === index ? 'selected' : ''}`}
-              onClick={() => handleOptionClick(index)}
-            >
-              <span className="option-letter">
-                {String.fromCharCode(65 + index)}
-              </span>
-              {option}
-            </button>
-          ))}
+        <div className={`options${reveal ? ' revealed' : ''}`}>
+          {options.map((option, index) => {
+            const mark = reveal
+              ? revealClass(
+                  option === question.chinese,
+                  selectedOption === index,
+                )
+              : ''
+            return (
+              <button
+                key={index}
+                className={`option ${
+                  reveal ? mark : selectedOption === index ? 'selected' : ''
+                }`}
+                onClick={reveal ? undefined : () => handleOptionClick(index)}
+              >
+                <span className="option-letter">
+                  {String.fromCharCode(65 + index)}
+                </span>
+                {option}
+                <OptionMark mark={mark} />
+              </button>
+            )
+          })}
         </div>
       </div>
     </div>

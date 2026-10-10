@@ -95,6 +95,7 @@ p.question-prompt {
   }
 
   > .option-mark {
+    flex: none;
     display: flex;
     align-items: center;
     gap: 2px;
@@ -106,4 +107,9 @@ p.question-prompt {
       font-size: 1.25rem;
     }
   }
+}
+
+// 發音題：已檢查後仍可點選項重聽（不會改答案）
+.question-block > div.question-content > div.options.revealed.pronunciation-options button {
+  pointer-events: auto;
 }

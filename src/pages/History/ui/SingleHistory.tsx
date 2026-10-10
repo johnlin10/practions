@@ -148,7 +148,7 @@ function SingleHistory(): React.ReactElement {
 
     // 如果結果存在且有問題結果，則使用新的詳細評分報告格式
     if (record.results && record.results.questionResults) {
-      const mode = record.flowConfig?.stages[0]?.mode || 'standard'
+      const mode = record.flowConfig?.stages?.[0]?.mode || 'standard'
       // 返回新的詳細評分報告格式
       return record.results.questionResults.map(
         (result: DetailedQuestionResult) => ({

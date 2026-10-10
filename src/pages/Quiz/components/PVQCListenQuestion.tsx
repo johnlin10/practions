@@ -2,12 +2,15 @@ import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect, useCallback } from 'react'
 import './PVQCListenQuestion.scss'
 import { speakEnglish, cancelSpeech } from '../../../utils/tts'
+import { OptionMark, revealClass } from './option-mark'
 
 interface Props {
   question: VocabularyQuestion
   options: string[] // 從外部傳入的選項（已緩存）
   mode: 'pvqc_listen_chinese' | 'pvqc_listen_english'
   currentAnswer?: string
+  // 即時回饋：已檢查，鎖定作答並標出對錯
+  reveal?: boolean
   onSubmit: (questionId: string, answer: string) => void
 }
 
@@ -27,6 +30,7 @@ function PVQCListenQuestion({
   options,
   mode,
   currentAnswer,
+  reveal = false,
   onSubmit,
 }: Props) {
   // 選擇的選項
@@ -127,23 +131,37 @@ function PVQCListenQuestion({
           </div>
         </div>
 
-        <div className="options pvqc-listen-options">
+        <div
+          className={`options pvqc-listen-options${reveal ? ' revealed' : ''}`}
+        >
           {!hasPlayed && selectedOption === null && (
             <p className="hint-text">請先播放音訊後再選擇答案</p>
           )}
-          {options.map((option, index) => (
-            <button
-              key={index}
-              className={`option ${selectedOption === index ? 'selected' : ''}`}
-              onClick={() => handleOptionClick(index)}
-              disabled={!hasPlayed && selectedOption === null}
-            >
-              <span className="option-letter">
-                {String.fromCharCode(65 + index)}
-              </span>
-              {option}
-            </button>
-          ))}
+          {options.map((option, index) => {
+            const correctText =
+              mode === 'pvqc_listen_chinese'
+                ? question.chinese
+                : question.english
+            const mark = reveal
+              ? revealClass(option === correctText, selectedOption === index)
+              : ''
+            return (
+              <button
+                key={index}
+                className={`option ${
+                  reveal ? mark : selectedOption === index ? 'selected' : ''
+                }`}
+                onClick={reveal ? undefined : () => handleOptionClick(index)}
+                disabled={!reveal && !hasPlayed && selectedOption === null}
+              >
+                <span className="option-letter">
+                  {String.fromCharCode(65 + index)}
+                </span>
+                {option}
+                <OptionMark mark={mark} />
+              </button>
+            )
+          })}
         </div>
       </div>
     </div>

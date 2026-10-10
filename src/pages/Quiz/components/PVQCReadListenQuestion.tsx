@@ -2,11 +2,14 @@ import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect } from 'react'
 import './PVQCReadListenQuestion.scss'
 import { speakEnglish, cancelSpeech } from '../../../utils/tts'
+import { OptionMark, revealClass } from './option-mark'
 
 interface Props {
   question: VocabularyQuestion
   pronunciationOptions: string[] // 從外部傳入的選項（已緩存）
   currentAnswer?: string
+  // 即時回饋：已檢查，鎖定答案並標出對錯（仍可點選項重聽發音）
+  reveal?: boolean
   onSubmit: (questionId: string, answer: string) => void
 }
 
@@ -18,6 +21,7 @@ function PVQCReadListenQuestion({
   question,
   pronunciationOptions,
   currentAnswer,
+  reveal = false,
   onSubmit,
 }: Props) {
   const [isPlaying, setIsPlaying] = useState([false, false, false, false])
@@ -51,9 +55,12 @@ function PVQCReadListenQuestion({
       return next
     })
 
-    const selectedAnswer = pronunciationOptions[index]
-    setSubmittedOption(index)
-    onSubmit(question.id, selectedAnswer)
+    // 已檢查時只播放，不改答案
+    if (!reveal) {
+      const selectedAnswer = pronunciationOptions[index]
+      setSubmittedOption(index)
+      onSubmit(question.id, selectedAnswer)
+    }
 
     const clearPlaying = () => {
       setIsPlaying((prev) => {
@@ -81,25 +88,38 @@ function PVQCReadListenQuestion({
           <p>{question.english}</p>
         </div>
 
-        <div className="options pronunciation-options">
-          {pronunciationOptions.map((_, index) => (
-            <div key={index} className="pronunciation-option">
-              <button
-                className={`pronunciation-button ${
-                  submittedOption === index ? 'selected' : ''
-                }`}
-                onClick={() => playAudio(index)}
-              >
-                <span className="material-symbols-rounded">
-                  {isPlaying[index] ? 'volume_up' : 'play_arrow'}
-                </span>
-                <span className="option-letter">
-                  {String.fromCharCode(65 + index)}
-                </span>
-                {isPlaying[index] ? '播放中...' : '播放發音'}
-              </button>
-            </div>
-          ))}
+        <div
+          className={`options pronunciation-options${
+            reveal ? ' revealed' : ''
+          }`}
+        >
+          {pronunciationOptions.map((option, index) => {
+            const mark = reveal
+              ? revealClass(
+                  option.toLowerCase() === question.english.toLowerCase(),
+                  submittedOption === index,
+                )
+              : ''
+            return (
+              <div key={index} className="pronunciation-option">
+                <button
+                  className={`pronunciation-button ${
+                    reveal ? mark : submittedOption === index ? 'selected' : ''
+                  }`}
+                  onClick={() => playAudio(index)}
+                >
+                  <span className="material-symbols-rounded">
+                    {isPlaying[index] ? 'volume_up' : 'play_arrow'}
+                  </span>
+                  <span className="option-letter">
+                    {String.fromCharCode(65 + index)}
+                  </span>
+                  {isPlaying[index] ? '播放中...' : '播放發音'}
+                  <OptionMark mark={mark} />
+                </button>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

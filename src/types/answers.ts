@@ -51,6 +51,9 @@ export interface QuizState {
   // 即時回饋：已檢查的題目是否答對（key 同 answers；未檢查的不在裡面）
   feedback: Record<string, boolean>
 
+  // 打散各階段時（flowConfig.mixStages），currentQuestions 每一題所屬的階段
+  sequenceStages?: QuizStageConfig[]
+
   // 進度
   currentQuestionIndex: number
 

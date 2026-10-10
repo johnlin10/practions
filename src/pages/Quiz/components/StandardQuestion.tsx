@@ -4,6 +4,7 @@ import './standard.scss'
 
 // types
 import { Question } from '../../../types/questions'
+import { OptionMark, revealClass } from './option-mark'
 
 interface Props {
   question: Question
@@ -44,31 +45,6 @@ function StandardQuestion({
     // 設置選擇的答案
     setSelectedAnswer(currentAnswer !== undefined ? currentAnswer : null)
   }, [question.id, currentAnswer])
-
-  /**
-   * [function] revealClass
-   * 已檢查時選項的對錯：正確答案標綠、選錯的標紅，多選題漏選的正確答案標「漏選」
-   * @param isAnswer - 這個選項是否為正確答案
-   * @param isSelected - 這個選項是否被選了
-   */
-  const revealClass = (isAnswer: boolean, isSelected: boolean): string => {
-    if (isAnswer && isSelected) return 'correct'
-    if (isSelected) return 'wrong'
-    if (isAnswer)
-      return question.type === 'multiple_choice' ? 'missed' : 'correct'
-    return ''
-  }
-
-  // 已檢查時選項右側的標記
-  const revealMark = (className: string) =>
-    className && (
-      <span className="option-mark">
-        {className === 'missed' && '漏選'}
-        <span className="material-symbols-rounded">
-          {className === 'wrong' ? 'close' : 'check'}
-        </span>
-      </span>
-    )
 
   /**
    * [function] renderSingleChoice
@@ -112,7 +88,7 @@ function StandardQuestion({
                 {String.fromCharCode(65 + index)}
               </span>
               {option}
-              {revealMark(mark)}
+              <OptionMark mark={mark} />
             </button>
           )
         })}
@@ -170,7 +146,11 @@ function StandardQuestion({
           const isSelected =
             Array.isArray(selectedAnswer) && selectedAnswer.includes(index)
           const mark = reveal
-            ? revealClass(question.correctIndexes.includes(index), isSelected)
+            ? revealClass(
+                question.correctIndexes.includes(index),
+                isSelected,
+                true,
+              )
             : ''
 
           // 渲染多選題選項
@@ -186,7 +166,7 @@ function StandardQuestion({
                 {String.fromCharCode(65 + index)}
               </span>
               {option}
-              {revealMark(mark)}
+              <OptionMark mark={mark} />
             </button>
           )
         })}

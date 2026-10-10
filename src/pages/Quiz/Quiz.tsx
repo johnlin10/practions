@@ -39,6 +39,8 @@ import {
 } from '../../data/subject-groups'
 
 // utils
+import { speakEnglish } from '../../utils/tts'
+import { needsCheckButton } from '../../types/quiz-modes'
 import {
   answerKey,
   baseStageId,
@@ -84,6 +86,23 @@ function CorrectAnswers({ question }: { question: Question }) {
             <span className="material-symbols-outlined">
               {question.correctAnswer ? 'circle' : 'close'}
             </span>
+          </li>
+        </ul>
+      )
+    case 'vocabulary':
+      // 單字題：英文、中文，可以再聽一次發音
+      return (
+        <ul>
+          <li>
+            <strong>{question.english}</strong>
+            {question.chinese}
+            <button
+              className="quiz-feedback-speak"
+              aria-label="播放發音"
+              onClick={() => speakEnglish(question.english, { rate: 0.85 })}
+            >
+              <span className="material-symbols-rounded">volume_up</span>
+            </button>
           </li>
         </ul>
       )
@@ -226,9 +245,11 @@ function Quiz(): React.ReactElement {
   //* 即時回饋（錯題複習）
   const instant = quizState.flowConfig.instantFeedback === true
   const retrying = isRetryStage(quizState.currentStage.stageId ?? '')
-  // 進入再練一次之前，先顯示過渡畫面
-  const showRetryIntro =
-    retrying && retryIntroDone !== quizState.currentStage.stageId
+  // 各階段打散成一條流程（PVQC 錯題複習）
+  const mixed = !!quizState.sequenceStages
+  // 進入再練一次之前，先顯示過渡畫面（打散時整份只有一輪再練）
+  const retryRoundKey = mixed ? 'mixed' : quizState.currentStage.stageId
+  const showRetryIntro = retrying && retryIntroDone !== retryRoundKey
   const currentQuestion =
     quizState.currentQuestions[quizState.currentQuestionIndex]
   const currentKey = currentQuestion
@@ -241,14 +262,24 @@ function Quiz(): React.ReactElement {
     if (!instant) {
       return { done: answeredCount, total: quizState.currentQuestions.length }
     }
-    const stageId = baseStageId(quizState.currentStage.stageId)
-    const firstRound = quizState.allStagesQuestions[stageId] ?? []
-    const done = firstRound.filter(
-      (question) =>
-        quizState.feedback[answerKey(stageId, question.id)] === true ||
-        answerKey(retryStageId(stageId), question.id) in quizState.feedback,
-    ).length
-    return { done, total: firstRound.length }
+    // 打散各階段時是全部階段的題目，否則是目前階段
+    const stageIds = mixed
+      ? quizState.flowConfig.stages.map((stage) => stage.stageId)
+      : [baseStageId(quizState.currentStage.stageId)]
+    let done = 0
+    let total = 0
+    for (const stageId of stageIds) {
+      for (const question of quizState.allStagesQuestions[stageId] ?? []) {
+        total++
+        if (
+          quizState.feedback[answerKey(stageId, question.id)] === true ||
+          answerKey(retryStageId(stageId), question.id) in quizState.feedback
+        ) {
+          done++
+        }
+      }
+    }
+    return { done, total }
   })()
 
   // 按「繼續」：全部做完就交卷
@@ -444,6 +475,8 @@ function Quiz(): React.ReactElement {
     // 取得當前題目已儲存的答案（compound key，避免跨階段污染）
     const currentAnswer =
       answers[answerKey(currentStage.stageId, question.id)]?.answer
+    // 即時回饋：已檢查，鎖定作答並標出對錯
+    const reveal = instant && currentFeedback !== undefined
 
     // 如果是單字題，根據模式選擇對應的元件
     if (question.type === 'vocabulary') {
@@ -453,19 +486,23 @@ function Quiz(): React.ReactElement {
         case 'pvqc_write':
           return (
             <PVQCWriteQuestion
+              key={answerKey(currentStage.stageId, question.id)}
               question={vocabQuestion}
               currentAnswer={currentAnswer as string}
+              reveal={reveal}
               onSubmit={submitAnswer}
-              onNext={handleNext}
+              onNext={instant ? checkAnswer : handleNext}
             />
           )
 
         case 'pvqc_read':
           return (
             <PVQCReadQuestion
+              key={answerKey(currentStage.stageId, question.id)}
               question={vocabQuestion}
               options={pvqcOptionsCache[question.id] || []}
               currentAnswer={currentAnswer as string}
+              reveal={reveal}
               onSubmit={submitAnswer}
             />
           )
@@ -474,10 +511,12 @@ function Quiz(): React.ReactElement {
         case 'pvqc_listen_english':
           return (
             <PVQCListenQuestion
+              key={answerKey(currentStage.stageId, question.id)}
               question={vocabQuestion}
               options={pvqcOptionsCache[question.id] || []}
               mode={currentStage.mode as any}
               currentAnswer={currentAnswer as string}
+              reveal={reveal}
               onSubmit={(id, answer) => submitAnswer(id, answer)}
             />
           )
@@ -485,9 +524,11 @@ function Quiz(): React.ReactElement {
         case 'pvqc_pronunciation':
           return (
             <PVQCPronunciationQuestion
+              key={answerKey(currentStage.stageId, question.id)}
               question={vocabQuestion}
               pronunciationOptions={pvqcOptionsCache[question.id] || []}
               currentAnswer={currentAnswer as string}
+              reveal={reveal}
               onSubmit={submitAnswer}
             />
           )
@@ -495,9 +536,11 @@ function Quiz(): React.ReactElement {
         case 'pvqc_read_listen':
           return (
             <PVQCReadListenQuestion
+              key={answerKey(currentStage.stageId, question.id)}
               question={vocabQuestion}
               pronunciationOptions={pvqcOptionsCache[question.id] || []}
               currentAnswer={currentAnswer as string}
+              reveal={reveal}
               onSubmit={submitAnswer}
             />
           )
@@ -520,7 +563,7 @@ function Quiz(): React.ReactElement {
         question={question}
         currentAnswer={currentAnswer}
         typeLabel={isMixed ? QUESTION_TYPE_LABELS[question.type] : undefined}
-        reveal={instant && currentFeedback !== undefined}
+        reveal={reveal}
         onSubmit={(id, answer) => submitAnswer(id, answer)}
       />
     )
@@ -586,9 +629,7 @@ function Quiz(): React.ReactElement {
               </p>
               <button
                 className="quiz-retry-intro-btn"
-                onClick={() =>
-                  setRetryIntroDone(quizState.currentStage.stageId)
-                }
+                onClick={() => setRetryIntroDone(retryRoundKey)}
                 autoFocus
               >
                 繼續
@@ -645,7 +686,7 @@ function Quiz(): React.ReactElement {
                     })()}
                   </div>
                   {renderQuizType()}
-                  {(quizState.flowConfig.stages?.length ?? 0) > 1 && (
+                  {!mixed && (quizState.flowConfig.stages?.length ?? 0) > 1 && (
                     <p className="stage-progress">
                       階段 {quizState.currentStageIndex + 1} /{' '}
                       {quizState.flowConfig.stages.length}
@@ -706,17 +747,20 @@ function Quiz(): React.ReactElement {
                       </button>
                     </div>
                   ) : (
-                    currentQuestion?.type === 'multiple_choice' && (
+                    needsCheckButton(
+                      quizState.currentStage.mode,
+                      currentQuestion?.type,
+                    ) && (
                       <button
                         className="quiz-check-btn"
                         onClick={checkAnswer}
-                        disabled={
-                          !(
-                            quizState.answers[currentKey]?.answer as
-                              | number[]
-                              | undefined
-                          )?.length
-                        }
+                        disabled={(() => {
+                          // 還沒作答（多選沒勾、拼寫沒打字）不能檢查
+                          const answer = quizState.answers[currentKey]?.answer
+                          if (Array.isArray(answer)) return answer.length === 0
+                          if (typeof answer === 'string') return !answer.trim()
+                          return answer === undefined
+                        })()}
                       >
                         檢查
                       </button>

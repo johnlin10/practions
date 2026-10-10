@@ -8,7 +8,7 @@
  * 題庫已刪除的題目不列出。考試鎖定中的科目不列出，避免考試時查答案。
  */
 import { useMemo } from 'react'
-import type { DetailedQuestionResult, HistoryRecord } from '@/types'
+import type { DetailedQuestionResult, HistoryRecord, RetryResult } from '@/types'
 import type { Question } from '@/types/questions'
 import { QUESTION_TYPE_LABELS } from '@/types/questions'
 import type { QuizFlowConfig, SubjectConfig } from '@/types/quiz-flows'
@@ -60,13 +60,29 @@ function sectionsOf(record: HistoryRecord): Section[] {
       results: stage.questionResults ?? [],
     }))
   }
-  const mode = (record.flowConfig?.stages[0]?.mode || 'standard') as QuizModeId
+  const mode = (record.flowConfig?.stages?.[0]?.mode || 'standard') as QuizModeId
   return [{ mode, results: results.questionResults ?? [] }]
+}
+
+/**
+ * 紀錄中「再練一次」的結果（v3.6 起才有）。紀錄來自本機、雲端或匯入的備份，
+ * 結構沒有嚴格驗證，格式不對的項目略過。
+ */
+function retryResultsOf(record: HistoryRecord): RetryResult[] {
+  const list: unknown = record.results?.retryResults
+  if (!Array.isArray(list)) return []
+  return list.filter(
+    (result): result is RetryResult =>
+      typeof result?.questionId === 'string' &&
+      typeof result.mode === 'string' &&
+      result.mode in QUIZ_MODES &&
+      typeof result.isCorrect === 'boolean',
+  )
 }
 
 /** 紀錄中的每一段：先第一輪，再接「再練一次」的結果（同一筆紀錄裡，再練的比較晚）。 */
 function allSectionsOf(record: HistoryRecord): Section[] {
-  const retry = (record.results?.retryResults ?? []).map((result) => ({
+  const retry = retryResultsOf(record).map((result) => ({
     mode: result.mode as QuizModeId,
     results: [result],
   }))
@@ -76,7 +92,7 @@ function allSectionsOf(record: HistoryRecord): Section[] {
 /** 「再練一次」答對的題目，key 為 `作答方式/題號`。 */
 export function retryCorrectKeys(record: HistoryRecord): Set<string> {
   return new Set(
-    (record.results?.retryResults ?? [])
+    retryResultsOf(record)
       .filter((result) => result.isCorrect)
       .map((result) => `${result.mode}/${result.questionId}`),
   )
@@ -180,8 +196,29 @@ export function collectWrongQuestions(
 
 // 題型的顯示順序：單選、多選、是非，再來 PVQC 測驗一到六
 const KIND_ORDER = [...Object.keys(QUESTION_TYPE_LABELS), ...Object.keys(QUIZ_MODES)]
-const kindOrder = (item: WrongItem) =>
-  KIND_ORDER.indexOf(item.mode === 'standard' ? item.question.type : item.mode)
+const kindOf = (item: WrongItem): string =>
+  item.mode === 'standard' ? item.question.type : item.mode
+const kindOrder = (item: WrongItem) => KIND_ORDER.indexOf(kindOf(item))
+
+/**
+ * 依題型輪流取題：每種題型各取一題、再輪下一圈，同一題型內照錯題的優先順序。
+ * 避免某個題型錯得特別多次時，每次複習都只抽到那個題型。
+ * 題型的輪流順序依各題型最優先那題的排名。
+ */
+function interleaveByKind(items: readonly WrongItem[]): WrongItem[] {
+  const byKind = new Map<string, WrongItem[]>()
+  for (const item of items) {
+    const list = byKind.get(kindOf(item))
+    if (list) list.push(item)
+    else byKind.set(kindOf(item), [item])
+  }
+  const lists = [...byKind.values()]
+  const result: WrongItem[] = []
+  for (let round = 0; result.length < items.length; round++) {
+    for (const list of lists) if (list[round]) result.push(list[round])
+  }
+  return result
+}
 
 /** 各題型的錯題數，依題型順序：標準題庫為單選／多選／是非，PVQC 為測驗一：寫等。 */
 export function countByKind(items: readonly WrongItem[]): [string, number][] {
@@ -197,14 +234,14 @@ export function countByKind(items: readonly WrongItem[]): [string, number][] {
 }
 
 /**
- * 複習用的測驗流程：取錯題清單的前 limit 題，不計時，答一題就看到對錯。
- * PVQC 依作答方式分成多個階段，沿用多階段測驗。
+ * 複習用的測驗流程：依題型輪流取 limit 題，不計時，答一題就看到對錯。
+ * PVQC 依作答方式分成多個階段（紀錄與計分照階段），作答時打散成一條流程。
  */
 export function buildReviewFlow(
   group: WrongSubject,
   limit: number,
 ): QuizFlowConfig {
-  const items = group.items.slice(0, limit)
+  const items = interleaveByKind(group.items).slice(0, limit)
   const modes = [...new Set(items.map((item) => item.mode))].sort(
     (a, b) => KIND_ORDER.indexOf(a) - KIND_ORDER.indexOf(b),
   )
@@ -232,8 +269,9 @@ export function buildReviewFlow(
     stages,
     totalTimeLimit: 0,
     flowMode: 'review',
-    // ponytail: PVQC 的作答元件還沒支援即時回饋（v3.6 Beta 3），先只開給一般題型
-    instantFeedback: stages.every((stage) => stage.mode === 'standard'),
+    instantFeedback: true,
+    // PVQC 各作答方式混在一起考，進度是一條完整的流程
+    mixStages: stages.length > 1,
   }
 }
 
