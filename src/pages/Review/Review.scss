@@ -1,8 +1,27 @@
+// 每次複習題數：縮排同設定頁的列表標題
+.review-limit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  // 避開標題下方 24px 的淡出漸層（選中的選項還會往上凸 3px）
+  margin-top: 28px;
+  padding: 0 6px 0 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--foreground-500);
+
+  .segmented-control > button {
+    min-width: 44px;
+    justify-content: center;
+  }
+}
+
 .review-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
 .review-card {

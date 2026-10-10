@@ -17,8 +17,6 @@ import { currentQuestionId, findSubject } from '@/data/subjects'
 import { useHistoryStore } from '@/data/historyStore'
 import { isSubjectLocked } from '@/pages/Bank/utils/bankHelpers'
 
-// 一次最多複習幾題
-export const REVIEW_LIMIT = 15
 // 連續答對幾次後移出
 const REMOVE_AFTER = 2
 
@@ -158,7 +156,7 @@ export function countByKind(items: readonly WrongItem[]): [string, number][] {
  */
 export function buildReviewFlow(
   group: WrongSubject,
-  limit = REVIEW_LIMIT,
+  limit: number,
 ): QuizFlowConfig {
   const items = group.items.slice(0, limit)
   const modes = [...new Set(items.map((item) => item.mode))].sort(

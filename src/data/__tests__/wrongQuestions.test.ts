@@ -149,7 +149,7 @@ describe('buildReviewFlow', () => {
         pvqc_read: words.slice(12).map((id) => ({ id, correct: false })),
       }),
     ]
-    const flow = buildReviewFlow(collectWrongQuestions(history)[0])
+    const flow = buildReviewFlow(collectWrongQuestions(history)[0], 15)
     expect(flow.flowMode).toBe('review')
     expect(flow.totalTimeLimit).toBe(0)
     expect(flow.stages.reduce((sum, s) => sum + s.questionCount, 0)).toBe(15)

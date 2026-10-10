@@ -5,7 +5,7 @@
  * 缺漏欄位也會自動補上預設值（取代原本 loadSettingsFromStorage 的手動合併）。
  */
 import { z } from 'zod'
-import { DEFAULT_SETTINGS } from '@/types/settings'
+import { DEFAULT_SETTINGS, REVIEW_LIMITS } from '@/types/settings'
 
 export const pvqcSettingsSchema = z.object({
   defaultQuestionCount: z
@@ -20,4 +20,8 @@ export const appSettingsSchema = z.object({
   pvqc: pvqcSettingsSchema.default(DEFAULT_SETTINGS.pvqc),
   // 缺漏或不合法時退回預設，不讓整份設定（含 PVQC）一起被丟棄
   theme: z.enum(['system', 'light', 'dark']).catch(DEFAULT_SETTINGS.theme),
+  reviewLimit: z
+    .number()
+    .refine((n) => (REVIEW_LIMITS as readonly number[]).includes(n))
+    .catch(DEFAULT_SETTINGS.reviewLimit),
 })

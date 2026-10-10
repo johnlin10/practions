@@ -26,6 +26,30 @@
       overflow: hidden;
 
       > .question-header {
+        // 進度條，計時器在右側
+        > .quiz-progress-row {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          min-height: 44px;
+          margin-bottom: 8px;
+
+          > .quiz-progress {
+            flex-grow: 1;
+            height: 14px;
+            background: var(--fill-color);
+            border-radius: 7px;
+            overflow: hidden;
+
+            > div {
+              height: 100%;
+              background: var(--primary-color);
+              border-radius: 7px;
+              transition: width 0.3s ease;
+            }
+          }
+        }
+
         > p.quiz-type {
           font-size: 0.85rem;
           color: var(--foreground-400);
@@ -504,5 +528,109 @@ h1.quiz-to-history {
 
   .review-entry-arrow {
     color: var(--text-faint-color);
+  }
+}
+
+// 「正在準備」畫面：科目、題數與時間，下方進度條隨機分段跑滿（Quiz.tsx），最後淡出換成題目
+.quiz-preparing {
+  --accent: var(--primary-color);
+  --accent-dark: var(--primary-dark-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 100%;
+  text-align: center;
+  // 淡入；--prepare-out（停留時間減 0.2 秒）開始淡出，跟準備畫面同時結束
+  animation:
+    quiz-fade-in 0.25s ease-out,
+    quiz-fade-out 0.2s ease-in var(--prepare-out) forwards;
+
+  &.review {
+    --accent: var(--review-color);
+    --accent-dark: var(--orange-600);
+  }
+
+  > .quiz-preparing-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    font-size: 40px;
+    color: var(--text-white);
+    background: var(--accent);
+    border-radius: 18px;
+    box-shadow: 0 4px 0 var(--accent-dark);
+  }
+
+  > .quiz-preparing-name {
+    margin-top: 10px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--foreground-900);
+  }
+
+  > .quiz-preparing-meta {
+    color: var(--text-muted-color);
+  }
+
+  > .quiz-preparing-bar {
+    width: 140px;
+    height: 8px;
+    margin-top: 18px;
+    background: var(--fill-color);
+    border-radius: 4px;
+    overflow: hidden;
+
+    > div {
+      width: 0;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+    }
+  }
+
+  > .quiz-preparing-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+  }
+}
+
+// 題目出現時稍微往上浮入
+.quiz-container > .question-section,
+.quiz-container > .quiz-navigation {
+  animation: quiz-enter 0.35s ease-out;
+}
+
+@keyframes quiz-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes quiz-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes quiz-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-preparing,
+  .quiz-container > .question-section,
+  .quiz-container > .quiz-navigation {
+    animation: none;
+  }
+
+  .quiz-preparing > .quiz-preparing-bar > div {
+    width: 100%;
   }
 }

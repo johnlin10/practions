@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate, useParams, Link, useLocation } from 'react-router-dom'
 import './Quiz.scss'
 
@@ -22,7 +22,7 @@ import {
 } from '../../utils/pvqc-helpers'
 
 // types
-import { SubjectConfig, QuizFlowConfig } from '../../types/quiz-flows'
+import { QuizFlowConfig } from '../../types/quiz-flows'
 import { QUESTION_TYPE_LABELS, VocabularyQuestion } from '../../types/questions'
 
 // data
@@ -37,6 +37,10 @@ import {
 // utils
 import { answerKey } from '../../utils/answer-key'
 import { showAlert } from '../../utils/dialog'
+import {
+  randomPrepareFrames,
+  randomPrepareMs,
+} from '../../utils/prepare-progress'
 
 // interfaces
 // 預覽所有題目的彈窗元件 Props 介面
@@ -67,6 +71,12 @@ function Quiz(): React.ReactElement {
   const [previewAllQuestions, setPreviewAllQuestions] = useState<boolean>(false)
   // 錯題（測驗列表的錯題複習卡片）
   const wrongGroups = useWrongQuestions()
+  // 是否顯示「正在準備」畫面
+  const [preparing, setPreparing] = useState<boolean>(true)
+  // 這次準備畫面停留的時間（每次隨機）
+  const [prepareMs, setPrepareMs] = useState<number>(randomPrepareMs)
+  // 準備畫面的進度條
+  const prepareBarRef = useRef<HTMLDivElement>(null)
 
   // 取得測驗上下文
   const {
@@ -80,29 +90,43 @@ function Quiz(): React.ReactElement {
     hasNextStage,
   } = useQuiz()
 
-  // 當科目 ID 或路徑狀態改變時，初始化測驗
+  // 自訂流程配置（從 PVQCSetup、錯題複習傳來），沒有就用科目預設
+  const customFlowConfig = (location.state as any)?.customFlowConfig as
+    | QuizFlowConfig
+    | undefined
+  const flowConfig = customFlowConfig ?? subject?.flowConfig
+
+  // 當科目 ID 或路徑狀態改變時，先顯示「正在準備」，結束後才出題並開始計時
   useEffect(() => {
     if (!subject) return
 
-    // 檢查是否有自訂流程配置（從 PVQCSetup 傳來）
-    const customFlowConfig = (location.state as any)?.customFlowConfig as
-      | QuizFlowConfig
-      | undefined
-
-    if (customFlowConfig) {
-      // 使用自訂流程配置
-      const customSubject: SubjectConfig = {
-        ...subject,
-        flowConfig: customFlowConfig,
-      }
-      startQuiz(customSubject)
-    } else {
-      // 使用預設配置
-      startQuiz(subject)
-    }
+    const ms = randomPrepareMs()
+    setPrepareMs(ms)
+    setPreparing(true)
+    const timeout = setTimeout(() => {
+      startQuiz(
+        customFlowConfig
+          ? { ...subject, flowConfig: customFlowConfig }
+          : subject,
+      )
+      setPreparing(false)
+    }, ms)
+    return () => clearTimeout(timeout)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subjectId, location.state])
+
+  // 準備畫面的進度條：隨機分段跑滿，在畫面淡出前跑完
+  useEffect(() => {
+    const bar = prepareBarRef.current
+    if (!preparing || !bar) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const animation = bar.animate(randomPrepareFrames(), {
+      duration: prepareMs - 300,
+      fill: 'forwards',
+    })
+    return () => animation.cancel()
+  }, [preparing, prepareMs])
 
   //* 計算是否所有題目都已回答完畢（包含所有階段）
   const isAllQuestionsCompleted = useMemo(() => {
@@ -142,6 +166,14 @@ function Quiz(): React.ReactElement {
         quizState.answers[answerKey(stageId, question.id)] !== undefined,
     )
   }, [quizState.currentQuestions, quizState.answers, quizState.currentStage])
+
+  // 當前階段已作答的題數（進度條）
+  const answeredCount = quizState.currentQuestions.filter(
+    (question) =>
+      quizState.answers[
+        answerKey(quizState.currentStage.stageId, question.id)
+      ] !== undefined,
+  ).length
 
   // 進入下一階段
   const handleNextStage = (): void => {
@@ -415,34 +447,98 @@ function Quiz(): React.ReactElement {
     <div className={`page${subjectId ? ' quiz-page' : ''}`}>
       <div className={`page-container${subjectId ? ' quiz-container' : ''}`}>
         {subjectId ? (
-          subject ? (
+          subject && preparing ? (
+            //* 正在準備：顯示科目、題數與時間
+            <div
+              className={`quiz-preparing${
+                flowConfig?.flowMode === 'review' ? ' review' : ''
+              }`}
+              role="status"
+              // 最後 0.2 秒淡出（見 Quiz.scss）
+              style={
+                {
+                  '--prepare-out': `${prepareMs - 200}ms`,
+                } as React.CSSProperties
+              }
+            >
+              <span className="quiz-preparing-icon material-symbols-rounded fill">
+                {flowConfig?.flowMode === 'review'
+                  ? 'replay'
+                  : 'assignment_turned_in'}
+              </span>
+              <p className="quiz-preparing-name">{subject.name}</p>
+              <p className="quiz-preparing-meta">
+                {(() => {
+                  const count = (flowConfig?.stages ?? []).reduce(
+                    (sum, stage) => sum + stage.questionCount,
+                    0,
+                  )
+                  const minutes = flowConfig?.totalTimeLimit ?? 0
+                  if (flowConfig?.flowMode === 'review') {
+                    return `錯題複習・${count} 題`
+                  }
+                  return minutes > 0
+                    ? `${count} 題・${minutes} 分鐘`
+                    : `${count} 題`
+                })()}
+              </p>
+              <div className="quiz-preparing-bar">
+                <div ref={prepareBarRef} />
+              </div>
+              <p className="quiz-preparing-hint">正在準備題目</p>
+            </div>
+          ) : subject ? (
             //* 如果有 subjectId，顯示測驗頁面
             <>
-              {(() => {
-                const enforce = quizState.flowConfig.enforceStageTimer === true
-                const stage = quizState.currentStage
-                // 啟用分階段強制計時 → 用當前階段 timeLimit
-                // 未啟用 → 沿用舊行為（總時長一次倒數）
-                const duration = enforce
-                  ? stage.timeLimit
-                  : quizState.flowConfig.totalTimeLimit
-                const timerKey = enforce
-                  ? `stage-${stage.stageId}`
-                  : `total-${quizState.flowConfig.totalTimeLimit}`
-                return (
-                  duration > 0 && (
-                    <Timer
-                      key={timerKey}
-                      duration={duration}
-                      onTimeUp={
-                        enforce ? handleStageTimeUp : () => handleFinish(true)
-                      }
-                    />
-                  )
-                )
-              })()}
               <div className="question-section">
                 <div className="question-header">
+                  {/* 進度條（當前階段已作答的比例），計時器在右側 */}
+                  <div className="quiz-progress-row">
+                    <div
+                      className="quiz-progress"
+                      role="progressbar"
+                      aria-label="作答進度"
+                      aria-valuemin={0}
+                      aria-valuemax={quizState.currentQuestions.length}
+                      aria-valuenow={answeredCount}
+                    >
+                      <div
+                        style={{
+                          width: `${
+                            (answeredCount /
+                              Math.max(quizState.currentQuestions.length, 1)) *
+                            100
+                          }%`,
+                        }}
+                      />
+                    </div>
+                    {(() => {
+                      const enforce =
+                        quizState.flowConfig.enforceStageTimer === true
+                      const stage = quizState.currentStage
+                      // 啟用分階段強制計時 → 用當前階段 timeLimit
+                      // 未啟用 → 沿用舊行為（總時長一次倒數）
+                      const duration = enforce
+                        ? stage.timeLimit
+                        : quizState.flowConfig.totalTimeLimit
+                      const timerKey = enforce
+                        ? `stage-${stage.stageId}`
+                        : `total-${quizState.flowConfig.totalTimeLimit}`
+                      return (
+                        duration > 0 && (
+                          <Timer
+                            key={timerKey}
+                            duration={duration}
+                            onTimeUp={
+                              enforce
+                                ? handleStageTimeUp
+                                : () => handleFinish(true)
+                            }
+                          />
+                        )
+                      )
+                    })()}
+                  </div>
                   {renderQuizType()}
                   {(quizState.flowConfig.stages?.length ?? 0) > 1 && (
                     <p className="stage-progress">
