@@ -260,6 +260,25 @@ export function clearHistory(): void {
   emit()
 }
 
+/** 刪除單筆記錄並持久化、通知所有訂閱者。登入中會刪除雲端紀錄。 */
+export function deleteHistoryRecord(id: string): void {
+  cache = getSnapshot().filter((record) => record.id !== id)
+  raw = raw.filter((item) => idOf(item) !== id)
+  if (cloud) {
+    cloud.remove([id]).catch((error) => {
+      console.error('[historyStore] 雲端刪除失敗：', error)
+    })
+    // 還沒確認上傳的本機備份也一併刪除，避免下次登入又同步回來
+    dropLocal([id])
+  } else {
+    // 只留剩下的記錄引用到的快照
+    snapshots = Object.assign({}, ...raw.map(usedSnapshots))
+    write(STORAGE_KEYS.QUESTION_SNAPSHOTS, snapshots)
+    write(STORAGE_KEYS.QUIZ_HISTORY, raw)
+  }
+  emit()
+}
+
 const BACKUP_APP = 'practions'
 const BACKUP_VERSION = 1
 
