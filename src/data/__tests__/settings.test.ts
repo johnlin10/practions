@@ -22,9 +22,10 @@ describe('appSettingsSchema theme', () => {
 describe('appSettingsSchema reviewLimit', () => {
   const pvqc = { defaultQuestionCount: 30, defaultTimePerStage: 5 }
 
-  it('v3.6 以前的設定沒有複習題數時預設 15 題，其他設定保留', () => {
+  it('舊版設定沒有複習題數、音效時預設 15 題、開啟音效，其他設定保留', () => {
     const settings = appSettingsSchema.parse({ pvqc, theme: 'dark' })
     expect(settings.reviewLimit).toBe(15)
+    expect(settings.sound).toBe(true)
     expect(settings.theme).toBe('dark')
     expect(settings.pvqc).toEqual(pvqc)
   })

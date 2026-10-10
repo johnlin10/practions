@@ -40,6 +40,7 @@ import {
 
 // utils
 import { speakEnglish } from '../../utils/tts'
+import { playFeedbackSound } from '../../utils/sound'
 import { needsCheckButton } from '../../types/quiz-modes'
 import {
   answerKey,
@@ -257,6 +258,14 @@ function Quiz(): React.ReactElement {
     : ''
   // 目前這題檢查的結果（還沒檢查是 undefined）
   const currentFeedback: boolean | undefined = quizState.feedback?.[currentKey]
+  // 檢查出結果時播放答對／答錯音效（每題只播一次）
+  const soundedKey = useRef('')
+  useEffect(() => {
+    if (currentFeedback === undefined || soundedKey.current === currentKey)
+      return
+    soundedKey.current = currentKey
+    playFeedbackSound(currentFeedback)
+  }, [currentKey, currentFeedback])
   // 進度：第一輪答對的、以及再練過的題目才算完成，答錯的要等再練一次後才填滿
   const progress = (() => {
     if (!instant) {

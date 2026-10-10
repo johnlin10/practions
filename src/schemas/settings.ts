@@ -24,4 +24,5 @@ export const appSettingsSchema = z.object({
     .number()
     .refine((n) => (REVIEW_LIMITS as readonly number[]).includes(n))
     .catch(DEFAULT_SETTINGS.reviewLimit),
+  sound: z.boolean().catch(DEFAULT_SETTINGS.sound),
 })

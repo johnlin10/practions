@@ -73,7 +73,8 @@ function Settings(): React.ReactElement {
   const { pvqcSettings, updatePVQCSettings } = usePVQCSettings()
 
   // 主題：自動模式跟隨系統；關閉時沿用當下的深淺色，之後記住使用者的選擇
-  const isAutoTheme = useSettingsStore().theme === 'system'
+  const appSettings = useSettingsStore()
+  const isAutoTheme = appSettings.theme === 'system'
   const resolvedTheme = useResolvedTheme()
 
   const handleAutoThemeChange = (
@@ -345,6 +346,20 @@ function Settings(): React.ReactElement {
                 )}
               </label>
             ))}
+          </div>
+
+          <div className="settings-list-group has-title">
+            <h5>錯題複習</h5>
+            <label className="settings-list-group-item action">
+              <p>答對、答錯音效</p>
+              <input
+                type="checkbox"
+                role="switch"
+                className="switch"
+                checked={appSettings.sound}
+                onChange={(e) => updateSettings({ sound: e.target.checked })}
+              />
+            </label>
           </div>
 
           <div className="settings-list-group has-title">

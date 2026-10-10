@@ -22,6 +22,8 @@ export interface AppSettings {
   theme: ThemeSetting
   // 錯題複習每次最多幾題
   reviewLimit: number
+  // 錯題複習答對／答錯時播放音效
+  sound: boolean
   // 未來可以擴展更多設定分類
   // ui: UISettings
   // notifications: NotificationSettings
@@ -48,6 +50,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   },
   theme: 'system',
   reviewLimit: 15,
+  sound: true,
 }
 
 // 錯題複習每次題數的選項
