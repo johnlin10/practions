@@ -3,8 +3,9 @@ import {
   generateDetailedResults,
   determineQuizRecordType,
   generateFlowConfigSummary,
+  evaluateAnswer,
 } from '../utils/detailed-results'
-import { QuizRecordType, HistoryRecord } from '../types'
+import { QuizRecordType, HistoryRecord, RetryResult } from '../types'
 import {
   // Subject,
   QuizContextType,
@@ -18,9 +19,9 @@ import {
   QuizStageConfig,
   SubjectConfig,
 } from '../types/quiz-flows'
-import { QUIZ_MODES } from '../types/quiz-modes'
-import { answerKey } from '../utils/answer-key'
-import { pickQuestions } from '../utils/pick-questions'
+import { QUIZ_MODES, needsCheckButton } from '../types/quiz-modes'
+import { answerKey, isRetryStage, retryStageId } from '../utils/answer-key'
+import { pickQuestions, shuffle } from '../utils/pick-questions'
 
 type AnswerHandler = (
   state: QuizState,
@@ -48,6 +49,7 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     allStagesQuestions: {},
     currentQuestions: [],
     answers: {},
+    feedback: {},
     pvqcOptionsCache: {},
     currentQuestionIndex: 0,
     startTime: null,
@@ -77,17 +79,33 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     // 取得第一階段
     const firstStage = flowConfig.stages[0]
 
+    // 打散各階段：所有題目混成一條流程，記下每題所屬的階段
+    const sequence = flowConfig.mixStages
+      ? shuffle(
+          flowConfig.stages.flatMap((stage) =>
+            allStagesQuestions[stage.stageId].map((question) => ({
+              stage,
+              question,
+            })),
+          ),
+        )
+      : null
+
     // 創建新的測驗狀態
-    const newState = {
+    const newState: QuizState = {
       subjectId: id,
       subjectName: name,
       baseQuestionType,
       flowConfig,
       currentStageIndex: 0,
-      currentStage: firstStage,
+      currentStage: sequence?.[0]?.stage ?? firstStage,
       allStagesQuestions,
-      currentQuestions: allStagesQuestions[firstStage.stageId],
+      currentQuestions: sequence
+        ? sequence.map((item) => item.question)
+        : allStagesQuestions[firstStage.stageId],
+      sequenceStages: sequence?.map((item) => item.stage),
       answers: {},
+      feedback: {},
       currentQuestionIndex: 0,
       startTime: new Date(),
       stageStartTime: new Date(),
@@ -281,6 +299,10 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     setQuizState((prev) => {
       // 取得當前階段、題目和題目索引
       const { currentStage, currentQuestions, currentQuestionIndex } = prev
+      // 即時回饋：檢查過的題目答案鎖定
+      const instant = prev.flowConfig.instantFeedback === true
+      const key = answerKey(currentStage.stageId, questionId)
+      if (instant && key in prev.feedback) return prev
       // 取得當前階段模式
       const mode = QUIZ_MODES[currentStage.mode]
       // 取得當前題目
@@ -323,8 +345,112 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
         }
       }
 
-      return handler(prev, questionId, answer)
+      const next = handler(prev, questionId, answer)
+      if (!instant || next === prev) return next
+
+      // 即時回饋：不自動跳題（按「繼續」才往下）；不用按「檢查」的題目點了就檢查
+      const autoCheck = !needsCheckButton(
+        currentStage.mode,
+        currentQuestion?.type,
+      )
+      return {
+        ...next,
+        currentQuestionIndex,
+        feedback: autoCheck
+          ? {
+              ...next.feedback,
+              [key]: evaluateAnswer(currentQuestion, answer, currentStage.mode),
+            }
+          : next.feedback,
+      }
     })
+  }
+
+  /**
+   * [function] checkAnswer
+   * 即時回饋：檢查目前這題（多選題按「檢查」時呼叫）
+   * @returns {void}
+   */
+  const checkAnswer = (): void => {
+    setQuizState((prev) => {
+      const question = prev.currentQuestions[prev.currentQuestionIndex]
+      if (!question) return prev
+      const key = answerKey(prev.currentStage.stageId, question.id)
+      const record = prev.answers[key]
+      if (!record || key in prev.feedback) return prev
+      return {
+        ...prev,
+        feedback: {
+          ...prev.feedback,
+          [key]: evaluateAnswer(question, record.answer, prev.currentStage.mode),
+        },
+      }
+    })
+  }
+
+  /**
+   * [function] continueFeedback
+   * 即時回饋：按「繼續」。依序是下一題 → 這個階段答錯的題目再練一次 → 下一階段 → 交卷
+   * @returns {'continue' | 'finish'} - 'finish' 表示全部做完，由頁面交卷
+   */
+  const continueFeedback = (): 'continue' | 'finish' => {
+    const {
+      currentQuestions,
+      currentQuestionIndex,
+      currentStage,
+      allStagesQuestions,
+      feedback,
+      sequenceStages,
+    } = quizState
+
+    if (currentQuestionIndex < currentQuestions.length - 1) {
+      setQuizState((prev) => {
+        const index = prev.currentQuestionIndex + 1
+        return {
+          ...prev,
+          currentQuestionIndex: index,
+          // 打散各階段時，每題切到自己階段的作答方式
+          currentStage: prev.sequenceStages?.[index] ?? prev.currentStage,
+        }
+      })
+      return 'continue'
+    }
+
+    // 第一輪做完：答錯的題目再練一次（只練一輪）
+    if (!isRetryStage(currentStage.stageId)) {
+      // 這一輪的題目：打散時是全部階段，否則是目前階段
+      const round = sequenceStages
+        ? currentQuestions.map((question, i) => ({
+            question,
+            stage: sequenceStages[i],
+          }))
+        : (allStagesQuestions[currentStage.stageId] ?? []).map((question) => ({
+            question,
+            stage: currentStage,
+          }))
+      const wrong = round.filter(
+        ({ question, stage }) =>
+          feedback[answerKey(stage.stageId, question.id)] === false,
+      )
+      if (wrong.length > 0) {
+        const retryStages = wrong.map(({ stage }) => ({
+          ...stage,
+          stageId: retryStageId(stage.stageId),
+        }))
+        setQuizState((prev) => ({
+          ...prev,
+          currentStage: retryStages[0],
+          currentQuestions: wrong.map(({ question }) => question),
+          currentQuestionIndex: 0,
+          sequenceStages: prev.sequenceStages && retryStages,
+        }))
+        return 'continue'
+      }
+    }
+
+    // 打散各階段時沒有下一階段，全部做完就交卷
+    if (sequenceStages) return 'finish'
+    return finishStage() ? 'continue' : 'finish'
   }
 
   /**
@@ -338,6 +464,28 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
 
     // 生成詳細的評分報告
     const detailedResults = generateDetailedResults(quizState)
+
+    // 「再練一次」的結果另外存（不計分），錯題複習會接在第一輪後面計算
+    const retryResults: RetryResult[] = quizState.flowConfig.stages.flatMap(
+      (stage) => {
+        const retryId = retryStageId(stage.stageId)
+        return (quizState.allStagesQuestions[stage.stageId] ?? []).flatMap(
+          (question) => {
+            const key = answerKey(retryId, question.id)
+            if (!(key in quizState.feedback)) return []
+            return [
+              {
+                questionId: question.id,
+                mode: stage.mode,
+                userAnswer: quizState.answers[key]?.answer,
+                isCorrect: quizState.feedback[key],
+              },
+            ]
+          },
+        )
+      },
+    )
+    if (retryResults.length > 0) detailedResults.retryResults = retryResults
 
     // 確保 subject 資料存在，避免儲存 undefined
     if (!quizState.subjectId) {
@@ -528,6 +676,8 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     submitAnswer,
     finishStage,
     finishQuiz,
+    checkAnswer,
+    continueFeedback,
     handlePrev,
     handleNext,
     goToStage,

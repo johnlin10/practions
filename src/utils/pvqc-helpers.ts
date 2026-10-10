@@ -11,6 +11,17 @@ export interface PVQCQuizItem {
   correctIndex?: number
 }
 
+/** 隨機取 count 個不重複、且不等於正確答案的選項文字。 */
+function uniqueDistractors(
+  texts: string[],
+  correctAnswer: string,
+  count: number
+): string[] {
+  return [...new Set(shuffle(texts))]
+    .filter((text) => text !== correctAnswer)
+    .slice(0, count)
+}
+
 /**
  * 為 PVQC 測驗二、三、四生成文字選項
  * 從題庫中隨機選擇其他單字作為干擾選項
@@ -33,16 +44,16 @@ export function generatePVQCOptions(
       ? targetQuestion.chinese
       : targetQuestion.english
 
-  // 其他題目
-  const otherQuestions = allQuestions.filter((q) => q.id !== targetQuestion.id)
-  // 干擾選項
-  const distractors = shuffle(otherQuestions)
-    .slice(0, optionCount - 1)
-    .map((q) =>
+  // 干擾選項：題庫裡有同義的單字，選項文字要去重複，也不能跟正確答案一樣
+  const distractors = uniqueDistractors(
+    allQuestions.map((q) =>
       mode === 'pvqc_read' || mode === 'pvqc_listen_chinese'
         ? q.chinese
         : q.english
-    )
+    ),
+    correctAnswer,
+    optionCount - 1
+  )
 
   // 合併並隨機排序
   const options = shuffle([...distractors, correctAnswer])
@@ -69,11 +80,12 @@ export function generatePVQCPronunciationOptions(
   // 正確的英文單字
   const correctAnswer = targetQuestion.english
 
-  // 從其他題目中選擇干擾英文單字
-  const otherQuestions = allQuestions.filter((q) => q.id !== targetQuestion.id)
-  const distractors = shuffle(otherQuestions)
-    .slice(0, optionCount - 1)
-    .map((q) => q.english)
+  // 從其他題目中選擇干擾英文單字（去重複）
+  const distractors = uniqueDistractors(
+    allQuestions.map((q) => q.english),
+    correctAnswer,
+    optionCount - 1
+  )
 
   // 合併並隨機排序
   const options = shuffle([...distractors, correctAnswer])

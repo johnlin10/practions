@@ -12,6 +12,7 @@ import { speakEnglish } from '../../../utils/tts'
 
 // data
 import { getHistoryById, useHistoryReady } from '@/data/historyStore'
+import { retryCorrectKeys, reviewSummary } from '@/data/wrongQuestions'
 
 // types
 import { HistoryRecord, DetailedQuestionResult } from '../../../types'
@@ -36,6 +37,8 @@ interface AnalyzedQuestion {
   isCorrect: boolean
   isUnanswered: boolean
   stageId?: string // 適用於多階段測驗
+  // 錯題複習：第一次答錯、「再練一次」答對
+  retryCorrect?: boolean
 }
 
 interface QuestionGroup {
@@ -140,8 +143,12 @@ function SingleHistory(): React.ReactElement {
     // 如果歷史記錄不存在，則返回空陣列
     if (!record) return []
 
+    // 錯題複習「再練一次」答對的題目（key：作答方式/題號）
+    const retried = retryCorrectKeys(record)
+
     // 如果結果存在且有問題結果，則使用新的詳細評分報告格式
     if (record.results && record.results.questionResults) {
+      const mode = record.flowConfig?.stages?.[0]?.mode || 'standard'
       // 返回新的詳細評分報告格式
       return record.results.questionResults.map(
         (result: DetailedQuestionResult) => ({
@@ -150,6 +157,8 @@ function SingleHistory(): React.ReactElement {
           isCorrect: result.isCorrect,
           isUnanswered: result.isUnanswered,
           stageId: result.stageId,
+          retryCorrect:
+            !result.isCorrect && retried.has(`${mode}/${result.questionId}`),
         })
       )
     } else if (record.results && record.results.stageResults) {
@@ -163,6 +172,9 @@ function SingleHistory(): React.ReactElement {
             isCorrect: result.isCorrect,
             isUnanswered: result.isUnanswered,
             stageId: result.stageId,
+            retryCorrect:
+              !result.isCorrect &&
+              retried.has(`${stage.mode}/${result.questionId}`),
           })
         })
       })
@@ -303,7 +315,10 @@ function SingleHistory(): React.ReactElement {
           // 如果只顯示錯誤題目，則過濾掉答對的題目
           let filteredQuestions = stageQuestions
           if (showWrongOnly) {
-            filteredQuestions = filteredQuestions.filter((q) => !q.isCorrect)
+            // 再練一次答對的不算錯誤題目（複習紀錄的「還要加強」）
+            filteredQuestions = filteredQuestions.filter(
+              (q) => !q.isCorrect && !q.retryCorrect
+            )
           }
 
           // 如果按題號排序，則按題號排序
@@ -354,7 +369,10 @@ function SingleHistory(): React.ReactElement {
           // 如果只顯示錯誤題目，則過濾掉答對的題目
           let filteredQuestions = questions
           if (showWrongOnly) {
-            filteredQuestions = filteredQuestions.filter((q) => !q.isCorrect)
+            // 再練一次答對的不算錯誤題目（複習紀錄的「還要加強」）
+            filteredQuestions = filteredQuestions.filter(
+              (q) => !q.isCorrect && !q.retryCorrect
+            )
           }
 
           // 如果按題號排序，則按題號排序
@@ -387,17 +405,19 @@ function SingleHistory(): React.ReactElement {
   const renderQuestionHeader = (analyzed: AnalyzedQuestion): JSX.Element => {
     const status = analyzed.isCorrect
       ? 'correct'
+      : analyzed.retryCorrect
+      ? 'retry'
       : analyzed.isUnanswered
       ? 'unanswered'
       : 'wrong'
+    const icon = { correct: 'check', retry: 'replay', wrong: 'close', unanswered: 'remove' }[status]
+    const label = { correct: '答對', retry: '再練答對', wrong: '答錯', unanswered: '未作答' }[status]
     return (
       <div className="question-header">
         <h3>#{analyzed.question.id}</h3>
         <p className={`answer-status ${status}`}>
-          <span className="material-symbols-rounded fill">
-            {status === 'correct' ? 'check' : status === 'wrong' ? 'close' : 'remove'}
-          </span>
-          {status === 'correct' ? '答對' : status === 'wrong' ? '答錯' : '未作答'}
+          <span className="material-symbols-rounded fill">{icon}</span>
+          {label}
         </p>
       </div>
     )
@@ -667,6 +687,8 @@ function SingleHistory(): React.ReactElement {
       : flowMode === 'pvqc_custom'
       ? 'PVQC 自訂'
       : '標準測驗'
+  // 錯題複習：一次答對、再練答對、還要加強（不顯示分數）
+  const review = reviewSummary(record)
   // 只有官方模擬有整體通過與否
   const overallPassed =
     flowMode === 'pvqc_official' ? record.results?.overallPassed : undefined
@@ -708,7 +730,44 @@ function SingleHistory(): React.ReactElement {
           </p>
         </div>
 
-        {/* 成績卡：正確率與通過與否在上，答對比例進度條居中，題數與用時在下 */}
+        {review ? (
+          //* 錯題複習的結算：進度條依序是一次答對（藍）與再練答對（橘）
+          <div className="summary review-summary">
+            <div className="summary-bar">
+              <div
+                style={{ width: `${(review.first / Math.max(review.total, 1)) * 100}%` }}
+              />
+              <div
+                className="retry"
+                style={{ width: `${(review.retry / Math.max(review.total, 1)) * 100}%` }}
+              />
+            </div>
+            <div className="summary-stats">
+              <div>
+                <p className="label">一次答對</p>
+                <p className="value">
+                  {review.first}
+                  <span> 題</span>
+                </p>
+              </div>
+              <div>
+                <p className="label">再練答對</p>
+                <p className="value retry">
+                  {review.retry}
+                  <span> 題</span>
+                </p>
+              </div>
+              <div>
+                <p className="label">還要加強</p>
+                <p className="value">
+                  {review.remaining}
+                  <span> 題</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+        /* 成績卡：正確率與通過與否在上，答對比例進度條居中，題數與用時在下 */
         <div className="summary">
           <div className="summary-main">
             <h1>{correctRate}</h1>
@@ -743,6 +802,7 @@ function SingleHistory(): React.ReactElement {
             </div>
           </div>
         </div>
+        )}
 
         <div className="filters">
           <button
@@ -751,7 +811,7 @@ function SingleHistory(): React.ReactElement {
             aria-pressed={showWrongOnly}
           >
             <span className="material-symbols-rounded fill">filter_list</span>
-            <p>只顯示錯誤題目</p>
+            <p>{review ? '只顯示還要加強的題目' : '只顯示錯誤題目'}</p>
           </button>
           <button
             className={`filter-switch ${sortByQuestionId ? 'active' : ''}`}

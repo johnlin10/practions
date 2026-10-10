@@ -89,3 +89,19 @@ export const QUIZ_MODES: Record<QuizModeId, QuizModeConfig> = {
     requiresAudio: true,
   },
 }
+
+/**
+ * 即時回饋時，這題要不要按「檢查」才判斷對錯。
+ * 多選、拼寫、要先聽過幾個發音再決定的題目要按「檢查」；其他點了選項就檢查。
+ */
+export function needsCheckButton(
+  mode: QuizModeId,
+  questionType: QuestionTypeId | undefined,
+): boolean {
+  return (
+    questionType === 'multiple_choice' ||
+    mode === 'pvqc_write' ||
+    mode === 'pvqc_pronunciation' ||
+    mode === 'pvqc_read_listen'
+  )
+}

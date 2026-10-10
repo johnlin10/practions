@@ -26,6 +26,30 @@
       overflow: hidden;
 
       > .question-header {
+        // 進度條，計時器在右側
+        > .quiz-progress-row {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          min-height: 44px;
+          margin-bottom: 8px;
+
+          > .quiz-progress {
+            flex-grow: 1;
+            height: 14px;
+            background: var(--fill-color);
+            border-radius: 7px;
+            overflow: hidden;
+
+            > div {
+              height: 100%;
+              background: var(--primary-color);
+              border-radius: 7px;
+              transition: width 0.3s ease;
+            }
+          }
+        }
+
         > p.quiz-type {
           font-size: 0.85rem;
           color: var(--foreground-400);
@@ -504,5 +528,385 @@ h1.quiz-to-history {
 
   .review-entry-arrow {
     color: var(--text-faint-color);
+  }
+}
+
+// 「正在準備」畫面：科目、題數與時間，下方進度條隨機分段跑滿（Quiz.tsx），最後淡出換成題目
+.quiz-preparing {
+  --accent: var(--primary-color);
+  --accent-dark: var(--primary-dark-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 100%;
+  text-align: center;
+  // 淡入；--prepare-out（停留時間減 0.2 秒）開始淡出，跟準備畫面同時結束
+  animation:
+    quiz-fade-in 0.25s ease-out,
+    quiz-fade-out 0.2s ease-in var(--prepare-out) forwards;
+
+  &.review {
+    --accent: var(--review-color);
+    --accent-dark: var(--orange-600);
+  }
+
+  > .quiz-preparing-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    font-size: 40px;
+    color: var(--text-white);
+    background: var(--accent);
+    border-radius: 18px;
+    box-shadow: 0 4px 0 var(--accent-dark);
+  }
+
+  > .quiz-preparing-name {
+    margin-top: 10px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--foreground-900);
+  }
+
+  > .quiz-preparing-meta {
+    color: var(--text-muted-color);
+  }
+
+  > .quiz-preparing-bar {
+    width: 140px;
+    height: 8px;
+    margin-top: 18px;
+    background: var(--fill-color);
+    border-radius: 4px;
+    overflow: hidden;
+
+    > div {
+      width: 0;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+    }
+  }
+
+  > .quiz-preparing-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+  }
+}
+
+// 題目出現時稍微往上浮入
+.quiz-container > .question-section,
+.quiz-container > .quiz-navigation {
+  animation: quiz-enter 0.35s ease-out;
+}
+
+@keyframes quiz-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes quiz-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes quiz-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-preparing,
+  .quiz-container > .question-section,
+  .quiz-container > .quiz-navigation {
+    animation: none;
+  }
+
+  .quiz-preparing > .quiz-preparing-bar > div {
+    width: 100%;
+  }
+}
+
+// 再練一次：進度條改橘色，題號上方加標示
+.quiz-page .quiz-container .question-section > .question-header {
+  > .quiz-progress-row > .quiz-progress.retry > div {
+    background: var(--review-color);
+  }
+
+  > p.quiz-retry-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--review-text-color);
+
+    > .material-symbols-rounded {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// 即時回饋：題目區撐滿，底部放「檢查」按鈕或結果列
+.quiz-page .quiz-container.instant-feedback {
+  display: flex;
+  flex-direction: column;
+
+  > .question-section {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+  }
+
+  > .quiz-navigation {
+    max-width: none;
+  }
+}
+
+// 「檢查」：實心主色大按鈕
+.quiz-check-btn {
+  justify-content: center;
+  width: 100%;
+  min-height: 50px;
+  margin-top: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-white);
+  background-color: var(--primary-color);
+  border-color: var(--primary-dark-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 0 var(--primary-dark-color);
+
+  &:not(:disabled):hover {
+    background-color: var(--primary-dark-color);
+    border-color: var(--primary-darker-color);
+    box-shadow: 0 4px 0 var(--primary-darker-color);
+  }
+
+  &:not(:disabled):active {
+    box-shadow: 0 0 0 var(--primary-darker-color);
+    transform: translateY(4px);
+  }
+}
+
+// 結果列：獨立浮在畫面底部、撐滿螢幕寬度，不擠壓題目；內容寬度跟題目對齊（最寬 640px）
+.quiz-feedback {
+  --feedback-text: var(--correct-text-color);
+  --feedback-btn: var(--green-700);
+  --feedback-btn-dark: var(--green-800);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px max(24px, calc((100vw - 640px) / 2))
+    calc(24px + env(safe-area-inset-bottom));
+  background-color: var(--correct-background-color);
+  border-top: 2px solid var(--correct-border-color);
+  border-radius: 0;
+  animation: quiz-feedback-in 0.2s ease-out;
+
+  &.wrong {
+    --feedback-text: var(--wrong-text-color);
+    --feedback-btn: var(--red-600);
+    --feedback-btn-dark: var(--red-700);
+    background-color: var(--wrong-background-color);
+    border-top-color: var(--wrong-border-color);
+  }
+
+  > .quiz-feedback-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--feedback-text);
+
+    > .material-symbols-rounded {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      font-size: 22px;
+      color: var(--text-white);
+      background-color: var(--feedback-btn);
+      border-radius: 50%;
+    }
+  }
+
+  // 正確答案：每個選項一行（多選依序列出），太長時在結果列內捲動
+  > .quiz-feedback-answer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--feedback-text);
+
+    > p {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    > ul {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 30vh;
+      // 捲動容器會裁掉超出的部分，上下留空間給播放按鈕的立體陰影與按下位移
+      margin: -4px 0;
+      padding: 4px 0;
+      overflow-y: auto;
+      list-style: none;
+
+      > li {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--foreground-900);
+
+        > .option-letter {
+          flex-shrink: 0;
+          font-weight: 700;
+          color: var(--feedback-text);
+        }
+
+        > .material-symbols-outlined {
+          font-size: 1.75rem;
+          color: var(--feedback-text);
+        }
+
+        // 單字題：英文、中文與重聽發音
+        > strong {
+          font-size: 1.1rem;
+        }
+
+        > .quiz-feedback-speak {
+          align-self: center;
+          margin-left: auto;
+          padding: 4px 8px;
+          color: var(--feedback-text);
+
+          > .material-symbols-rounded {
+            font-size: 1.25rem;
+          }
+        }
+      }
+    }
+  }
+
+  > .quiz-feedback-btn {
+    justify-content: center;
+    width: 100%;
+    min-height: 50px;
+    margin-top: 4px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-white);
+    background-color: var(--feedback-btn);
+    border-color: var(--feedback-btn-dark);
+    border-radius: 12px;
+    box-shadow: 0 4px 0 var(--feedback-btn-dark);
+
+    &:not(:disabled):hover {
+      background-color: var(--feedback-btn-dark);
+    }
+
+    &:not(:disabled):active {
+      box-shadow: 0 0 0 var(--feedback-btn-dark);
+      transform: translateY(4px);
+    }
+  }
+}
+
+@keyframes quiz-feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-feedback {
+    animation: none;
+  }
+}
+
+// 再練一次之前的過渡畫面
+.quiz-retry-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  text-align: center;
+  animation: quiz-enter 0.35s ease-out;
+
+  > .quiz-retry-intro-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    font-size: 40px;
+    color: var(--text-white);
+    background: var(--review-color);
+    border-radius: 18px;
+    box-shadow: 0 4px 0 var(--orange-600);
+  }
+
+  > .quiz-retry-intro-title {
+    margin-top: 10px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--foreground-900);
+  }
+
+  > .quiz-retry-intro-text {
+    color: var(--text-muted-color);
+  }
+
+  > .quiz-retry-intro-btn {
+    justify-content: center;
+    width: 100%;
+    max-width: 320px;
+    min-height: 50px;
+    margin-top: 24px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-white);
+    background-color: var(--review-color);
+    border-color: var(--orange-600);
+    border-radius: 12px;
+    box-shadow: 0 4px 0 var(--orange-600);
+
+    &:not(:disabled):hover {
+      background-color: var(--orange-600);
+    }
+
+    &:not(:disabled):active {
+      box-shadow: 0 0 0 var(--orange-600);
+      transform: translateY(4px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-retry-intro {
+    animation: none;
   }
 }

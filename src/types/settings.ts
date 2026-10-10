@@ -20,6 +20,8 @@ export interface AppSettings {
   pvqc: PVQCSettings
   // 主題
   theme: ThemeSetting
+  // 錯題複習每次最多幾題
+  reviewLimit: number
   // 未來可以擴展更多設定分類
   // ui: UISettings
   // notifications: NotificationSettings
@@ -45,7 +47,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
     defaultTimePerStage: 10,
   },
   theme: 'system',
+  reviewLimit: 15,
 }
+
+// 錯題複習每次題數的選項
+export const REVIEW_LIMITS = [5, 10, 15, 20] as const
 
 // PVQC 自訂測驗可調整的範圍（含）與每次增減的量，設定頁與測驗設定頁共用
 export const PVQC_LIMITS = {

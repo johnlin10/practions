@@ -4,15 +4,18 @@ import './standard.scss'
 
 // types
 import { Question } from '../../../types/questions'
+import { OptionMark, revealClass } from './option-mark'
 
 interface Props {
   question: Question
   currentAnswer?: string | number | number[] | boolean
   // 混合題型的測驗顯示這題的題型，取代「請回答以下問題」
   typeLabel?: string
+  // 即時回饋：已檢查，鎖定作答並標出對錯
+  reveal?: boolean
   onSubmit: (
     questionId: string,
-    answer: string | number | number[] | boolean
+    answer: string | number | number[] | boolean,
   ) => void
 }
 
@@ -29,6 +32,7 @@ function StandardQuestion({
   question,
   currentAnswer,
   typeLabel,
+  reveal = false,
   onSubmit,
 }: Props) {
   // 選擇的答案
@@ -62,19 +66,32 @@ function StandardQuestion({
 
     // 渲染單選題
     return (
-      <div className="options single-choice-options">
-        {question.options.map((option, index) => (
-          <button
-            key={index}
-            className={`option ${selectedAnswer === index ? 'selected' : ''}`}
-            onClick={() => handleSingleSelect(index)}
-          >
-            <span className="option-letter">
-              {String.fromCharCode(65 + index)}
-            </span>
-            {option}
-          </button>
-        ))}
+      <div
+        className={`options single-choice-options${reveal ? ' revealed' : ''}`}
+      >
+        {question.options.map((option, index) => {
+          const mark = reveal
+            ? revealClass(
+                index === question.correctIndex,
+                selectedAnswer === index,
+              )
+            : ''
+          return (
+            <button
+              key={index}
+              className={`option ${
+                reveal ? mark : selectedAnswer === index ? 'selected' : ''
+              }`}
+              onClick={reveal ? undefined : () => handleSingleSelect(index)}
+            >
+              <span className="option-letter">
+                {String.fromCharCode(65 + index)}
+              </span>
+              {option}
+              <OptionMark mark={mark} />
+            </button>
+          )
+        })}
       </div>
     )
   }
@@ -118,24 +135,38 @@ function StandardQuestion({
 
     // 渲染多選題
     return (
-      <div className="options multiple-choice-options">
+      <div
+        className={`options multiple-choice-options${
+          reveal ? ' revealed' : ''
+        }`}
+      >
         {question.options.map((option, index) => {
           // 檢查是否已選擇
           // 如果當前答案是數組，並且包含選擇的選項索引，則已選擇
           const isSelected =
             Array.isArray(selectedAnswer) && selectedAnswer.includes(index)
+          const mark = reveal
+            ? revealClass(
+                question.correctIndexes.includes(index),
+                isSelected,
+                true,
+              )
+            : ''
 
           // 渲染多選題選項
           return (
             <button
               key={index}
-              className={`option ${isSelected ? 'selected' : ''}`}
-              onClick={() => handleMultiSelect(index)}
+              className={`option ${
+                reveal ? mark : isSelected ? 'selected' : ''
+              }`}
+              onClick={reveal ? undefined : () => handleMultiSelect(index)}
             >
               <span className="option-letter">
                 {String.fromCharCode(65 + index)}
               </span>
               {option}
+              <OptionMark mark={mark} />
             </button>
           )
         })}
@@ -163,17 +194,27 @@ function StandardQuestion({
     }
 
     // 渲染是非題
+    const tfClass = (value: boolean): string =>
+      reveal
+        ? revealClass(
+            question.correctAnswer === value,
+            selectedAnswer === value,
+          )
+        : selectedAnswer === value
+          ? 'selected'
+          : ''
+
     return (
-      <div className="options true-false-options">
+      <div className={`options true-false-options${reveal ? ' revealed' : ''}`}>
         <button
-          className={`option ${selectedAnswer === true ? 'selected' : ''}`}
-          onClick={() => handleTrueFalseSelect(true)}
+          className={`option ${tfClass(true)}`}
+          onClick={reveal ? undefined : () => handleTrueFalseSelect(true)}
         >
           <span className="material-symbols-outlined">circle</span>
         </button>
         <button
-          className={`option ${selectedAnswer === false ? 'selected' : ''}`}
-          onClick={() => handleTrueFalseSelect(false)}
+          className={`option ${tfClass(false)}`}
+          onClick={reveal ? undefined : () => handleTrueFalseSelect(false)}
         >
           <span className="material-symbols-outlined">close</span>
         </button>

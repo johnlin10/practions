@@ -375,6 +375,31 @@ describe('匯出 / 匯入', () => {
     expect((await loadStore()).getAllHistory()).toEqual(records)
   })
 
+  it('錯題複習的「再練一次」結果：存讀、重新載入、匯出匯入後都保留', async () => {
+    const review: HistoryRecord = {
+      ...newStandard('20261010000000'),
+      flowMode: 'review',
+    }
+    review.results.retryResults = [
+      { questionId: accounting[2].id, mode: 'standard', userAnswer: 1, isCorrect: true },
+    ]
+    const store = await loadStore()
+    store.addHistoryRecord(review)
+    const [saved] = store.getAllHistory()
+    expect(saved.results.retryResults).toEqual(review.results.retryResults)
+    expect((await loadStore()).getAllHistory()[0].results.retryResults).toEqual(
+      review.results.retryResults,
+    )
+
+    const backup = store.exportHistory()
+    localStorage.clear()
+    const fresh = await loadStore()
+    expect(fresh.importHistory(backup)).toBe(1)
+    expect(fresh.getAllHistory()[0].results.retryResults).toEqual(
+      review.results.retryResults,
+    )
+  })
+
   it('依 id 合併：重複的略過，現有記錄保留', async () => {
     const store = await loadStore()
     store.addHistoryRecord(newStandard('r1'))

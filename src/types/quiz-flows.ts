@@ -32,6 +32,11 @@ export interface QuizFlowConfig {
   flowMode?: FlowMode
   // 是否啟用分階段強制計時（true=時間到強制換階段；false=維持舊全局計時行為）
   enforceStageTimer?: boolean
+  // 即時回饋（錯題複習）：答一題就檢查對錯，答錯的題目在該階段最後再練一次
+  instantFeedback?: boolean
+  // 各階段的題目打散成一條流程，每題用自己階段的作答方式（PVQC 錯題複習）；
+  // 答錯的題目在全部做完後一起再練一次。紀錄與計分仍依階段分開
+  mixStages?: boolean
 }
 
 // 科目配置

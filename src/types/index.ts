@@ -36,6 +36,14 @@ export interface DetailedQuestionResult {
   stageId?: string // 適用於多階段測驗
 }
 
+// 「再練一次」的作答結果：只記錯題複習需要的欄位，不存題目內容
+export interface RetryResult {
+  questionId: string
+  mode: string // QuizModeId
+  userAnswer: string | number | number[] | boolean | undefined
+  isCorrect: boolean
+}
+
 // 階段結果介面（用於多階段測驗）
 export interface DetailedStageResult {
   stageId: string
@@ -67,6 +75,9 @@ export interface DetailedQuizResults {
 
   // 整體是否通過（僅 pvqc_official 模式有意義：所有階段皆 passed 才為 true）
   overallPassed?: boolean
+
+  // 錯題複習「再練一次」的結果（不計分，只用來判斷錯題）
+  retryResults?: RetryResult[]
 
   // 向後兼容屬性
   correctRate?: string
@@ -166,6 +177,11 @@ export interface QuizContextType {
 
   // 完成整個測驗，返回歷史記錄 ID
   finishQuiz: () => string | null
+
+  // 即時回饋：檢查目前這題（多選題按「檢查」）
+  checkAnswer: () => void
+  // 即時回饋：按「繼續」，回傳 'finish' 表示全部做完、該交卷了
+  continueFeedback: () => 'continue' | 'finish'
 
   // 導航
   handlePrev: () => void

@@ -71,3 +71,45 @@ p.question-prompt {
   font-weight: 500;
   color: var(--foreground-900);
 }
+
+// 即時回饋：已檢查的選項鎖定，正確答案標綠、選錯的標紅，多選題漏選的正確答案只加綠框
+.question-block > div.question-content > div.options.revealed button {
+  pointer-events: none;
+
+  &.correct,
+  &.missed {
+    color: var(--correct-text-color) !important;
+    border-color: var(--correct-border-color);
+    box-shadow: 0 3px 0 var(--correct-border-color);
+  }
+
+  &.correct {
+    background-color: var(--correct-background-color);
+  }
+
+  &.wrong {
+    color: var(--wrong-text-color) !important;
+    border-color: var(--wrong-border-color);
+    background-color: var(--wrong-background-color);
+    box-shadow: 0 3px 0 var(--wrong-border-color);
+  }
+
+  > .option-mark {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    > .material-symbols-rounded {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// 發音題：已檢查後仍可點選項重聽（不會改答案）
+.question-block > div.question-content > div.options.revealed.pronunciation-options button {
+  pointer-events: auto;
+}

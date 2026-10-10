@@ -58,6 +58,7 @@ const mkPVQCState = (
     currentStage: flowConfig.stages[0],
     allStagesQuestions: stagesQuestions,
     currentQuestions: stagesQuestions[stageModes[0].stageId] ?? [],
+    feedback: {},
     answers,
     currentQuestionIndex: 0,
     startTime: null,
