@@ -23,7 +23,11 @@ import {
 
 // types
 import { QuizFlowConfig } from '../../types/quiz-flows'
-import { QUESTION_TYPE_LABELS, VocabularyQuestion } from '../../types/questions'
+import {
+  QUESTION_TYPE_LABELS,
+  Question,
+  VocabularyQuestion,
+} from '../../types/questions'
 
 // data
 import { subjects } from '../../data/subjects'
@@ -35,7 +39,12 @@ import {
 } from '../../data/subject-groups'
 
 // utils
-import { answerKey } from '../../utils/answer-key'
+import {
+  answerKey,
+  baseStageId,
+  isRetryStage,
+  retryStageId,
+} from '../../utils/answer-key'
 import { showAlert } from '../../utils/dialog'
 import {
   randomPrepareFrames,
@@ -47,6 +56,40 @@ import {
 interface PreviewAllQuestionsProps {
   close: () => void
   pvqcOptionsCache: Record<string, string[]>
+}
+
+/** 即時回饋答錯時列出的正確答案：選項字母與內容（多選依序列出），是非題為 O／X 圖示。 */
+function CorrectAnswers({ question }: { question: Question }) {
+  const options = (indexes: number[], texts: string[]) =>
+    [...indexes]
+      .sort((a, b) => a - b)
+      .map((index) => (
+        <li key={index}>
+          <span className="option-letter">
+            {String.fromCharCode(65 + index)}
+          </span>
+          {texts[index]}
+        </li>
+      ))
+
+  switch (question.type) {
+    case 'single_choice':
+      return <ul>{options([question.correctIndex], question.options)}</ul>
+    case 'multiple_choice':
+      return <ul>{options(question.correctIndexes, question.options)}</ul>
+    case 'true_false':
+      return (
+        <ul>
+          <li>
+            <span className="material-symbols-outlined">
+              {question.correctAnswer ? 'circle' : 'close'}
+            </span>
+          </li>
+        </ul>
+      )
+    default:
+      return null
+  }
 }
 
 // 科目列表：只列出開放測驗的題庫，並依題組分組
@@ -77,6 +120,8 @@ function Quiz(): React.ReactElement {
   const [prepareMs, setPrepareMs] = useState<number>(randomPrepareMs)
   // 準備畫面的進度條
   const prepareBarRef = useRef<HTMLDivElement>(null)
+  // 已經按過「繼續」的再練一次階段（之前先顯示過渡畫面）
+  const [retryIntroDone, setRetryIntroDone] = useState<string | null>(null)
 
   // 取得測驗上下文
   const {
@@ -88,6 +133,8 @@ function Quiz(): React.ReactElement {
     handlePrev,
     handleNext,
     hasNextStage,
+    checkAnswer,
+    continueFeedback,
   } = useQuiz()
 
   // 自訂流程配置（從 PVQCSetup、錯題複習傳來），沒有就用科目預設
@@ -103,6 +150,7 @@ function Quiz(): React.ReactElement {
     const ms = randomPrepareMs()
     setPrepareMs(ms)
     setPreparing(true)
+    setRetryIntroDone(null)
     const timeout = setTimeout(() => {
       startQuiz(
         customFlowConfig
@@ -174,6 +222,39 @@ function Quiz(): React.ReactElement {
         answerKey(quizState.currentStage.stageId, question.id)
       ] !== undefined,
   ).length
+
+  //* 即時回饋（錯題複習）
+  const instant = quizState.flowConfig.instantFeedback === true
+  const retrying = isRetryStage(quizState.currentStage.stageId ?? '')
+  // 進入再練一次之前，先顯示過渡畫面
+  const showRetryIntro =
+    retrying && retryIntroDone !== quizState.currentStage.stageId
+  const currentQuestion =
+    quizState.currentQuestions[quizState.currentQuestionIndex]
+  const currentKey = currentQuestion
+    ? answerKey(quizState.currentStage.stageId, currentQuestion.id)
+    : ''
+  // 目前這題檢查的結果（還沒檢查是 undefined）
+  const currentFeedback: boolean | undefined = quizState.feedback?.[currentKey]
+  // 進度：第一輪答對的、以及再練過的題目才算完成，答錯的要等再練一次後才填滿
+  const progress = (() => {
+    if (!instant) {
+      return { done: answeredCount, total: quizState.currentQuestions.length }
+    }
+    const stageId = baseStageId(quizState.currentStage.stageId)
+    const firstRound = quizState.allStagesQuestions[stageId] ?? []
+    const done = firstRound.filter(
+      (question) =>
+        quizState.feedback[answerKey(stageId, question.id)] === true ||
+        answerKey(retryStageId(stageId), question.id) in quizState.feedback,
+    ).length
+    return { done, total: firstRound.length }
+  })()
+
+  // 按「繼續」：全部做完就交卷
+  const handleContinue = (): void => {
+    if (continueFeedback() === 'finish') handleFinish()
+  }
 
   // 進入下一階段
   const handleNextStage = (): void => {
@@ -439,13 +520,18 @@ function Quiz(): React.ReactElement {
         question={question}
         currentAnswer={currentAnswer}
         typeLabel={isMixed ? QUESTION_TYPE_LABELS[question.type] : undefined}
+        reveal={instant && currentFeedback !== undefined}
         onSubmit={(id, answer) => submitAnswer(id, answer)}
       />
     )
   }
   return (
     <div className={`page${subjectId ? ' quiz-page' : ''}`}>
-      <div className={`page-container${subjectId ? ' quiz-container' : ''}`}>
+      <div
+        className={`page-container${subjectId ? ' quiz-container' : ''}${
+          subjectId && instant && !preparing ? ' instant-feedback' : ''
+        }`}
+      >
         {subjectId ? (
           subject && preparing ? (
             //* 正在準備：顯示科目、題數與時間
@@ -487,27 +573,46 @@ function Quiz(): React.ReactElement {
               </div>
               <p className="quiz-preparing-hint">正在準備題目</p>
             </div>
+          ) : subject && showRetryIntro ? (
+            //* 再練一次的過渡畫面
+            <div className="quiz-retry-intro" role="status">
+              <span className="quiz-retry-intro-icon material-symbols-rounded">
+                replay
+              </span>
+              <p className="quiz-retry-intro-title">再練一次</p>
+              <p className="quiz-retry-intro-text">
+                剛剛答錯的 {quizState.currentQuestions.length}{' '}
+                題，再練一次加深印象
+              </p>
+              <button
+                className="quiz-retry-intro-btn"
+                onClick={() =>
+                  setRetryIntroDone(quizState.currentStage.stageId)
+                }
+                autoFocus
+              >
+                繼續
+              </button>
+            </div>
           ) : subject ? (
             //* 如果有 subjectId，顯示測驗頁面
             <>
               <div className="question-section">
                 <div className="question-header">
-                  {/* 進度條（當前階段已作答的比例），計時器在右側 */}
+                  {/* 進度條（當前階段完成的比例），計時器在右側；再練一次時改橘色 */}
                   <div className="quiz-progress-row">
                     <div
-                      className="quiz-progress"
+                      className={`quiz-progress${retrying ? ' retry' : ''}`}
                       role="progressbar"
                       aria-label="作答進度"
                       aria-valuemin={0}
-                      aria-valuemax={quizState.currentQuestions.length}
-                      aria-valuenow={answeredCount}
+                      aria-valuemax={progress.total}
+                      aria-valuenow={progress.done}
                     >
                       <div
                         style={{
                           width: `${
-                            (answeredCount /
-                              Math.max(quizState.currentQuestions.length, 1)) *
-                            100
+                            (progress.done / Math.max(progress.total, 1)) * 100
                           }%`,
                         }}
                       />
@@ -552,6 +657,12 @@ function Quiz(): React.ReactElement {
                       )}
                     </p>
                   )}
+                  {retrying && (
+                    <p className="quiz-retry-label">
+                      <span className="material-symbols-rounded">replay</span>
+                      再練一次
+                    </p>
+                  )}
                   <h2>
                     {quizState.currentQuestionIndex + 1}{' '}
                     <span className="question-count">
@@ -564,64 +675,118 @@ function Quiz(): React.ReactElement {
                 {renderQuestionByMode()}
               </div>
 
-              {/* 測驗導航 */}
-              <div className="quiz-navigation">
-                <div className="quiz-buttons">
-                  <button onClick={handlePrev} title="上一題">
-                    <span className="material-symbols-rounded">arrow_back</span>
-                  </button>
-                  <button
-                    onClick={() => handleNext()}
-                    title="下一題"
-                    className={
-                      quizState.currentStage.mode === 'pvqc_pronunciation' ||
-                      quizState.currentStage.mode === 'pvqc_read_listen'
-                        ? 'manual-next-button'
-                        : undefined
-                    }
-                  >
-                    <span className="material-symbols-rounded">
-                      arrow_forward
-                    </span>
-                  </button>
-                  <button
-                    className={`preview-all-questions-btn${
-                      previewAllQuestions ? ' active' : ''
-                    }`}
-                    onClick={() => setPreviewAllQuestions(!previewAllQuestions)}
-                    title={
-                      previewAllQuestions ? '關閉題目預覽' : '預覽全部題目'
-                    }
-                  >
-                    <span
-                      className={`material-symbols-rounded ${
-                        previewAllQuestions ? 'fill' : ''
+              {instant ? (
+                //* 即時回饋：檢查按鈕或結果列（不能回上一題，也沒有題目總覽）
+                <div className="quiz-navigation">
+                  {currentFeedback !== undefined && currentQuestion ? (
+                    <div
+                      className={`quiz-feedback ${
+                        currentFeedback ? 'correct' : 'wrong'
                       }`}
+                      role="status"
                     >
-                      apps
-                    </span>
-                  </button>
-                  {isAllQuestionsCompleted && (
-                    <button
-                      onClick={() => {
-                        handleFinish()
-                      }}
-                      className="finish-button"
-                      disabled={!isAllQuestionsCompleted}
-                    >
-                      完成測驗
-                    </button>
-                  )}
-                  {isCurrentStageCompleted && hasNextStage() && (
-                    <button
-                      onClick={handleNextStage}
-                      className="next-stage-button"
-                    >
-                      下一階段
-                    </button>
+                      <p className="quiz-feedback-title">
+                        <span className="material-symbols-rounded">
+                          {currentFeedback ? 'check' : 'close'}
+                        </span>
+                        {currentFeedback ? '答對了！' : '答錯了'}
+                      </p>
+                      {!currentFeedback && (
+                        <div className="quiz-feedback-answer">
+                          <p>正確答案</p>
+                          <CorrectAnswers question={currentQuestion} />
+                        </div>
+                      )}
+                      <button
+                        className="quiz-feedback-btn"
+                        onClick={handleContinue}
+                        autoFocus
+                      >
+                        繼續
+                      </button>
+                    </div>
+                  ) : (
+                    currentQuestion?.type === 'multiple_choice' && (
+                      <button
+                        className="quiz-check-btn"
+                        onClick={checkAnswer}
+                        disabled={
+                          !(
+                            quizState.answers[currentKey]?.answer as
+                              | number[]
+                              | undefined
+                          )?.length
+                        }
+                      >
+                        檢查
+                      </button>
+                    )
                   )}
                 </div>
-              </div>
+              ) : (
+                /* 測驗導航 */
+                <div className="quiz-navigation">
+                  <div className="quiz-buttons">
+                    <button onClick={handlePrev} title="上一題">
+                      <span className="material-symbols-rounded">
+                        arrow_back
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => handleNext()}
+                      title="下一題"
+                      className={
+                        quizState.currentStage.mode === 'pvqc_pronunciation' ||
+                        quizState.currentStage.mode === 'pvqc_read_listen'
+                          ? 'manual-next-button'
+                          : undefined
+                      }
+                    >
+                      <span className="material-symbols-rounded">
+                        arrow_forward
+                      </span>
+                    </button>
+                    <button
+                      className={`preview-all-questions-btn${
+                        previewAllQuestions ? ' active' : ''
+                      }`}
+                      onClick={() =>
+                        setPreviewAllQuestions(!previewAllQuestions)
+                      }
+                      title={
+                        previewAllQuestions ? '關閉題目預覽' : '預覽全部題目'
+                      }
+                    >
+                      <span
+                        className={`material-symbols-rounded ${
+                          previewAllQuestions ? 'fill' : ''
+                        }`}
+                      >
+                        apps
+                      </span>
+                    </button>
+                    {isAllQuestionsCompleted && (
+                      <button
+                        onClick={() => {
+                          handleFinish()
+                        }}
+                        className="finish-button"
+                        disabled={!isAllQuestionsCompleted}
+                      >
+                        完成測驗
+                      </button>
+                    )}
+                    {isCurrentStageCompleted && hasNextStage() && (
+                      <button
+                        onClick={handleNextStage}
+                        className="next-stage-button"
+                      >
+                        下一階段
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             //* 科目不存在的錯誤處理

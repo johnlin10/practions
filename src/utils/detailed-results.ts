@@ -19,7 +19,7 @@ import { answerKey } from './answer-key'
  * @param {Question} question - 題目
  * @returns {string | number | number[] | boolean} - 正確答案
  */
-function getCorrectAnswer(
+export function getCorrectAnswer(
   question: Question
 ): string | number | number[] | boolean {
   switch (question.type) {
@@ -44,7 +44,7 @@ function getCorrectAnswer(
  * @param {string} mode - 測驗模式
  * @returns {boolean} - 是否正確
  */
-function evaluateAnswer(
+export function evaluateAnswer(
   question: Question,
   userAnswer: string | number | number[] | boolean | undefined,
   mode: string

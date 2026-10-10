@@ -1,4 +1,9 @@
-import { buildReviewFlow, collectWrongQuestions, countByKind } from '@/data/wrongQuestions'
+import {
+  buildReviewFlow,
+  collectWrongQuestions,
+  countByKind,
+  reviewSummary,
+} from '@/data/wrongQuestions'
 import { subjects } from '@/data/subjects'
 import type { HistoryRecord } from '@/types'
 
@@ -132,6 +137,20 @@ describe('collectWrongQuestions', () => {
     expect(ail.some((q) => q.id === '205')).toBe(true)
   })
 
+  it('「再練一次」答對算一次答對，接在同一筆紀錄的第一輪後面', () => {
+    const review = standard('accounting', '2026-10-01', [{ id: q1, correct: false }], 'review')
+    review.results.retryResults = [
+      { questionId: q1, mode: 'standard', userAnswer: 0, isCorrect: true },
+    ]
+    const later = standard('accounting', '2026-10-02', [{ id: q1, correct: true }])
+
+    expect(ids([review], 'accounting')).toEqual([q1])
+    expect(ids([review, later], 'accounting')).toEqual([])
+    // 再練又錯：維持錯題
+    review.results.retryResults[0].isCorrect = false
+    expect(ids([review, later], 'accounting')).toEqual([q1])
+  })
+
   it('題庫已刪除的題目不列出', () => {
     const history = [
       standard('accounting', '2026-10-01', [{ id: 'deleted-id', correct: false }]),
@@ -141,6 +160,11 @@ describe('collectWrongQuestions', () => {
 })
 
 describe('buildReviewFlow', () => {
+  it('一般題型開啟即時回饋', () => {
+    const history = [standard('accounting', '2026-10-01', [{ id: accounting[0].id, correct: false }])]
+    expect(buildReviewFlow(collectWrongQuestions(history)[0], 15).instantFeedback).toBe(true)
+  })
+
   it('最多 15 題、不計時，PVQC 依作答方式分成多個階段', () => {
     const words = vocab.slice(0, 20).map((q) => q.id)
     const history = [
@@ -152,6 +176,8 @@ describe('buildReviewFlow', () => {
     const flow = buildReviewFlow(collectWrongQuestions(history)[0], 15)
     expect(flow.flowMode).toBe('review')
     expect(flow.totalTimeLimit).toBe(0)
+    // PVQC 的即時回饋在 Beta 3
+    expect(flow.instantFeedback).toBe(false)
     expect(flow.stages.reduce((sum, s) => sum + s.questionCount, 0)).toBe(15)
     // 階段依 PVQC 測驗順序：測驗一（寫）在測驗二（讀）前面
     expect(flow.stages.map((s) => s.mode)).toEqual(['pvqc_write', 'pvqc_read'])
@@ -162,5 +188,27 @@ describe('buildReviewFlow', () => {
     for (const stage of flow.stages) {
       expect(stage.questionIds).toHaveLength(stage.questionCount)
     }
+  })
+})
+
+describe('reviewSummary', () => {
+  it('一次答對、再練答對、還要加強；不是複習紀錄回傳 null', () => {
+    const [q1, q2, q3] = accounting.map((q) => q.id)
+    const review = standard(
+      'accounting',
+      '2026-10-01',
+      [
+        { id: q1, correct: true },
+        { id: q2, correct: false },
+        { id: q3, correct: false },
+      ],
+      'review',
+    )
+    review.results.retryResults = [
+      { questionId: q2, mode: 'standard', userAnswer: 0, isCorrect: true },
+      { questionId: q3, mode: 'standard', userAnswer: 0, isCorrect: false },
+    ]
+    expect(reviewSummary(review)).toEqual({ first: 1, retry: 1, remaining: 1, total: 3 })
+    expect(reviewSummary(standard('accounting', '2026-10-01', []))).toBeNull()
   })
 })

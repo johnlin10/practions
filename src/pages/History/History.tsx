@@ -6,6 +6,7 @@ import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 // data
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { useHistoryReady } from '@/data/historyStore'
+import { reviewSummary } from '@/data/wrongQuestions'
 import { useAuth } from '@/data/authStore'
 import { showConfirm } from '@/utils/dialog'
 
@@ -139,6 +140,8 @@ function History(): React.ReactElement {
                           : flowMode === 'pvqc_custom'
                             ? 'PVQC 自訂'
                             : '標準'
+                    // 錯題複習：顯示答對的題數（含再練答對），不顯示正確率
+                    const review = reviewSummary(record)
                     // 官方模擬：顯示通過與否
                     const officialPassed =
                       flowMode === 'pvqc_official'
@@ -197,9 +200,11 @@ function History(): React.ReactElement {
                               )}
                             </p>
                             <p className="correct-rate">
-                              {record.results?.overallCorrectRate ||
-                                record.correctRate ||
-                                '0%'}
+                              {review
+                                ? `${review.first + review.retry}/${review.total}`
+                                : record.results?.overallCorrectRate ||
+                                  record.correctRate ||
+                                  '0%'}
                             </p>
                           </div>
                         </Link>

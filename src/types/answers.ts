@@ -48,6 +48,9 @@ export interface QuizState {
   // PVQC 選項緩存（確保選項順序穩定）
   pvqcOptionsCache?: Record<string, string[]>
 
+  // 即時回饋：已檢查的題目是否答對（key 同 answers；未檢查的不在裡面）
+  feedback: Record<string, boolean>
+
   // 進度
   currentQuestionIndex: number
 

@@ -111,6 +111,20 @@
         }
       }
 
+      // 錯題複習：沒有正確率，進度條直接放在最上面，分成一次答對與再練答對兩段
+      &.review-summary > .summary-bar {
+        display: flex;
+        margin-top: 18px;
+
+        > div {
+          border-radius: 0;
+        }
+
+        > .retry {
+          background-color: var(--review-color);
+        }
+      }
+
       > .summary-stats {
         display: flex;
         border-top: 2px solid var(--divider-color);
@@ -133,6 +147,10 @@
           > .value {
             font-size: 1.2rem;
             font-weight: 700;
+
+            &.retry {
+              color: var(--review-text-color);
+            }
 
             > span {
               font-size: 0.8rem;
@@ -258,6 +276,9 @@
                 }
                 &.unanswered {
                   background: var(--text-muted-color);
+                }
+                &.retry {
+                  background: var(--review-color);
                 }
               }
             }
