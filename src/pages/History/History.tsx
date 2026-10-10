@@ -22,13 +22,13 @@ function History(): React.ReactElement {
   const ready = useHistoryReady()
   // 開啟單筆紀錄時只顯示詳情頁（整頁捲動，不疊在列表上）
   const outlet = useOutlet()
-  // 篩選：全部 / 一般測驗 / 錯題複習
-  const [filter, setFilter] = useState<'all' | 'quiz' | 'review'>('all')
+  // 篩選：一般測驗 / 錯題複習
+  const [filter, setFilter] = useState<'quiz' | 'review'>('quiz')
   const history = rawHistory
-    .filter(
-      (record) =>
-        filter === 'all' ||
-        (record.flowMode === 'review') === (filter === 'review'),
+    .filter((record) =>
+      filter === 'review'
+        ? record.flowMode === 'review'
+        : record.flowMode !== 'review',
     )
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
@@ -111,7 +111,6 @@ function History(): React.ReactElement {
                 value={filter}
                 onChange={setFilter}
                 options={[
-                  { value: 'all', label: '全部' },
                   { value: 'quiz', label: '測驗' },
                   { value: 'review', label: '複習' },
                 ]}

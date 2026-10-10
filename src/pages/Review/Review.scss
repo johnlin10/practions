@@ -6,7 +6,7 @@
   gap: 12px;
   // 避開標題下方 24px 的淡出漸層（選中的選項還會往上凸 3px）
   margin-top: 28px;
-  padding: 0 6px 0 12px;
+  padding: 0 6px 0 6px;
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--foreground-500);
@@ -14,6 +14,24 @@
   .segmented-control > button {
     min-width: 44px;
     justify-content: center;
+  }
+
+  // 附屬設定，選中改用中性灰，不用主題色搶眼
+  .segmented-control > button.active,
+  .segmented-control > button.active:not(:disabled):hover,
+  .segmented-control > button.active:not(:disabled):active {
+    color: var(--text-color);
+    background-color: var(--fill-color);
+    border-color: var(--border-strong-color);
+  }
+
+  .segmented-control > button.active:not(:disabled),
+  .segmented-control > button.active:not(:disabled):hover {
+    box-shadow: 0 3px 0 var(--border-strong-color);
+  }
+
+  .segmented-control > button.active:not(:disabled):active {
+    box-shadow: 0 0 0 var(--border-strong-color);
   }
 }
 
@@ -55,7 +73,7 @@
 
       strong {
         font-size: 1.4rem;
-        color: var(--review-color);
+        color: var(--foreground-800);
       }
     }
   }

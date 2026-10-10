@@ -719,7 +719,29 @@ function Quiz(): React.ReactElement {
               {instant ? (
                 //* 即時回饋：檢查按鈕或結果列（不能回上一題，也沒有題目總覽）
                 <div className="quiz-navigation">
-                  {currentFeedback !== undefined && currentQuestion ? (
+                  {/* 結果列浮在畫面上，檢查按鈕留在原位（停用）撐住版面，題目才不會跳動 */}
+                  {needsCheckButton(
+                    quizState.currentStage.mode,
+                    currentQuestion?.type,
+                  ) && (
+                    <button
+                      className="quiz-check-btn"
+                      onClick={checkAnswer}
+                      disabled={
+                        currentFeedback !== undefined ||
+                        (() => {
+                          // 還沒作答（多選沒勾、拼寫沒打字）不能檢查
+                          const answer = quizState.answers[currentKey]?.answer
+                          if (Array.isArray(answer)) return answer.length === 0
+                          if (typeof answer === 'string') return !answer.trim()
+                          return answer === undefined
+                        })()
+                      }
+                    >
+                      檢查
+                    </button>
+                  )}
+                  {currentFeedback !== undefined && currentQuestion && (
                     <div
                       className={`quiz-feedback ${
                         currentFeedback ? 'correct' : 'wrong'
@@ -746,25 +768,6 @@ function Quiz(): React.ReactElement {
                         繼續
                       </button>
                     </div>
-                  ) : (
-                    needsCheckButton(
-                      quizState.currentStage.mode,
-                      currentQuestion?.type,
-                    ) && (
-                      <button
-                        className="quiz-check-btn"
-                        onClick={checkAnswer}
-                        disabled={(() => {
-                          // 還沒作答（多選沒勾、拼寫沒打字）不能檢查
-                          const answer = quizState.answers[currentKey]?.answer
-                          if (Array.isArray(answer)) return answer.length === 0
-                          if (typeof answer === 'string') return !answer.trim()
-                          return answer === undefined
-                        })()}
-                      >
-                        檢查
-                      </button>
-                    )
                   )}
                 </div>
               ) : (
