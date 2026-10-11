@@ -420,6 +420,38 @@ h1.quiz-to-history {
   }
 }
 
+// 科目名稱與下方的掌握度（沒做過的題庫只有名稱）
+.subject-list .subject-card > .subject-title {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  margin-right: 12px;
+
+  > .subject-name {
+    font-weight: 500;
+    color: var(--foreground-800);
+  }
+
+  > .subject-mastery {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    > .mastery-bar {
+      flex: 0 0 88px;
+      height: 5px;
+    }
+
+    > p {
+      font-size: 0.75rem;
+      white-space: nowrap;
+      color: var(--foreground-600);
+    }
+  }
+}
+
 // 題組：同組題庫合為一個列表，外觀同題庫頁的題組
 .subject-list > .subject-group {
   @include list-group.titled-list(list-group.$compact-title-space);

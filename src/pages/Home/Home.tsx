@@ -26,6 +26,11 @@ const features = [
     text: '答錯的題目自動整理，集中複習到熟',
   },
   {
+    icon: 'trending_up',
+    title: '掌握度',
+    text: '每個題庫練到哪裡一目了然，連續答對兩次才算掌握',
+  },
+  {
     icon: 'cloud_sync',
     title: '紀錄雲端同步',
     text: '想換裝置接著練，再用 Google 登入，紀錄自動同步',

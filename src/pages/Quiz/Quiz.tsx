@@ -10,6 +10,9 @@ import PVQCListenQuestion from './components/PVQCListenQuestion'
 import PVQCPronunciationQuestion from './components/PVQCPronunciationQuestion'
 import PVQCReadListenQuestion from './components/PVQCReadListenQuestion'
 import StandardQuestion from './components/StandardQuestion'
+import MasteryBar, {
+  MasteryPercent,
+} from '../../components/MasteryBar/MasteryBar'
 
 // context
 import { useQuiz } from '../../context/QuizContext'
@@ -32,6 +35,7 @@ import {
 // data
 import { subjects } from '../../data/subjects'
 import { useWrongQuestions } from '../../data/wrongQuestions'
+import { masteryPercent, useMastery } from '../../data/mastery'
 import {
   subjectGroups,
   SubjectGroup,
@@ -141,6 +145,8 @@ function Quiz(): React.ReactElement {
   const [previewAllQuestions, setPreviewAllQuestions] = useState<boolean>(false)
   // 錯題（測驗列表的錯題複習卡片）
   const wrongGroups = useWrongQuestions()
+  // 各題庫的掌握度（沒做過的題庫沒有）
+  const mastery = useMastery()
   // 是否顯示「正在準備」畫面
   const [preparing, setPreparing] = useState<boolean>(true)
   // 這次準備畫面停留的時間（每次隨機）
@@ -1036,9 +1042,26 @@ function Quiz(): React.ReactElement {
                     0,
                   )
 
+                  const subjectMastery = mastery.get(subject.id)
+
                   return (
                     <div key={subject.id} className="subject-card">
-                      <p className="subject-name">{subject.name}</p>
+                      <div className="subject-title">
+                        <p className="subject-name">{subject.name}</p>
+                        {subjectMastery && (
+                          <div className="subject-mastery">
+                            <MasteryBar
+                              percent={masteryPercent(subjectMastery)}
+                            />
+                            <p>
+                              掌握度{' '}
+                              <MasteryPercent
+                                percent={masteryPercent(subjectMastery)}
+                              />
+                            </p>
+                          </div>
+                        )}
+                      </div>
                       <div className="subject-card-content">
                         <div className="subject-info">
                           <p>{totalQuestions} 題</p>

@@ -17,8 +17,8 @@ import { currentQuestionId, findSubject } from '@/data/subjects'
 import { useHistoryStore } from '@/data/historyStore'
 import { isSubjectLocked } from '@/pages/Bank/utils/bankHelpers'
 
-// 連續答對幾次後移出
-const REMOVE_AFTER = 2
+// 連續答對幾次後移出（也是掌握度的「已掌握」門檻）
+export const REMOVE_AFTER = 2
 
 export interface WrongItem {
   question: Question
@@ -120,15 +120,25 @@ export function reviewSummary(
   return { first, retry, remaining: total - first - retry, total }
 }
 
-/** 從測驗紀錄計算各科目的錯題，錯題多的科目在前。 */
-export function collectWrongQuestions(
+export interface AnsweredEvent {
+  subject: SubjectConfig
+  // 目前題庫的題號（舊科目已換算）
+  questionId: string
+  mode: QuizModeId
+  isCorrect: boolean
+  date: Date
+}
+
+/**
+ * 依時間順序列出所有紀錄（含複習與「再練一次」）的每一筆作答。
+ * 沒作答、題庫已不存在的科目略過。錯題與掌握度都從這裡算。
+ */
+export function* answeredInOrder(
   history: readonly HistoryRecord[],
-): WrongSubject[] {
-  const trackers = new Map<string, Tracker>()
+): Generator<AnsweredEvent> {
   const chronological = [...history].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   )
-
   for (const record of chronological) {
     const subject = findSubject(record.subject.id)
     if (!subject) continue
@@ -140,23 +150,39 @@ export function collectWrongQuestions(
           result.userAnswer === undefined ||
           result.userAnswer === null
         if (unanswered || !result.questionId) continue
-
-        const questionId = currentQuestionId(record.subject.id, result.questionId)
-        const key = `${subject.id}/${questionId}/${mode}`
-        const tracker = trackers.get(key)
-        if (!result.isCorrect) {
-          trackers.set(key, {
-            subjectId: subject.id,
-            questionId,
-            mode,
-            wrongCount: (tracker?.wrongCount ?? 0) + 1,
-            lastWrong: date,
-            streak: 0,
-          })
-        } else if (tracker && ++tracker.streak >= REMOVE_AFTER) {
-          trackers.delete(key)
+        yield {
+          subject,
+          questionId: currentQuestionId(record.subject.id, result.questionId),
+          mode,
+          isCorrect: result.isCorrect,
+          date,
         }
       }
+    }
+  }
+}
+
+/** 從測驗紀錄計算各科目的錯題，錯題多的科目在前。 */
+export function collectWrongQuestions(
+  history: readonly HistoryRecord[],
+): WrongSubject[] {
+  const trackers = new Map<string, Tracker>()
+  for (const { subject, questionId, mode, isCorrect, date } of answeredInOrder(
+    history,
+  )) {
+    const key = `${subject.id}/${questionId}/${mode}`
+    const tracker = trackers.get(key)
+    if (!isCorrect) {
+      trackers.set(key, {
+        subjectId: subject.id,
+        questionId,
+        mode,
+        wrongCount: (tracker?.wrongCount ?? 0) + 1,
+        lastWrong: date,
+        streak: 0,
+      })
+    } else if (tracker && ++tracker.streak >= REMOVE_AFTER) {
+      trackers.delete(key)
     }
   }
 
@@ -195,7 +221,10 @@ export function collectWrongQuestions(
 }
 
 // 題型的顯示順序：單選、多選、是非，再來 PVQC 測驗一到六
-const KIND_ORDER = [...Object.keys(QUESTION_TYPE_LABELS), ...Object.keys(QUIZ_MODES)]
+const KIND_ORDER = [
+  ...Object.keys(QUESTION_TYPE_LABELS),
+  ...Object.keys(QUIZ_MODES),
+]
 const kindOf = (item: WrongItem): string =>
   item.mode === 'standard' ? item.question.type : item.mode
 const kindOrder = (item: WrongItem) => KIND_ORDER.indexOf(kindOf(item))
