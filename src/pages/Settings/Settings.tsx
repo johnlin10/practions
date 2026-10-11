@@ -336,7 +336,7 @@ function Settings(): React.ReactElement {
           <div className="settings-list-group has-title">
             <h5>錯題複習</h5>
             <label className="settings-list-group-item action">
-              <p>答對、答錯音效</p>
+              <p>互動音效</p>
               <input
                 type="checkbox"
                 role="switch"

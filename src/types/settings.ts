@@ -22,7 +22,7 @@ export interface AppSettings {
   theme: ThemeSetting
   // 錯題複習每次最多幾題
   reviewLimit: number
-  // 錯題複習答對／答錯時播放音效
+  // 互動音效：錯題複習答對／答錯、完美作答時播放
   sound: boolean
   // 未來可以擴展更多設定分類
   // ui: UISettings
