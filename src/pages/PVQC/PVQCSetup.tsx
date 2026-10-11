@@ -10,6 +10,9 @@ import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types/settings'
 // components
 import Stepper from '../../components/Stepper/Stepper'
 import SegmentedControl from '../../components/SegmentedControl/SegmentedControl'
+import MasteryBar, {
+  MasteryPercent,
+} from '../../components/MasteryBar/MasteryBar'
 
 // hooks
 import { usePVQCSettings } from '../../hooks/useSettings'
@@ -17,6 +20,7 @@ import { usePVQCSettings } from '../../hooks/useSettings'
 // data
 import { buildOfficialFlow } from '../../data/pvqc-official'
 import { subjects } from '../../data/subjects'
+import { masteryPercent, useMastery } from '../../data/mastery'
 import { showAlert, showConfirm } from '../../utils/dialog'
 
 // 可用於 PVQC 的題庫：所有單字題庫
@@ -55,6 +59,8 @@ function PVQCSetup(): React.ReactElement {
   const [setupMode, setSetupMode] = useState<SetupMode>('official')
   // 選擇的科目題庫
   const [subjectId, setSubjectId] = useState<string>(PVQC_SUBJECTS[0]?.id ?? '')
+  // 目前科目的掌握度（沒做過的題庫沒有）
+  const mastery = useMastery().get(subjectId)
   // 官方模式：是否包含 Spelling 選考
   const [includeSpelling, setIncludeSpelling] = useState<boolean>(false)
   // 選擇的測驗模式
@@ -163,6 +169,43 @@ function PVQCSetup(): React.ReactElement {
             </select>
             <span className="material-symbols-rounded">expand_more</span>
           </div>
+
+          {/* 掌握度：點開看各作答方式 */}
+          {mastery && (
+            <details className="pvqc-mastery">
+              <summary>
+                <span className="pvqc-mastery-title">
+                  <span>掌握度</span>
+                  <strong>
+                    <MasteryPercent percent={masteryPercent(mastery)} />
+                  </strong>
+                  <span className="material-symbols-rounded">expand_more</span>
+                </span>
+                <MasteryBar percent={masteryPercent(mastery)} />
+              </summary>
+              <div className="pvqc-mastery-modes">
+                {mastery.modes.map((m) => {
+                  const info = PVQC_MODES.find(({ id }) => id === m.mode)
+                  return (
+                    <div key={m.mode}>
+                      <p>
+                        {info?.name}
+                        <span>{info?.desc}</span>
+                      </p>
+                      <MasteryBar percent={masteryPercent(m)} />
+                      <strong className={m.practiced ? '' : 'not-practiced'}>
+                        {m.practiced ? (
+                          <MasteryPercent percent={masteryPercent(m)} />
+                        ) : (
+                          '還沒練習'
+                        )}
+                      </strong>
+                    </div>
+                  )
+                })}
+              </div>
+            </details>
+          )}
         </div>
 
         {/* 模式切換 */}
