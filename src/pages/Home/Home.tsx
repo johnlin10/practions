@@ -23,7 +23,7 @@ const features = [
   {
     icon: 'replay',
     title: '錯題複習',
-    text: '答錯的題目自動整理，集中複習到熟',
+    text: '答錯的題目自動整理，練熟後隔段時間再回來確認',
   },
   {
     icon: 'trending_up',

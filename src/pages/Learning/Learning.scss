@@ -105,7 +105,6 @@
   flex-direction: column;
   gap: 32px;
   margin-top: 36px;
-  padding: 0 6px;
   font-size: 0.95rem;
   line-height: 1.7;
   color: var(--text-color);
@@ -114,6 +113,12 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+
+    // 文字段落與其他頁面一樣左右留 6px；「在 Practions 裡」與表格貼齊內容寬度
+    > h2,
+    > p {
+      padding: 0 6px;
+    }
 
     > h2 {
       display: flex;
@@ -134,7 +139,33 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      padding-left: 1.4em;
+      padding: 0 6px 0 calc(1.4em + 6px);
+    }
+  }
+
+  // 模擬測試的結果
+  .learning-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    text-align: left;
+
+    th,
+    td {
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    th {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--foreground-600);
+    }
+
+    // 「優先出沒掌握的」這欄是 Practions 現在的做法
+    td:last-child {
+      font-weight: 600;
+      color: var(--primary-text-color);
     }
   }
 
@@ -145,11 +176,13 @@
     gap: 4px;
     padding: 12px 14px;
     background: var(--fill-color);
+    // 深色模式的 divider-color 跟 fill-color 同色，邊框改用 border-color 才看得出來
+    border: 2px solid var(--border-color);
     border-radius: 12px;
 
     > strong {
       font-size: 0.8rem;
-      color: var(--primary-text-color);
+      color: var(--primary-color);
     }
 
     > p {
@@ -159,7 +192,7 @@
 
   > section > .learning-references {
     gap: 10px;
-    padding-left: 1.2em;
+    padding-left: calc(1.2em + 6px);
     font-size: 0.8rem;
     line-height: 1.6;
     color: var(--foreground-600);
