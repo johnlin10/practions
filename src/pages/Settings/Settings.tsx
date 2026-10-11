@@ -409,7 +409,19 @@ function Settings(): React.ReactElement {
           </div>
 
           <div className="settings-list-group has-title">
-            <h5>應用程式</h5>
+            <h5>使用指南</h5>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => navigate('/settings/learning')}
+            >
+              <p>
+                <span className="material-symbols-outlined icon">school</span>
+                Practions 如何幫你記住
+              </p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
+            </div>
             <div
               className="settings-list-group-item action"
               onClick={() => navigate('/settings/install')}

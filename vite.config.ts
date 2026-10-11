@@ -15,6 +15,11 @@ import {
   TRANSFER_DESCRIPTION,
 } from './src/pages/Transfer/meta'
 import {
+  LEARNING_PATH,
+  LEARNING_TITLE,
+  LEARNING_DESCRIPTION,
+} from './src/pages/Learning/meta'
+import {
   PRIVACY_PATH,
   PRIVACY_TITLE,
   PRIVACY_DESCRIPTION,
@@ -34,6 +39,11 @@ const PAGES = [
     path: TRANSFER_PATH,
     title: TRANSFER_TITLE,
     description: TRANSFER_DESCRIPTION,
+  },
+  {
+    path: LEARNING_PATH,
+    title: LEARNING_TITLE,
+    description: LEARNING_DESCRIPTION,
   },
   {
     path: PRIVACY_PATH,

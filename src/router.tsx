@@ -13,6 +13,7 @@ import Settings from './pages/Settings/Settings'
 import PVQCSetup from './pages/PVQC/PVQCSetup'
 import Review from './pages/Review/Review'
 import Install from './pages/Install/Install'
+import Learning from './pages/Learning/Learning'
 import Changelog from './pages/Changelog/Changelog'
 import Transfer from './pages/Transfer/Transfer'
 import Privacy from './pages/Legal/Privacy'
@@ -59,6 +60,7 @@ export const router = createBrowserRouter(
         },
         { path: '/settings', element: <Settings /> },
         { path: '/settings/install', element: <Install /> },
+        { path: '/settings/learning', element: <Learning /> },
         { path: '/settings/changelog', element: <Changelog /> },
         { path: '/settings/transfer', element: <Transfer /> },
         { path: '/settings/privacy', element: <Privacy /> },

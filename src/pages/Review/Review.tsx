@@ -9,6 +9,7 @@ import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 import {
   buildReviewFlow,
   countByKind,
+  dueToday,
   useWrongQuestions,
 } from '@/data/wrongQuestions'
 import { useHistoryReady } from '@/data/historyStore'
@@ -26,7 +27,9 @@ const limitOptions = REVIEW_LIMITS.map((n) => ({
  */
 function Review(): React.ReactElement {
   const navigate = useNavigate()
-  const groups = useWrongQuestions()
+  const wrongGroups = useWrongQuestions()
+  // 今天已經答對過的錯題隔天再確認，今天先不列出
+  const groups = dueToday(wrongGroups)
   // 登入中的雲端紀錄尚未到達時不閃出「目前沒有錯題」
   const ready = useHistoryReady()
   // 每次複習題數（記在本機設定）
@@ -99,7 +102,9 @@ function Review(): React.ReactElement {
             <span className="review-empty-icon material-symbols-rounded">
               check
             </span>
-            <p>目前沒有錯題</p>
+            <p>
+              {wrongGroups.length > 0 ? '今天的複習完成了' : '目前沒有錯題'}
+            </p>
             <Link className="review-empty-btn no-style" to="/quiz">
               去做測驗
             </Link>

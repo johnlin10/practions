@@ -34,7 +34,7 @@ import {
 
 // data
 import { subjects } from '../../data/subjects'
-import { useWrongQuestions } from '../../data/wrongQuestions'
+import { dueToday, useWrongQuestions } from '../../data/wrongQuestions'
 import { masteryPercent, useMastery } from '../../data/mastery'
 import {
   subjectGroups,
@@ -145,6 +145,8 @@ function Quiz(): React.ReactElement {
   const [previewAllQuestions, setPreviewAllQuestions] = useState<boolean>(false)
   // 錯題（測驗列表的錯題複習卡片）
   const wrongGroups = useWrongQuestions()
+  // 今天可以複習的錯題（今天已經答對過的隔天再確認）
+  const dueGroups = dueToday(wrongGroups)
   // 各題庫的掌握度（沒做過的題庫沒有）
   const mastery = useMastery()
   // 是否顯示「正在準備」畫面
@@ -1005,13 +1007,15 @@ function Quiz(): React.ReactElement {
               </span>
               <span className="review-entry-title">錯題複習</span>
               <span className="review-entry-count">
-                {wrongGroups.length > 0 ? (
+                {dueGroups.length > 0 ? (
                   <>
                     <strong>
-                      {wrongGroups.reduce((sum, g) => sum + g.items.length, 0)}
+                      {dueGroups.reduce((sum, g) => sum + g.items.length, 0)}
                     </strong>{' '}
                     題待複習
                   </>
+                ) : wrongGroups.length > 0 ? (
+                  '今天的複習完成了'
                 ) : (
                   '目前沒有錯題'
                 )}

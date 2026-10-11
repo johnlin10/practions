@@ -64,6 +64,11 @@
     font-size: 1.75rem;
     background-color: var(--background-color);
 
+    // 手機上縮小一點，「設定 / Practions 如何幫你記住」這類較長的標題在 375px 寬也能一行放下
+    @media (max-width: 480px) {
+      font-size: 1.5rem;
+    }
+
     // 標題上方的實色遮擋與底部的往下淡出，都延伸到螢幕左右邊緣（.page 已隱藏橫向溢出）
     &::before,
     &::after {

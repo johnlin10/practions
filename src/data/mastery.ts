@@ -2,7 +2,8 @@
  * 掌握度：每個題庫已掌握的比例
  *
  * 一項 = 題目＋作答方式（PVQC 每個單字有六種作答方式，總數 = 字數 × 6）。
- * 最近連續答對 REMOVE_AFTER 次才算掌握，之後再答錯就掉回來（同時回到錯題）。
+ * 在 REMOVE_AFTER 個不同的日子答對才算掌握（同一天重複答對只算一次），
+ * 之後再答錯就掉回來（同時回到錯題）。
  * 總數以目前題庫為準；沒作答過的題庫不列出。
  */
 import { useMemo } from 'react'
@@ -10,7 +11,12 @@ import type { HistoryRecord } from '@/types'
 import type { SubjectConfig } from '@/types/quiz-flows'
 import { QUIZ_MODES, type QuizModeId } from '@/types/quiz-modes'
 import { useHistoryStore } from '@/data/historyStore'
-import { REMOVE_AFTER, answeredInOrder } from '@/data/wrongQuestions'
+import {
+  REMOVE_AFTER,
+  answeredInOrder,
+  nextStreak,
+  type Streak,
+} from '@/data/wrongQuestions'
 
 // PVQC 的六種作答方式，依測驗一到六
 const PVQC_MODES = (Object.keys(QUIZ_MODES) as QuizModeId[]).filter(
@@ -54,10 +60,10 @@ export function masteryPercent({
 export function collectMastery(
   history: readonly HistoryRecord[],
 ): Map<string, SubjectMastery> {
-  // `科目/作答方式` → 題號 → 目前連續答對次數
-  const streaks = new Map<string, Map<string, number>>()
+  // `科目/作答方式` → 題號 → 目前的答對次數（同一天只算一次）
+  const streaks = new Map<string, Map<string, Streak>>()
   const subjects = new Map<string, SubjectConfig>()
-  for (const { subject, questionId, mode, isCorrect } of answeredInOrder(
+  for (const { subject, questionId, mode, isCorrect, date } of answeredInOrder(
     history,
   )) {
     subjects.set(subject.id, subject)
@@ -66,7 +72,7 @@ export function collectMastery(
     if (!questions) streaks.set(key, (questions = new Map()))
     questions.set(
       questionId,
-      isCorrect ? (questions.get(questionId) ?? 0) + 1 : 0,
+      nextStreak(questions.get(questionId), isCorrect, date),
     )
   }
 
@@ -78,8 +84,9 @@ export function collectMastery(
       return {
         mode,
         // 題庫已刪除的題目不算
-        mastered: ids.filter((id) => (questions?.get(id) ?? 0) >= REMOVE_AFTER)
-          .length,
+        mastered: ids.filter(
+          (id) => (questions?.get(id)?.count ?? 0) >= REMOVE_AFTER,
+        ).length,
         total: ids.length,
         practiced: !!questions,
       }
