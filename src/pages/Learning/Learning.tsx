@@ -3,29 +3,9 @@ import { Link } from 'react-router-dom'
 import './Learning.scss'
 import { LEARNING_TITLE, LEARNING_DESCRIPTION } from './meta'
 import { usePageMeta } from '@/hooks/usePageMeta'
-
-// 學習循環的四個步驟，由上往下排，最後由右側的線繞回測驗
-const STEPS = [
-  {
-    icon: 'assignment_turned_in',
-    color: 'primary',
-    name: '測驗',
-    text: '找出不會的',
-  },
-  { icon: 'replay', color: 'review', name: '錯題複習', text: '把不會的練到會' },
-  {
-    icon: 'event_repeat',
-    color: 'review',
-    name: '再次確認',
-    text: '隔一段時間還記得',
-  },
-  {
-    icon: 'trending_up',
-    color: 'success',
-    name: '掌握度',
-    text: '看見自己的進度',
-  },
-]
+import LearningCycle, {
+  StepIcon,
+} from '@/components/LearningCycle/LearningCycle'
 
 // 模擬測試的結果：掌握度、測驗全部隨機、優先出還沒掌握的（每週兩次測驗、每天錯題複習）
 const SIMULATION = [
@@ -33,18 +13,6 @@ const SIMULATION = [
   ['80%', '約 155 天', '約 93 天'],
   ['90%', '約 227 天', '約 102 天'],
 ]
-
-function StepIcon({ step }: { step: number }): React.ReactElement {
-  const { icon, color } = STEPS[step - 1]
-  return (
-    <span
-      className={`learning-icon ${color} material-symbols-rounded fill`}
-      aria-hidden="true"
-    >
-      {icon}
-    </span>
-  )
-}
 
 function InPractions({ children }: { children: React.ReactNode }) {
   return (
@@ -76,31 +44,7 @@ function Learning(): React.ReactElement {
           的練習方式，建立在學習研究反覆證實的原理上。整套系統是一個循環：
         </p>
 
-        <div className="learning-cycle">
-          <ol aria-label="學習循環，最後回到測驗">
-            {STEPS.map(({ name, text }, index) => (
-              <li key={name}>
-                <StepIcon step={index + 1} />
-                <span className="learning-step-name">{name}</span>
-                <span className="learning-step-text">{text}</span>
-                {index < STEPS.length - 1 && (
-                  <span
-                    className="learning-arrow material-symbols-rounded"
-                    aria-hidden="true"
-                  >
-                    arrow_downward
-                  </span>
-                )}
-              </li>
-            ))}
-          </ol>
-          {/* 從掌握度繞回測驗的線 */}
-          <span className="learning-cycle-return" aria-hidden="true">
-            <span>
-              <span className="material-symbols-rounded">arrow_left</span>
-            </span>
-          </span>
-        </div>
+        <LearningCycle />
 
         <div className="learning">
           <section>

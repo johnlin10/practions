@@ -127,7 +127,7 @@ pnpm install
 src/
 ├── types/              # TypeScript 型別定義（題目、測驗模式、測驗流程、答案、設定）
 ├── schemas/            # zod 資料驗證（歷史紀錄、設定）
-├── components/         # 共用元件（底部導航、計時器、安裝提示）
+├── components/         # 共用元件（底部導航、計時器、安裝提示、學習循環圖）
 ├── pages/              # 頁面元件
 │   ├── Home/           # 首頁
 │   ├── Quiz/           # 測驗頁面
