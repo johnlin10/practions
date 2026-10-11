@@ -23,7 +23,7 @@ import { isSubjectLocked } from '@/pages/Bank/utils/bankHelpers'
 export const REMOVE_AFTER = 2
 
 // 移出錯題後，每次回顧要隔幾天（從上次答對那天算）；到期後答對才進下一次，全部通過就不再安排
-export const REVIEW_GAPS = [3, 7, 14, 28]
+export const REVIEW_GAPS = [3, 7, 14]
 
 /** 答錯後答對的次數，同一天只算一次。 */
 export interface Streak {
@@ -347,11 +347,11 @@ function prioritize(items: readonly WrongItem[]): WrongItem[] {
 }
 
 // 每次複習中，到期回顧題最多佔的比例（錯題不夠時可以補滿）
-const REVIEW_SHARE = 1 / 3
+const REVIEW_SHARE = 1 / 2
 
 /**
  * 這次複習的題目：錯題照優先順序與題型輪流取，到期的回顧題（越早到期的在前）
- * 最多佔 REVIEW_SHARE，讓錯題保有大部分名額。出題時會再打散，順序不影響作答。
+ * 最多佔 REVIEW_SHARE，讓錯題至少保有一半名額。出題時會再打散，順序不影響作答。
  */
 function pickItems(items: readonly WrongItem[], limit: number): WrongItem[] {
   const isReview = (item: WrongItem) => item.streak.count >= REMOVE_AFTER

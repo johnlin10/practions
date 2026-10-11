@@ -264,7 +264,7 @@ describe('移出後的回顧', () => {
     expect(due(passed, '2026-10-13')).toEqual([q1])
   })
 
-  it('晚了才答從答對那天重新起算，四次都通過後不再出現', () => {
+  it('晚了才答從答對那天重新起算，三次都通過後不再出現', () => {
     const late = [...graduated, answer('2026-10-20', true)]
     expect(due(late, '2026-10-26')).toEqual([])
     expect(due(late, '2026-10-27')).toEqual([q1])
@@ -274,7 +274,6 @@ describe('移出後的回顧', () => {
       answer('2026-10-06', true),
       answer('2026-10-13', true),
       answer('2026-10-27', true),
-      answer('2026-11-24', true),
     ]
     expect(collectWrongQuestions(all)).toEqual([])
   })
@@ -333,7 +332,7 @@ describe('buildReviewFlow', () => {
     expect(fresh.includes(picked[1]) && stubborn.includes(picked[2])).toBe(true)
   })
 
-  it('到期的回顧題最多佔約 1/3，錯題不夠時由回顧題補滿', () => {
+  it('到期的回顧題最多佔一半，錯題不夠時由回顧題補滿', () => {
     const qs = accounting.slice(0, 30).map((q) => q.id)
     const reviews = qs.slice(0, 10)
     const wrongs = qs.slice(10)
@@ -350,7 +349,7 @@ describe('buildReviewFlow', () => {
 
     const picked = pick([...graduated, answers('2026-10-05', wrongs, false)])
     expect(picked).toHaveLength(15)
-    expect(picked.filter((id) => reviews.includes(id))).toHaveLength(5)
+    expect(picked.filter((id) => reviews.includes(id))).toHaveLength(8)
 
     expect(pick([...graduated, answers('2026-10-05', wrongs.slice(0, 3), false)])).toHaveLength(13)
   })
