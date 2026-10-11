@@ -2,9 +2,6 @@ import React, { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Settings.scss'
 import packageJson from '../../../package.json'
-import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types'
-import Stepper from '../../components/Stepper/Stepper'
-import { usePVQCSettings } from '../../hooks/useSettings'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { downloadBackup, importBackup } from '@/utils/backup'
 import { updateSettings, useSettingsStore } from '@/data/settingsStore'
@@ -68,9 +65,6 @@ function Settings(): React.ReactElement {
   // 測驗紀錄（由資料層提供，清除後即時反映，無需 reload）
   const { history, clearHistory: clearAllHistory } = useQuizHistory()
   const hasHistory = history.length > 0
-
-  // PVQC 設定管理
-  const { pvqcSettings, updatePVQCSettings } = usePVQCSettings()
 
   // 主題：自動模式跟隨系統；關閉時沿用當下的深淺色，之後記住使用者的選擇
   const appSettings = useSettingsStore()
@@ -179,15 +173,6 @@ function Settings(): React.ReactElement {
 
   const openEmail = (email: string): void => {
     window.open(`mailto:${email}`, '_blank')
-  }
-
-  // PVQC 設定相關函數
-  const handleResetPVQCSettings = (): void => {
-    // 重置 PVQC 設定為預設值
-    updatePVQCSettings({
-      defaultQuestionCount: DEFAULT_SETTINGS.pvqc.defaultQuestionCount,
-      defaultTimePerStage: DEFAULT_SETTINGS.pvqc.defaultTimePerStage,
-    })
   }
 
   return (
@@ -360,41 +345,6 @@ function Settings(): React.ReactElement {
                 onChange={(e) => updateSettings({ sound: e.target.checked })}
               />
             </label>
-          </div>
-
-          <div className="settings-list-group has-title">
-            <h5>PVQC 測驗設定</h5>
-            <div className="settings-list-group-item">
-              <p>預設題目數</p>
-              <Stepper
-                label="預設題目數"
-                value={pvqcSettings.defaultQuestionCount}
-                onChange={(v) =>
-                  updatePVQCSettings({ defaultQuestionCount: v })
-                }
-                {...PVQC_LIMITS.questionCount}
-                unit="題"
-              />
-            </div>
-            <div className="settings-list-group-item">
-              <p>預設時間</p>
-              <Stepper
-                label="預設時間"
-                value={pvqcSettings.defaultTimePerStage}
-                onChange={(v) => updatePVQCSettings({ defaultTimePerStage: v })}
-                {...PVQC_LIMITS.timePerStage}
-                unit="分鐘"
-              />
-            </div>
-            <div className="settings-list-group-item">
-              <p>重置設定</p>
-              <button
-                className="settings-action-button primary"
-                onClick={handleResetPVQCSettings}
-              >
-                恢復預設
-              </button>
-            </div>
           </div>
 
           <div className="settings-list-group has-title">

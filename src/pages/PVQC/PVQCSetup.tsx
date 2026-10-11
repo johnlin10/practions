@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './PVQCSetup.scss'
 
 // types
 import { QuizModeId } from '../../types/quiz-modes'
 import { QuizFlowConfig } from '../../types/quiz-flows'
-import { PVQC_LIMITS } from '../../types/settings'
+import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types/settings'
 
 // components
 import Stepper from '../../components/Stepper/Stepper'
@@ -44,8 +44,13 @@ const PVQC_MODES = [
 function PVQCSetup(): React.ReactElement {
   // 導航
   const navigate = useNavigate()
-  // PVQC 設定
-  const { pvqcSettings } = usePVQCSettings()
+  // PVQC 設定：自訂測驗的題數與時間直接存成偏好，下次進來沿用
+  const { pvqcSettings, updatePVQCSettings } = usePVQCSettings()
+  const questionCount = pvqcSettings.defaultQuestionCount
+  const timePerStage = pvqcSettings.defaultTimePerStage
+  const isDefault =
+    questionCount === DEFAULT_SETTINGS.pvqc.defaultQuestionCount &&
+    timePerStage === DEFAULT_SETTINGS.pvqc.defaultTimePerStage
   // 設定模式：官方模擬 / 自訂測驗
   const [setupMode, setSetupMode] = useState<SetupMode>('official')
   // 選擇的科目題庫
@@ -54,20 +59,6 @@ function PVQCSetup(): React.ReactElement {
   const [includeSpelling, setIncludeSpelling] = useState<boolean>(false)
   // 選擇的測驗模式
   const [selectedModes, setSelectedModes] = useState<string[]>([])
-  // 每個測驗題數
-  const [questionCount, setQuestionCount] = useState<number>(
-    pvqcSettings.defaultQuestionCount,
-  )
-  // 每個測驗時間
-  const [timePerStage, setTimePerStage] = useState<number>(
-    pvqcSettings.defaultTimePerStage,
-  )
-
-  // 當設定改變時，更新本地狀態（如果用戶還沒修改過）
-  useEffect(() => {
-    setQuestionCount(pvqcSettings.defaultQuestionCount)
-    setTimePerStage(pvqcSettings.defaultTimePerStage)
-  }, [pvqcSettings.defaultQuestionCount, pvqcSettings.defaultTimePerStage])
 
   /**
    * [function] toggleMode
@@ -264,7 +255,9 @@ function PVQCSetup(): React.ReactElement {
                   <Stepper
                     label="每個測驗題數"
                     value={questionCount}
-                    onChange={setQuestionCount}
+                    onChange={(v) =>
+                      updatePVQCSettings({ defaultQuestionCount: v })
+                    }
                     {...PVQC_LIMITS.questionCount}
                     unit="題"
                   />
@@ -274,10 +267,28 @@ function PVQCSetup(): React.ReactElement {
                   <Stepper
                     label="每個測驗時間"
                     value={timePerStage}
-                    onChange={setTimePerStage}
+                    onChange={(v) =>
+                      updatePVQCSettings({ defaultTimePerStage: v })
+                    }
                     {...PVQC_LIMITS.timePerStage}
                     unit="分鐘"
                   />
+                </div>
+                <div className="config-row">
+                  <p>重置設定</p>
+                  <button
+                    onClick={() =>
+                      updatePVQCSettings({
+                        defaultQuestionCount:
+                          DEFAULT_SETTINGS.pvqc.defaultQuestionCount,
+                        defaultTimePerStage:
+                          DEFAULT_SETTINGS.pvqc.defaultTimePerStage,
+                      })
+                    }
+                    disabled={isDefault}
+                  >
+                    恢復預設
+                  </button>
                 </div>
               </div>
             </div>

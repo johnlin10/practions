@@ -56,9 +56,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
 // 錯題複習每次題數的選項
 export const REVIEW_LIMITS = [5, 10, 15, 20] as const
 
-// PVQC 自訂測驗可調整的範圍（含）與每次增減的量，設定頁與測驗設定頁共用
+// PVQC 自訂測驗可調整的範圍（含）與每次增減的量（PVQC 測驗設定頁）
 export const PVQC_LIMITS = {
-  questionCount: { min: 5, max: 50, step: 5 },
+  questionCount: { min: 5, max: 100, step: 5 },
   timePerStage: { min: 5, max: 30, step: 5 },
 }
 
