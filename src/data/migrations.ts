@@ -7,7 +7,7 @@
 import { readRaw, remove, write } from '@/utils/storage'
 
 const LEGACY_HISTORY_V2_KEY = 'quizHistory-v2'
-const TRANSFER_V2_TO_V3_FLAG = 'transfer-v2-to-v3'
+export const TRANSFER_V2_TO_V3_FLAG = 'transfer-v2-to-v3'
 
 /**
  * 執行所有待處理的遷移（冪等，可安全重複呼叫）。

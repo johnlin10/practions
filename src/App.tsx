@@ -8,6 +8,7 @@ import Dialog from './components/Dialog/Dialog'
 
 // data
 import { runMigrations } from '@/data/migrations'
+import { showLegalNoticeOnce } from '@/pages/Legal/notice'
 import { useUpdatePrompt } from '@/utils/serviceWorker'
 
 /**
@@ -27,6 +28,8 @@ function App(): React.ReactElement {
   useUpdatePrompt()
 
   useEffect(() => {
+    // 條款更新提示要在遷移之前：遷移會寫入標記，之後就分不出是不是第一次開啟
+    showLegalNoticeOnce()
     // 執行跨版本資料遷移（集中於 data/migrations）
     runMigrations()
   }, [])

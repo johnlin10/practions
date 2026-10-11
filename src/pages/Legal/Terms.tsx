@@ -12,7 +12,7 @@ import { usePageMeta } from '@/hooks/usePageMeta'
 
 /**
  * [page] Terms component
- * 使用條款：服務內容、非官方聲明、題庫來源與著作權、使用規範與免責
+ * 服務條款：服務內容、非官方聲明、題庫來源與著作權、考試期間鎖定、使用規範與免責
  */
 function Terms(): React.ReactElement {
   usePageMeta(TERMS_TITLE, TERMS_DESCRIPTION)
@@ -24,7 +24,7 @@ function Terms(): React.ReactElement {
           <Link className="pre-path no-style" to="/settings">
             設定 /
           </Link>{' '}
-          使用條款
+          服務條款
         </h1>
         <p>使用 Practions 即表示您同意以下條款，如果不同意，請停止使用。</p>
         <p className="legal-updated">最後更新：{LEGAL_UPDATED}</p>
@@ -33,9 +33,10 @@ function Terms(): React.ReactElement {
           <section>
             <h2>服務內容</h2>
             <p>
-              Practions 是由 John Lin 個人開發、免費提供的 PVQC
-              題庫練習工具。不登入就能使用；登入 Google
-              帳號後，可以在不同裝置同步測驗紀錄。個人資料的處理方式請見
+              Practions 是由 John Lin 個人開發、免費提供的題庫練習工具，涵蓋
+              PVQC
+              與多個課程的題庫，並提供錯題複習、掌握度等練習功能。不登入就能使用；登入
+              Google 帳號後，可以在不同裝置同步測驗紀錄。個人資料的處理方式請見
               <Link to={PRIVACY_PATH}>隱私權政策</Link>。
             </p>
           </section>
@@ -43,8 +44,8 @@ function Terms(): React.ReactElement {
           <section>
             <h2>非官方服務</h2>
             <p>
-              Practions 與 PVQC
-              主辦單位及任何考試機構都沒有關係，練習成績也不代表正式考試的結果。
+              Practions 不是 PVQC、AIL
+              等證照的主辦或發證單位，也不是學校或任何考試機構的官方服務。部分題庫由授課老師提供，但練習成績不會計入課程成績，也不代表正式考試的結果。
             </p>
           </section>
 
@@ -61,6 +62,14 @@ function Terms(): React.ReactElement {
               </li>
               <li>題庫只供個人學習練習，請勿用於商業用途。</li>
             </ul>
+          </section>
+
+          <section>
+            <h2>考試期間鎖定</h2>
+            <p>
+              為了避免正式考試時查閱答案，Practions
+              可以在考試期間暫時鎖定該科目，鎖定期間無法查看這個科目的題庫、進行測驗或查看相關的測驗紀錄，時間一過會自動解鎖。
+            </p>
           </section>
 
           <section>
@@ -94,7 +103,7 @@ function Terms(): React.ReactElement {
             <h2>免責聲明</h2>
             <p>
               Practions
-              依現況提供，不保證服務不會中斷或沒有錯誤，建議定期匯出測驗紀錄備份。因使用
+              依現況提供，不保證服務不會中斷或沒有錯誤，建議定期匯出測驗紀錄備份。錯題、掌握度與練習成績只供練習參考，不代表考試結果。因使用
               Practions
               造成的損失，包括紀錄遺失、題目錯誤或考試結果，在法律允許的範圍內，Practions
               不負賠償責任。

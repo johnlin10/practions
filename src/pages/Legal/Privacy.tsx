@@ -26,8 +26,8 @@ function Privacy(): React.ReactElement {
           隱私權政策
         </h1>
         <p>
-          Practions 是由 John Lin 個人開發、免費提供的 PVQC
-          練習工具。這份政策說明 Practions
+          Practions 是由 John Lin 個人開發、免費提供的題庫練習工具，涵蓋 PVQC
+          與多個課程的題庫。這份政策說明 Practions
           會收集哪些資料、怎麼使用，以及您可以怎麼管理自己的資料。
         </p>
         <p className="legal-updated">最後更新：{LEGAL_UPDATED}</p>
@@ -49,8 +49,14 @@ function Privacy(): React.ReactElement {
                 Google 帳號的名稱、email 與大頭貼，由 Google
                 提供，用來顯示您登入的是哪個帳號
               </li>
-              <li>測驗紀錄，包括作答的題目與答案、分數和測驗時間</li>
+              <li>
+                測驗紀錄，包括一般測驗與錯題複習的作答題目與答案、分數和測驗時間
+              </li>
             </ul>
+            <p>
+              錯題與掌握度是在您的裝置上從測驗紀錄計算出來的，Practions
+              不會另外收集或保存這些資料。
+            </p>
             <p>
               Practions 不會取得您的 Google 密碼，也不會讀取
               Gmail、雲端硬碟等其他 Google 服務的內容。
@@ -87,13 +93,19 @@ function Privacy(): React.ReactElement {
               </a>{' '}
               處理連線資訊，例如 IP 位址。
             </p>
+            <p>
+              PVQC
+              聽力題的語音由瀏覽器內建的語音功能播放。部分瀏覽器提供的線上語音（例如
+              Chrome 的 Google 語音、Edge
+              的線上自然語音）會把要朗讀的英文單字傳給瀏覽器廠商合成聲音，傳送的只有單字，不包含您的個人資料。
+            </p>
           </section>
 
           <section>
             <h2>Cookie 與追蹤</h2>
             <p>
               Practions 沒有使用分析工具、廣告或追蹤用的
-              Cookie。瀏覽器的儲存空間只用來保存您的設定、測驗紀錄與登入狀態。
+              Cookie。瀏覽器的儲存空間只用來保存您的設定、測驗紀錄、登入狀態，以及離線使用時需要的網站檔案。
             </p>
           </section>
 
@@ -111,8 +123,12 @@ function Privacy(): React.ReactElement {
             <ul>
               <li>查看：在「測驗紀錄」頁面查看所有紀錄</li>
               <li>匯出：到「設定」點「匯出測驗紀錄」，下載完整的備份檔</li>
+              <li>匯入：到「設定」點「匯入測驗紀錄」，把備份檔的紀錄加回來</li>
               <li>
-                刪除紀錄：到「設定」點「清除測驗紀錄」，登入時會一併刪除雲端上的紀錄
+                刪除單筆紀錄：在「測驗紀錄」頁面把紀錄向左滑，登入時會一併刪除雲端上的這筆紀錄
+              </li>
+              <li>
+                刪除所有紀錄：到「設定」點「清除測驗紀錄」，登入時會一併刪除雲端上的紀錄
               </li>
               <li>
                 刪除帳號：登入後到「設定」點「刪除帳號」，會永久刪除您在
