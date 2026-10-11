@@ -332,10 +332,10 @@ function Quiz(): React.ReactElement {
     if (summary.perfect) playPerfectSound()
   }
 
-  // 結算畫面淡出後才交卷
-  const handleLeave = (): void => {
+  // 結算畫面淡出後才交卷；「退出」交卷後回錯題複習頁，不進結果詳情
+  const handleLeave = (exitTo?: string): void => {
     setLeaving(true)
-    setTimeout(() => handleFinish(), 250)
+    setTimeout(() => handleFinish(false, exitTo), 250)
   }
 
   // 進入下一階段
@@ -375,9 +375,10 @@ function Quiz(): React.ReactElement {
    * [function] handleFinish
    * 完成測驗
    * @param {boolean} force - 是否強制完成測驗
+   * @param {string} exitTo - 交卷後改導到這個頁面（預設是該筆測驗紀錄）
    * @returns {void}
    */
-  const handleFinish = (force: boolean = false): void => {
+  const handleFinish = (force: boolean = false, exitTo?: string): void => {
     // 確保 allStagesQuestions 已初始化
     if (
       !quizState.allStagesQuestions ||
@@ -400,7 +401,9 @@ function Quiz(): React.ReactElement {
         // 時間到，強制完成
         const recordId = finishQuiz()
         // 如果測驗完成，則導航到歷史頁面
-        if (recordId) {
+        if (exitTo) {
+          navigate(exitTo)
+        } else if (recordId) {
           navigate(`/history/${recordId}`)
         } else {
           navigate('/history')
@@ -415,7 +418,9 @@ function Quiz(): React.ReactElement {
       // 所有問題都已回答，可以完成測驗
       const recordId = finishQuiz()
       // 如果測驗完成，則導航到歷史頁面
-      if (recordId) {
+      if (exitTo) {
+        navigate(exitTo)
+      } else if (recordId) {
         navigate(`/history/${recordId}`)
       } else {
         navigate('/history')
@@ -692,10 +697,16 @@ function Quiz(): React.ReactElement {
                 </p>
                 <button
                   className="quiz-retry-intro-btn"
-                  onClick={handleLeave}
+                  onClick={() => handleLeave()}
                   autoFocus
                 >
                   查看結果
+                </button>
+                <button
+                  className="quiz-retry-intro-btn quiz-retry-intro-exit"
+                  onClick={() => handleLeave('/review')}
+                >
+                  退出
                 </button>
               </div>
             </>
@@ -730,10 +741,16 @@ function Quiz(): React.ReactElement {
               <p className="quiz-summary-message">{summary.message}</p>
               <button
                 className="quiz-retry-intro-btn"
-                onClick={handleLeave}
+                onClick={() => handleLeave()}
                 autoFocus
               >
                 查看結果
+              </button>
+              <button
+                className="quiz-retry-intro-btn quiz-retry-intro-exit"
+                onClick={() => handleLeave('/review')}
+              >
+                退出
               </button>
             </div>
           ) : subject && showRetryIntro ? (

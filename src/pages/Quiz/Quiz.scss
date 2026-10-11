@@ -900,6 +900,23 @@ h1.quiz-to-history {
       box-shadow: 0 0 0 var(--orange-600);
       transform: translateY(4px);
     }
+
+    // 結算畫面的「退出」：次要按鈕，沿用全站按鈕的白底灰框，緊接在「查看結果」下方
+    &.quiz-retry-intro-exit {
+      margin-top: 0;
+      color: var(--foreground-900);
+      background-color: var(--background-color);
+      border-color: var(--border-color);
+      box-shadow: 0 4px 0 var(--border-color);
+
+      &:not(:disabled):hover {
+        background-color: var(--background-secondary);
+      }
+
+      &:not(:disabled):active {
+        box-shadow: 0 0 0 var(--border-color);
+      }
+    }
   }
 }
 
