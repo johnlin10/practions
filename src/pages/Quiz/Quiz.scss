@@ -7,10 +7,14 @@
   height: 100dvh;
   overflow: hidden;
   overflow-y: auto;
-  padding: 24px 24px 48px 24px;
+  // 底部跟結果列（.quiz-feedback）同一個標準：24px＋安全區域，「檢查」和「繼續」才會在同一個位置
+  padding: 24px 24px calc(24px + env(safe-area-inset-bottom));
 
+  // 題目區撐滿剩下的高度，底部導覽列（上下題或「檢查」）照自己的高度排在下方，不會超出頁面底部留白
   .quiz-container {
     position: relative;
+    display: flex;
+    flex-direction: column;
     height: 100%;
 
     .question-section {
@@ -19,8 +23,8 @@
       justify-content: space-between;
       position: relative;
       background: var(--background-color);
-      height: calc(100% - 27px);
-      max-height: 100%;
+      flex: 1;
+      min-height: 0;
       padding: 0 0;
       border-radius: 5px;
       overflow: hidden;
@@ -196,7 +200,9 @@
       flex-direction: column;
       justify-content: space-between;
       position: absolute;
-      bottom: 36px;
+      // 底緣對齊選項群組的下緣（上下題按鈕列 48px＋選項下方留白 12px）；
+      // 定位基準是作答區，它的底部已含安全區域，所以 iPhone PWA 上也會跟著上移
+      bottom: 60px;
       left: 50%;
       padding: 18px;
       height: fit-content;
@@ -660,15 +666,6 @@ h1.quiz-to-history {
 
 // 即時回饋：題目區撐滿，底部放「檢查」按鈕或結果列
 .quiz-page .quiz-container.instant-feedback {
-  display: flex;
-  flex-direction: column;
-
-  > .question-section {
-    flex: 1;
-    min-height: 0;
-    height: auto;
-  }
-
   > .quiz-navigation {
     max-width: none;
   }
@@ -679,7 +676,6 @@ h1.quiz-to-history {
   justify-content: center;
   width: 100%;
   min-height: 50px;
-  margin-top: 12px;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-white);
