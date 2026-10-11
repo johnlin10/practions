@@ -176,8 +176,58 @@ function readChangelog(): ChangelogEntry[] {
   return entries
 }
 
+// PostCSS 節點只用到這幾個欄位（postcss 是 Vite 的相依套件，專案沒有直接安裝，不引用它的型別）
+interface CssNode {
+  type: string
+  name?: string
+  params?: string
+  parent?: CssNode
+}
+interface CssRule extends CssNode {
+  selectors: string[]
+  before(node: CssAtRule): void
+  clone(overrides: { selectors: string[] }): CssRule
+}
+interface CssAtRule extends CssNode {
+  name: string
+  params: string
+  append(node: CssRule): void
+}
+
+/**
+ * 所有 :hover 樣式包進 @media (hover: hover)，只在有滑鼠的裝置生效。
+ * 手機點一下後 :hover 會留在點的位置，換題後新的按鈕剛好在同一處就會呈現 hover 樣式。
+ * 包在原位置，規則的先後順序與權重都不變；已經寫在 (hover: hover) 裡的不重複包
+ */
+const hoverOnlyWithPointer = {
+  postcssPlugin: 'hover-only-with-pointer',
+  Rule(
+    rule: CssRule,
+    {
+      AtRule,
+    }: { AtRule: new (opts: { name: string; params: string }) => CssAtRule },
+  ) {
+    const hover = rule.selectors.filter((s) => s.includes(':hover'))
+    if (hover.length === 0) return
+    for (let p = rule.parent; p; p = p.parent)
+      if (p.name === 'media' && /hover:\s*hover/.test(p.params ?? '')) return
+    const media = new AtRule({ name: 'media', params: '(hover: hover)' })
+    rule.before(media)
+    const rest = rule.selectors.filter((s) => !s.includes(':hover'))
+    if (rest.length === 0) {
+      media.append(rule)
+    } else {
+      media.append(rule.clone({ selectors: hover }))
+      rule.selectors = rest
+    }
+  },
+}
+
 export default defineConfig({
   plugins: [react(), pageHtml(), serviceWorker()],
+  css: {
+    postcss: { plugins: [hoverOnlyWithPointer] },
+  },
   define: {
     __CHANGELOG__: JSON.stringify(readChangelog()),
   },
