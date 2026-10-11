@@ -4,6 +4,9 @@
  * 每個音由兩層組成：三角波主音＋低八度的正弦波撐厚度。
  * iOS 上 Web Audio 預設跟著靜音鍵、也不會打斷正在播的音樂。
  * iOS 只允許在使用者操作時啟動音訊，所以每次點擊都確認一次，切到背景被暫停也能恢復。
+ * 觸控時 pointerdown 不算「使用者操作」（規範只認 pointerup、touchend），只聽它的話能不能啟動要看 iOS
+ * 的心情，主畫面 App 上會時好時壞，所以按下與放開都確認。
+ * 主畫面 App 從背景回來後，舊的 AudioContext 可能顯示 running 卻沒有聲音，切到背景時就關掉，回來後點擊再建新的。
  */
 import { getSettings } from '@/data/settingsStore'
 
@@ -15,8 +18,13 @@ function unlock(): void {
 }
 
 if (typeof window !== 'undefined' && 'AudioContext' in window) {
-  window.addEventListener('pointerdown', unlock, { capture: true })
-  window.addEventListener('keydown', unlock, { capture: true })
+  for (const type of ['pointerdown', 'pointerup', 'touchend', 'keydown'])
+    window.addEventListener(type, unlock, { capture: true })
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden || !ctx) return
+    void ctx.close()
+    ctx = null
+  })
 }
 
 /** 一個音：start 秒後開始，duration 秒內淡出。 */

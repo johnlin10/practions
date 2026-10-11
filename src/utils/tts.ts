@@ -61,9 +61,29 @@ function refreshVoices(): void {
   }
 }
 
+/**
+ * iOS 要先在使用者操作時說過一次話，之後不是點擊觸發的播放（例如「正在準備」畫面結束後自動播第一題）
+ * 才會出聲；否則會卡住到 watchdog 逾時。第一次點擊時先無聲說一個空白，App 從背景回來後再做一次。
+ */
+let primed = false
+
+function primeSpeech(): void {
+  if (primed) return
+  primed = true
+  const utterance = new SpeechSynthesisUtterance(' ')
+  utterance.volume = 0
+  window.speechSynthesis.speak(utterance)
+}
+
 if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   refreshVoices()
   window.speechSynthesis.addEventListener('voiceschanged', refreshVoices)
+  // 觸控時 pointerdown 不算使用者操作，要等放開
+  for (const type of ['pointerup', 'touchend', 'keydown'])
+    window.addEventListener(type, primeSpeech, { capture: true })
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) primed = false
+  })
 }
 
 interface SpeakOptions {
