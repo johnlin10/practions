@@ -56,11 +56,8 @@ export function masteryPercent({
   return Math.floor(percent)
 }
 
-/** 各題庫的掌握度，key 為科目 ID；沒作答過的題庫不在裡面。 */
-export function collectMastery(
-  history: readonly HistoryRecord[],
-): Map<string, SubjectMastery> {
-  // `科目/作答方式` → 題號 → 目前的答對次數（同一天只算一次）
+/** 每題目前的答對次數（同一天只算一次），key 為 `科目/作答方式`，再依題號。 */
+function collectStreaks(history: readonly HistoryRecord[]) {
   const streaks = new Map<string, Map<string, Streak>>()
   const subjects = new Map<string, SubjectConfig>()
   for (const { subject, questionId, mode, isCorrect, date } of answeredInOrder(
@@ -75,7 +72,26 @@ export function collectMastery(
       nextStreak(questions.get(questionId), isCorrect, date),
     )
   }
+  return { streaks, subjects }
+}
 
+/** 已掌握的題號，key 為 `科目/作答方式`。測驗抽題時優先抽還沒掌握的題目。 */
+export function masteredQuestions(
+  history: readonly HistoryRecord[],
+): Map<string, Set<string>> {
+  const result = new Map<string, Set<string>>()
+  for (const [key, questions] of collectStreaks(history).streaks) {
+    const ids = [...questions].filter(([, s]) => s.count >= REMOVE_AFTER)
+    result.set(key, new Set(ids.map(([id]) => id)))
+  }
+  return result
+}
+
+/** 各題庫的掌握度，key 為科目 ID；沒作答過的題庫不在裡面。 */
+export function collectMastery(
+  history: readonly HistoryRecord[],
+): Map<string, SubjectMastery> {
+  const { streaks, subjects } = collectStreaks(history)
   const result = new Map<string, SubjectMastery>()
   for (const subject of subjects.values()) {
     const ids = subject.questions.map((q) => q.id)

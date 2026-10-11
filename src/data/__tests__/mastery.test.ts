@@ -1,4 +1,8 @@
-import { collectMastery, masteryPercent } from '@/data/mastery'
+import {
+  collectMastery,
+  masteredQuestions,
+  masteryPercent,
+} from '@/data/mastery'
 import { subjects } from '@/data/subjects'
 import type { HistoryRecord } from '@/types'
 
@@ -131,5 +135,31 @@ describe('collectMastery', () => {
     expect(percent(199, 200)).toBe(99.5)
     expect(percent(1361, 1362)).toBe(99.9)
     expect(percent(200, 200)).toBe(100)
+  })
+})
+
+describe('masteredQuestions', () => {
+  it('依科目與作答方式列出已掌握的題號', () => {
+    const [q1, q2] = accounting
+    const history = [
+      standard('accounting', '2026-10-01T20:00', [
+        { id: q1, correct: true },
+        { id: q2, correct: true },
+      ]),
+      standard('accounting', '2026-10-02T20:00', [
+        { id: q1, correct: true },
+        { id: q2, correct: false },
+      ]),
+      pvqc('2026-10-01T20:00', {
+        pvqc_write: [{ id: words[0], correct: true }],
+      }),
+      pvqc('2026-10-02T20:00', {
+        pvqc_write: [{ id: words[0], correct: true }],
+      }),
+    ]
+    const mastered = masteredQuestions(history)
+    expect([...mastered.get('accounting/standard')!]).toEqual([q1])
+    expect([...mastered.get('pvqc_ai/pvqc_write')!]).toEqual([words[0]])
+    expect(mastered.get('pvqc_ai/pvqc_read')).toBeUndefined()
   })
 })
