@@ -1,4 +1,5 @@
 import {
+  REMOVE_AFTER,
   buildReviewFlow,
   collectWrongQuestions,
   countByKind,
@@ -68,10 +69,12 @@ const pvqc = (date: string, stages: Record<string, Answer[]>): HistoryRecord =>
     },
   }) as unknown as HistoryRecord
 
+// 還沒移出的錯題（不含移出後之後要回顧的題目）
 const ids = (history: HistoryRecord[], subjectId: string) =>
   collectWrongQuestions(history)
     .find((group) => group.subject.id === subjectId)
-    ?.items.map((item) => item.question.id) ?? []
+    ?.items.filter((item) => item.streak.count < REMOVE_AFTER)
+    .map((item) => item.question.id) ?? []
 
 describe('collectWrongQuestions', () => {
   const [q1, q2, q3] = accounting.map((q) => q.id)
@@ -234,6 +237,55 @@ describe('dueToday', () => {
   })
 })
 
+describe('移出後的回顧', () => {
+  const [q1] = accounting.map((q) => q.id)
+  const answer = (day: string, correct: boolean) =>
+    standard('accounting', `${day}T20:00`, [{ id: q1, correct }])
+  // 10/3 移出錯題，3 天後（10/6）第一次回顧
+  const graduated = [
+    answer('2026-10-01', false),
+    answer('2026-10-02', true),
+    answer('2026-10-03', true),
+  ]
+  const due = (history: HistoryRecord[], today: string) =>
+    dueToday(collectWrongQuestions(history), today).flatMap((group) =>
+      group.items.map((item) => item.question.id),
+    )
+
+  it('到期才出現，太早答對不算，到期答對後隔更久', () => {
+    expect(ids(graduated, 'accounting')).toEqual([])
+    expect(due(graduated, '2026-10-05')).toEqual([])
+    expect(due(graduated, '2026-10-06')).toEqual([q1])
+
+    expect(due([...graduated, answer('2026-10-05', true)], '2026-10-06')).toEqual([q1])
+
+    const passed = [...graduated, answer('2026-10-06', true)]
+    expect(due(passed, '2026-10-12')).toEqual([])
+    expect(due(passed, '2026-10-13')).toEqual([q1])
+  })
+
+  it('晚了才答從答對那天重新起算，四次都通過後不再出現', () => {
+    const late = [...graduated, answer('2026-10-20', true)]
+    expect(due(late, '2026-10-26')).toEqual([])
+    expect(due(late, '2026-10-27')).toEqual([q1])
+
+    const all = [
+      ...graduated,
+      answer('2026-10-06', true),
+      answer('2026-10-13', true),
+      answer('2026-10-27', true),
+      answer('2026-11-24', true),
+    ]
+    expect(collectWrongQuestions(all)).toEqual([])
+  })
+
+  it('回顧時答錯就回到錯題，從頭計算', () => {
+    const history = [...graduated, answer('2026-10-06', false)]
+    expect(ids(history, 'accounting')).toEqual([q1])
+    expect(collectWrongQuestions(history)[0].items[0].streak.count).toBe(0)
+  })
+})
+
 describe('buildReviewFlow', () => {
   it('依題型輪流取題：某個題型錯得特別多次，也不會只抽到那個題型', () => {
     const words = vocab.slice(0, 10).map((q) => q.id)
@@ -279,6 +331,28 @@ describe('buildReviewFlow', () => {
     expect(picked.filter((id) => fresh.includes(id))).toHaveLength(fresh.length)
     // 新錯題與老錯題交替
     expect(fresh.includes(picked[1]) && stubborn.includes(picked[2])).toBe(true)
+  })
+
+  it('到期的回顧題最多佔約 1/3，錯題不夠時由回顧題補滿', () => {
+    const qs = accounting.slice(0, 30).map((q) => q.id)
+    const reviews = qs.slice(0, 10)
+    const wrongs = qs.slice(10)
+    const answers = (day: string, list: string[], correct: boolean) =>
+      standard('accounting', `${day}T20:00`, list.map((id) => ({ id, correct })))
+    const graduated = [
+      answers('2026-10-01', reviews, false),
+      answers('2026-10-02', reviews, true),
+      answers('2026-10-03', reviews, true),
+    ]
+    const pick = (history: HistoryRecord[]) =>
+      buildReviewFlow(dueToday(collectWrongQuestions(history), '2026-10-06')[0], 15)
+        .stages.flatMap((s) => s.questionIds ?? [])
+
+    const picked = pick([...graduated, answers('2026-10-05', wrongs, false)])
+    expect(picked).toHaveLength(15)
+    expect(picked.filter((id) => reviews.includes(id))).toHaveLength(5)
+
+    expect(pick([...graduated, answers('2026-10-05', wrongs.slice(0, 3), false)])).toHaveLength(13)
   })
 
   it('最多 15 題、不計時，PVQC 依作答方式分成多個階段', () => {
