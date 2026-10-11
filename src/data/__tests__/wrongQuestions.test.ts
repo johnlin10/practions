@@ -257,6 +257,30 @@ describe('buildReviewFlow', () => {
   })
 
 
+  it('先出之前某天答對過一次的，其餘新錯題與老錯題交替，新錯題不會被擠掉', () => {
+    const qs = accounting.slice(0, 36).map((q) => q.id)
+    const [confirm, ...rest] = qs
+    const stubborn = rest.slice(0, 30)
+    const fresh = rest.slice(30)
+    const wrong = (date: string, list: string[]) =>
+      standard('accounting', date, list.map((id) => ({ id, correct: false })))
+    const history = [
+      wrong('2026-10-01T20:00', [...stubborn, confirm]),
+      wrong('2026-10-02T20:00', stubborn),
+      wrong('2026-10-03T20:00', stubborn),
+      standard('accounting', '2026-10-04T20:00', [{ id: confirm, correct: true }], 'review'),
+      wrong('2026-10-05T20:00', fresh),
+    ]
+    const group = dueToday(collectWrongQuestions(history), '2026-10-06')[0]
+    const picked = buildReviewFlow(group, 15).stages.flatMap((s) => s.questionIds ?? [])
+
+    expect(picked).toHaveLength(15)
+    expect(picked[0]).toBe(confirm)
+    expect(picked.filter((id) => fresh.includes(id))).toHaveLength(fresh.length)
+    // 新錯題與老錯題交替
+    expect(fresh.includes(picked[1]) && stubborn.includes(picked[2])).toBe(true)
+  })
+
   it('最多 15 題、不計時，PVQC 依作答方式分成多個階段', () => {
     const words = vocab.slice(0, 20).map((q) => q.id)
     const history = [

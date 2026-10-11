@@ -295,6 +295,29 @@ function interleaveByKind(items: readonly WrongItem[]): WrongItem[] {
   return result
 }
 
+/**
+ * 複習的優先順序，避免新錯題被錯很多次的老錯題擠掉：
+ * 1. 之前某天答對過一次的（再答對就移出，拖久了容易忘），先答對的在前
+ * 2. 其餘由新錯題（只錯過 1 次，最近答錯的在前）與老錯題（照原本錯最多次的在前）一題一題交替
+ */
+function prioritize(items: readonly WrongItem[]): WrongItem[] {
+  const confirm = items
+    .filter((item) => item.streak.count > 0)
+    .sort((a, b) => a.streak.day.localeCompare(b.streak.day))
+  const fresh = items
+    .filter((item) => item.streak.count === 0 && item.wrongCount === 1)
+    .sort((a, b) => b.lastWrong.getTime() - a.lastWrong.getTime())
+  const stubborn = items.filter(
+    (item) => item.streak.count === 0 && item.wrongCount > 1,
+  )
+  const mixed: WrongItem[] = []
+  for (let i = 0; i < Math.max(fresh.length, stubborn.length); i++) {
+    if (fresh[i]) mixed.push(fresh[i])
+    if (stubborn[i]) mixed.push(stubborn[i])
+  }
+  return [...confirm, ...mixed]
+}
+
 /** 各題型的錯題數，依題型順序：標準題庫為單選／多選／是非，PVQC 為測驗一：寫等。 */
 export function countByKind(items: readonly WrongItem[]): [string, number][] {
   const counts = new Map<string, number>()
@@ -309,14 +332,15 @@ export function countByKind(items: readonly WrongItem[]): [string, number][] {
 }
 
 /**
- * 複習用的測驗流程：依題型輪流取 limit 題，不計時，答一題就看到對錯。
+ * 複習用的測驗流程：依優先順序、題型輪流取 limit 題，不計時，答一題就看到對錯。
+ * group 應該只含今天可以複習的錯題（dueToday）。
  * PVQC 依作答方式分成多個階段（紀錄與計分照階段），作答時打散成一條流程。
  */
 export function buildReviewFlow(
   group: WrongSubject,
   limit: number,
 ): QuizFlowConfig {
-  const items = interleaveByKind(group.items).slice(0, limit)
+  const items = interleaveByKind(prioritize(group.items)).slice(0, limit)
   const modes = [...new Set(items.map((item) => item.mode))].sort(
     (a, b) => KIND_ORDER.indexOf(a) - KIND_ORDER.indexOf(b),
   )
