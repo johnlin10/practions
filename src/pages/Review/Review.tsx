@@ -28,7 +28,7 @@ const limitOptions = REVIEW_LIMITS.map((n) => ({
 function Review(): React.ReactElement {
   const navigate = useNavigate()
   const wrongGroups = useWrongQuestions()
-  // 今天已經答對過的錯題隔天再確認，今天先不列出
+  // 今天已經答對過的錯題隔天再確認，今天先不列出；已移出的題目到期才回顧
   const groups = dueToday(wrongGroups)
   // 登入中的雲端紀錄尚未到達時不閃出「目前沒有錯題」
   const ready = useHistoryReady()

@@ -145,7 +145,7 @@ function Quiz(): React.ReactElement {
   const [previewAllQuestions, setPreviewAllQuestions] = useState<boolean>(false)
   // 錯題（測驗列表的錯題複習卡片）
   const wrongGroups = useWrongQuestions()
-  // 今天可以複習的錯題（今天已經答對過的隔天再確認）
+  // 今天可以複習的錯題（今天已經答對過的隔天再確認，含到期的回顧題）
   const dueGroups = dueToday(wrongGroups)
   // 各題庫的掌握度（沒做過的題庫沒有）
   const mastery = useMastery()

@@ -1,0 +1,105 @@
+// 彩色圖示方塊（同測驗頁錯題複習入口）
+.learning-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  color: var(--text-white);
+  border-radius: 5px;
+
+  &.primary {
+    background: var(--primary-color);
+  }
+  &.review {
+    background: var(--review-color);
+  }
+  &.success {
+    background: var(--success-color);
+  }
+}
+
+// 學習循環：四個步驟由上往下排，右側的線從掌握度繞回測驗
+.learning-cycle {
+  display: flex;
+  gap: 10px;
+  // 放在 flex 欄裡（首頁）時，auto 的左右外距會讓它縮成內容寬，明確給滿版
+  width: 100%;
+  max-width: 480px;
+  margin: 20px auto 0;
+
+  > ol {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 28px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    > li {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      // 首頁的段落是透明的，卡片自己有底色，蓋住後面的背景方塊
+      background-color: var(--background-color);
+      border: 2px solid var(--divider-color);
+      border-radius: 12px;
+    }
+  }
+
+  .learning-step-name {
+    flex-grow: 1;
+    font-weight: 600;
+    color: var(--foreground-900);
+  }
+
+  .learning-step-text {
+    font-size: 0.8rem;
+    color: var(--foreground-600);
+    text-align: right;
+  }
+
+  // 步驟之間往下的箭頭，置中在兩張卡片的間隔裡
+  .learning-arrow {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 2px;
+    font-size: 22px;
+    line-height: 28px;
+    text-align: center;
+    color: var(--text-faint-color);
+  }
+
+  // 上下各留半張卡片高，線的兩端對齊第一張與最後一張卡片的中間
+  .learning-cycle-return {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 18px;
+    padding: 29px 0;
+
+    > span {
+      position: relative;
+      flex-grow: 1;
+      border: 2px solid var(--border-color);
+      border-left: none;
+      border-radius: 0 12px 12px 0;
+
+      > span {
+        position: absolute;
+        top: -13px;
+        left: -14px;
+        font-size: 24px;
+        color: var(--border-color);
+      }
+    }
+  }
+}

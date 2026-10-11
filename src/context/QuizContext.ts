@@ -11,7 +11,8 @@ import {
   QuizContextType,
   QuizProviderProps,
 } from '../types'
-import { addHistoryRecord } from '@/data/historyStore'
+import { addHistoryRecord, getAllHistory } from '@/data/historyStore'
+import { masteredQuestions } from '@/data/mastery'
 import { Question } from '../types/questions'
 import { QuizState } from '../types/answers'
 import {
@@ -70,10 +71,21 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     // 準備所有階段題目
     const allStagesQuestions: Record<string, Question[]> = {}
 
+    // 測驗優先抽還沒掌握的題目；PVQC 官方模擬維持完全隨機（模擬正式考試），錯題複習有自己的選題
+    const mastered =
+      flowConfig.flowMode === 'pvqc_official' ||
+      flowConfig.flowMode === 'review'
+        ? undefined
+        : masteredQuestions(getAllHistory())
+
     // 遍歷所有階段
     flowConfig.stages.forEach((stage) => {
-      // 依題數（與出題組成）隨機抽題
-      allStagesQuestions[stage.stageId] = pickQuestions(questions, stage)
+      // 依題數（與出題組成）抽題
+      allStagesQuestions[stage.stageId] = pickQuestions(
+        questions,
+        stage,
+        mastered?.get(`${id}/${stage.mode || 'standard'}`),
+      )
     })
 
     // 取得第一階段

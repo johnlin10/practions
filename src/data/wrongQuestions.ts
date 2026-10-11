@@ -5,6 +5,7 @@
  * 依時間順序走過所有紀錄（含複習紀錄）：答錯就列入並重新計算，
  * 在 REMOVE_AFTER 個不同的日子答對就移出（同一天重複答對只算一次）；沒作答的題目不影響。
  * 今天已經答對過的錯題，今天的複習先不出現，隔天再確認一次。
+ * 移出後依 REVIEW_GAPS 隔越來越久再回顧（到期才出現，畫面上不標示），中途答錯就回到錯題。
  * 舊科目 ID（如合併前的 AIL）會對應到目前的科目與題號，題目內容以目前題庫為準，
  * 題庫已刪除的題目不列出。考試鎖定中的科目不列出，避免考試時查答案。
  */
@@ -21,6 +22,9 @@ import { isSubjectLocked } from '@/pages/Bank/utils/bankHelpers'
 // 在幾個不同的日子答對後移出（也是掌握度的「已掌握」門檻）
 export const REMOVE_AFTER = 2
 
+// 移出錯題後，每次回顧要隔幾天（從上次答對那天算）；到期後答對才進下一次，全部通過就不再安排
+export const REVIEW_GAPS = [3, 7, 14]
+
 /** 答錯後答對的次數，同一天只算一次。 */
 export interface Streak {
   count: number
@@ -31,9 +35,20 @@ export interface Streak {
 /** 本地時間的日期，例如 2026-10-11。 */
 export const dayOf = (date: Date): string => date.toLocaleDateString('sv')
 
+/** 下一次回顧的日期；還沒移出錯題或已經全部回顧完時為 undefined。 */
+export function dueDay({ count, day }: Streak): string | undefined {
+  const gap = REVIEW_GAPS[count - REMOVE_AFTER]
+  if (gap === undefined) return undefined
+  // 中午算，避開日光節約時間切換的那一小時
+  const date = new Date(`${day}T12:00`)
+  date.setDate(date.getDate() + gap)
+  return dayOf(date)
+}
+
 /**
  * 同一天內重複答對只算一次，換一天再答對才累積，答錯歸零（successive relearning：
  * 隔天還答得出來，比同一次練習中多答對幾次更能代表記住了）。錯題與掌握度共用。
+ * 移出錯題後，要等到下一次回顧到期才算，太早答對不累積，也不歸零。
  */
 export function nextStreak(
   prev: Streak | undefined,
@@ -43,6 +58,10 @@ export function nextStreak(
   if (!isCorrect) return { count: 0, day: '' }
   const day = dayOf(date)
   if (prev?.day === day) return prev
+  if (prev && prev.count >= REMOVE_AFTER) {
+    const due = dueDay(prev)
+    if (!due || day < due) return prev
+  }
   return { count: (prev?.count ?? 0) + 1, day }
 }
 
@@ -189,7 +208,10 @@ export function* answeredInOrder(
   }
 }
 
-/** 從測驗紀錄計算各科目的錯題，錯題多的科目在前。 */
+/**
+ * 從測驗紀錄計算各科目的錯題，錯題多的科目在前。
+ * 也包含已經移出、之後還要回顧的題目（streak.count >= REMOVE_AFTER），由 dueToday 決定今天出不出現。
+ */
 export function collectWrongQuestions(
   history: readonly HistoryRecord[],
 ): WrongSubject[] {
@@ -210,7 +232,9 @@ export function collectWrongQuestions(
       })
     } else if (tracker) {
       tracker.streak = nextStreak(tracker.streak, true, date)
-      if (tracker.streak.count >= REMOVE_AFTER) trackers.delete(key)
+      // 移出錯題後留著安排回顧，全部回顧完才不再追蹤
+      if (tracker.streak.count >= REMOVE_AFTER && !dueDay(tracker.streak))
+        trackers.delete(key)
     }
   }
 
@@ -250,8 +274,8 @@ export function collectWrongQuestions(
 }
 
 /**
- * 今天可以複習的錯題：今天已經答對過的先不出現，隔天再確認（畫面上不提，
- * 避免一直練到同一題）。今天沒題可練的科目不列出。
+ * 今天可以複習的題目：錯題中今天已經答對過的先不出現，隔天再確認（畫面上不提，
+ * 避免一直練到同一題）；已經移出的只在回顧到期時出現。今天沒題可練的科目不列出。
  */
 export function dueToday(
   groups: readonly WrongSubject[],
@@ -260,7 +284,11 @@ export function dueToday(
   return groups
     .map((group) => ({
       ...group,
-      items: group.items.filter((item) => item.streak.day !== today),
+      items: group.items.filter((item) =>
+        item.streak.count < REMOVE_AFTER
+          ? item.streak.day !== today
+          : dueDay(item.streak)! <= today,
+      ),
     }))
     .filter((group) => group.items.length > 0)
     .sort((a, b) => b.items.length - a.items.length)
@@ -318,6 +346,31 @@ function prioritize(items: readonly WrongItem[]): WrongItem[] {
   return [...confirm, ...mixed]
 }
 
+// 每次複習中，到期回顧題最多佔的比例（錯題不夠時可以補滿）
+const REVIEW_SHARE = 1 / 2
+
+/**
+ * 這次複習的題目：錯題照優先順序與題型輪流取，到期的回顧題（越早到期的在前）
+ * 最多佔 REVIEW_SHARE，讓錯題至少保有一半名額。出題時會再打散，順序不影響作答。
+ */
+function pickItems(items: readonly WrongItem[], limit: number): WrongItem[] {
+  const isReview = (item: WrongItem) => item.streak.count >= REMOVE_AFTER
+  const wrong = interleaveByKind(prioritize(items.filter((i) => !isReview(i))))
+  const reviews = interleaveByKind(
+    items
+      .filter(isReview)
+      .sort((a, b) => dueDay(a.streak)!.localeCompare(dueDay(b.streak)!)),
+  )
+  const reviewCount = Math.min(
+    reviews.length,
+    Math.max(Math.ceil(limit * REVIEW_SHARE), limit - wrong.length),
+  )
+  return [
+    ...wrong.slice(0, limit - reviewCount),
+    ...reviews.slice(0, reviewCount),
+  ]
+}
+
 /** 各題型的錯題數，依題型順序：標準題庫為單選／多選／是非，PVQC 為測驗一：寫等。 */
 export function countByKind(items: readonly WrongItem[]): [string, number][] {
   const counts = new Map<string, number>()
@@ -332,7 +385,7 @@ export function countByKind(items: readonly WrongItem[]): [string, number][] {
 }
 
 /**
- * 複習用的測驗流程：依優先順序、題型輪流取 limit 題，不計時，答一題就看到對錯。
+ * 複習用的測驗流程：依優先順序、題型輪流取 limit 題（含到期的回顧題），不計時，答一題就看到對錯。
  * group 應該只含今天可以複習的錯題（dueToday）。
  * PVQC 依作答方式分成多個階段（紀錄與計分照階段），作答時打散成一條流程。
  */
@@ -340,7 +393,7 @@ export function buildReviewFlow(
   group: WrongSubject,
   limit: number,
 ): QuizFlowConfig {
-  const items = interleaveByKind(prioritize(group.items)).slice(0, limit)
+  const items = pickItems(group.items, limit)
   const modes = [...new Set(items.map((item) => item.mode))].sort(
     (a, b) => KIND_ORDER.indexOf(a) - KIND_ORDER.indexOf(b),
   )

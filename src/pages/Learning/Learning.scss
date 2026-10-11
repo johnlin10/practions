@@ -1,111 +1,8 @@
-// 彩色圖示方塊（同測驗頁錯題複習入口）
-.learning-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  font-size: 20px;
-  color: var(--text-white);
-  border-radius: 5px;
-
-  &.primary {
-    background: var(--primary-color);
-  }
-  &.review {
-    background: var(--review-color);
-  }
-  &.success {
-    background: var(--success-color);
-  }
-}
-
-// 學習循環：四個步驟由上往下排，右側的線從掌握度繞回測驗
-.learning-cycle {
-  display: flex;
-  gap: 10px;
-  max-width: 480px;
-  margin: 20px auto 0;
-
-  > ol {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    gap: 28px;
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-
-    > li {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      border: 2px solid var(--divider-color);
-      border-radius: 12px;
-    }
-  }
-
-  .learning-step-name {
-    flex-grow: 1;
-    font-weight: 600;
-    color: var(--foreground-900);
-  }
-
-  .learning-step-text {
-    font-size: 0.8rem;
-    color: var(--foreground-600);
-    text-align: right;
-  }
-
-  // 步驟之間往下的箭頭，置中在兩張卡片的間隔裡
-  .learning-arrow {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: 2px;
-    font-size: 22px;
-    line-height: 28px;
-    text-align: center;
-    color: var(--text-faint-color);
-  }
-
-  // 上下各留半張卡片高，線的兩端對齊第一張與最後一張卡片的中間
-  .learning-cycle-return {
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    width: 18px;
-    padding: 29px 0;
-
-    > span {
-      position: relative;
-      flex-grow: 1;
-      border: 2px solid var(--border-color);
-      border-left: none;
-      border-radius: 0 12px 12px 0;
-
-      > span {
-        position: absolute;
-        top: -13px;
-        left: -14px;
-        font-size: 24px;
-        color: var(--border-color);
-      }
-    }
-  }
-}
-
 .learning {
   display: flex;
   flex-direction: column;
   gap: 32px;
   margin-top: 36px;
-  padding: 0 6px;
   font-size: 0.95rem;
   line-height: 1.7;
   color: var(--text-color);
@@ -114,6 +11,12 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+
+    // 文字段落與其他頁面一樣左右留 6px；「在 Practions 裡」與表格貼齊內容寬度
+    > h2,
+    > p {
+      padding: 0 6px;
+    }
 
     > h2 {
       display: flex;
@@ -134,7 +37,33 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      padding-left: 1.4em;
+      padding: 0 6px 0 calc(1.4em + 6px);
+    }
+  }
+
+  // 模擬測試的結果
+  .learning-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    text-align: left;
+
+    th,
+    td {
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    th {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--foreground-600);
+    }
+
+    // 「優先出沒掌握的」這欄是 Practions 現在的做法
+    td:last-child {
+      font-weight: 600;
+      color: var(--primary-text-color);
     }
   }
 
@@ -145,11 +74,13 @@
     gap: 4px;
     padding: 12px 14px;
     background: var(--fill-color);
+    // 深色模式的 divider-color 跟 fill-color 同色，邊框改用 border-color 才看得出來
+    border: 2px solid var(--border-color);
     border-radius: 12px;
 
     > strong {
       font-size: 0.8rem;
-      color: var(--primary-text-color);
+      color: var(--primary-color);
     }
 
     > p {
@@ -159,7 +90,7 @@
 
   > section > .learning-references {
     gap: 10px;
-    padding-left: 1.2em;
+    padding-left: calc(1.2em + 6px);
     font-size: 0.8rem;
     line-height: 1.6;
     color: var(--foreground-600);

@@ -148,22 +148,84 @@
       }
     }
 
-    // 特色：同設定頁的列表，外框不留內距，分隔線畫滿整個寬度
-    > .intro-features {
+    // 怎麼幫你記住、用起來很方便：不加外框，裡面的卡片就是內容；文字左右留 6px（同其他頁面）
+    > .intro-plain {
       padding: 0;
+      background: none;
+      border: none;
+
+      > h5 {
+        left: 6px;
+      }
+
+      > p {
+        margin: 0;
+        padding: 0 6px;
+        font-size: 0.9rem;
+        line-height: 1.7;
+      }
     }
 
-    .intro-feature {
+    // 連到「Practions 如何幫你記住」
+    .intro-learning-link {
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 14px 12px;
-      // 取消全域 div 圓角，分隔線兩端才是直的
-      border-radius: 0;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      padding: 12px;
+      border: 2px solid var(--border-color);
+      background-color: var(--fill-color);
 
-      &:not(:last-child) {
-        border-bottom: 2px solid var(--divider-color);
+      &:hover {
+        background-color: var(--fill-strong-color);
       }
+
+      > .material-symbols-rounded:first-child {
+        font-size: 1.4rem;
+        color: var(--primary-color);
+      }
+
+      > .material-symbols-rounded:last-child {
+        color: var(--text-muted-color);
+      }
+    }
+
+    // 圖示右邊的標題與一行說明（連結、給老師與合作的列共用）
+    .intro-learning-link,
+    .intro-more summary {
+      > span:nth-child(2) {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 2px;
+
+        > :first-child {
+          font-size: 0.95rem;
+          font-weight: 600;
+        }
+
+        > :last-child {
+          font-size: 0.8rem;
+          line-height: 1.5;
+          color: var(--text-muted-color);
+        }
+      }
+    }
+
+    .intro-conveniences {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .intro-convenience {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px;
+      // 段落本身透明，卡片自己有底色，蓋住後面的背景方塊
+      background-color: var(--background-color);
+      border: 2px solid var(--divider-color);
 
       > .material-symbols-rounded {
         font-size: 1.4rem;
@@ -171,29 +233,70 @@
       }
 
       h4 {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 600;
       }
 
       p {
-        margin-top: 2px;
         font-size: 0.8rem;
         line-height: 1.6;
         color: var(--text-muted-color);
       }
     }
 
-    // 給老師：全頁唯一有顏色的區塊
-    > .intro-teacher {
-      background-color: var(--primary-background-color);
-      border-color: var(--primary-color);
-      box-shadow: 0 3px 0 var(--primary-color);
+    // 給老師與合作：每一列點開才看到內容
+    > .intro-more {
+      padding: 0;
 
-      > h5 {
-        color: var(--primary-color);
+      > details:not(:last-child) {
+        border-bottom: 2px solid var(--divider-color);
       }
+
+      summary {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 12px;
+        list-style: none;
+        cursor: pointer;
+
+        &::-webkit-details-marker {
+          display: none;
+        }
+
+        > .material-symbols-rounded:first-child {
+          font-size: 1.4rem;
+          color: var(--primary-color);
+        }
+
+        > .material-symbols-rounded:last-child {
+          color: var(--text-muted-color);
+          transition: rotate 0.2s ease;
+        }
+      }
+
+      details[open] > summary > .material-symbols-rounded:last-child {
+        rotate: 180deg;
+      }
+    }
+
+    .intro-teacher,
+    .intro-contact {
+      padding: 4px 16px 16px;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    .intro-teacher {
       > h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.5;
         color: var(--primary-text-color);
+
+        + p {
+          margin-top: 6px;
+        }
       }
 
       > .intro-teacher-foot {
@@ -211,7 +314,6 @@
 
       > div {
         padding: 10px;
-        background-color: var(--primary-card-color);
         border: 2px solid;
         border-radius: 9px;
       }
@@ -236,6 +338,7 @@
       }
 
       > .fit-yes {
+        background-color: var(--correct-background-color);
         border-color: var(--correct-border-color);
 
         h4 {
@@ -244,6 +347,7 @@
       }
 
       > .fit-no {
+        background-color: var(--wrong-background-color);
         border-color: var(--wrong-border-color);
 
         h4 {
@@ -258,7 +362,7 @@
       gap: 10px;
       margin-top: 8px;
       padding: 12px 10px;
-      background-color: var(--primary-card-color);
+      background-color: var(--primary-background-color);
       border: 2px solid var(--primary-color);
       border-radius: 9px;
 
@@ -280,8 +384,7 @@
       }
     }
 
-    // 合作（巢狀在 .intro-contact 下，權重才會高於上面的 .intro-group > p）
-    > .intro-contact {
+    .intro-contact {
       > .intro-contact-list {
         margin-top: 14px;
         padding: 12px;
