@@ -10,6 +10,15 @@
     justify-content: space-between;
     align-items: flex-start;
     height: calc(100% - 48px);
+    // 題目與選項的字距稍微拉開，閱讀時不那麼緊湊
+    letter-spacing: 0.03em;
+
+    // 按鈕、輸入框預設不繼承字距
+    button,
+    input {
+      letter-spacing: inherit;
+    }
+
     // overflow: hidden;
     // overflow-y: auto;
 
@@ -34,12 +43,14 @@
       width: 100%;
       max-width: 640px;
 
+      // 選項用標準圓角，跟「檢查」「繼續」按鈕一致
       button {
         justify-content: flex-start;
         gap: 6px;
         padding: 9px 12px;
         width: 100%;
         text-align: start;
+        border-radius: 12px;
 
         &.selected {
           border-color: var(--primary-color);

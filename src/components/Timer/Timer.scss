@@ -6,5 +6,9 @@
   color: var(--text-color);
   border: 2px solid var(--border-color);
   font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
+  // 寬度固定：數字等寬，並至少容納「00:00」（左右內距 24px＋邊框 4px），分鐘從兩位數變一位數時也不縮
+  font-variant-numeric: tabular-nums;
+  min-width: calc(4.6ch + 28px);
+  text-align: center;
   cursor: default;
 }

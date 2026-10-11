@@ -126,10 +126,12 @@
         height: 48px;
         gap: 6px;
 
+        // 上下題、題目預覽等按鈕用標準圓角，跟「檢查」「繼續」一致
         > button {
           height: 100%;
           width: 50%;
           font-size: 1rem;
+          border-radius: 12px;
 
           &.next-stage-button {
             width: 50%;
@@ -205,11 +207,11 @@
       background-color: var(--background-color);
       box-shadow: 0 0 24px 0 #0000000a;
       overflow-y: auto;
-      border-radius: 6px;
-      -webkit-border-radius: 6px;
-      -moz-border-radius: 6px;
-      -ms-border-radius: 6px;
-      -o-border-radius: 6px;
+      border-radius: 12px;
+      -webkit-border-radius: 12px;
+      -moz-border-radius: 12px;
+      -ms-border-radius: 12px;
+      -o-border-radius: 12px;
 
       &.animate {
         opacity: 0;
