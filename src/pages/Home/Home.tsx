@@ -28,7 +28,7 @@ const features = [
   {
     icon: 'trending_up',
     title: '掌握度',
-    text: '每個題庫練到哪裡一目了然，連續答對兩次才算掌握',
+    text: '每個題庫練到哪裡一目了然，隔天還記得才算掌握',
   },
   {
     icon: 'cloud_sync',

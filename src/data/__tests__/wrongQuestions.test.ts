@@ -2,6 +2,7 @@ import {
   buildReviewFlow,
   collectWrongQuestions,
   countByKind,
+  dueToday,
   reviewSummary,
 } from '@/data/wrongQuestions'
 import { subjects } from '@/data/subjects'
@@ -86,7 +87,7 @@ describe('collectWrongQuestions', () => {
     expect(ids(history, 'accounting')).toEqual([q1])
   })
 
-  it('連續答對 2 次才移出，中間又答錯就重新計算（含複習紀錄）', () => {
+  it('在 2 個不同的日子答對才移出，中間又答錯就重新計算（含複習紀錄）', () => {
     const wrong = standard('accounting', '2026-10-01', [{ id: q1, correct: false }])
     const right1 = standard('accounting', '2026-10-02', [{ id: q1, correct: true }], 'review')
     const wrongAgain = standard('accounting', '2026-10-03', [{ id: q1, correct: false }])
@@ -98,6 +99,36 @@ describe('collectWrongQuestions', () => {
     expect(ids([wrong, right1, wrongAgain, right2, right3], 'accounting')).toEqual([])
     // 依日期排序，不受陣列順序影響
     expect(ids([right3, right2, wrongAgain, right1, wrong], 'accounting')).toEqual([])
+  })
+
+  // 帶時間的本地格式，避免不同時區的機器算出不同的日期
+  it('同一天重複答對只算一次，隔天再答對才移出', () => {
+    const wrong = standard('accounting', '2026-10-01T20:00', [{ id: q1, correct: false }])
+    const right1 = standard('accounting', '2026-10-01T20:10', [{ id: q1, correct: true }], 'review')
+    const right2 = standard('accounting', '2026-10-01T20:20', [{ id: q1, correct: true }], 'review')
+    const nextDay = standard('accounting', '2026-10-02T12:00', [{ id: q1, correct: true }])
+
+    expect(ids([wrong, right1, right2], 'accounting')).toEqual([q1])
+    expect(ids([wrong, right1, right2, nextDay], 'accounting')).toEqual([])
+  })
+
+  it('答對後又答錯就歸零，隔天答對只算一次', () => {
+    const history = [
+      standard('accounting', '2026-10-01T20:00', [{ id: q1, correct: false }]),
+      standard('accounting', '2026-10-01T20:10', [{ id: q1, correct: true }]),
+      standard('accounting', '2026-10-01T20:20', [{ id: q1, correct: false }]),
+      standard('accounting', '2026-10-02T12:00', [{ id: q1, correct: true }]),
+    ]
+    expect(ids(history, 'accounting')).toEqual([q1])
+  })
+
+  it('「再練一次」答對和同一天的答對只算一次', () => {
+    const review = standard('accounting', '2026-10-01T20:00', [{ id: q1, correct: false }], 'review')
+    review.results.retryResults = [
+      { questionId: q1, mode: 'standard', userAnswer: 0, isCorrect: true },
+    ]
+    const sameDay = standard('accounting', '2026-10-01T21:00', [{ id: q1, correct: true }])
+    expect(ids([review, sameDay], 'accounting')).toEqual([q1])
   })
 
   it('錯最多次的排前面，同樣次數時最近答錯的在前', () => {
@@ -177,6 +208,29 @@ describe('collectWrongQuestions', () => {
       standard('accounting', '2026-10-01', [{ id: 'deleted-id', correct: false }]),
     ]
     expect(collectWrongQuestions(history)).toEqual([])
+  })
+})
+
+describe('dueToday', () => {
+  const [q1, q2] = accounting.map((q) => q.id)
+  const today = '2026-10-02'
+
+  it('今天已經答對過的錯題先不出現，今天沒題可練的科目不列出', () => {
+    const history = [
+      standard('accounting', '2026-10-01T20:00', [
+        { id: q1, correct: false },
+        { id: q2, correct: false },
+      ]),
+      standard('accounting', '2026-10-02T09:00', [{ id: q1, correct: true }], 'review'),
+    ]
+    const groups = collectWrongQuestions(history)
+    expect(groups[0].items).toHaveLength(2)
+    expect(dueToday(groups, today)[0].items.map((item) => item.question.id)).toEqual([q2])
+    // 前一天答對的照常出現（隔天確認）
+    expect(dueToday(groups, '2026-10-03')[0].items).toHaveLength(2)
+
+    history.push(standard('accounting', '2026-10-02T09:10', [{ id: q2, correct: true }], 'review'))
+    expect(dueToday(collectWrongQuestions(history), today)).toEqual([])
   })
 })
 

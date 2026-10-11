@@ -2,8 +2,9 @@
  * 錯題複習：從測驗紀錄計算每個科目還有哪些錯題
  *
  * 一道錯題 = 科目＋題目＋作答方式（PVQC 在「寫」錯、在「讀」對，算兩題）。
- * 依時間順序走過所有紀錄（含複習紀錄）：答錯就列入並重新計算連續答對，
- * 連續答對 REMOVE_AFTER 次就移出；沒作答的題目不影響。
+ * 依時間順序走過所有紀錄（含複習紀錄）：答錯就列入並重新計算，
+ * 在 REMOVE_AFTER 個不同的日子答對就移出（同一天重複答對只算一次）；沒作答的題目不影響。
+ * 今天已經答對過的錯題，今天的複習先不出現，隔天再確認一次。
  * 舊科目 ID（如合併前的 AIL）會對應到目前的科目與題號，題目內容以目前題庫為準，
  * 題庫已刪除的題目不列出。考試鎖定中的科目不列出，避免考試時查答案。
  */
@@ -17,14 +18,40 @@ import { currentQuestionId, findSubject } from '@/data/subjects'
 import { useHistoryStore } from '@/data/historyStore'
 import { isSubjectLocked } from '@/pages/Bank/utils/bankHelpers'
 
-// 連續答對幾次後移出（也是掌握度的「已掌握」門檻）
+// 在幾個不同的日子答對後移出（也是掌握度的「已掌握」門檻）
 export const REMOVE_AFTER = 2
+
+/** 答錯後答對的次數，同一天只算一次。 */
+export interface Streak {
+  count: number
+  // 最近一次計入的日期（本地時間，例如 2026-10-11）；歸零時為空字串
+  day: string
+}
+
+/** 本地時間的日期，例如 2026-10-11。 */
+export const dayOf = (date: Date): string => date.toLocaleDateString('sv')
+
+/**
+ * 同一天內重複答對只算一次，換一天再答對才累積，答錯歸零（successive relearning：
+ * 隔天還答得出來，比同一次練習中多答對幾次更能代表記住了）。錯題與掌握度共用。
+ */
+export function nextStreak(
+  prev: Streak | undefined,
+  isCorrect: boolean,
+  date: Date,
+): Streak {
+  if (!isCorrect) return { count: 0, day: '' }
+  const day = dayOf(date)
+  if (prev?.day === day) return prev
+  return { count: (prev?.count ?? 0) + 1, day }
+}
 
 export interface WrongItem {
   question: Question
   mode: QuizModeId
   wrongCount: number
   lastWrong: Date
+  streak: Streak
 }
 
 export interface WrongSubject {
@@ -39,7 +66,7 @@ interface Tracker {
   mode: QuizModeId
   wrongCount: number
   lastWrong: Date
-  streak: number
+  streak: Streak
 }
 
 // 判斷錯題只需要的作答欄位（「再練一次」的結果沒有題目內容）
@@ -179,10 +206,11 @@ export function collectWrongQuestions(
         mode,
         wrongCount: (tracker?.wrongCount ?? 0) + 1,
         lastWrong: date,
-        streak: 0,
+        streak: nextStreak(undefined, false, date),
       })
-    } else if (tracker && ++tracker.streak >= REMOVE_AFTER) {
-      trackers.delete(key)
+    } else if (tracker) {
+      tracker.streak = nextStreak(tracker.streak, true, date)
+      if (tracker.streak.count >= REMOVE_AFTER) trackers.delete(key)
     }
   }
 
@@ -204,6 +232,7 @@ export function collectWrongQuestions(
       mode: tracker.mode,
       wrongCount: tracker.wrongCount,
       lastWrong: tracker.lastWrong,
+      streak: tracker.streak,
     }
     const group = groups.get(subject.id)
     if (!group) groups.set(subject.id, { subject, items: [item] })
@@ -218,6 +247,23 @@ export function collectWrongQuestions(
     )
   }
   return [...groups.values()].sort((a, b) => b.items.length - a.items.length)
+}
+
+/**
+ * 今天可以複習的錯題：今天已經答對過的先不出現，隔天再確認（畫面上不提，
+ * 避免一直練到同一題）。今天沒題可練的科目不列出。
+ */
+export function dueToday(
+  groups: readonly WrongSubject[],
+  today = dayOf(new Date()),
+): WrongSubject[] {
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => item.streak.day !== today),
+    }))
+    .filter((group) => group.items.length > 0)
+    .sort((a, b) => b.items.length - a.items.length)
 }
 
 // 題型的顯示順序：單選、多選、是非，再來 PVQC 測驗一到六

@@ -50,7 +50,7 @@ const pvqc = (date: string, stages: Record<string, Answer[]>) =>
 describe('collectMastery', () => {
   const [q1, q2, q3] = accounting
 
-  it('連續答對兩次才算掌握，再答錯就掉回來；沒作答不算', () => {
+  it('在兩個不同的日子答對才算掌握，再答錯就掉回來；沒作答不算', () => {
     const history = [
       standard('accounting', '2026-10-01', [
         { id: q1, correct: true },
@@ -68,6 +68,16 @@ describe('collectMastery', () => {
     expect(m.mastered).toBe(1)
     expect(m.total).toBe(accounting.length)
     expect(masteryPercent(m)).toBe(Math.floor(1000 / accounting.length) / 10)
+  })
+
+  it('同一天答對兩次不算掌握，隔天再答對才算', () => {
+    const history = [
+      standard('accounting', '2026-10-01T20:00', [{ id: q1, correct: true }]),
+      standard('accounting', '2026-10-01T20:30', [{ id: q1, correct: true }]),
+    ]
+    expect(collectMastery(history).get('accounting')!.mastered).toBe(0)
+    history.push(standard('accounting', '2026-10-02T12:00', [{ id: q1, correct: true }]))
+    expect(collectMastery(history).get('accounting')!.mastered).toBe(1)
   })
 
   it('沒作答過的題庫不列出', () => {
