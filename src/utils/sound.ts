@@ -56,7 +56,38 @@ export function playFeedbackSound(correct: boolean): void {
   }
 }
 
-/** 完美作答：「Ta-da」兩個和弦齊響，D 大短促 → G 大拉長，跟答對的單音上行區隔。設定關閉音效時不播。 */
+/** 蓄力長音：start 秒後開始，duration 秒內音高從 from 微微滑到 to、音量漸強，最後迅速收掉。 */
+function riser(
+  from: number,
+  to: number,
+  start: number,
+  duration: number,
+): void {
+  if (!ctx) return
+  const t = ctx.currentTime + start
+  for (const [type, ratio, volume] of [
+    ['triangle', 1, 0.1],
+    ['sine', 0.5, 0.12],
+  ] as const) {
+    const oscillator = ctx.createOscillator()
+    const gain = ctx.createGain()
+    oscillator.type = type
+    oscillator.frequency.setValueAtTime(from * ratio, t)
+    oscillator.frequency.exponentialRampToValueAtTime(to * ratio, t + duration)
+    gain.gain.setValueAtTime(0.0001, t)
+    gain.gain.exponentialRampToValueAtTime(volume, t + duration - 0.05)
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + duration + 0.03)
+    oscillator.connect(gain).connect(ctx.destination)
+    oscillator.start(t)
+    oscillator.stop(t + duration + 0.08)
+  }
+}
+
+/**
+ * 完美作答：跟畫面上圖示的動畫對齊（Quiz.scss 的 quiz-perfect-charge）
+ * 0.4 秒起圖示抖動、蓄力長音微微上滑 → 1.2 秒開始放大，D 大短和弦 → 1.4 秒放到最大，G 大長和弦＋彩帶。
+ * 設定關閉音效時不播。
+ */
 export function playPerfectSound(): void {
   if (!ctx || ctx.state !== 'running' || !getSettings().sound) return
   const chord = (notes: number[], start: number, duration: number): void =>
@@ -64,6 +95,7 @@ export function playPerfectSound(): void {
       tone(f, start, duration, 'triangle', 0.14)
       tone(f / 2, start, duration * 1.2, 'sine', 0.15)
     })
-  chord([440, 587.33, 739.99], 0, 0.16)
-  chord([392, 493.88, 587.33, 783.99], 0.2, 1.2)
+  riser(293.66, 392, 0.4, 0.8)
+  chord([440, 587.33, 739.99], 1.2, 0.16)
+  chord([392, 493.88, 587.33, 783.99], 1.4, 1.2)
 }

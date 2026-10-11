@@ -179,6 +179,17 @@
         color: var(--text-muted-color);
         background-color: var(--background-color);
         border-color: var(--divider-color);
+        // 陰影跟邊框同色（這裡的選擇器比全域 hover、按下更具體，所以三種狀態都要寫）
+        // hover 與按下的權重要相同、按下寫在後面，按下時才不會被 hover 的陰影蓋掉
+        box-shadow: 0 3px 0 var(--divider-color);
+
+        &:not(:disabled):not(.active):hover {
+          box-shadow: 0 3px 0 var(--divider-color);
+        }
+
+        &:not(:disabled):not(.active):active {
+          box-shadow: 0 0 0 var(--divider-color);
+        }
 
         &.active {
           border: 2px solid var(--primary-color);

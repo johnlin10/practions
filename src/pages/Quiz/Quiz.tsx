@@ -113,10 +113,10 @@ function CorrectAnswers({ question }: { question: Question }) {
 }
 
 // 科目列表：只列出開放測驗的題庫，並依題組分組
-// 完美作答畫面的彩帶：位置、延遲、落下速度隨機（顏色由 CSS 依序輪替）
+// 完美作答畫面的彩帶：圖示放到最大（1.4 秒）時噴出；位置、延遲、落下速度隨機（顏色由 CSS 依序輪替）
 const confetti: React.CSSProperties[] = Array.from({ length: 36 }, () => ({
   left: `${Math.random() * 100}%`,
-  animationDelay: `${Math.random() * 0.6}s`,
+  animationDelay: `${1.4 + Math.random() * 0.4}s`,
   animationDuration: `${1.6 + Math.random() * 1.2}s`,
 }))
 
@@ -149,8 +149,9 @@ function Quiz(): React.ReactElement {
   const prepareBarRef = useRef<HTMLDivElement>(null)
   // 已經按過「繼續」的再練一次階段（之前先顯示過渡畫面）
   const [retryIntroDone, setRetryIntroDone] = useState<string | null>(null)
-  // 錯題複習第一輪就全部答對：交卷前先顯示完美作答畫面
-  const [perfect, setPerfect] = useState(false)
+  // 錯題複習做完：交卷前先顯示結算畫面（第一輪全對是完美作答），按「查看結果」淡出後交卷
+  const [finished, setFinished] = useState(false)
+  const [leaving, setLeaving] = useState(false)
 
   // 取得測驗上下文
   const {
@@ -301,16 +302,40 @@ function Quiz(): React.ReactElement {
     return { done, total }
   })()
 
+  // 結算：第一輪答對、再練答對的題數（再練一次只有第一輪答錯的題目）
+  const summary = (() => {
+    let first = 0
+    let retry = 0
+    let total = 0
+    for (const [key, correct] of Object.entries(quizState.feedback ?? {})) {
+      if (isRetryStage(key.split('::')[0])) {
+        if (correct) retry++
+      } else {
+        total++
+        if (correct) first++
+      }
+    }
+    const rate = total ? (first + retry) / total : 0
+    const message =
+      rate >= 1
+        ? '答錯的都練會了，下次挑戰一次全對'
+        : rate >= 0.7
+          ? '離全對只差一點，再複習一次就能拿下'
+          : '每練一次都更熟一點，繼續加油'
+    return { first, retry, total, perfect: first === total, message }
+  })()
+
   // 按「繼續」：全部做完就交卷
   const handleContinue = (): void => {
     if (continueFeedback() !== 'finish') return
-    // 有答錯過就一定進過再練一次，所以全部是 true 代表第一輪就全對
-    if (Object.values(quizState.feedback).every(Boolean)) {
-      setPerfect(true)
-      playPerfectSound()
-    } else {
-      handleFinish()
-    }
+    setFinished(true)
+    if (summary.perfect) playPerfectSound()
+  }
+
+  // 結算畫面淡出後才交卷
+  const handleLeave = (): void => {
+    setLeaving(true)
+    setTimeout(() => handleFinish(), 250)
   }
 
   // 進入下一階段
@@ -642,32 +667,75 @@ function Quiz(): React.ReactElement {
               </div>
               <p className="quiz-preparing-hint">正在準備題目</p>
             </div>
-          ) : subject && perfect ? (
+          ) : subject && finished && summary.perfect ? (
             //* 完美作答：第一輪就全部答對
             <>
               {/* 彩帶疊在整個畫面上，從螢幕上緣外落下 */}
-              <div className="quiz-perfect-confetti" aria-hidden>
+              <div
+                className={`quiz-perfect-confetti${leaving ? ' leaving' : ''}`}
+                aria-hidden
+              >
                 {confetti.map((style, i) => (
                   <span key={i} style={style} />
                 ))}
               </div>
-              <div className="quiz-retry-intro quiz-perfect" role="status">
+              <div
+                className={`quiz-retry-intro quiz-perfect${leaving ? ' leaving' : ''}`}
+                role="status"
+              >
                 <span className="quiz-retry-intro-icon material-symbols-rounded">
                   celebration
                 </span>
                 <p className="quiz-retry-intro-title">完美作答</p>
                 <p className="quiz-retry-intro-text">
-                  {Object.keys(quizState.feedback).length} 題全部一次答對
+                  {summary.total} 題全部一次答對
                 </p>
                 <button
                   className="quiz-retry-intro-btn"
-                  onClick={() => handleFinish()}
+                  onClick={handleLeave}
                   autoFocus
                 >
                   查看結果
                 </button>
               </div>
             </>
+          ) : subject && finished ? (
+            //* 複習完成：藍色是第一次答對、橘色是再練答對
+            <div
+              className={`quiz-retry-intro quiz-summary${leaving ? ' leaving' : ''}`}
+              role="status"
+            >
+              <span className="quiz-retry-intro-icon material-symbols-rounded">
+                task_alt
+              </span>
+              <p className="quiz-retry-intro-title">複習完成</p>
+              <p className="quiz-summary-count">
+                {summary.first + summary.retry}
+                <span> / {summary.total} 題</span>
+              </p>
+              <div className="quiz-summary-bar" aria-hidden>
+                <div
+                  className="first"
+                  style={{ width: `${(summary.first / summary.total) * 100}%` }}
+                />
+                <div
+                  className="retry"
+                  style={{ width: `${(summary.retry / summary.total) * 100}%` }}
+                />
+              </div>
+              <p className="quiz-retry-intro-text">
+                第一次答對 <b className="first">{summary.first}</b> 題，再練答對{' '}
+                <b className="retry">{summary.retry}</b> 題
+              </p>
+              <p className="quiz-summary-message">{summary.message}</p>
+              <button
+                className="quiz-retry-intro-btn"
+                onClick={handleLeave}
+                autoFocus
+              >
+                查看結果
+              </button>
+            </div>
           ) : subject && showRetryIntro ? (
             //* 再練一次的過渡畫面
             <div className="quiz-retry-intro" role="status">
