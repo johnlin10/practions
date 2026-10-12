@@ -1,7 +1,6 @@
 import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect } from 'react'
 import './quiz-global.scss'
-import './PVQCReadQuestion.scss'
 import { OptionMark, revealClass } from './option-mark'
 
 interface Props {
@@ -66,9 +65,7 @@ function PVQCReadQuestion({
       {/* 題目內容 */}
       <div className="question-content">
         {/* 題目顯示 */}
-        <div className="question-prompt-container english-prompt">
-          <p className="question-prompt">{question.english}</p>
-        </div>
+        <div className="word-card english">{question.english}</div>
 
         {/* 答案選擇介面 */}
         <div className={`options${reveal ? ' revealed' : ''}`}>

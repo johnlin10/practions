@@ -124,6 +124,11 @@ const confetti: React.CSSProperties[] = Array.from({ length: 36 }, () => ({
   animationDuration: `${1.6 + Math.random() * 1.2}s`,
 }))
 
+// 可用於 PVQC 的題庫：所有單字題庫（測驗頁的 PVQC 入口顯示它們的掌握度）
+const PVQC_SUBJECTS = Object.values(subjects).filter(
+  (s) => s.baseQuestionType === 'vocabulary',
+)
+
 const quizSections = groupSubjects(
   Object.values(subjects).filter((subject) => subject.quizOpen),
 )
@@ -308,6 +313,25 @@ function Quiz(): React.ReactElement {
       }
     }
     return { done, total }
+  })()
+
+  // 進度條分段：多階段（沒打散、沒有即時回饋）時每個階段一段，目前階段撐滿，
+  // 其餘階段只有一小格（做完的填滿、還沒到的空著）；其餘情況維持一整條
+  const progressSegments = (() => {
+    const stages = quizState.flowConfig.stages
+    const current = progress.done / Math.max(progress.total, 1)
+    if (instant || mixed || (stages?.length ?? 0) < 2) {
+      return [{ active: true, fill: current }]
+    }
+    return stages.map((_, i) => ({
+      active: i === quizState.currentStageIndex,
+      fill:
+        i < quizState.currentStageIndex
+          ? 1
+          : i === quizState.currentStageIndex
+            ? current
+            : 0,
+    }))
   })()
 
   // 結算：第一輪答對、再練答對的題數（再練一次只有第一輪答錯的題目）
@@ -499,28 +523,24 @@ function Quiz(): React.ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizState.currentQuestions, quizState.currentStage.mode]) // 只在題目列表或模式改變時重新生成
 
-  //* 渲染測驗類型
-  const renderQuizType = (): React.ReactElement | null => {
-    const { currentStage } = quizState
-    if (currentStage.mode === 'pvqc_write') {
-      return <p className="quiz-type">PVQC 測驗一：寫</p>
+  //* 測驗名稱（PVQC 各測驗），一般科目沒有
+  const quizTypeLabel = (): string | null => {
+    switch (quizState.currentStage.mode) {
+      case 'pvqc_write':
+        return '測驗一：寫'
+      case 'pvqc_read':
+        return '測驗二：讀'
+      case 'pvqc_listen_chinese':
+        return '測驗三：聽'
+      case 'pvqc_listen_english':
+        return '測驗四：聽'
+      case 'pvqc_pronunciation':
+        return '測驗五：聽'
+      case 'pvqc_read_listen':
+        return '測驗六：讀聽'
+      default:
+        return null
     }
-    if (currentStage.mode === 'pvqc_read') {
-      return <p className="quiz-type">PVQC 測驗二：讀</p>
-    }
-    if (currentStage.mode === 'pvqc_listen_chinese') {
-      return <p className="quiz-type">PVQC 測驗三：聽</p>
-    }
-    if (currentStage.mode === 'pvqc_listen_english') {
-      return <p className="quiz-type">PVQC 測驗四：聽</p>
-    }
-    if (currentStage.mode === 'pvqc_pronunciation') {
-      return <p className="quiz-type">PVQC 測驗五：聽</p>
-    }
-    if (currentStage.mode === 'pvqc_read_listen') {
-      return <p className="quiz-type">PVQC 測驗六：讀聽</p>
-    }
-    return null
   }
 
   //* 關閉預覽所有問題
@@ -787,6 +807,10 @@ function Quiz(): React.ReactElement {
                 <div className="question-header">
                   {/* 進度條（當前階段完成的比例），計時器在右側；再練一次時改橘色 */}
                   <div className="quiz-progress-row">
+                    <p className="quiz-count">
+                      {quizState.currentQuestionIndex + 1}
+                      <span> / {quizState.currentQuestions.length}</span>
+                    </p>
                     <div
                       className={`quiz-progress${retrying ? ' retry' : ''}`}
                       role="progressbar"
@@ -795,13 +819,14 @@ function Quiz(): React.ReactElement {
                       aria-valuemax={progress.total}
                       aria-valuenow={progress.done}
                     >
-                      <div
-                        style={{
-                          width: `${
-                            (progress.done / Math.max(progress.total, 1)) * 100
-                          }%`,
-                        }}
-                      />
+                      {progressSegments.map((segment, i) => (
+                        <div
+                          key={i}
+                          className={segment.active ? 'active' : undefined}
+                        >
+                          <div style={{ width: `${segment.fill * 100}%` }} />
+                        </div>
+                      ))}
                     </div>
                     {(() => {
                       const enforce =
@@ -830,31 +855,39 @@ function Quiz(): React.ReactElement {
                       )
                     })()}
                   </div>
-                  {renderQuizType()}
-                  {!mixed && (quizState.flowConfig.stages?.length ?? 0) > 1 && (
-                    <p className="stage-progress">
-                      階段 {quizState.currentStageIndex + 1} /{' '}
-                      {quizState.flowConfig.stages.length}
-                      {quizState.currentStage?.label && (
-                        <span className="stage-label">
-                          {' · '}
-                          {quizState.currentStage.label}
-                        </span>
-                      )}
-                    </p>
-                  )}
-                  {retrying && (
-                    <p className="quiz-retry-label">
-                      <span className="material-symbols-rounded">replay</span>
-                      再練一次
-                    </p>
-                  )}
-                  <h2>
-                    {quizState.currentQuestionIndex + 1}{' '}
-                    <span className="question-count">
-                      / {quizState.currentQuestions.length}
-                    </span>
-                  </h2>
+                  {(() => {
+                    // 測驗名稱與階段合併成一行，貼在指示（h3）上方
+                    const stages = quizState.flowConfig.stages
+                    const typeLabel = quizTypeLabel()
+                    // 階段名稱（如「測驗二：讀（看英選中）」）已包含測驗名稱，有測驗名稱時不重複顯示
+                    const stageLabel = typeLabel
+                      ? ''
+                      : quizState.currentStage?.label
+                    const stageInfo =
+                      !mixed && (stages?.length ?? 0) > 1
+                        ? `階段 ${quizState.currentStageIndex + 1}/${
+                            stages.length
+                          }${stageLabel ? ` · ${stageLabel}` : ''}`
+                        : null
+                    const text = [typeLabel, stageInfo]
+                      .filter(Boolean)
+                      .join(' · ')
+                    return (
+                      (retrying || text) && (
+                        <p className="quiz-eyebrow">
+                          {retrying && (
+                            <span className="quiz-retry-label">
+                              <span className="material-symbols-rounded">
+                                replay
+                              </span>
+                              再練一次
+                            </span>
+                          )}
+                          {text}
+                        </p>
+                      )
+                    )
+                  })()}
                 </div>
 
                 {/* 題目渲染系統 */}
@@ -1027,10 +1060,29 @@ function Quiz(): React.ReactElement {
 
             {/* PVQC 測驗入口：要先經過設定頁，所以整列是連結，以向右箭頭表示進到下一層 */}
             <Link className="pvqc-entry no-style" to="/pvqc">
-              <span className="pvqc-entry-title">
-                <span className="material-symbols-rounded">psychology</span>
-                PVQC 測驗
-              </span>
+              <div className="pvqc-entry-main">
+                <span className="pvqc-entry-title">
+                  <span className="material-symbols-rounded">psychology</span>
+                  PVQC 測驗
+                </span>
+                {/* 各 PVQC 題庫的掌握度（做過的才顯示），樣式同科目卡片 */}
+                {PVQC_SUBJECTS.map((subject) => {
+                  const subjectMastery = mastery.get(subject.id)
+                  if (!subjectMastery) return null
+                  const percent = masteryPercent(subjectMastery)
+                  return (
+                    <div key={subject.id} className="subject-title">
+                      <p className="pvqc-subject-name">{subject.name}</p>
+                      <div className="subject-mastery">
+                        <MasteryBar percent={percent} />
+                        <p>
+                          掌握度 <MasteryPercent percent={percent} />
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
               <span className="pvqc-entry-arrow material-symbols-rounded">
                 chevron_right
               </span>

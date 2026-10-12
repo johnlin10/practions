@@ -34,59 +34,64 @@
         > .quiz-progress-row {
           display: flex;
           align-items: center;
-          gap: 14px;
-          min-height: 44px;
+          gap: 12px;
+          min-height: 32px;
           margin-bottom: 8px;
 
+          // 題號：寬度跟著內容，右側與進度條的間隙跟計時器那側一樣（12px）
+          > p.quiz-count {
+            flex-shrink: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-color);
+
+            > span {
+              font-size: 0.8rem;
+              font-weight: 400;
+              color: var(--text-muted-color);
+            }
+          }
+
+          // 進度條：多階段時每個階段一段，目前階段撐滿，其餘只有一小格（14px），段與段之間留 6px
           > .quiz-progress {
             flex-grow: 1;
+            display: flex;
+            gap: 6px;
             height: 14px;
-            background: var(--fill-color);
-            border-radius: 7px;
-            overflow: hidden;
 
             > div {
-              height: 100%;
-              background: var(--primary-color);
+              flex: 0 0 14px;
+              min-width: 0;
+              // 換階段時，目前階段收成小格、下一段展開
+              transition: flex 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+              background: var(--fill-color);
               border-radius: 7px;
-              transition: width 0.3s ease;
+              overflow: hidden;
+
+              &.active {
+                flex: 1 1 0;
+              }
+
+              > div {
+                height: 100%;
+                background: var(--primary-color);
+                border-radius: 7px;
+                transition: width 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+              }
             }
           }
         }
 
-        > p.quiz-type {
-          font-size: 0.85rem;
-          color: var(--foreground-400);
-          margin-bottom: 12px;
-        }
-
-        > p.stage-progress {
+        // 測驗名稱、階段（與再練一次）：一行小字，緊貼下方的指示
+        > p.quiz-eyebrow {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 0 6px;
+          margin-bottom: 2px;
           font-size: 0.8rem;
           color: var(--foreground-400);
-          margin-bottom: 8px;
-          opacity: 0.85;
-
-          > .stage-label {
-            opacity: 0.85;
-          }
-        }
-
-        h2 {
-          font-size: 1.75rem;
-          color: var(--text-color);
-          margin-bottom: 12px;
-          background: var(--background-color);
-
-          > span.question-count {
-            font-size: 0.8rem;
-            color: var(--text-muted-color);
-          }
-
-          > span.question-type {
-            font-size: 0.8rem;
-            color: var(--primary-color);
-            font-weight: bold;
-          }
         }
       }
 
@@ -421,17 +426,27 @@ h1.quiz-to-history {
 }
 
 // 科目名稱與下方的掌握度（沒做過的題庫只有名稱）
+
 .subject-list .subject-card > .subject-title {
+  gap: 3px;
+}
+.subject-list .subject-card > .subject-title,
+.pvqc-entry > .pvqc-entry-main > .subject-title {
   display: flex;
   flex: 1 1 0;
   flex-direction: column;
-  gap: 7px;
   min-width: 0;
   margin-right: 12px;
 
   > .subject-name {
     font-weight: 500;
     color: var(--foreground-800);
+  }
+
+  > .pvqc-subject-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--foreground-500);
   }
 
   > .subject-mastery {
@@ -478,11 +493,25 @@ h1.quiz-to-history {
 }
 
 .pvqc-entry {
+  // 標題與各 PVQC 題庫的掌握度直排（掌握度樣式同科目卡片）
+  .pvqc-entry-main {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+
+    > .subject-title {
+      flex: none;
+      margin-right: 0;
+    }
+  }
+
   .pvqc-entry-title {
     display: flex;
     flex-grow: 1;
     align-items: center;
-    gap: 3px;
+    gap: 10px;
     // 與錯題複習入口的圖示方塊同高，兩列高度一致
     min-height: 30px;
     font-weight: 600;
@@ -677,21 +706,20 @@ h1.quiz-to-history {
 
 // 再練一次：進度條改橘色，題號上方加標示
 .quiz-page .quiz-container .question-section > .question-header {
-  > .quiz-progress-row > .quiz-progress.retry > div {
+  > .quiz-progress-row > .quiz-progress.retry > div > div {
     background: var(--review-color);
   }
 
-  > p.quiz-retry-label {
+  // 在測驗名稱那行的最前面，橘色
+  > p.quiz-eyebrow > .quiz-retry-label {
     display: flex;
     align-items: center;
     gap: 4px;
-    margin-bottom: 4px;
-    font-size: 0.9rem;
     font-weight: 700;
     color: var(--review-text-color);
 
     > .material-symbols-rounded {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
     }
   }
 }

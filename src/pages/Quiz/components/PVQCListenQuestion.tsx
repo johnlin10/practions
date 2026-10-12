@@ -1,6 +1,5 @@
 import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect, useCallback } from 'react'
-import './PVQCListenQuestion.scss'
 import { speakEnglish, cancelSpeech } from '../../../utils/tts'
 import { OptionMark, revealClass } from './option-mark'
 
@@ -118,25 +117,25 @@ function PVQCListenQuestion({
       </h3>
 
       <div className="question-content">
-        <div className="audio-section">
-          <div className="audio-controls">
-            <button
-              onClick={playAudio}
-              disabled={isPlaying}
-              className={`play-button ${isPlaying ? 'playing' : ''}`}
-            >
-              <span className="material-symbols-rounded">volume_up</span>
-              {isPlaying ? '播放中...' : '播放音訊'}
-            </button>
-          </div>
+        <div className="word-card no-border">
+          <button
+            onClick={isPlaying ? undefined : playAudio}
+            className={`audio-play${isPlaying ? ' playing' : ''}`}
+          >
+            <span className="material-symbols-rounded">volume_up</span>
+            {isPlaying ? '播放中...' : '播放音訊'}
+          </button>
         </div>
 
-        <div
-          className={`options pvqc-listen-options${reveal ? ' revealed' : ''}`}
-        >
-          {!hasPlayed && selectedOption === null && (
-            <p className="hint-text">請先播放音訊後再選擇答案</p>
-          )}
+        <div className={`options${reveal ? ' revealed' : ''}`}>
+          {/* 用 visibility 隱藏而不是移除，提示消失時版面不會跳動 */}
+          <span
+            className={`hint-text${
+              !hasPlayed && selectedOption === null ? '' : ' hidden'
+            }`}
+          >
+            請先播放音訊後再選擇答案
+          </span>
           {options.map((option, index) => {
             const correctText =
               mode === 'pvqc_listen_chinese'
