@@ -124,6 +124,11 @@ const confetti: React.CSSProperties[] = Array.from({ length: 36 }, () => ({
   animationDuration: `${1.6 + Math.random() * 1.2}s`,
 }))
 
+// 可用於 PVQC 的題庫：所有單字題庫（測驗頁的 PVQC 入口顯示它們的掌握度）
+const PVQC_SUBJECTS = Object.values(subjects).filter(
+  (s) => s.baseQuestionType === 'vocabulary',
+)
+
 const quizSections = groupSubjects(
   Object.values(subjects).filter((subject) => subject.quizOpen),
 )
@@ -1055,10 +1060,29 @@ function Quiz(): React.ReactElement {
 
             {/* PVQC 測驗入口：要先經過設定頁，所以整列是連結，以向右箭頭表示進到下一層 */}
             <Link className="pvqc-entry no-style" to="/pvqc">
-              <span className="pvqc-entry-title">
-                <span className="material-symbols-rounded">psychology</span>
-                PVQC 測驗
-              </span>
+              <div className="pvqc-entry-main">
+                <span className="pvqc-entry-title">
+                  <span className="material-symbols-rounded">psychology</span>
+                  PVQC 測驗
+                </span>
+                {/* 各 PVQC 題庫的掌握度（做過的才顯示），樣式同科目卡片 */}
+                {PVQC_SUBJECTS.map((subject) => {
+                  const subjectMastery = mastery.get(subject.id)
+                  if (!subjectMastery) return null
+                  const percent = masteryPercent(subjectMastery)
+                  return (
+                    <div key={subject.id} className="subject-title">
+                      <p className="pvqc-subject-name">{subject.name}</p>
+                      <div className="subject-mastery">
+                        <MasteryBar percent={percent} />
+                        <p>
+                          掌握度 <MasteryPercent percent={percent} />
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
               <span className="pvqc-entry-arrow material-symbols-rounded">
                 chevron_right
               </span>

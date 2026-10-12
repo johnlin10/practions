@@ -426,17 +426,27 @@ h1.quiz-to-history {
 }
 
 // 科目名稱與下方的掌握度（沒做過的題庫只有名稱）
+
 .subject-list .subject-card > .subject-title {
+  gap: 3px;
+}
+.subject-list .subject-card > .subject-title,
+.pvqc-entry > .pvqc-entry-main > .subject-title {
   display: flex;
   flex: 1 1 0;
   flex-direction: column;
-  gap: 7px;
   min-width: 0;
   margin-right: 12px;
 
   > .subject-name {
     font-weight: 500;
     color: var(--foreground-800);
+  }
+
+  > .pvqc-subject-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--foreground-500);
   }
 
   > .subject-mastery {
@@ -483,11 +493,25 @@ h1.quiz-to-history {
 }
 
 .pvqc-entry {
+  // 標題與各 PVQC 題庫的掌握度直排（掌握度樣式同科目卡片）
+  .pvqc-entry-main {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+
+    > .subject-title {
+      flex: none;
+      margin-right: 0;
+    }
+  }
+
   .pvqc-entry-title {
     display: flex;
     flex-grow: 1;
     align-items: center;
-    gap: 3px;
+    gap: 10px;
     // 與錯題複習入口的圖示方塊同高，兩列高度一致
     min-height: 30px;
     font-weight: 600;
