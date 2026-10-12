@@ -37,6 +37,8 @@ export interface QuizFlowConfig {
   // 各階段的題目打散成一條流程，每題用自己階段的作答方式（PVQC 錯題複習）；
   // 答錯的題目在全部做完後一起再練一次。紀錄與計分仍依階段分開
   mixStages?: boolean
+  // 偵錯模式：依題庫原本的順序出全部題目，不存紀錄（用來檢查題目顯示）
+  debug?: boolean
 }
 
 // 科目配置

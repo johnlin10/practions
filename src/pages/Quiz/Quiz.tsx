@@ -198,17 +198,39 @@ function Quiz(): React.ReactElement {
     continueFeedback,
   } = useQuiz()
 
+  // 偵錯模式（網址加 ?debug，或 ?debug=題號 從該題開始）：依原順序出整個題庫、不計時、不存紀錄
+  const debugParam = new URLSearchParams(location.search).get('debug')
+  const debug = debugParam !== null
   // 自訂流程配置（從 PVQCSetup、錯題複習傳來），沒有就用科目預設
-  const customFlowConfig = (location.state as any)?.customFlowConfig as
-    | QuizFlowConfig
-    | undefined
+  const customFlowConfig: QuizFlowConfig | undefined =
+    debug && subject
+      ? {
+          ...subject.flowConfig,
+          type: 'single_stage',
+          totalTimeLimit: 0,
+          enforceStageTimer: false,
+          instantFeedback: false,
+          mixStages: false,
+          debug: true,
+          stages: [
+            {
+              ...subject.flowConfig.stages[0],
+              stageId: 'debug',
+              questionCount: subject.questions.length,
+              composition: undefined,
+              questionIds: undefined,
+              timeLimit: 0,
+            },
+          ],
+        }
+      : (location.state as any)?.customFlowConfig
   const flowConfig = customFlowConfig ?? subject?.flowConfig
 
   // 當科目 ID 或路徑狀態改變時，先顯示「正在準備」，結束後才出題並開始計時
   useEffect(() => {
     if (!subject) return
 
-    const ms = randomPrepareMs()
+    const ms = debug ? 0 : randomPrepareMs()
     setPrepareMs(ms)
     setPreparing(true)
     setRetryIntroDone(null)
@@ -218,17 +240,21 @@ function Quiz(): React.ReactElement {
           ? { ...subject, flowConfig: customFlowConfig }
           : subject,
       )
+      // 偵錯模式指定題號時，直接跳到那一題
+      const startIndex = subject.questions.findIndex((q) => q.id === debugParam)
+      if (startIndex > 0) handleNext(startIndex)
       setPreparing(false)
     }, ms)
     return () => clearTimeout(timeout)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subjectId, location.state])
+  }, [subjectId, location.state, location.search])
 
   // 準備畫面的進度條：隨機分段跑滿，在畫面淡出前跑完
   useEffect(() => {
     const bar = prepareBarRef.current
-    if (!preparing || !bar) return
+    // 偵錯模式不停留（prepareMs 為 0），不跑進度條
+    if (!preparing || !bar || !prepareMs) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const animation = bar.animate(randomPrepareFrames(), {
       duration: prepareMs - 300,
@@ -920,7 +946,11 @@ function Quiz(): React.ReactElement {
                             stages.length
                           }${stageLabel ? ` · ${stageLabel}` : ''}`
                         : null
-                    const text = [typeLabel, stageInfo]
+                    const debugInfo =
+                      debug && currentQuestion
+                        ? `偵錯 · ID ${currentQuestion.id}`
+                        : null
+                    const text = [debugInfo, typeLabel, stageInfo]
                       .filter(Boolean)
                       .join(' · ')
                     return (
@@ -1045,7 +1075,7 @@ function Quiz(): React.ReactElement {
                         apps
                       </span>
                     </button>
-                    {isAllQuestionsCompleted && (
+                    {isAllQuestionsCompleted && !debug && (
                       <button
                         onClick={() => {
                           handleFinish()

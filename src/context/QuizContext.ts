@@ -74,18 +74,21 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     // 測驗優先抽還沒掌握的題目；PVQC 官方模擬維持完全隨機（模擬正式考試），錯題複習有自己的選題
     const mastered =
       flowConfig.flowMode === 'pvqc_official' ||
-      flowConfig.flowMode === 'review'
+      flowConfig.flowMode === 'review' ||
+      flowConfig.debug
         ? undefined
         : masteredQuestions(getAllHistory())
 
     // 遍歷所有階段
     flowConfig.stages.forEach((stage) => {
-      // 依題數（與出題組成）抽題
-      allStagesQuestions[stage.stageId] = pickQuestions(
-        questions,
-        stage,
-        mastered?.get(`${id}/${stage.mode || 'standard'}`),
-      )
+      // 依題數（與出題組成）抽題；偵錯模式依原本順序出全部題目
+      allStagesQuestions[stage.stageId] = flowConfig.debug
+        ? [...questions]
+        : pickQuestions(
+            questions,
+            stage,
+            mastered?.get(`${id}/${stage.mode || 'standard'}`),
+          )
     })
 
     // 取得第一階段

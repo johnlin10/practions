@@ -143,7 +143,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '7',
         question:
-          '客戶資料中，取價標準有(1)客戶計價(2)標準售價(3)零售價，取價順序一般設定為？',
+          '客戶資料中，取價標準有（1）客戶計價（2）標準售價（3）零售價，取價順序一般設定為？',
         options: ['123', '132', '213', '321'],
         correctIndex: 0,
       },
@@ -211,7 +211,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '16',
-        question: '報價單憑證中選擇列印格式有哪些種？ a.中文 b.日文 c.英文',
+        question: '報價單憑證中選擇列印格式有哪些種？\na.中文 b.日文 c.英文',
         options: ['a', 'ab', 'ac', 'abc'],
         correctIndex: 2,
       },
@@ -285,7 +285,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '25',
         question:
-          '憑證列印時，選擇確認狀態選項中包括下列哪幾個<單據核准狀態下>？ a.已確認 b.未確認 c.作廢 d.全部',
+          '憑證列印時，選擇確認狀態選項中包括下列哪幾個<單據核准狀態下>？\na.已確認 b.未確認 c.作廢 d.全部',
         options: ['abc', 'ac', 'acd', 'abcd'],
         correctIndex: 3,
       },
@@ -314,21 +314,21 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '29',
         question:
-          '在「訂單單別」欄位中輸入「配銷國內訂單（簡稱「配銷訂單內」）」的單別代號，按哪個鍵開窗選擇？',
+          '在「訂單單別」欄位中輸入「配銷國內訂單（簡稱『配銷訂單內』）」的單別代號，按哪個鍵開窗選擇？',
         options: ['F1', 'F2', 'F3', 'F4'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '30',
-        question: '「訂單數量」的F2可供輔助查詢什麼？',
+        question: '「訂單數量」的 F2 可供輔助查詢什麼？',
         options: ['各庫庫存量查詢', '可用量查詢', '廠商查詢', '價格查詢'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '31',
-        question: '「訂單數量」的F3可供輔助查詢什麼？',
+        question: '「訂單數量」的 F3 可供輔助查詢什麼？',
         options: ['各庫庫存量查詢', '可用量查詢', '廠商查詢', '價格查詢'],
         correctIndex: 1,
       },
@@ -3682,7 +3682,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '375',
-        question: '資料的電腦編號是為了：',
+        question: '資料的電腦編號是為了： (A) 識別 (B) 防止資料的重複 (C) 提升資料在登錄時效？',
         options: ['ab', 'ac', 'bc', '以上皆是'],
         correctIndex: 3,
       },
