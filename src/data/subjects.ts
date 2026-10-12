@@ -1001,8 +1001,8 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '108',
-        question: '採購變更流程？',
-        options: ['bacde', 'bcdea', 'abcde', 'bcdae', '確認'],
+        question: '採購變更流程？\na. 存檔\nb. 新增\nc. 輸入採購單別\nd. 輸入品項\ne. 確認',
+        options: ['bacde', 'bcdea', 'abcde', 'bcdae'],
         correctIndex: 3,
       },
       {
