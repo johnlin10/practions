@@ -499,28 +499,24 @@ function Quiz(): React.ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizState.currentQuestions, quizState.currentStage.mode]) // 只在題目列表或模式改變時重新生成
 
-  //* 渲染測驗類型
-  const renderQuizType = (): React.ReactElement | null => {
-    const { currentStage } = quizState
-    if (currentStage.mode === 'pvqc_write') {
-      return <p className="quiz-type">PVQC 測驗一：寫</p>
+  //* 測驗名稱（PVQC 各測驗），一般科目沒有
+  const quizTypeLabel = (): string | null => {
+    switch (quizState.currentStage.mode) {
+      case 'pvqc_write':
+        return '測驗一：寫'
+      case 'pvqc_read':
+        return '測驗二：讀'
+      case 'pvqc_listen_chinese':
+        return '測驗三：聽'
+      case 'pvqc_listen_english':
+        return '測驗四：聽'
+      case 'pvqc_pronunciation':
+        return '測驗五：聽'
+      case 'pvqc_read_listen':
+        return '測驗六：讀聽'
+      default:
+        return null
     }
-    if (currentStage.mode === 'pvqc_read') {
-      return <p className="quiz-type">PVQC 測驗二：讀</p>
-    }
-    if (currentStage.mode === 'pvqc_listen_chinese') {
-      return <p className="quiz-type">PVQC 測驗三：聽</p>
-    }
-    if (currentStage.mode === 'pvqc_listen_english') {
-      return <p className="quiz-type">PVQC 測驗四：聽</p>
-    }
-    if (currentStage.mode === 'pvqc_pronunciation') {
-      return <p className="quiz-type">PVQC 測驗五：聽</p>
-    }
-    if (currentStage.mode === 'pvqc_read_listen') {
-      return <p className="quiz-type">PVQC 測驗六：讀聽</p>
-    }
-    return null
   }
 
   //* 關閉預覽所有問題
@@ -787,6 +783,10 @@ function Quiz(): React.ReactElement {
                 <div className="question-header">
                   {/* 進度條（當前階段完成的比例），計時器在右側；再練一次時改橘色 */}
                   <div className="quiz-progress-row">
+                    <p className="quiz-count">
+                      {quizState.currentQuestionIndex + 1}
+                      <span> / {quizState.currentQuestions.length}</span>
+                    </p>
                     <div
                       className={`quiz-progress${retrying ? ' retry' : ''}`}
                       role="progressbar"
@@ -830,31 +830,38 @@ function Quiz(): React.ReactElement {
                       )
                     })()}
                   </div>
-                  {renderQuizType()}
-                  {!mixed && (quizState.flowConfig.stages?.length ?? 0) > 1 && (
-                    <p className="stage-progress">
-                      階段 {quizState.currentStageIndex + 1} /{' '}
-                      {quizState.flowConfig.stages.length}
-                      {quizState.currentStage?.label && (
-                        <span className="stage-label">
-                          {' · '}
-                          {quizState.currentStage.label}
-                        </span>
-                      )}
-                    </p>
-                  )}
-                  {retrying && (
-                    <p className="quiz-retry-label">
-                      <span className="material-symbols-rounded">replay</span>
-                      再練一次
-                    </p>
-                  )}
-                  <h2>
-                    {quizState.currentQuestionIndex + 1}{' '}
-                    <span className="question-count">
-                      / {quizState.currentQuestions.length}
-                    </span>
-                  </h2>
+                  {(() => {
+                    // 測驗名稱與階段合併成一行，貼在指示（h3）上方
+                    const stages = quizState.flowConfig.stages
+                    const stageInfo =
+                      !mixed && (stages?.length ?? 0) > 1
+                        ? `階段 ${quizState.currentStageIndex + 1}/${
+                            stages.length
+                          }${
+                            quizState.currentStage?.label
+                              ? ` · ${quizState.currentStage.label}`
+                              : ''
+                          }`
+                        : null
+                    const text = [quizTypeLabel(), stageInfo]
+                      .filter(Boolean)
+                      .join(' · ')
+                    return (
+                      (retrying || text) && (
+                        <p className="quiz-eyebrow">
+                          {retrying && (
+                            <span className="quiz-retry-label">
+                              <span className="material-symbols-rounded">
+                                replay
+                              </span>
+                              再練一次
+                            </span>
+                          )}
+                          {text}
+                        </p>
+                      )
+                    )
+                  })()}
                 </div>
 
                 {/* 題目渲染系統 */}

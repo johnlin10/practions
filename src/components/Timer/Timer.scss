@@ -1,14 +1,16 @@
+// 計時器：精簡尺寸，跟左邊的題號同一個字級與粗細，只有外框、沒有底色
 .timer {
   flex-shrink: 0;
-  background: var(--fill-color);
-  padding: 9px 12px;
-  font-size: 1.2rem;
-  color: var(--text-color);
+  padding: 4px 6px;
   border: 2px solid var(--border-color);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-color);
   font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
-  // 寬度固定：數字等寬，並至少容納「00:00」（左右內距 24px＋邊框 4px），分鐘從兩位數變一位數時也不縮
+  // 寬度固定：數字等寬，並至少容納「00:00」，分鐘從兩位數變一位數時進度條不會跟著動
   font-variant-numeric: tabular-nums;
-  min-width: calc(4.6ch + 28px);
+  min-width: calc(4.6ch + 24px);
+  box-sizing: border-box;
   text-align: center;
   cursor: default;
 }
