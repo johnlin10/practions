@@ -117,21 +117,25 @@ function PVQCListenQuestion({
       </h3>
 
       <div className="question-content">
-        <button
-          onClick={playAudio}
-          disabled={isPlaying}
-          className={`word-card audio-card${isPlaying ? ' playing' : ''}`}
-        >
-          <span className="material-symbols-rounded">volume_up</span>
-          <span className="audio-label">
+        <div className="word-card no-border">
+          <button
+            onClick={isPlaying ? undefined : playAudio}
+            className={`audio-play${isPlaying ? ' playing' : ''}`}
+          >
+            <span className="material-symbols-rounded">volume_up</span>
             {isPlaying ? '播放中...' : '播放音訊'}
-          </span>
-          {!hasPlayed && selectedOption === null && (
-            <span className="hint-text">請先播放音訊後再選擇答案</span>
-          )}
-        </button>
+          </button>
+        </div>
 
         <div className={`options${reveal ? ' revealed' : ''}`}>
+          {/* 用 visibility 隱藏而不是移除，提示消失時版面不會跳動 */}
+          <span
+            className={`hint-text${
+              !hasPlayed && selectedOption === null ? '' : ' hidden'
+            }`}
+          >
+            請先播放音訊後再選擇答案
+          </span>
           {options.map((option, index) => {
             const correctText =
               mode === 'pvqc_listen_chinese'

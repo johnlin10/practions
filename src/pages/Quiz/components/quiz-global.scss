@@ -60,34 +60,38 @@
         letter-spacing: 0;
       }
 
-      // 聽題：整張卡片是播放鈕，用按鈕的邊框與底邊陰影
-      &.audio-card {
-        border-color: var(--border-color);
-        box-shadow: 0 3px 0 var(--border-color);
+      // 聽題：沒有外框，只有置中的方形播放鈕（標準按鈕樣式，圖示在上、文字在下）
+      &.no-border {
+        border-color: transparent;
+      }
 
-        &:disabled {
-          // 播放中不用整張變淡，圖示閃爍就夠了
-          opacity: 1;
-        }
+      > .audio-play {
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+        width: 9rem;
+        aspect-ratio: 1;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 400;
 
         > .material-symbols-rounded {
           font-size: 2.5rem;
           color: var(--primary-color);
         }
 
-        &.playing > .material-symbols-rounded {
-          animation: audio-pulse 1s ease-in-out infinite;
-        }
+        // 播放中：跟選中的選項一樣變藍，播完才能再點
+        &.playing {
+          pointer-events: none;
+          border-color: var(--primary-color);
+          color: var(--primary-text-color);
+          background-color: var(--primary-background-color);
+          box-shadow: 0 3px 0 var(--primary-color);
 
-        > .audio-label {
-          font-size: 1rem;
-          font-weight: 600;
-        }
-
-        > .hint-text {
-          font-size: 0.85rem;
-          font-weight: 400;
-          color: var(--foreground-500);
+          > .material-symbols-rounded {
+            color: var(--primary-text-color);
+          }
         }
       }
     }
@@ -100,6 +104,16 @@
       padding: 12px 0;
       width: 100%;
       max-width: 640px;
+
+      // 聽題的提示：靠左在選項上方，消失時保留位置
+      > .hint-text {
+        font-size: 0.85rem;
+        color: var(--foreground-500);
+
+        &.hidden {
+          visibility: hidden;
+        }
+      }
 
       // 選項用標準圓角，跟「檢查」「繼續」按鈕一致
       button {
@@ -179,24 +193,18 @@ p.question-prompt {
 }
 
 // 發音題：已檢查後仍可點選項重聽（不會改答案）
-.question-block > div.question-content > div.options.revealed.pronunciation-options button {
+.question-block
+  > div.question-content
+  > div.options.revealed.pronunciation-options
+  button {
   pointer-events: auto;
 }
 
-@keyframes audio-pulse {
-  50% {
-    opacity: 0.35;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .question-block .audio-card.playing > .material-symbols-rounded {
-    animation: none;
-  }
-}
-
 // 發音選項（測驗五、六）：播放圖示、字母、文字靠左排，已檢查的標記留在右側
-.question-block > div.question-content > div.options.pronunciation-options button {
+.question-block
+  > div.question-content
+  > div.options.pronunciation-options
+  button {
   min-height: 48px;
 
   > .material-symbols-rounded:first-child {
