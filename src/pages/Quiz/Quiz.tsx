@@ -310,6 +310,25 @@ function Quiz(): React.ReactElement {
     return { done, total }
   })()
 
+  // 進度條分段：多階段（沒打散、沒有即時回饋）時每個階段一段，目前階段撐滿，
+  // 其餘階段只有一小格（做完的填滿、還沒到的空著）；其餘情況維持一整條
+  const progressSegments = (() => {
+    const stages = quizState.flowConfig.stages
+    const current = progress.done / Math.max(progress.total, 1)
+    if (instant || mixed || (stages?.length ?? 0) < 2) {
+      return [{ active: true, fill: current }]
+    }
+    return stages.map((_, i) => ({
+      active: i === quizState.currentStageIndex,
+      fill:
+        i < quizState.currentStageIndex
+          ? 1
+          : i === quizState.currentStageIndex
+            ? current
+            : 0,
+    }))
+  })()
+
   // 結算：第一輪答對、再練答對的題數（再練一次只有第一輪答錯的題目）
   const summary = (() => {
     let first = 0
@@ -795,13 +814,14 @@ function Quiz(): React.ReactElement {
                       aria-valuemax={progress.total}
                       aria-valuenow={progress.done}
                     >
-                      <div
-                        style={{
-                          width: `${
-                            (progress.done / Math.max(progress.total, 1)) * 100
-                          }%`,
-                        }}
-                      />
+                      {progressSegments.map((segment, i) => (
+                        <div
+                          key={i}
+                          className={segment.active ? 'active' : undefined}
+                        >
+                          <div style={{ width: `${segment.fill * 100}%` }} />
+                        </div>
+                      ))}
                     </div>
                     {(() => {
                       const enforce =
@@ -833,17 +853,18 @@ function Quiz(): React.ReactElement {
                   {(() => {
                     // 測驗名稱與階段合併成一行，貼在指示（h3）上方
                     const stages = quizState.flowConfig.stages
+                    const typeLabel = quizTypeLabel()
+                    // 階段名稱（如「測驗二：讀（看英選中）」）已包含測驗名稱，有測驗名稱時不重複顯示
+                    const stageLabel = typeLabel
+                      ? ''
+                      : quizState.currentStage?.label
                     const stageInfo =
                       !mixed && (stages?.length ?? 0) > 1
                         ? `階段 ${quizState.currentStageIndex + 1}/${
                             stages.length
-                          }${
-                            quizState.currentStage?.label
-                              ? ` · ${quizState.currentStage.label}`
-                              : ''
-                          }`
+                          }${stageLabel ? ` · ${stageLabel}` : ''}`
                         : null
-                    const text = [quizTypeLabel(), stageInfo]
+                    const text = [typeLabel, stageInfo]
                       .filter(Boolean)
                       .join(' · ')
                     return (

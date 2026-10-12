@@ -53,18 +53,32 @@
             }
           }
 
+          // 進度條：多階段時每個階段一段，目前階段撐滿，其餘只有一小格（14px），段與段之間留 6px
           > .quiz-progress {
             flex-grow: 1;
+            display: flex;
+            gap: 6px;
             height: 14px;
-            background: var(--fill-color);
-            border-radius: 7px;
-            overflow: hidden;
 
             > div {
-              height: 100%;
-              background: var(--primary-color);
+              flex: 0 0 14px;
+              min-width: 0;
+              // 換階段時，目前階段收成小格、下一段展開
+              transition: flex 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+              background: var(--fill-color);
               border-radius: 7px;
-              transition: width 0.3s ease;
+              overflow: hidden;
+
+              &.active {
+                flex: 1 1 0;
+              }
+
+              > div {
+                height: 100%;
+                background: var(--primary-color);
+                border-radius: 7px;
+                transition: width 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+              }
             }
           }
         }
@@ -668,7 +682,7 @@ h1.quiz-to-history {
 
 // 再練一次：進度條改橘色，題號上方加標示
 .quiz-page .quiz-container .question-section > .question-header {
-  > .quiz-progress-row > .quiz-progress.retry > div {
+  > .quiz-progress-row > .quiz-progress.retry > div > div {
     background: var(--review-color);
   }
 
