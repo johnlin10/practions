@@ -1,6 +1,5 @@
 import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect } from 'react'
-import './PVQCReadListenQuestion.scss'
 import { speakEnglish, cancelSpeech } from '../../../utils/tts'
 import { OptionMark, revealClass } from './option-mark'
 
@@ -84,9 +83,7 @@ function PVQCReadListenQuestion({
     <div className="question-block pvqc-read-listen-question">
       <h3>請聽各選項發音，選擇與英文單字相符的發音</h3>
       <div className="question-content">
-        <div className="english-prompt">
-          <p>{question.english}</p>
-        </div>
+        <div className="word-card english">{question.english}</div>
 
         <div
           className={`options pronunciation-options${
@@ -101,23 +98,22 @@ function PVQCReadListenQuestion({
                 )
               : ''
             return (
-              <div key={index} className="pronunciation-option">
-                <button
-                  className={`pronunciation-button ${
-                    reveal ? mark : submittedOption === index ? 'selected' : ''
-                  }`}
-                  onClick={() => playAudio(index)}
-                >
-                  <span className="material-symbols-rounded">
-                    {isPlaying[index] ? 'volume_up' : 'play_arrow'}
-                  </span>
-                  <span className="option-letter">
-                    {String.fromCharCode(65 + index)}
-                  </span>
-                  {isPlaying[index] ? '播放中...' : '播放發音'}
-                  <OptionMark mark={mark} />
-                </button>
-              </div>
+              <button
+                key={index}
+                className={`option ${
+                  reveal ? mark : submittedOption === index ? 'selected' : ''
+                }`}
+                onClick={() => playAudio(index)}
+              >
+                <span className="material-symbols-rounded">
+                  {isPlaying[index] ? 'volume_up' : 'play_arrow'}
+                </span>
+                <span className="option-letter">
+                  {String.fromCharCode(65 + index)}
+                </span>
+                {isPlaying[index] ? '播放中...' : '播放發音'}
+                <OptionMark mark={mark} />
+              </button>
             )
           })}
         </div>

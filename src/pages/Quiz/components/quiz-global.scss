@@ -34,6 +34,64 @@
       }
     }
 
+    // 單字卡片：單字題共用的題幹，撐滿選項上方剩下的高度，內容置中
+    > .word-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 640px;
+      min-height: 96px;
+      padding: 18px;
+      border: 2px solid var(--divider-color);
+      border-radius: 12px;
+      background-color: var(--background-color);
+      color: var(--foreground-900);
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+
+      // 英文單字字距歸零
+      &.english {
+        letter-spacing: 0;
+      }
+
+      // 聽題：整張卡片是播放鈕，用按鈕的邊框與底邊陰影
+      &.audio-card {
+        border-color: var(--border-color);
+        box-shadow: 0 3px 0 var(--border-color);
+
+        &:disabled {
+          // 播放中不用整張變淡，圖示閃爍就夠了
+          opacity: 1;
+        }
+
+        > .material-symbols-rounded {
+          font-size: 2.5rem;
+          color: var(--primary-color);
+        }
+
+        &.playing > .material-symbols-rounded {
+          animation: audio-pulse 1s ease-in-out infinite;
+        }
+
+        > .audio-label {
+          font-size: 1rem;
+          font-weight: 600;
+        }
+
+        > .hint-text {
+          font-size: 0.85rem;
+          font-weight: 400;
+          color: var(--foreground-500);
+        }
+      }
+    }
+
     // 答案選擇介面
     > div.options {
       display: flex;
@@ -123,4 +181,43 @@ p.question-prompt {
 // 發音題：已檢查後仍可點選項重聽（不會改答案）
 .question-block > div.question-content > div.options.revealed.pronunciation-options button {
   pointer-events: auto;
+}
+
+@keyframes audio-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .question-block .audio-card.playing > .material-symbols-rounded {
+    animation: none;
+  }
+}
+
+// 發音選項（測驗五、六）：播放圖示、字母、文字靠左排，已檢查的標記留在右側
+.question-block > div.question-content > div.options.pronunciation-options button {
+  min-height: 48px;
+
+  > .material-symbols-rounded:first-child {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+  }
+
+  > .option-letter {
+    min-width: 1ch;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
+  &.selected > .material-symbols-rounded:first-child,
+  &.selected > .option-letter,
+  &.correct > .material-symbols-rounded:first-child,
+  &.correct > .option-letter,
+  &.wrong > .material-symbols-rounded:first-child,
+  &.wrong > .option-letter,
+  &.missed > .material-symbols-rounded:first-child,
+  &.missed > .option-letter {
+    color: inherit;
+  }
 }

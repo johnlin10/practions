@@ -1,9 +1,12 @@
 .pvqc-write-question {
   > .question-content {
     > input[type='text'] {
-      margin: 6px 0;
+      // 跟選項群組同位置：離單字卡片 9px、離上下題按鈕 12px（按鈕本身往上抬 3px，所以下方留 15px）
+      margin: 9px 0 15px;
+      width: 100%;
+      max-width: 640px;
       padding: 9px 12px;
-      border-radius: 6px;
+      border-radius: 12px;
       border: 2px solid var(--border-color);
       font-size: 1rem;
 

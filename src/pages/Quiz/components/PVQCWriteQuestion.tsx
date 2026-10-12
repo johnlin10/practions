@@ -52,10 +52,7 @@ function PVQCWriteQuestion({
     <div className="question-block pvqc-write-question">
       <h3>請拼寫英文單字</h3>
       <div className="question-content">
-        <div className="chinese-prompt">
-          <p>{question.chinese}</p>
-          {/* <p>{question.english}</p> */}
-        </div>
+        <div className="word-card">{question.chinese}</div>
         <input
           type="text"
           className={

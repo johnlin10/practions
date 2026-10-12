@@ -1,6 +1,5 @@
 import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect, useCallback } from 'react'
-import './PVQCListenQuestion.scss'
 import { speakEnglish, cancelSpeech } from '../../../utils/tts'
 import { OptionMark, revealClass } from './option-mark'
 
@@ -118,25 +117,21 @@ function PVQCListenQuestion({
       </h3>
 
       <div className="question-content">
-        <div className="audio-section">
-          <div className="audio-controls">
-            <button
-              onClick={playAudio}
-              disabled={isPlaying}
-              className={`play-button ${isPlaying ? 'playing' : ''}`}
-            >
-              <span className="material-symbols-rounded">volume_up</span>
-              {isPlaying ? '播放中...' : '播放音訊'}
-            </button>
-          </div>
-        </div>
-
-        <div
-          className={`options pvqc-listen-options${reveal ? ' revealed' : ''}`}
+        <button
+          onClick={playAudio}
+          disabled={isPlaying}
+          className={`word-card audio-card${isPlaying ? ' playing' : ''}`}
         >
+          <span className="material-symbols-rounded">volume_up</span>
+          <span className="audio-label">
+            {isPlaying ? '播放中...' : '播放音訊'}
+          </span>
           {!hasPlayed && selectedOption === null && (
-            <p className="hint-text">請先播放音訊後再選擇答案</p>
+            <span className="hint-text">請先播放音訊後再選擇答案</span>
           )}
+        </button>
+
+        <div className={`options${reveal ? ' revealed' : ''}`}>
           {options.map((option, index) => {
             const correctText =
               mode === 'pvqc_listen_chinese'
