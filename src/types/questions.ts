@@ -19,6 +19,8 @@ export interface SingleChoiceQuestion {
   id: string
   question: string
   options: string[]
+  images?: string[] // 題目附圖的檔名（src/data/images/）
+  optionImages?: string[] // 各選項圖示的檔名，順序同 options
   correctIndex: number
 }
 
@@ -28,6 +30,8 @@ export interface MultipleChoiceQuestion {
   id: string
   question: string
   options: string[]
+  images?: string[] // 題目附圖的檔名（src/data/images/）
+  optionImages?: string[] // 各選項圖示的檔名，順序同 options
   correctIndexes: number[]
 }
 

@@ -5,6 +5,10 @@ import './standard.scss'
 // types
 import { Question } from '../../../types/questions'
 import { OptionMark, revealClass } from './option-mark'
+import {
+  OptionImage,
+  QuestionImages,
+} from '../../../components/QuestionImage/QuestionImage'
 
 interface Props {
   question: Question
@@ -87,6 +91,7 @@ function StandardQuestion({
               <span className="option-letter">
                 {String.fromCharCode(65 + index)}
               </span>
+              <OptionImage name={question.optionImages?.[index]} />
               {option}
               <OptionMark mark={mark} />
             </button>
@@ -165,6 +170,7 @@ function StandardQuestion({
               <span className="option-letter">
                 {String.fromCharCode(65 + index)}
               </span>
+              <OptionImage name={question.optionImages?.[index]} />
               {option}
               <OptionMark mark={mark} />
             </button>
@@ -232,6 +238,13 @@ function StandardQuestion({
     switch (question.type) {
       case 'single_choice':
       case 'multiple_choice':
+        return (
+          <div className="question-prompt-container">
+            <p className="question-prompt">{question.question}</p>
+            <QuestionImages images={question.images} />
+          </div>
+        )
+
       case 'true_false':
         return (
           <div className="question-prompt-container">
@@ -260,7 +273,11 @@ function StandardQuestion({
     <div className="question-block standard-question">
       <h3>{typeLabel ?? '請回答以下問題'}</h3>
 
-      <div className="question-content">
+      <div
+        className={`question-content${
+          'images' in question && question.images?.length ? ' has-images' : ''
+        }`}
+      >
         {/* 題目顯示 */}
         {renderQuestionText()}
 

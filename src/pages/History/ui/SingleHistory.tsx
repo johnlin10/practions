@@ -4,6 +4,10 @@ import './SingleHistory.scss'
 
 // components
 import CollapsibleSection from '@/components/CollapsibleSection/CollapsibleSection'
+import {
+  OptionImage,
+  QuestionImages,
+} from '@/components/QuestionImage/QuestionImage'
 
 // utils
 import { isSubjectLocked } from '../../Bank/utils/bankHelpers'
@@ -493,6 +497,11 @@ function SingleHistory(): React.ReactElement {
       options = q.options
     }
 
+    // 附圖（只有選擇題會有）
+    const { images, optionImages } = question as
+      | SingleChoiceQuestion
+      | MultipleChoiceQuestion
+
     // 返回渲染選擇題
     return (
       <div
@@ -507,6 +516,7 @@ function SingleHistory(): React.ReactElement {
                 .question
             : ''}
         </p>
+        <QuestionImages images={images} />
         <div className="options">
           {options.map((option, idx) => {
             // 檢查是否為用戶選擇的答案
@@ -532,7 +542,9 @@ function SingleHistory(): React.ReactElement {
                   isCorrectAnswer ? ' correct-answer' : ''
                 }`}
               >
-                {String.fromCharCode(65 + idx)}. {option}
+                {String.fromCharCode(65 + idx)}.{' '}
+                <OptionImage name={optionImages?.[idx]} />
+                {option}
               </div>
             )
           })}
