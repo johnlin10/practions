@@ -308,6 +308,37 @@ function Quiz(): React.ReactElement {
     soundedKey.current = currentKey
     playFeedbackSound(currentFeedback)
   }, [currentKey, currentFeedback])
+
+  // 題目超出畫面時可以捲動：上面還有內容就在題號列下方、下面還有內容就在底部按鈕上方顯示漸層；換題時回到最上面
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const [moreAbove, setMoreAbove] = useState(false)
+  const [moreBelow, setMoreBelow] = useState(false)
+  useEffect(() => {
+    const block = sectionRef.current?.querySelector('.question-block')
+    if (!block) {
+      setMoreAbove(false)
+      setMoreBelow(false)
+      return
+    }
+    block.scrollTop = 0
+    const check = () => {
+      setMoreAbove(block.scrollTop > 1)
+      setMoreBelow(
+        block.scrollHeight - block.scrollTop - block.clientHeight > 1,
+      )
+    }
+    // 圖片載入、畫面尺寸改變都會改變內容高度
+    const observer = new ResizeObserver(check)
+    observer.observe(block)
+    block
+      .querySelectorAll('.question-content > *, .question-images > img')
+      .forEach((el) => observer.observe(el))
+    block.addEventListener('scroll', check, { passive: true })
+    return () => {
+      observer.disconnect()
+      block.removeEventListener('scroll', check)
+    }
+  }, [currentKey])
   // 進度：第一輪答對的、以及再練過的題目才算完成，答錯的要等再練一次後才填滿
   const progress = (() => {
     if (!instant) {
@@ -821,8 +852,10 @@ function Quiz(): React.ReactElement {
           ) : subject ? (
             //* 如果有 subjectId，顯示測驗頁面
             <>
-              <div className="question-section">
-                <div className="question-header">
+              <div className="question-section" ref={sectionRef}>
+                <div
+                  className={`question-header${moreAbove ? ' more-above' : ''}`}
+                >
                   {/* 進度條（當前階段完成的比例），計時器在右側；再練一次時改橘色 */}
                   <div className="quiz-progress-row">
                     <p className="quiz-count">
@@ -914,7 +947,9 @@ function Quiz(): React.ReactElement {
 
               {instant ? (
                 //* 即時回饋：檢查按鈕或結果列（不能回上一題，也沒有題目總覽）
-                <div className="quiz-navigation">
+                <div
+                  className={`quiz-navigation${moreBelow ? ' more-below' : ''}`}
+                >
                   {/* 結果列浮在畫面上，檢查按鈕留在原位（停用）撐住版面，題目才不會跳動 */}
                   {needsCheckButton(
                     quizState.currentStage.mode,
@@ -968,7 +1003,9 @@ function Quiz(): React.ReactElement {
                 </div>
               ) : (
                 /* 測驗導航 */
-                <div className="quiz-navigation">
+                <div
+                  className={`quiz-navigation${moreBelow ? ' more-below' : ''}`}
+                >
                   <div className="quiz-buttons">
                     <button onClick={handlePrev} title="上一題">
                       <span className="material-symbols-rounded">

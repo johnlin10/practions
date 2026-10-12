@@ -1,3 +1,4 @@
+@use '../../styles/fade';
 @use '../../styles/list-group';
 
 // 作答畫面固定全螢幕，不跟著整頁捲動（其餘頁面都是整頁捲動）
@@ -36,7 +37,6 @@
           align-items: center;
           gap: 12px;
           min-height: 32px;
-          margin-bottom: 8px;
 
           // 題號：寬度跟著內容，右側與進度條的間隙跟計時器那側一樣（12px）
           > p.quiz-count {
@@ -100,6 +100,11 @@
         flex-direction: column;
         justify-content: space-between;
         height: 100%;
+        border-radius: 0;
+        // 可以縮到題號列下方剩下的高度，否則附圖的原始高度會把選項推出畫面；
+        // 縮到最小仍放不下時（小螢幕、附圖的題目）可以捲動，題號列不會跟著捲走
+        min-height: 0;
+        overflow-y: auto;
 
         p {
           color: var(--text-color);
@@ -110,6 +115,7 @@
     }
 
     .quiz-navigation {
+      position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -1255,5 +1261,47 @@ h1.quiz-to-history {
 
   .quiz-perfect-confetti {
     display: none;
+  }
+}
+
+// 題目可以捲動時的漸層：還能往下捲就在底部按鈕上方、往下捲過就在題號列下方，捲到底／回到頂就淡出
+.quiz-page .quiz-container > .quiz-navigation::before,
+.quiz-page .quiz-container > .question-section > .question-header::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  height: 40px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.quiz-page .quiz-container > .quiz-navigation {
+  // 自成一層疊在題目上面，漸層再放到這層的最底下，不會蓋住按鈕（按下時會往下位移）
+  z-index: 1;
+
+  &::before {
+    z-index: -1;
+    bottom: 100%;
+    background: fade.fade-gradient(var(--background-color), to top);
+  }
+
+  &.more-below::before {
+    opacity: 1;
+  }
+}
+
+.quiz-page .quiz-container > .question-section > .question-header {
+  position: relative;
+
+  &::after {
+    top: 100%;
+    background: fade.fade-gradient(var(--background-color), to bottom);
+  }
+
+  &.more-above::after {
+    opacity: 1;
   }
 }

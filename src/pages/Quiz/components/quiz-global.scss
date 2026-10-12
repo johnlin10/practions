@@ -1,6 +1,6 @@
 .question-block {
   h3 {
-    margin-bottom: 12px;
+    margin: 12px 0;
   }
 
   // 題目內容
@@ -12,6 +12,7 @@
     height: calc(100% - 48px);
     // 題目與選項的字距稍微拉開，閱讀時不那麼緊湊
     letter-spacing: 0.03em;
+    border-radius: 12px;
 
     // 按鈕、輸入框預設不繼承字距
     button,
@@ -21,6 +22,34 @@
 
     // overflow: hidden;
     // overflow-y: auto;
+
+    // 有附圖：題目文字、每張圖、選項都是這一欄的直接子項目，圖片從原尺寸往下等比例縮，選項不會被擠出畫面。
+    // 每張圖最小保留 120px（圖本身更小就照原尺寸），連這樣都放不下時整題超出，由 .question-section 捲動
+    &.has-images {
+      container-type: inline-size;
+      justify-content: flex-start;
+
+      > .question-prompt-container,
+      .question-images {
+        display: contents;
+      }
+
+      .question-images > img {
+        flex: 0 1 auto;
+        margin-bottom: 12px;
+        // --w／--h 是原圖尺寸（載入後由 QuestionImages 填入），4px 是上下邊框
+        min-height: min(
+          120px,
+          calc(var(--h) * 1px + 4px),
+          calc((100cqw - 4px) * var(--h) / var(--w) + 4px)
+        );
+      }
+
+      // 選項固定在最下面
+      > .options {
+        margin-top: auto;
+      }
+    }
 
     > div.question-prompt-container {
       height: 100%;

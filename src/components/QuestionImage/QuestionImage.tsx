@@ -24,7 +24,16 @@ export function QuestionImages({
   return (
     <div className="question-images">
       {images.map((name) => (
-        <img key={name} src={imageUrl(name)} alt="題目附圖" />
+        <img
+          key={name}
+          src={imageUrl(name)}
+          alt="題目附圖"
+          // 作答畫面用原圖尺寸算圖片最小可以縮到多高（quiz-global.scss）
+          onLoad={({ currentTarget: img }) => {
+            img.style.setProperty('--w', String(img.naturalWidth))
+            img.style.setProperty('--h', String(img.naturalHeight))
+          }}
+        />
       ))}
     </div>
   )

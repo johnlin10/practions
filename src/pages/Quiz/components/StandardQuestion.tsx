@@ -273,7 +273,11 @@ function StandardQuestion({
     <div className="question-block standard-question">
       <h3>{typeLabel ?? '請回答以下問題'}</h3>
 
-      <div className="question-content">
+      <div
+        className={`question-content${
+          'images' in question && question.images?.length ? ' has-images' : ''
+        }`}
+      >
         {/* 題目顯示 */}
         {renderQuestionText()}
 
