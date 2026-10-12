@@ -25,6 +25,10 @@ import { SubjectConfig } from '../../../types/quiz-flows'
 
 // data
 import { subjects } from '../../../data/subjects'
+import {
+  OptionImage,
+  QuestionImages,
+} from '@/components/QuestionImage/QuestionImage'
 import { speakEnglish } from '../../../utils/tts'
 
 // interfaces
@@ -106,6 +110,7 @@ const SingleBank: React.FC = () => {
           <span className="question-number">#{question.id}</span>
           <p className="question-text">{question.question}</p>
         </div>
+        <QuestionImages images={question.images} />
         <div className="options">
           {question.options.map((option, idx) => (
             <div
@@ -114,7 +119,9 @@ const SingleBank: React.FC = () => {
                 idx === question.correctIndex ? 'correct-answer' : ''
               }`}
             >
-              {String.fromCharCode(65 + idx)}. {option}
+              {String.fromCharCode(65 + idx)}.{' '}
+              <OptionImage name={question.optionImages?.[idx]} />
+              {option}
             </div>
           ))}
         </div>
@@ -143,6 +150,7 @@ const SingleBank: React.FC = () => {
           <span className="question-number">#{question.id}</span>
           <p className="question-text">{question.question}</p>
         </div>
+        <QuestionImages images={question.images} />
         <div className="options">
           {question.options.map((option, idx) => (
             <div
@@ -151,7 +159,9 @@ const SingleBank: React.FC = () => {
                 question.correctIndexes.includes(idx) ? 'correct-answer' : ''
               }`}
             >
-              {String.fromCharCode(65 + idx)}. {option}
+              {String.fromCharCode(65 + idx)}.{' '}
+              <OptionImage name={question.optionImages?.[idx]} />
+              {option}
             </div>
           ))}
         </div>

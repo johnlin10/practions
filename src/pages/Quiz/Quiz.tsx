@@ -10,6 +10,7 @@ import PVQCListenQuestion from './components/PVQCListenQuestion'
 import PVQCPronunciationQuestion from './components/PVQCPronunciationQuestion'
 import PVQCReadListenQuestion from './components/PVQCReadListenQuestion'
 import StandardQuestion from './components/StandardQuestion'
+import { OptionImage } from '../../components/QuestionImage/QuestionImage'
 import MasteryBar, {
   MasteryPercent,
 } from '../../components/MasteryBar/MasteryBar'
@@ -67,7 +68,7 @@ interface PreviewAllQuestionsProps {
 
 /** 即時回饋答錯時列出的正確答案：選項字母與內容（多選依序列出），是非題為 O／X 圖示。 */
 function CorrectAnswers({ question }: { question: Question }) {
-  const options = (indexes: number[], texts: string[]) =>
+  const options = (indexes: number[], texts: string[], images?: string[]) =>
     [...indexes]
       .sort((a, b) => a - b)
       .map((index) => (
@@ -75,15 +76,32 @@ function CorrectAnswers({ question }: { question: Question }) {
           <span className="option-letter">
             {String.fromCharCode(65 + index)}
           </span>
+          <OptionImage name={images?.[index]} />
           {texts[index]}
         </li>
       ))
 
   switch (question.type) {
     case 'single_choice':
-      return <ul>{options([question.correctIndex], question.options)}</ul>
+      return (
+        <ul>
+          {options(
+            [question.correctIndex],
+            question.options,
+            question.optionImages,
+          )}
+        </ul>
+      )
     case 'multiple_choice':
-      return <ul>{options(question.correctIndexes, question.options)}</ul>
+      return (
+        <ul>
+          {options(
+            question.correctIndexes,
+            question.options,
+            question.optionImages,
+          )}
+        </ul>
+      )
     case 'true_false':
       return (
         <ul>

@@ -18,7 +18,6 @@ export interface Subject {
   timeLimit: number
   lockTime?: string[]
   group?: SubjectGroupId // 所屬題組（見 data/subject-groups.ts）
-  hiddenQuestionIds?: string[] // 暫時下架的題號（題目保留在題庫裡，只是不出現）
   questions: Question[]
 }
 
@@ -77,9 +76,7 @@ export function convertToSubjectConfig(subject: Subject): SubjectConfig {
     quizOpen: subject.quizOpen,
     lockTime: subject.lockTime,
     group: subject.group,
-    questions: subject.questions.filter(
-      (q) => !subject.hiddenQuestionIds?.includes(q.id),
-    ),
+    questions: subject.questions,
   }
 }
 
@@ -92,25 +89,6 @@ const rawSubjects: Subjects = {
     quizOpen: true,
     questionCount: 50,
     timeLimit: 60,
-    // 缺圖片無法作答，等補上圖片再開放
-    // 選項是圖片：284～288、292、297、304、452；題目要看圖：289、294～296、298、299
-    hiddenQuestionIds: [
-      '284',
-      '285',
-      '286',
-      '287',
-      '288',
-      '289',
-      '292',
-      '294',
-      '295',
-      '296',
-      '297',
-      '298',
-      '299',
-      '304',
-      '452',
-    ],
     questions: [
       {
         type: 'single_choice',
@@ -2813,6 +2791,12 @@ const rawSubjects: Subjects = {
         id: '284',
         question: '在變更資料後可以按下哪一個按鈕查看歷史變更資料？',
         options: ['', '', '', ''],
+        optionImages: [
+          'erp-284-a.png',
+          'erp-284-b.png',
+          'erp-284-c.png',
+          'erp-284-d.png',
+        ],
         correctIndex: 3,
       },
       {
@@ -2820,6 +2804,12 @@ const rawSubjects: Subjects = {
         id: '285',
         question: '輸入完畢的資料選擇哪個圖案存檔？',
         options: ['', '', '', ''],
+        optionImages: [
+          'erp-285-a.png',
+          'erp-285-b.png',
+          'erp-285-c.png',
+          'erp-285-d.png',
+        ],
         correctIndex: 3,
       },
       {
@@ -2827,6 +2817,12 @@ const rawSubjects: Subjects = {
         id: '286',
         question: '選擇哪個圖案可以出現「核」字？',
         options: ['', '', '', ''],
+        optionImages: [
+          'erp-286-a.png',
+          'erp-286-b.png',
+          'erp-286-c.png',
+          'erp-286-d.png',
+        ],
         correctIndex: 1,
       },
       {
@@ -2835,6 +2831,12 @@ const rawSubjects: Subjects = {
         question:
           '開啟「採購變更單建立作業」，按工具列上哪個圖可以新增一筆資料？',
         options: ['', '', '', ''],
+        optionImages: [
+          'erp-287-a.png',
+          'erp-287-b.png',
+          'erp-287-c.png',
+          'erp-287-d.png',
+        ],
         correctIndex: 2,
       },
       {
@@ -2842,6 +2844,12 @@ const rawSubjects: Subjects = {
         id: '288',
         question: '選擇哪個圖案可以查詢變更資料？',
         options: ['', '', '', ''],
+        optionImages: [
+          'erp-288-a.png',
+          'erp-288-b.png',
+          'erp-288-c.png',
+          'erp-288-d.png',
+        ],
         correctIndex: 1,
       },
       {
@@ -2850,6 +2858,7 @@ const rawSubjects: Subjects = {
         question:
           '下圖是請購單資料維護作業，何者是採購人員可以修改功能進行維護？',
         options: ['畫面左半部', '畫面右半部', '兩者皆可修改', '兩者皆不可修改'],
+        images: ['erp-289.png'],
         correctIndex: 1,
       },
       {
@@ -2863,6 +2872,7 @@ const rawSubjects: Subjects = {
           'S：託外加工件指委託外包廠商加工完成的成品或半成品。',
           'F：Feature 件在銷售或生產時，某些可有可無的配件。',
         ],
+        images: ['erp-290.png'],
         correctIndex: 3,
       },
       {
@@ -2871,6 +2881,7 @@ const rawSubjects: Subjects = {
         question:
           '檢驗方式：設定此品號是否需要經過品檢及品檢的等級。有以下那些方式？',
         options: ['免檢', '抽檢', '全檢', '以上皆是'],
+        images: ['erp-291.png'],
         correctIndex: 3,
       },
       {
@@ -2879,6 +2890,12 @@ const rawSubjects: Subjects = {
         question:
           '若客戶的出貨運送地址有兩個以上的常用地址，請問除了在「送貨地址」按快速鍵F3 還可以在工具列上按那一個按鈕？',
         options: ['鈕', '鈕', '鈕', '鈕'],
+        optionImages: [
+          'erp-292-a.png',
+          'erp-292-b.png',
+          'erp-292-c.png',
+          'erp-292-d.png',
+        ],
         correctIndex: 0,
       },
       {
@@ -2892,6 +2909,7 @@ const rawSubjects: Subjects = {
           '廠商資料建立作業',
           '幣別匯率建立作業',
         ],
+        images: ['erp-293.png'],
         correctIndex: 0,
       },
       {
@@ -2900,6 +2918,7 @@ const rawSubjects: Subjects = {
         question:
           '若企業給某客戶甲信用額度為 100 萬，可超出率：10%，其信用額度情況如下：請問客戶甲目前可以使用的信用額度為多少？',
         options: ['14', '24', '30', '0'],
+        images: ['erp-294.png'],
         correctIndex: 1,
       },
       {
@@ -2913,6 +2932,7 @@ const rawSubjects: Subjects = {
           '這張訂單會顯示信用額度已超過的警告訊息，可以儲存但不可以確認單據。',
           '這張訂單會顯示信用額度已超過的禁止訊息，不可儲存單據。',
         ],
+        images: ['erp-295.png'],
         correctIndex: 1,
       },
       {
@@ -2926,6 +2946,7 @@ const rawSubjects: Subjects = {
           'C2102012050001',
           'C2102012052301',
         ],
+        images: ['erp-296.png'],
         correctIndex: 1,
       },
       {
@@ -2934,6 +2955,13 @@ const rawSubjects: Subjects = {
         question:
           '若想使用品號變更建立作業，變更原有品號的單身庫別資料，如：庫別、安全存量及補貨單...等。可以使用那一個功能鈕？',
         options: ['鈕', '鈕', '鈕', '鈕'],
+        images: ['erp-297.png'],
+        optionImages: [
+          'erp-297-a.png',
+          'erp-297-b.png',
+          'erp-297-c.png',
+          'erp-297-d.png',
+        ],
         correctIndex: 3,
       },
       {
@@ -2946,19 +2974,21 @@ const rawSubjects: Subjects = {
           '合約訂單複製客戶訂單的內容',
           '以上皆是',
         ],
+        images: ['erp-298.png'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '299',
         question:
-          '請購資料維護作業目的在於檢視及維護請購的內容。請問功能鈕上的表示？',
+          '請購資料維護作業目的在於檢視及維護請購的內容。請問功能鈕上的這個圖示表示？',
         options: [
           '「N：未結案」：表示該筆品項尚未採買',
           '「Y：自動結案」指定此筆品項產生採購單',
           '「y：指定結案」採購單位決定不需採買此品項',
           '以上皆非',
         ],
+        images: ['erp-299-1.png', 'erp-299-2.png'],
         correctIndex: 2,
       },
       {
@@ -2972,6 +3002,7 @@ const rawSubjects: Subjects = {
           '單據性質設定作業',
           '品號資料建立作業',
         ],
+        images: ['erp-300.png'],
         correctIndex: 3,
       },
       {
@@ -2980,6 +3011,7 @@ const rawSubjects: Subjects = {
         question:
           '合約訂單建立作業單身，其中「已受訂量」、「已訂金額」及「結案碼」欄位是由下列哪一種單據累計更新回寫？',
         options: ['銷退單', '銷貨單', '客戶訂單', '報價單'],
+        images: ['erp-301.png'],
         correctIndex: 2,
       },
       {
@@ -2988,6 +3020,7 @@ const rawSubjects: Subjects = {
         question:
           '某些單據在單身「品號」輸入時，有功能鍵 F3「整套組件展開」可依產品結構表（BOM）下展用料和數量，以提升資料輸入的效率，請問有那些單據有此功能鍵？',
         options: ['庫存異動單據', '轉撥單', '借出/入單', '以上皆可'],
+        images: ['erp-302.png'],
         correctIndex: 3,
       },
       {
@@ -3000,6 +3033,7 @@ const rawSubjects: Subjects = {
           '「歸還量」：若借出之貨品是以「借出歸還」方式處理時，還回的數量會回饋於此。',
           '「結案碼」：當「轉進銷量」+「歸還量」=「借出量」，結案碼為「y.指定結案」。',
         ],
+        images: ['erp-303.png'],
         correctIndex: 3,
       },
       {
@@ -3008,6 +3042,12 @@ const rawSubjects: Subjects = {
         question:
           'A盤點資料建立作業，確認盤點數量資料無誤後，按那一個功能鈕，（單頭會顯示「核」字表示資料輸入完成，同時）會在單身顯示出「帳面數量」？',
         options: ['鈕', '鈕', '鈕', '鈕'],
+        optionImages: [
+          'erp-304-a.png',
+          'erp-304-b.png',
+          'erp-304-c.png',
+          'erp-304-d.png',
+        ],
         correctIndex: 0,
       },
       {
@@ -3021,6 +3061,7 @@ const rawSubjects: Subjects = {
           '廠商ABC分析表',
           '廠商進貨統計表',
         ],
+        images: ['erp-305.png'],
         correctIndex: 1,
       },
       {
@@ -4398,6 +4439,12 @@ const rawSubjects: Subjects = {
         id: '452',
         question: '請問下列何者為開啟部門資料查詢的查詢鈕？',
         options: ['', '', '', ''],
+        optionImages: [
+          'erp-452-a.png',
+          'erp-452-b.png',
+          'erp-452-c.png',
+          'erp-452-d.png',
+        ],
         correctIndex: 3,
       },
       {

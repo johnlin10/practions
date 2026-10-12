@@ -1,0 +1,30 @@
+// 題目附圖：原尺寸顯示，超過畫面寬度就縮小
+.question-images {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  > img {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid var(--divider-color);
+    border-radius: 12px;
+  }
+}
+
+// 選項圖示：原圖只有二十幾 px，統一高度，放大時保持邊緣銳利
+// 圓角比所在的選項小：題庫、紀錄的選項 6px，作答的選項按鈕 12px
+.option-image {
+  flex-shrink: 0;
+  height: 44px;
+  width: auto;
+  border-radius: 3px;
+
+  button.option & {
+    border-radius: 6px;
+  }
+  image-rendering: pixelated;
+  vertical-align: middle;
+}
