@@ -12,25 +12,16 @@
     flex-direction: column;
     gap: 10px;
 
-    // 文字段落與其他頁面一樣左右留 6px；「在 Practions 裡」與表格貼齊內容寬度
+    // 文字段落與其他頁面一樣左右留 6px；時間軸、長條圖、收合列貼齊內容寬度
     > h2,
     > p {
       padding: 0 6px;
     }
 
     > h2 {
-      display: flex;
-      align-items: center;
-      gap: 8px;
       font-size: 1.05rem;
       line-height: 1.4;
       color: var(--foreground-900);
-
-      > .learning-icon {
-        width: 26px;
-        height: 26px;
-        font-size: 17px;
-      }
     }
 
     > ul {
@@ -41,56 +32,341 @@
     }
   }
 
-  // 模擬測試的結果
-  .learning-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    text-align: left;
+  // 一道答錯的題的旅程：左側一條線串起各個階段，圓點顏色同學習循環的步驟
+  .learning-timeline {
+    margin: 4px 0 0;
+    padding: 0 6px;
+    list-style: none;
 
-    th,
-    td {
-      padding: 8px 6px;
-      border-bottom: 1px solid var(--divider-color);
+    > li {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 0 0 18px 28px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 24px;
+        bottom: 0;
+        width: 2px;
+        background: var(--divider-color);
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 6px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--dot-color);
+      }
+
+      &:last-child {
+        padding-bottom: 0;
+
+        &::before {
+          display: none;
+        }
+      }
+
+      &.primary {
+        --dot-color: var(--primary-color);
+      }
+      &.review {
+        --dot-color: var(--review-color);
+      }
+      &.success {
+        --dot-color: var(--success-color);
+      }
+
+      > strong {
+        color: var(--foreground-900);
+      }
+
+      > span {
+        font-size: 0.9rem;
+        color: var(--foreground-600);
+      }
+    }
+  }
+
+  .learning-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--foreground-600);
+
+    > .material-symbols-rounded {
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-size: 1.2rem;
+      color: var(--review-color);
     }
 
-    th {
+    & + & > .material-symbols-rounded {
+      color: var(--text-muted-color);
+    }
+  }
+
+  // 小圓角標籤：天數、日子
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--foreground-900);
+    background: var(--fill-color);
+    border: 2px solid var(--border-color);
+    border-radius: 999px;
+
+    > .material-symbols-rounded {
+      font-size: 1rem;
+      color: var(--success-color);
+    }
+  }
+
+  // 容易白費力氣的做法 → 研究建議的做法
+  .learning-pairs {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 0 6px;
+    border-radius: 0;
+  }
+
+  .learning-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    > .from,
+    > .to {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      line-height: 1.5;
+
+      > .material-symbols-rounded {
+        flex-shrink: 0;
+        margin-top: 1px;
+        font-size: 1.2rem;
+      }
+    }
+
+    > .from {
+      color: var(--foreground-600);
+
+      > .material-symbols-rounded {
+        color: var(--text-faint-color);
+      }
+
+      > span:last-child {
+        text-decoration: line-through;
+        text-decoration-color: var(--text-faint-color);
+      }
+    }
+
+    > .to {
+      font-weight: 600;
+      color: var(--foreground-900);
+
+      > .material-symbols-rounded {
+        color: var(--success-color);
+      }
+    }
+
+    > .why {
+      margin-top: 6px;
+      padding-left: 26px;
+      font-size: 0.9rem;
+    }
+  }
+
+  // 間隔越來越長：一排小標籤，用箭頭接起來
+  .learning-spacing {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 4px;
+    margin-top: 8px;
+
+    > .step {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .material-symbols-rounded {
+      font-size: 1.1rem;
+      color: var(--text-faint-color);
+    }
+  }
+
+  // 掌握度的兩個例子：同一天刷很多次只算一天，不同的兩天才算掌握
+  .learning-days {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 12px 14px;
+    background: var(--fill-color);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+  }
+
+  .learning-days-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    > .label {
       font-size: 0.8rem;
       font-weight: 600;
       color: var(--foreground-600);
     }
 
-    // 「優先出沒掌握的」這欄是 Practions 現在的做法
-    td:last-child {
+    > .line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip {
+      background: var(--background-color);
+    }
+
+    .result {
+      padding: 1px 10px;
+      font-size: 0.8rem;
       font-weight: 600;
-      color: var(--primary-text-color);
+      line-height: 1.6;
+      color: var(--foreground-600);
+
+      &.done {
+        color: var(--text-white);
+        background: var(--success-color);
+        border-radius: 999px;
+      }
     }
   }
 
-  // 「在 Practions 裡」：和原理的文字分開
-  .learning-in-app {
+  // 練習建議
+  .learning-tips {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 10px;
+    padding: 0 6px;
+    list-style: none;
+
+    > li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+
+      > .material-symbols-rounded {
+        flex-shrink: 0;
+        margin-top: 1px;
+        font-size: 1.3rem;
+        color: var(--success-color);
+      }
+
+      strong {
+        color: var(--foreground-900);
+      }
+    }
+  }
+
+  // 模擬測試的結果：同一個掌握度，兩種出題方式各一條長條，長度是所需天數
+  .learning-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
     padding: 12px 14px;
     background: var(--fill-color);
     // 深色模式的 divider-color 跟 fill-color 同色，邊框改用 border-color 才看得出來
     border: 2px solid var(--border-color);
     border-radius: 12px;
+  }
 
-    > strong {
-      font-size: 0.8rem;
-      color: var(--primary-color);
-    }
+  .learning-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    font-size: 0.8rem;
+    color: var(--foreground-600);
 
-    > p {
-      font-size: 0.9rem;
+    > span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      &::before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        background: var(--text-faint-color);
+      }
+
+      &.prefer::before {
+        background: var(--primary-color);
+      }
     }
   }
 
-  > section > .learning-references {
+  .learning-chart-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    > strong {
+      font-size: 0.85rem;
+      color: var(--foreground-900);
+    }
+  }
+
+  .learning-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    color: var(--foreground-600);
+
+    // 最長的一條也要留位置給後面的天數
+    > .learning-bar-fill {
+      flex-shrink: 0;
+      width: calc((100% - 5.4em) * var(--ratio));
+      height: 10px;
+      border-radius: 5px;
+      background: var(--text-faint-color);
+    }
+
+    &.prefer {
+      font-weight: 600;
+      color: var(--primary-text-color);
+
+      > .learning-bar-fill {
+        background: var(--primary-color);
+      }
+    }
+  }
+
+  .learning-references {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
-    padding-left: calc(1.2em + 6px);
+    padding: 12px 6px 4px calc(1.2em + 6px);
     font-size: 0.8rem;
     line-height: 1.6;
     color: var(--foreground-600);

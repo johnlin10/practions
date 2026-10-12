@@ -11,21 +11,25 @@ const CONTACT_EMAIL = 'johnlin@johnlin.me'
 
 // 用起來很方便：學習循環以外的特色
 const conveniences = [
-  { icon: 'bolt', title: '打開就練', text: '不用註冊，選好題庫直接開始' },
+  {
+    icon: 'cloud_sync',
+    title: '登入保存紀錄',
+    text: '用 Google 登入，測驗紀錄存在雲端，換裝置也看得到',
+  },
   {
     icon: 'install_mobile',
     title: '安裝成 App',
     text: '加入主畫面全螢幕使用，沒網路也能練',
   },
   {
-    icon: 'cloud_sync',
-    title: '紀錄雲端同步',
-    text: '換裝置接著練，用 Google 登入就會同步',
-  },
-  {
     icon: 'visibility',
     title: '答案全公開',
-    text: '題庫、答案、測驗紀錄都能查看',
+    text: '題庫、答案和自己的測驗紀錄，隨時都能查看',
+  },
+  {
+    icon: 'tune',
+    title: '測驗可以自訂',
+    text: 'PVQC 可以自選題型、題數和時間，也有官方模擬',
   },
 ]
 
@@ -110,20 +114,19 @@ function Home(): React.ReactElement {
           <h5>初衷</h5>
           <div className="intro-text">
             <p>
-              學校的題庫系統登入麻煩、操作不便，想多練幾題，卻得先繞一大圈。
+              考前想多練幾題，學校的測驗系統卻不太順手，光是操作就花掉不少時間。
             </p>
             <p>
-              Practions 只做一件事：<strong>打開就能練</strong>
-              。不用註冊、不必登入，題庫和答案都在這裡。
+              所以我做了 Practions，希望練習能單純一點，
+              <strong>把時間花在題目本身</strong>。
             </p>
             <p>
-              但練過還要記得住。所以 Practions
-              也會幫你整理錯題、隔一段時間再考你一次，讓練過的題目真正留下來。
+              但練過不代表記得住。所以 Practions
+              也想幫你把練過的題目真正記下來，讓花下去的時間不白費。
             </p>
           </div>
         </section>
 
-        {/* 怎麼幫你記住、用起來很方便：不加外框，裡面的卡片就是內容 */}
         <section className="intro-group intro-plain">
           <h5>用起來很方便</h5>
           <div className="intro-conveniences">
@@ -139,7 +142,7 @@ function Home(): React.ReactElement {
 
         <section className="intro-group intro-plain">
           <h5>怎麼幫你記住</h5>
-          <p>照著練就好，該練哪些題目，Practions 會自動幫你安排。</p>
+          <p>你只要照著練，哪些題目該再練一次，Practions 會幫你安排。</p>
           <LearningCycle />
           <Link className="intro-learning-link no-style" to={LEARNING_PATH}>
             <span className="material-symbols-rounded">school</span>
@@ -170,7 +173,7 @@ function Home(): React.ReactElement {
                 不是考核平台
               </h3>
               <p>
-                為了讓練習盡量簡單，答案全部公開，登入也不是必要的。測驗紀錄只有作答的人自己看得到，老師無法查看，也無法確認是誰作答。
+                為了讓練習盡量簡單，答案全部公開。登入只是用來保存自己的紀錄，測驗紀錄也只有作答的人自己看得到；老師無法查看，也無法確認是誰作答。
               </p>
               <div className="intro-fit">
                 <div className="fit-yes">
@@ -203,7 +206,7 @@ function Home(): React.ReactElement {
                 <div>
                   <h4>正式考試期間可以鎖定</h4>
                   <p>
-                    事先告訴我考試的科目與時間，考試期間該科目的題庫、測驗與測驗紀錄都會暫時鎖住，時間一過自動解鎖，避免學生考試時開來查答案。
+                    事先告訴我考試的科目與時間，考試期間該科目的題庫、測驗與測驗紀錄都會暫時鎖住，時間一過自動解鎖，避免學生在考試時拿來查答案。
                   </p>
                 </div>
               </div>
@@ -223,7 +226,7 @@ function Home(): React.ReactElement {
             </summary>
             <div className="intro-contact">
               <p>
-                直接寄信給我：可以約時間聊聊，也可以把題庫檔案直接附在信裡。
+                寄信給我就可以：想先聊聊的話可以約時間，也可以直接把題庫檔案附在信裡。
               </p>
               <div className="intro-contact-list">
                 <p>信中可以附上</p>
