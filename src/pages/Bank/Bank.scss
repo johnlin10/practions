@@ -281,6 +281,7 @@ span.lock-time {
           }
 
           .question-text {
+            white-space: pre-line;
             color: var(--text-color);
             font-size: 1rem;
           }

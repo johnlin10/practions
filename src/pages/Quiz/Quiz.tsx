@@ -323,6 +323,15 @@ function Quiz(): React.ReactElement {
   const currentKey = currentQuestion
     ? answerKey(quizState.currentStage.stageId, currentQuestion.id)
     : ''
+  // 偵錯模式：網址的題號跟著目前這題，改題庫資料重新載入後停在同一題
+  // 直接改網址、不經過 router，才不會重新出題
+  const currentId = currentQuestion?.id
+  useEffect(() => {
+    if (!debug || preparing || !currentId) return
+    const url = new URL(window.location.href)
+    url.searchParams.set('debug', currentId)
+    window.history.replaceState(window.history.state, '', url)
+  }, [debug, preparing, currentId])
   // 目前這題檢查的結果（還沒檢查是 undefined）
   const currentFeedback: boolean | undefined = quizState.feedback?.[currentKey]
   // 檢查出結果時播放答對／答錯音效（每題只播一次）

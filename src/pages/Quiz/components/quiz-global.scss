@@ -179,6 +179,8 @@
 }
 
 p.question-prompt {
+  // 題目文字裡的 \n 換行
+  white-space: pre-line;
   font-size: 1rem;
   font-weight: 500;
   color: var(--foreground-900);

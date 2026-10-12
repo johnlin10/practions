@@ -18,6 +18,7 @@ export interface Subject {
   timeLimit: number
   lockTime?: string[]
   group?: SubjectGroupId // 所屬題組（見 data/subject-groups.ts）
+  hiddenQuestionIds?: string[] // 暫時下架的題號（題目保留在題庫裡，只是不出現）
   questions: Question[]
 }
 
@@ -76,7 +77,9 @@ export function convertToSubjectConfig(subject: Subject): SubjectConfig {
     quizOpen: subject.quizOpen,
     lockTime: subject.lockTime,
     group: subject.group,
-    questions: subject.questions,
+    questions: subject.questions.filter(
+      (q) => !subject.hiddenQuestionIds?.includes(q.id),
+    ),
   }
 }
 
@@ -89,6 +92,8 @@ const rawSubjects: Subjects = {
     quizOpen: true,
     questionCount: 50,
     timeLimit: 60,
+    // 355：題目的 a～f 選項內容連原始題庫都沒有，無法作答
+    hiddenQuestionIds: ['355'],
     questions: [
       {
         type: 'single_choice',
@@ -143,8 +148,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '7',
         question:
-          '客戶資料中，取價標準有（1）客戶計價（2）標準售價（3）零售價，取價順序一般設定為？',
-        options: ['123', '132', '213', '321'],
+          '客戶資料中，取價標準有下列三項，取價順序一般設定為？\na. 客戶計價\nb. 標準售價\nc. 零售價',
+        options: ['abc', 'acb', 'bac', 'cba'],
         correctIndex: 0,
       },
       {
@@ -211,7 +216,8 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '16',
-        question: '報價單憑證中選擇列印格式有哪些種？\na.中文 b.日文 c.英文',
+        question:
+          '報價單憑證中選擇列印格式有哪些種？\na. 中文\nb. 日文\nc. 英文',
         options: ['a', 'ab', 'ac', 'abc'],
         correctIndex: 2,
       },
@@ -285,7 +291,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '25',
         question:
-          '憑證列印時，選擇確認狀態選項中包括下列哪幾個<單據核准狀態下>？\na.已確認 b.未確認 c.作廢 d.全部',
+          '憑證列印時，選擇確認狀態選項中包括下列哪幾個<單據核准狀態下>？\na. 已確認\nb. 未確認\nc. 作廢\nd. 全部',
         options: ['abc', 'ac', 'acd', 'abcd'],
         correctIndex: 3,
       },
@@ -583,7 +589,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '60',
         question: '以下訂單單身品號代號何者錯誤？',
-        options: ['M：自製件', 'P：採購件', 'F：託外加工件', 'O: OPION件'],
+        options: ['M：自製件', 'P：採購件', 'F：託外加工件', 'O: OPION 件'],
         correctIndex: 2,
       },
       {
@@ -724,8 +730,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '75',
         question:
-          '訂單轉請購單的作業流程 A→訂單建立作業 B→請購單資料維護作業 C→請購單資料更新作業，請按照流程排照順序',
-        options: ['ABC', 'BCA', 'ACB', 'CAB'],
+          '訂單轉請購單的作業流程，請按照流程排列順序：\na. 訂單建立作業\nb. 請購單資料維護作業\nc. 請購單資料更新作業',
+        options: ['abc', 'bca', 'acb', 'cab'],
         correctIndex: 0,
       },
       {
@@ -754,7 +760,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '79',
         question: '下列何者是請購資料維護作業的課稅別的錯誤選項？',
-        options: ['應稅內涵', '應稅外加', '免稅', '課4/1 稅'],
+        options: ['應稅內涵', '應稅外加', '免稅', '課 4/1 稅'],
         correctIndex: 3,
       },
       {
@@ -777,7 +783,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '82',
         question:
-          '公司根據請購單位人員提出之請購需求，進行審核採購之程序，程序為下請排序 a.請購資料更新作業 b.請購資料維護作業 c.採購單建立作業？',
+          '公司根據請購單位人員提出之請購需求，進行審核採購之程序，程序為下請排序：\na. 請購資料更新作業\nb. 請購資料維護作業\nc. 採購單建立作業',
         options: ['abc', 'acb', 'bac', 'cab'],
         correctIndex: 2,
       },
@@ -808,7 +814,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '86',
         question:
-          '請問請購資料更新作業中鎖定選項有哪些選項？ a.全部 b.未鎖定 c.已鎖定 d.解除鎖定',
+          '請問請購資料更新作業中鎖定選項有哪些選項？\na. 全部\nb. 未鎖定\nc. 已鎖定\nd. 解除鎖定',
         options: ['abcd', 'ac', 'ab', 'abc'],
         correctIndex: 3,
       },
@@ -836,8 +842,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '89',
         question:
-          '公司針對請購單位人員提出之請購需求，請問進行審核採購之程序一般為何？ A.請購資料更新作業 B.系統產生「採購單建立作業」 C. 請購資料維護作業',
-        options: ['ACB', 'ABC', 'CAB', 'BAC'],
+          '公司針對請購單位人員提出之請購需求，請問進行審核採購之程序一般為何？\na. 請購資料更新作業\nb. 系統產生「採購單建立作業」\nc. 請購資料維護作業',
+        options: ['acb', 'abc', 'cab', 'bac'],
         correctIndex: 2,
       },
       {
@@ -1014,7 +1020,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '110',
-        question: '關於庫存管理的【目的】，下列敘述何者錯誤？',
+        question: '關於庫存管理的「目的」，下列敘述何者錯誤？',
         options: [
           '庫存就是公司的資產，應該確實掌握存貨數量及金額',
           '以電腦取代人工作業，可達到正確與迅速的效果',
@@ -1051,7 +1057,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '113',
         question:
-          '「品號資料建立作業」有關【品號屬性】這個欄位的意義何者有誤？',
+          '「品號資料建立作業」有關「品號屬性」這個欄位的意義何者有誤？',
         options: [
           'P：採購件，表示這個料件如果缺料，會向廠商購買',
           'M：自製件，表示這個料件是廠內生產出來的成品或半成品',
@@ -1064,7 +1070,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '114',
         question:
-          '「品號資料建立作業」中【補貨政策】的規劃，有關R：依補貨點的描述，以下何者為非？',
+          '「品號資料建立作業」中「補貨政策」的規劃，有關 R：依補貨點的描述，以下何者為非？',
         options: [
           '一般電子組裝廠，標準規格的螺絲及華司是典型的 R 件',
           'R 件的存貨若低於安全庫存量可從品號再補貨建議表中查閱',
@@ -1158,8 +1164,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '122',
         question:
-          '下列交易活動的正確程序為何？ A.庫存異動單據建立 B.列印憑證 C.倉庫發料 D.單據確認',
-        options: ['ABCD', 'BCAD', 'ADBC', 'BDCA'],
+          '下列交易活動的正確程序為何？\na. 庫存異動單據建立\nb. 列印憑證\nc. 倉庫發料\nd. 單據確認',
+        options: ['abcd', 'bcad', 'adbc', 'bdca'],
         correctIndex: 0,
       },
       {
@@ -1187,7 +1193,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '125',
         question:
-          '輸入「庫存異動單據建立作業」時，【單據編號】為【9308001】，下列描述何者為非？',
+          '輸入「庫存異動單據建立作業」時，「單據編號」為「9308001」，下列描述何者為非？',
         options: [
           '如果單據是自動編號，那是系統自動賦予的單號',
           '應該是月編，年月各兩碼，流水號三碼',
@@ -1200,7 +1206,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '126',
         question:
-          '在「庫存異動單據建立作業」輸入一張【其他出庫單】時，單身的庫存數量可以查看現有庫存，請問要按何種功能鍵？',
+          '在「庫存異動單據建立作業」輸入一張「其他出庫單」時，單身的庫存數量可以查看現有庫存，請問要按何種功能鍵？',
         options: ['F1', 'F2', 'F3', 'F4'],
         correctIndex: 1,
       },
@@ -1208,7 +1214,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '127',
         question:
-          '在「庫存異動單據建立作業」，查詢一張已經存在的【其他出庫單】，單據上有一個【核】字，其意義為何？',
+          '在「庫存異動單據建立作業」，查詢一張已經存在的「其他出庫單」，單據上有一個「核」字，其意義為何？',
         options: [
           '表示該筆異動已經確認核准，會使庫存數量減少',
           '表示核准人的姓氏',
@@ -1280,7 +1286,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '133',
         question:
-          '有關「轉撥單據建立」，單身品號有一個 F3 功能【整套組件展開】描述何者為非？',
+          '有關「轉撥單據建立」，單身品號有一個 F3 功能「整套組件展開」描述何者為非？',
         options: [
           '串連產品結構管理系統，可依 BOM 表展料件',
           '此功能可節省 KEY 單時間',
@@ -1292,7 +1298,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '134',
-        question: '下列何者為輸入「借入單」時，單頭的【異動對象】？',
+        question: '下列何者為輸入「借入單」時，單頭的「異動對象」？',
         options: ['客戶', '廠商', '人員', '以上皆是'],
         correctIndex: 3,
       },
@@ -1302,10 +1308,10 @@ const rawSubjects: Subjects = {
         question:
           '向廠商借入的 A 貨品 100 個，已轉進貨數量 80 個，還有 20 個尚未歸還，下列敘述何者正確？',
         options: [
-          '借入單中的【歸還量】及【轉進銷量】都等於【0】',
-          '借入單的【結案碼】呈現【已結案】的狀態',
-          '借入單的【轉進銷數量】等於【80】',
-          '借入單的【歸還數量】等於【80】',
+          '借入單中的「歸還量」及「轉進銷量」都等於「0」',
+          '借入單的「結案碼」呈現「已結案」的狀態',
+          '借入單的「轉進銷數量」等於「80」',
+          '借入單的「歸還數量」等於「80」',
         ],
         correctIndex: 2,
       },
@@ -1368,7 +1374,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '142',
-        question: '關於【盤盈損單】的資料，下列敘述何者錯誤？',
+        question: '關於「盤盈損單」的資料，下列敘述何者錯誤？',
         options: [
           '如果是盤盈，盤盈損單的數量為正值',
           '如果是盤損，盤盈損單的數量為負值',
@@ -1393,7 +1399,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '144',
-        question: '可利用下列哪張報表查出庫存金額或數量的【異常資料】？',
+        question: '可利用下列哪張報表查出庫存金額或數量的「異常資料」？',
         options: [
           '庫存異動統計表',
           '庫存明細表',
@@ -1425,7 +1431,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '147',
         question:
-          '公司將存貨滑鼠 10，000pcs 從新竹成品倉庫轉移至桃園成品倉庫，以下敘述何者正確？',
+          '公司將存貨滑鼠 10,000PCS 從新竹成品倉庫轉移至桃園成品倉庫，以下敘述何者正確？',
         options: [
           '新竹成品倉滑鼠數量減少',
           '桃園成品倉滑鼠數量減少',
@@ -1463,7 +1469,7 @@ const rawSubjects: Subjects = {
         id: '150',
         question:
           '公司的包裝塑膠套是每次購買 500PCS，當存量少於 100PCS 時就請購，請問它的補貨政策較適合設為何者？',
-        options: ['M：依MRP需求', 'L：依LRP需求', 'N：不需', 'R：依補貨點'],
+        options: ['M：依 MRP 需求', 'L：依 LRP 需求', 'N：不需', 'R：依補貨點'],
         correctIndex: 3,
       },
       {
@@ -1486,7 +1492,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '153',
         question:
-          '輸入庫存異動單時，想查看目前料件尚有多少庫存數量，可在哪一個欄位按[F2]查詢？',
+          '輸入庫存異動單時，想查看目前料件尚有多少庫存數量，可在哪一個欄位按 [F2] 查詢？',
         options: ['庫別', '單位', '數量', '品號'],
         correctIndex: 2,
       },
@@ -1516,9 +1522,9 @@ const rawSubjects: Subjects = {
         question: '借出單上的結案碼如果呈現為 Y，下列敘述何者有誤？',
         options: [
           '輸入借出歸還單後的訊息回饋',
-          '客戶歸還貨品時手動到借出單將結案狀態修改為Y：自動結案，以做記錄',
+          '客戶歸還貨品時手動到借出單將結案狀態修改為 Y：自動結案，以做記錄',
           '借出歸還單上的來源單號要輸入',
-          '當借出的數量全數歸還時系統顯示Y：自動結案',
+          '當借出的數量全數歸還時系統顯示 Y：自動結案',
         ],
         correctIndex: 1,
       },
@@ -1538,16 +1544,16 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '158',
         question:
-          '有關盤點程序，下列何者先後步驟順序正確？ A.抽盤品號產生 B.現場實地盤點 C.列印盤點卡 D. 產生盤盈損單 E.實盤資料補入',
-        options: ['ABCDE', 'ABCED', 'BACDE', 'ACBED'],
+          '有關盤點程序，下列何者先後步驟順序正確？\na. 抽盤品號產生\nb. 現場實地盤點\nc. 列印盤點卡\nd. 產生盤盈損單\ne. 實盤資料補入',
+        options: ['abcde', 'abced', 'bacde', 'acbed'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '159',
         question:
-          '抽盤品號產生作業的底稿排序方式，有下列何者？ A.依品號 B.依庫別 C.依數量',
-        options: ['ABC', 'BC', 'AB', 'AC'],
+          '抽盤品號產生作業的底稿排序方式，有下列何者？\na. 依品號\nb. 依庫別\nc. 依數量',
+        options: ['abc', 'bc', 'ab', 'ac'],
         correctIndex: 2,
       },
       {
@@ -1575,8 +1581,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '162',
         question:
-          '下列單據何者具有「複製前置單據」功能？ A.銷貨單 B.採購單 C.進貨單 D.借出/入歸還單 E.轉撥單',
-        options: ['ACD', 'BCDE', 'ABCD', 'ABCDE'],
+          '下列單據何者具有「複製前置單據」功能？\na. 銷貨單\nb. 採購單\nc. 進貨單\nd. 借出/入歸還單\ne. 轉撥單',
+        options: ['acd', 'bcde', 'abcd', 'abcde'],
         correctIndex: 0,
       },
       {
@@ -1623,8 +1629,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '167',
         question:
-          '有關接單出貨的流程順序，下列何者正確？ A.報價 B.客戶訂單 C.銷貨單 D.折讓單 E.收款單 F. 結帳單',
-        options: ['ABCDEF', 'ABDEF', 'ABCDFE', 'ABEFCD'],
+          '有關接單出貨的流程順序，下列何者正確？\na. 報價\nb. 客戶訂單\nc. 銷貨單\nd. 折讓單\ne. 收款單\nf. 結帳單',
+        options: ['abcdef', 'abdef', 'abcdfe', 'abefcd'],
         correctIndex: 2,
       },
       {
@@ -1634,7 +1640,7 @@ const rawSubjects: Subjects = {
         options: [
           '報價單必須要確認，還要客戶確認，才能轉為客戶訂單',
           '報價單必須要確認，還要客戶確認，才能轉銷貨單',
-          '如果折扣率是10%，表示打九折',
+          '如果折扣率是 10%，表示打九折',
           '報價時若有贈品行為，報價數量與贈品數量，要分開輸入',
         ],
         correctIndex: 2,
@@ -1643,22 +1649,22 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '169',
         question:
-          '有關「訂單建立作業」的【已交數量】可由哪些數量來更新？ A.銷貨數量 B.銷退數量 C.贈品量 D. 報廢量 E.維修量',
-        options: ['AEB', 'AB', 'ABC', 'ABCDE'],
+          '有關「訂單建立作業」的「已交數量」可由哪些數量來更新？\na. 銷貨數量\nb. 銷退數量\nc. 贈品量\nd. 報廢量\ne. 維修量',
+        options: ['abe', 'ab', 'abc', 'abcde'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '170',
         question:
-          '有關「客戶訂單建立作業」，單頭功能鍵的【複製前置單據】可複製何種單據？',
+          '有關「客戶訂單建立作業」，單頭功能鍵的「複製前置單據」可複製何種單據？',
         options: ['商品預測資料', '客戶確認單', '請購單', '報價單'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '171',
-        question: '有關「客戶訂單建立作業」單身的【結案碼】，以下何者不是？',
+        question: '有關「客戶訂單建立作業」單身的「結案碼」，以下何者不是？',
         options: ['未結案', '自動結案', '指定結案', '未開工'],
         correctIndex: 3,
       },
@@ -1714,7 +1720,7 @@ const rawSubjects: Subjects = {
           '報價單單身中的「生效日」與「失效日」，其意義表示這張報價單的有效期間，如果過了這段期間要交易，原則上需要再報價',
           '未經「客戶確認」的報價單，不得轉為正式「客戶訂單」或「銷貨單」',
           '如果要給予客戶九折的折扣，要在訂單單身中的「折扣率」欄位，輸入 10%',
-          '報價時，如果已和客戶談妥付款條件，可以在付款條件按【F2】開窗選擇設定好的資料輸入',
+          '報價時，如果已和客戶談妥付款條件，可以在付款條件按 [F2] 開窗選擇設定好的資料輸入',
         ],
         correctIndex: 2,
       },
@@ -1729,7 +1735,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '178',
         question:
-          '要對「銷貨單建立作業」中的【銷貨單價】進行下限管制時，要在哪項作業先設定單價管制？',
+          '要對「銷貨單建立作業」中的「銷貨單價」進行下限管制時，要在哪項作業先設定單價管制？',
         options: [
           '客戶商品計價資料建立作業',
           '品號資料建立作業',
@@ -1755,7 +1761,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '180',
         question:
-          '如果在銷退單單身輸入【銷貨單號】之後，【銷退數量】不可大於下列何種數量？',
+          '如果在銷退單單身輸入「銷貨單號」之後，「銷退數量」不可大於下列何種數量？',
         options: [
           '銷貨單的「銷貨數量」',
           '訂單的「訂單數量」',
@@ -1868,8 +1874,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '191',
         question:
-          '客戶訂單產生的方式有下列何者？ A.完全手動輸入 B.複製前置單據 C.銷貨單產生訂單作業',
-        options: ['A', 'AB', 'ABC', 'C'],
+          '客戶訂單產生的方式有下列何者？\na. 完全手動輸入\nb. 複製前置單據\nc. 銷貨單產生訂單作業',
+        options: ['a', 'ab', 'abc', 'c'],
         correctIndex: 1,
       },
       {
@@ -1921,8 +1927,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '196',
         question:
-          '客戶訂單指定結案動作，可以如何執行？ A.在客戶訂單作業單身選取「指定結案」選項 B.透過「訂單指定結案作業」來執行 C.透過「訂單變更單建立作業」來指定結案',
-        options: ['AB', 'AC', 'BC', 'ABC'],
+          '客戶訂單指定結案動作，可以如何執行？\na. 在客戶訂單作業單身選取「指定結案」選項\nb. 透過「訂單指定結案作業」來執行\nc. 透過「訂單變更單建立作業」來指定結案',
+        options: ['ab', 'ac', 'bc', 'abc'],
         correctIndex: 2,
       },
       {
@@ -1989,7 +1995,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '203',
         question:
-          '「廠商基本資料建立作業」中的【最近交易】欄位，由下列哪種單據所更新？',
+          '「廠商基本資料建立作業」中的「最近交易」欄位，由下列哪種單據所更新？',
         options: ['採購單', '進貨單', '採購變更單', '應付憑單'],
         correctIndex: 1,
       },
@@ -1997,15 +2003,15 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '204',
         question:
-          '關於「請購單建立作業」中【來源別】的項目，下列描述何者為非？',
-        options: ['MRP/LRP', '自行輸入', '再補貨建議表', 'BOM自動請購'],
+          '關於「請購單建立作業」中「來源別」的項目，下列描述何者為非？',
+        options: ['MRP/LRP', '自行輸入', '再補貨建議表', 'BOM 自動請購'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '205',
         question:
-          '關於「請購單建立作業」中【需求日期】的計算，下列描述何者為是？',
+          '關於「請購單建立作業」中「需求日期」的計算，下列描述何者為是？',
         options: [
           '核價日期+品號前置天數',
           '廠商的結帳日期',
@@ -2025,14 +2031,14 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '207',
-        question: '下列哪張單據是【因應公司內部管理需求】而產生的？',
+        question: '下列哪張單據是「因應公司內部管理需求」而產生的？',
         options: ['請購單', '採購單', '進貨單', '退貨單'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '208',
-        question: '有關「請購資料維護作業」中的【供應廠商】描述何者為非？',
+        question: '有關「請購資料維護作業」中的「供應廠商」描述何者為非？',
         options: [
           '應該由負責人員維護好之後再進行產生採購單的動作',
           '可以修改',
@@ -2056,7 +2062,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '210',
-        question: '關於【輸入採購單的方式】，下列敘述何者為非？',
+        question: '關於「輸入採購單的方式」，下列敘述何者為非？',
         options: [
           '自行輸入採購單',
           '透過訂單管理系統的「訂單轉採購單複製作業」產生',
@@ -2069,7 +2075,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '211',
         question:
-          '關於「採購單建立作業」中【已交數量】會被哪些單據確認後所更新？',
+          '關於「採購單建立作業」中「已交數量」會被哪些單據確認後所更新？',
         options: [
           '進貨單與退貨單',
           '進貨單與採購變更單',
@@ -2081,7 +2087,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '212',
-        question: '關於「採購單建立作業」中的【結案碼】有哪些狀態？',
+        question: '關於「採購單建立作業」中的「結案碼」有哪些狀態？',
         options: ['Y：自動結案', 'N：未結案', 'y：指定結案', '以上皆是'],
         correctIndex: 3,
       },
@@ -2089,7 +2095,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '213',
         question:
-          '若執行訂單轉採購單複製作業產生採購單，則「採購單建立作業」中的【參考單別+參考單號】，會顯示什麼單據的號碼？',
+          '若執行訂單轉採購單複製作業產生採購單，則「採購單建立作業」中的「參考單別+參考單號」，會顯示什麼單據的號碼？',
         options: ['請購單', '製令單', '採購變更單', '訂單'],
         correctIndex: 3,
       },
@@ -2138,7 +2144,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '219',
         question:
-          '關於「請購資料維護作業」的【指定結案】功能，下列敘述何者正確？',
+          '關於「請購資料維護作業」的「指定結案」功能，下列敘述何者正確？',
         options: [
           '不可以進行請購單中某一品項的「單筆結案」',
           '可以進行請購單的「整張結案」',
@@ -2178,7 +2184,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '223',
         question:
-          '輸入進貨單時，當採購單的【預交日】小於進貨單的【進貨日】時，下列哪個欄位會顯示打勾？',
+          '輸入進貨單時，當採購單的「預交日」小於進貨單的「進貨日」時，下列哪個欄位會顯示打勾？',
         options: ['不良碼', '逾期碼', '驗退碼', '結帳碼'],
         correctIndex: 1,
       },
@@ -2198,7 +2204,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '225',
         question:
-          '「進貨單建立作業」中的【複製前置單據】功能，可複製的是什麼單據？',
+          '「進貨單建立作業」中的「複製前置單據」功能，可複製的是什麼單據？',
         options: [
           '借出單與採購單',
           '請購單與採購單',
@@ -2210,7 +2216,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '226',
-        question: '關於【三段式收料作業】，下列敘述何者正確？',
+        question: '關於「三段式收料作業」，下列敘述何者正確？',
         options: [
           '1.採購、2.驗收、3.貨款輸入',
           '1.採購、2.到貨、3.貨款輸入',
@@ -2223,19 +2229,19 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '227',
         question:
-          '當進貨單【確認】時，系統將進貨單的金額加到【庫存成本】的計算公式？',
+          '當進貨單「確認」時，系統將進貨單的金額加到「庫存成本」的計算公式？',
         options: [
-          '（進貨金額 - 扣款金額）*幣別匯率',
-          '（（進貨金額 - 扣款金額）*幣別匯率） + 進貨費用',
+          '(進貨金額 - 扣款金額)*幣別匯率',
+          '((進貨金額 - 扣款金額)*幣別匯率) + 進貨費用',
           '進貨金額 * 幣別匯率',
-          '（進貨金額*幣別匯率） + 進貨費用',
+          '(進貨金額*幣別匯率) + 進貨費用',
         ],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '228',
-        question: '可用來【查詢所有已請購之明細資料】的報表，是下列哪張報表？',
+        question: '可用來「查詢所有已請購之明細資料」的報表，是下列哪張報表？',
         options: [
           '請購變更單明細表',
           '詢價審核資料明細表',
@@ -2254,7 +2260,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '230',
-        question: '請問下列哪張報表，可查詢【已結帳】的進貨資料？',
+        question: '請問下列哪張報表，可查詢「已結帳」的進貨資料？',
         options: [
           '廠商進貨統計表',
           '廠商進貨明細表',
@@ -2267,7 +2273,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '231',
         question:
-          '可用來【查詢一段期間內廠商的進貨明細資料，以供廠商帳款對帳使用】的報表，是下列哪張報表？',
+          '可用來「查詢一段期間內廠商的進貨明細資料，以供廠商帳款對帳使用」的報表，是下列哪張報表？',
         options: [
           '廠商進貨明細表',
           '廠商進貨統計表',
@@ -2280,16 +2286,16 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '232',
         question:
-          '下列採購付款流程順序何者較為合理？ A.採購 B.請購 C.進貨 D.進貨驗收 E.付款單 F.應付憑單',
-        options: ['ABCDEF', 'BACDFE', 'ABCDFE', 'BADCEF'],
+          '下列採購付款流程順序何者較為合理？\na. 採購\nb. 請購\nc. 進貨\nd. 進貨驗收\ne. 付款單\nf. 應付憑單',
+        options: ['abcdef', 'bacdfe', 'abcdfe', 'badcef'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '233',
         question:
-          '以下何者會影響庫存數量的增減？ A.請購單 B.採購單 C.進貨單 D.退貨單',
-        options: ['AB', 'CD', 'BC', 'AD'],
+          '以下何者會影響庫存數量的增減？\na. 請購單\nb. 採購單\nc. 進貨單\nd. 退貨單',
+        options: ['ab', 'cd', 'bc', 'ad'],
         correctIndex: 1,
       },
       {
@@ -2303,8 +2309,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '235',
         question:
-          '下列請採購程序何者正確？ A.請購單 B.請購資料維護 C.請購資料更新',
-        options: ['BAC', 'CAB', 'ABC', 'BCA'],
+          '下列請採購程序何者正確？\na. 請購單\nb. 請購資料維護\nc. 請購資料更新',
+        options: ['bac', 'cab', 'abc', 'bca'],
         correctIndex: 2,
       },
       {
@@ -2336,8 +2342,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '238',
         question:
-          '採購單產生的方式有哪些？ A.手動新增 B.訂單轉採購單複製 C.請購資料更新 D.進貨單產生採購單',
-        options: ['AD', 'ABC', 'ABCD', 'ABD'],
+          '採購單產生的方式有哪些？\na. 手動新增\nb. 訂單轉採購單複製\nc. 請購資料更新\nd. 進貨單產生採購單',
+        options: ['ad', 'abc', 'abcd', 'abd'],
         correctIndex: 1,
       },
       {
@@ -2691,8 +2697,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '273',
         question:
-          '採購人員針對請購人員提出之請購需求所進行的採購審核程序，下列何者正確？ A.採購單 B.請購資料更新 C.請購資料維護 D.請購單',
-        options: ['ABCD', 'CBDA', 'DCBA', 'DBCA'],
+          '採購人員針對請購人員提出之請購需求所進行的採購審核程序，下列何者正確？\na. 採購單\nb. 請購資料更新\nc. 請購資料維護\nd. 請購單',
+        options: ['abcd', 'cbda', 'dcba', 'dbca'],
         correctIndex: 2,
       },
       {
@@ -2702,9 +2708,9 @@ const rawSubjects: Subjects = {
           '舉例：甲公司 331-9405001 採購單所採購的原料 A 變更過 3 次，請問可在下列何處查看「所有歷史變更」內容？',
         options: [
           '採購單 331-9405001',
-          '採購單憑證331-9405001',
-          '採購變更單331-9405001 變更版次 0001',
-          '採購變更單331-9405001 變更版次 0003',
+          '採購單憑證 331-9405001',
+          '採購變更單 331-9405001 變更版次 0001',
+          '採購變更單 331-9405001 變更版次 0003',
         ],
         correctIndex: 0,
       },
@@ -2754,24 +2760,24 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '280',
         question:
-          '客戶 ABC 分析表選擇排名依據有 A.銷貨金額 B.銷退金額 C.折讓金額 D.銷貨淨額 E.銷貨毛利 F.毛利率',
-        options: ['ABC', 'ABCD', 'ABCDE', 'ABCDEF'],
+          '客戶 ABC 分析表選擇排名依據有哪些？\na. 銷貨金額\nb. 銷退金額\nc. 折讓金額\nd. 銷貨淨額\ne. 銷貨毛利\nf. 毛利率',
+        options: ['abc', 'abcd', 'abcde', 'abcdef'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '281',
         question:
-          '廠商 ABC 分析表會依同類型廠商的 A.進貨金額 B.交貨時間 C.品質狀況進行排名',
-        options: ['ABC', 'AB', 'BC', 'AC'],
+          '廠商 ABC 分析表會依同類型廠商的哪些項目進行排名？\na. 進貨金額\nb. 交貨時間\nc. 品質狀況',
+        options: ['abc', 'ab', 'bc', 'ac'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '282',
         question:
-          '廠商進貨統計表可分析廠商的 A.交貨評寺 B.交貨時間 C.品質評等 D.ABC等級 E.不良率 F.進貨淨額',
-        options: ['ABC', 'ACD', 'ACDEF', 'CDEF'],
+          '廠商進貨統計表可分析廠商的哪些項目？\na. 交貨評等\nb. 交貨時間\nc. 品質評等\nd. ABC 等級\ne. 不良率\nf. 進貨淨額',
+        options: ['abc', 'acd', 'acdef', 'cdef'],
         correctIndex: 2,
       },
       {
@@ -2888,7 +2894,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '292',
         question:
-          '若客戶的出貨運送地址有兩個以上的常用地址，請問除了在「送貨地址」按快速鍵F3 還可以在工具列上按那一個按鈕？',
+          '若客戶的出貨運送地址有兩個以上的常用地址，請問除了在「送貨地址」按快速鍵 F3 還可以在工具列上按那一個按鈕？',
         options: ['鈕', '鈕', '鈕', '鈕'],
         optionImages: [
           'erp-292-a.png',
@@ -3040,7 +3046,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '304',
         question:
-          'A盤點資料建立作業，確認盤點數量資料無誤後，按那一個功能鈕，（單頭會顯示「核」字表示資料輸入完成，同時）會在單身顯示出「帳面數量」？',
+          'A 盤點資料建立作業，確認盤點數量資料無誤後，按那一個功能鈕，（單頭會顯示「核」字表示資料輸入完成，同時）會在單身顯示出「帳面數量」？',
         options: ['鈕', '鈕', '鈕', '鈕'],
         optionImages: [
           'erp-304-a.png',
@@ -3058,7 +3064,7 @@ const rawSubjects: Subjects = {
         options: [
           '供應廠商資建立作業',
           '廠商進貨異常表',
-          '廠商ABC分析表',
+          '廠商 ABC 分析表',
           '廠商進貨統計表',
         ],
         images: ['erp-305.png'],
@@ -3067,7 +3073,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '306',
-        question: 'ERP系統發展的演進歷程有五個階段，以下何者不是？',
+        question: 'ERP 系統發展的演進歷程有五個階段，以下何者不是？',
         options: ['MRP', 'ERPII', 'RTE', 'MIC'],
         correctIndex: 3,
       },
@@ -3151,7 +3157,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '316',
         question:
-          'ERP 共分成五個階段，a.ERP b.MRPII c.ERPII d.MRP e.RTE 請依照順序排列',
+          'ERP 共分成五個階段，請依照順序排列：\na. ERP\nb. MRPII\nc. ERPII\nd. MRP\ne. RTE',
         options: ['dabce', 'dbace', 'caebd', 'cbdae'],
         correctIndex: 1,
       },
@@ -3220,7 +3226,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '323',
-        question: 'MRPII是在哪一個年代所發展的？',
+        question: 'MRPII 是在哪一個年代所發展的？',
         options: ['1970', '2000', '1990', '1980'],
         correctIndex: 3,
       },
@@ -3235,7 +3241,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '325',
         question:
-          '九大循環包含以下那些： a銷售收款循環 b採購付款循環 c投資循環 d生產循環 e薪工循環 f固定資產循環？',
+          '九大循環包含以下哪些？\na. 銷售收款循環\nb. 採購付款循環\nc. 投資循環\nd. 生產循環\ne. 薪工循環\nf. 固定資產循環',
         options: ['abdf', 'acdef', 'adef', 'abcdef'],
         correctIndex: 3,
       },
@@ -3251,7 +3257,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '327',
         question:
-          'ERP 與 MES 系統整合架構圖中，MES 系統的工單下線與 ERP 系統的那兩項相連結？ a訂單 b製令工單 c生產入庫單 d領料單',
+          'ERP 與 MES 系統整合架構圖中，MES 系統的工單下線與 ERP 系統的那兩項相連結？\na. 訂單\nb. 製令工單\nc. 生產入庫單\nd. 領料單',
         options: ['bc', 'ac', 'cd', 'ab'],
         correctIndex: 1,
       },
@@ -3436,7 +3442,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '347',
         question:
-          'a.基礎模組 b.整合性模組 c.管理決策分析系統，按照 workflow 模組順序排之？',
+          '請按照 workflow 模組順序排列：\na. 基礎模組\nb. 整合性模組\nc. 管理決策分析系統',
         options: ['cba', 'acb', 'abc', 'bac'],
         correctIndex: 2,
       },
@@ -3455,19 +3461,17 @@ const rawSubjects: Subjects = {
         correctIndex: 3,
       },
       {
-        type: 'single_choice',
+        type: 'true_false',
         id: '350',
         question:
-          '一般企業報價單是給客戶看的內容包含商品品項、規格、單價、交運方式、交運日期....這些資訊都跟訂單受訂出貨有關，有些不適合直接當成內部資訊來傳遞，故業務單位就會把對外的報價單轉換成內部的[客戶訂單]',
-        options: ['對', '錯', '好像是', '不會'],
-        correctIndex: 0,
+          '一般企業報價單是給客戶看的內容包含商品品項、規格、單價、交運方式、交運日期....這些資訊都跟訂單受訂出貨有關，有些不適合直接當成內部資訊來傳遞，故業務單位就會把對外的報價單轉換成內部的「客戶訂單」。',
+        correctAnswer: true,
       },
       {
-        type: 'single_choice',
+        type: 'true_false',
         id: '351',
-        question: '企業營運程序有人力資源、研發、行銷、財務、生產/採購/資材',
-        options: ['對', '錯', '好像是', '不會'],
-        correctIndex: 0,
+        question: '企業營運程序有人力資源、研發、行銷、財務、生產/採購/資材。',
+        correctAnswer: true,
       },
       {
         type: 'single_choice',
@@ -3475,7 +3479,7 @@ const rawSubjects: Subjects = {
         question: '各部門所負責的資料以下何者錯誤？',
         options: [
           '資材人員負責庫存、商品資料',
-          '研發人員負責BOM資料',
+          '研發人員負責 BOM 資料',
           '生管人員負責製令/製程資料',
           '財務人員負責客戶資料',
         ],
@@ -3485,7 +3489,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '353',
         question:
-          'workflow 模組之敘述，以下何者錯誤？ a.第一階段從第 1 到第 20 模組 b.第二階段第 21 和第 22 模組 c.人事薪資管理系統屬於基礎模組',
+          'workflow 模組之敘述，以下何者錯誤？\na. 第一階段從第 1 到第 20 模組\nb. 第二階段第 21 和第 22 模組\nc. 人事薪資管理系統屬於基礎模組',
         options: ['bc', 'ab', 'a', 'b'],
         correctIndex: 1,
       },
@@ -3493,8 +3497,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '354',
         question:
-          '---以下為中英文對照--- 產品結構管理系統 BOM（bill of material management system）物料需求計劃系統 MRP（Material Requirements Planning System）產品序號管理系統 PSM（Product Serial Number Management System）存貨決策支援系統 EII（Inventory Executive Information system）訂單管理系統 COP（Customer Order Processing）製程管理系統 SFC（Shop Floor Control Management System）以上中英文對照，何者錯誤？',
-        options: ['a', 'af', 'cb', '無錯誤'],
+          '以下中英文對照，何者錯誤？\na. 產品結構管理系統 BOM（bill of material management system）\nb. 物料需求計劃系統 MRP（Material Requirements Planning System）\nc. 產品序號管理系統 PSM（Product Serial Number Management System）\nd. 存貨決策支援系統 EII（Inventory Executive Information system）\ne. 訂單管理系統 COP（Customer Order Processing）\nf. 製程管理系統 SFC（Shop Floor Control Management System）',
+        options: ['a', 'af', 'bc', '無錯誤'],
         correctIndex: 3,
       },
       {
@@ -3553,7 +3557,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '361',
         question: '可協助有效的客戶價值管理的是何者分析？',
-        options: ['產品ABC分析', '通路ABC分析', '客戶ABC分析', '以上都是'],
+        options: [
+          '產品 ABC 分析',
+          '通路 ABC 分析',
+          '客戶 ABC 分析',
+          '以上都是',
+        ],
         correctIndex: 2,
       },
       {
@@ -3592,7 +3601,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '366',
-        question: '何謂PDM，以下何者正確？',
+        question: '何謂 PDM，以下何者正確？',
         options: [
           'Produce Data Management',
           'Product Data Management',
@@ -3625,7 +3634,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '369',
         question: 'ERP 導入效益的衡量指標中 e 化的深度有那些？',
-        options: ['應用MRP系統', 'MPS系統', 'SCM', '以上皆是'],
+        options: ['應用 MRP 系統', 'MPS 系統', 'SCM', '以上皆是'],
         correctIndex: 3,
       },
       {
@@ -3656,14 +3665,16 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '372',
-        question: '導入 ERP 系統失敗的原因：',
+        question:
+          '導入 ERP 系統失敗的原因：\na. 電腦化時程失控\nb. 部門溝通不良\nc. 作業流程設計不良\nd. 資訊人力及能力的不足',
         options: ['abc', 'abd', 'bcd', '以上皆是'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '373',
-        question: 'ERP的效益顯現，可分成：',
+        question:
+          'ERP 的效益顯現，可分成：\na. 資料分享\nb. 程序及風險控管\nc. 即時有效經營分析\nd. 經營效率提升',
         options: ['abc', 'abd', 'bcd', '以上皆是'],
         correctIndex: 3,
       },
@@ -3682,7 +3693,8 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '375',
-        question: '資料的電腦編號是為了： (A) 識別 (B) 防止資料的重複 (C) 提升資料在登錄時效？',
+        question:
+          '資料的電腦編號是為了：\na. 識別\nb. 防止資料的重複\nc. 提升資料在登錄時效',
         options: ['ab', 'ac', 'bc', '以上皆是'],
         correctIndex: 3,
       },
@@ -3723,7 +3735,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '380',
-        question: 'ERP的效益顯現可以簡單分成四類，下列敘述何者錯誤？',
+        question: 'ERP 的效益顯現可以簡單分成四類，下列敘述何者錯誤？',
         options: [
           '即時有效的經營分析',
           '資料分享',
@@ -3736,7 +3748,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '381',
         question:
-          'ERP導入的時序將專案階段切割成五大階段，請將下列選項依順排列？ a.作業流程擬定階段 b.效益評估及結案階段 c.教育訓練階段 d.正式上線階段 e.專案計畫階段',
+          'ERP 導入的時序將專案階段切割成五大階段，請將下列選項依順排列？\na. 作業流程擬定階段\nb. 效益評估及結案階段\nc. 教育訓練階段\nd. 正式上線階段\ne. 專案計畫階段',
         options: ['eacdb', 'ecadb', 'aedcb', 'ceadb'],
         correctIndex: 1,
       },
@@ -3763,7 +3775,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '384',
-        question: '下列ERP導入失敗的原因何者正確？',
+        question: '下列 ERP 導入失敗的原因何者正確？',
         options: [
           '經營者或高階主管的決心及支持度不佳',
           '系統不好',
@@ -3776,7 +3788,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '385',
         question:
-          'ERP專案五大階段中的專案計畫階段進度規劃表要很詳細的紀錄以下何者錯誤？',
+          'ERP 專案五大階段中的專案計畫階段進度規劃表要很詳細的紀錄以下何者錯誤？',
         options: ['期末帳目資料', '作業流程', '基本資料蒐集', '期初開帳資料'],
         correctIndex: 0,
       },
@@ -3784,14 +3796,14 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '386',
         question:
-          'ERP專案五大階段中的教育訓練階段，基礎規劃資料中哪兩項最重要？ a.物料編號 b.品號資料 c.BOM分階原則 d.客戶資料',
+          'ERP 專案五大階段中的教育訓練階段，基礎規劃資料中哪兩項最重要？\na. 物料編號\nb. 品號資料\nc. BOM 分階原則\nd. 客戶資料',
         options: ['bc', 'ad', 'ac', 'cd'],
         correctIndex: 2,
       },
       {
         type: 'single_choice',
         id: '387',
-        question: 'ERP系統資料為何需要編號？',
+        question: 'ERP 系統資料為何需要編號？',
         options: [
           '是一種識別',
           '提昇資料登入的時效',
@@ -3803,8 +3815,13 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '388',
-        question: '依過去導入ERP的經驗，第一階段大約要多少時間完成？',
-        options: ['一年到一年半', '半年到一年', '3個月到半年', '1個月到3個月'],
+        question: '依過去導入 ERP 的經驗，第一階段大約要多少時間完成？',
+        options: [
+          '一年到一年半',
+          '半年到一年',
+          '3 個月到半年',
+          '1 個月到 3 個月',
+        ],
         correctIndex: 1,
       },
       {
@@ -3872,15 +3889,15 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '394',
         question:
-          'ERP 系統專案負責哪些工作？ A（線上服務） B（教育訓練） C（系統工程） D（個案修改）',
-        options: ['ABC', 'BC', 'BCD', 'ABCD'],
+          'ERP 系統專案負責哪些工作？\na. 線上服務\nb. 教育訓練\nc. 系統工程\nd. 個案修改',
+        options: ['abc', 'bc', 'bcd', 'abcd'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '395',
         question:
-          'BOM 的階次從成品到採購件由上而下數數，從零開始。所以這是一個「？階」的 BOM 結構？',
+          'BOM 的階次從成品到採購件由上而下數數，從零開始。所以這是一個「＿＿階」的 BOM 結構？',
         options: ['4', '3', '2', '1'],
         correctIndex: 2,
       },
@@ -3924,9 +3941,9 @@ const rawSubjects: Subjects = {
         id: '400',
         question: 'E 化規劃小組組織的主要權責，下列何者錯誤？',
         options: [
-          '為企業ERP導入上線成功而負責',
-          '負責ERP固案修改的需求提出、規格確認及驗收',
-          '參與ERP導入訓練相關課程',
+          '為企業 ERP 導入上線成功而負責',
+          '負責 ERP 固案修改的需求提出、規格確認及驗收',
+          '參與 ERP 導入訓練相關課程',
           '以上皆對',
         ],
         correctIndex: 3,
@@ -3941,7 +3958,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '402',
-        question: 'Workflow ERP 3-Tier系統架構，下例何者不是它的區分？',
+        question: 'Workflow ERP 3-Tier 系統架構，下例何者不是它的區分？',
         options: [
           '前端使用界面',
           '中間應用程式伺服器',
@@ -4012,7 +4029,7 @@ const rawSubjects: Subjects = {
         id: '408',
         question: '下列何者不是 Client 的作業系統？',
         options: [
-          'Microsoft Windows98',
+          'Microsoft Windows 98',
           'Microsoft Windows NT Server 4.0 SP4',
           'Microsoft Windows NT Workstation',
           'Microsoft Windows XP Professional',
@@ -4044,10 +4061,10 @@ const rawSubjects: Subjects = {
         id: '411',
         question: '下列何者不是 Workflow ERP 使用 Terminal Services 的優點？',
         options: [
-          '工作站不需要維護Workflow ERP 程式',
+          '工作站不需要維護 Workflow ERP 程式',
           '可提高工作站要求配備',
-          '可降低客戶IT部門維護工作站的負擔',
-          '相當於Web Solution',
+          '可降低客戶 IT 部門維護工作站的負擔',
+          '相當於 Web Solution',
         ],
         correctIndex: 1,
       },
@@ -4108,7 +4125,7 @@ const rawSubjects: Subjects = {
         id: '417',
         question:
           '非同步處理的架構中，如報表分頁欲傳送至哪個地方，以供查閱或列印？',
-        options: ['Client端', 'Server端', '報表區', 'Report'],
+        options: ['Client 端', 'Server 端', '報表區', 'Report'],
         correctIndex: 0,
       },
       {
@@ -4116,13 +4133,13 @@ const rawSubjects: Subjects = {
         id: '418',
         question:
           '批次或確認作業如果有指定產生檔案，則依據「ConductorS.ini」的設定產生在指定目錄位置下為什麼檔案格式？',
-        options: ['Html檔', 'Word檔', 'Excel檔', 'Txt檔'],
+        options: ['Html 檔', 'Word 檔', 'Excel 檔', 'Txt 檔'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '419',
-        question: '工作站以幾層的架構向Server端取得報表結果？',
+        question: '工作站以幾層的架構向 Server 端取得報表結果？',
         options: ['第一層', '第二層', '第三層', '第四層'],
         correctIndex: 2,
       },
@@ -4143,67 +4160,67 @@ const rawSubjects: Subjects = {
         id: '421',
         question:
           '何者會定時的掃描是否有報表或批次必須執行，若該主機有未完成工作，則會開始產生運算報表及批次作業？',
-        options: ['Client', '報表區', 'Socket', 'Dispatcher'],
+        options: ['Client 端', '報表區', 'Socket', 'Dispatcher'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '422',
-        question: '如企業走兩層架構，則會在Client端會有幾組以上的目錄？',
+        question: '如企業走兩層架構，則會在 Client 端會有幾組以上的目錄？',
         options: ['一組', '兩組', '三組', '四組'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '423',
-        question: '在Workflow的目錄何者是存放程式的區塊？',
+        question: '在 Workflow 的目錄何者是存放程式的區塊？',
         options: ['_modi', '_pkg', '_dsbin', '_data'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '424',
-        question: '在Workflow的目錄何者是存放公用元件的區塊？',
+        question: '在 Workflow 的目錄何者是存放公用元件的區塊？',
         options: ['_modi', '_pkg', '_dsbin', '_data'],
         correctIndex: 2,
       },
       {
         type: 'single_choice',
         id: '425',
-        question: '在Workflow的目錄何者是存放個案區的區塊？',
+        question: '在 Workflow 的目錄何者是存放個案區的區塊？',
         options: ['_modi', '_pkg', '_dsbin', '_data'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '426',
-        question: '對於Client端的目錄架構，以下敘述何者正確？',
+        question: '對於 Client 端的目錄架構，以下敘述何者正確？',
         options: [
-          'C_data為Client端的公用元件區',
-          'C_dsbin為Client端的個案區',
-          'C_pkg為Client端的程式區',
-          'C_modi為Client端的資料檔存放區',
+          'C_data 為 Client 端的公用元件區',
+          'C_dsbin 為 Client 端的個案區',
+          'C_pkg 為 Client 端的程式區',
+          'C_modi 為 Client 端的資料檔存放區',
         ],
         correctIndex: 2,
       },
       {
         type: 'single_choice',
         id: '427',
-        question: '對於Server端的目錄架構，以下敘述何者為非？',
+        question: '對於 Server 端的目錄架構，以下敘述何者為非？',
         options: [
-          'Conductor有四個子目錄，分別是S_data、S_dsbin、S_modi、S_pkg',
-          'LeaderReport是報表檔',
-          'S_modi是Server端的個案區',
-          'S_pkg是Server端的公用元件區',
+          'Conductor 有四個子目錄，分別是 S_data、S_dsbin、S_modi、S_pkg',
+          'LeaderReport 是報表檔',
+          'S_modi 是 Server 端的個案區',
+          'S_pkg 是 Server 端的公用元件區',
         ],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '428',
-        question: '對於Workflow ERP系統的使用者跟安全控管以下何者正確？',
+        question: '對於 Workflow ERP 系統的使用者跟安全控管以下何者正確？',
         options: [
-          'Super-User的使用者代號為「SU」',
+          'Super-User 的使用者代號為「SU」',
           '主機不需定時關機',
           '備份應該每天執行，備份媒體應該放一起保存以免遺失',
           '安裝系統之後，為確保資料安全，資料庫密碼應該給高階或管理人員管理',
@@ -4226,7 +4243,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '430',
         question:
-          '產生報表或者執行批次作業時，由Client端將選項條件送訊息到哪裡提出需求？',
+          '產生報表或者執行批次作業時，由 Client 端將選項條件送訊息到哪裡提出需求？',
         options: [
           'Database Server',
           'Application Server',
@@ -4253,7 +4270,7 @@ const rawSubjects: Subjects = {
         id: '432',
         question:
           '產生報表或者執行批次作業時，工作之後所產生的報表會將結果存放於何處？',
-        options: ['Report', 'LeaderTemp', 'Report與LeaderTemp', 'Conductor'],
+        options: ['Report', 'LeaderTemp', 'Report 與 LeaderTemp', 'Conductor'],
         correctIndex: 2,
       },
       {
@@ -4263,7 +4280,7 @@ const rawSubjects: Subjects = {
         options: [
           '派班中心即使在工作中也能執行其他工作',
           '派班中心會定時至工作佇列中找尋代處理的工作',
-          '執行派班中心者為報表批次工作台，必須與Database Server在同一區域網路內',
+          '執行派班中心者為報表批次工作台，必須與 Database Server 在同一區域網路內',
           '以上皆非',
         ],
         correctIndex: 0,
@@ -4271,11 +4288,11 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '434',
-        question: '對於登入Workflow ERP的相關敘述，以下何者正確？',
+        question: '對於登入 Workflow ERP 的相關敘述，以下何者正確？',
         options: [
-          '帳號大小寫沒有差，例如TOM跟tom是一樣的',
+          '帳號大小寫沒有差，例如 TOM 跟 tom 是一樣的',
           '帳號和密碼皆空白石登入，則表示是最高權限',
-          '密碼大小寫沒有差，例如：ABC和abc是一樣的',
+          '密碼大小寫沒有差，例如：ABC 和 abc 是一樣的',
           '擁有最高權限的帳號，其使用者代號為「DS」',
         ],
         correctIndex: 3,
@@ -4283,10 +4300,10 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '435',
-        question: '關於Workflow ERP的授權使用人數控管的敘述，以下何者正確',
+        question: '關於 Workflow ERP 的授權使用人數控管的敘述，以下何者正確',
         options: [
-          'Workflow ERP的授權採Client人數控管',
-          'Unlimited的版本無限人數',
+          'Workflow ERP 的授權採 Client 人數控管',
+          'Unlimited 的版本無限人數',
           '如果授權人數不多，不使用的人員應該登出',
           '以上皆是',
         ],
@@ -4368,12 +4385,12 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '444',
-        question: 'Workflow ERP的功能鍵下列何者正確？',
+        question: 'Workflow ERP 的功能鍵下列何者正確？',
         options: [
-          'F12→快速儲存',
-          'F2→查詢說明文件',
-          'Ctrl +↓ →在資料頁標籤間移動',
-          'Shift + Tab→指標移至下一欄位',
+          'F12：快速儲存',
+          'F2：查詢說明文件',
+          'Ctrl + ↓：在資料頁標籤間移動',
+          'Shift + Tab：指標移至下一欄位',
         ],
         correctIndex: 0,
       },
@@ -4382,13 +4399,13 @@ const rawSubjects: Subjects = {
         id: '445',
         question:
           '若單據資料輸入完畢後，因故需廢除此單據資料，在未確認的狀態下應該如何處理？',
-        options: ['刪除', '取消', '按ESC', '作廢'],
+        options: ['刪除', '取消', '按 ESC', '作廢'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '446',
-        question: 'Workflow ERP系統預設的最高權帳號和密碼為？',
+        question: 'Workflow ERP 系統預設的最高權帳號和密碼為？',
         options: [
           'DC，無密碼',
           'DS, super user',
@@ -4408,7 +4425,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '448',
         question:
-          '單據的欄位顏色代表的意義，何為非？ a.藍色→鍵值（Key）欄位，一經存檔，無法修改欄位值。b.黃色→必要欄位，存檔前須輸入資料，否則不予存檔；存檔後可修改。 c. 白色→彈性讓使用者輸入資料，空白仍可存檔。',
+          '單據的欄位顏色代表的意義，何為非？\na. 藍色→鍵值（Key）欄位，一經存檔，無法修改欄位值。\nb. 黃色→必要欄位，存檔前須輸入資料，否則不予存檔；存檔後可修改。\nc. 白色→彈性讓使用者輸入資料，空白仍可存檔。',
         options: ['a', 'b', 'c', '以上皆非'],
         correctIndex: 3,
       },
@@ -4529,13 +4546,13 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '464',
         question: '報表格式修改，請問哪個不是報表提供的轉出檔案類型？',
-        options: ['EXCEL檔案', 'WORD檔案', '文字檔', 'Html格式'],
+        options: ['EXCEL 檔案', 'WORD 檔案', '文字檔', 'Html 格式'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '465',
-        question: '以下何者不是Workflow ERP內建的系統資料？',
+        question: '以下何者不是 Workflow ERP 內建的系統資料？',
         options: [
           '系統資料建立作業',
           '電子表單關聯建立作業',
@@ -4554,7 +4571,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '467',
-        question: 'Workflow ERP系統中各作業可以設定哪些權限？',
+        question: 'Workflow ERP 系統中各作業可以設定哪些權限？',
         options: [
           '新進同仁的授權',
           '人員職務異動的授權',
@@ -4593,7 +4610,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '471',
-        question: '哪邊可以設定USER？',
+        question: '哪邊可以設定 USER？',
         options: [
           '登入者代號建立作業',
           '使用者權限建立作業',
@@ -4632,7 +4649,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '475',
-        question: '基本參數設定作業之[稅額計算]方式何者有誤？',
+        question: '基本參數設定作業之「稅額計算」方式何者有誤？',
         options: [
           '整張資料計算',
           '多筆資料計算',
@@ -4644,14 +4661,14 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '476',
-        question: '進銷存參數設定作業之[成本計價]方式有幾種？',
+        question: '進銷存參數設定作業之「成本計價」方式有幾種？',
         options: ['2', '3', '4', '5'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '477',
-        question: '進銷存參數設定作業之[商品分類]方式有幾種？',
+        question: '進銷存參數設定作業之「商品分類」方式有幾種？',
         options: ['4', '5', '6', '7'],
         correctIndex: 0,
       },
@@ -4727,7 +4744,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '485',
-        question: '編碼原則設定作業選擇編碼類別的第1項是？',
+        question: '編碼原則設定作業選擇編碼類別的第 1 項是？',
         options: ['客戶編碼', '品號編碼', '廠商編碼', '批號編碼'],
         correctIndex: 1,
       },
@@ -4756,12 +4773,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '489',
         question:
-          '從Workflow ERP系統模組V.S.職務角色而言，下列何組的對應是不適當的？',
+          '從 Workflow ERP 系統模組 V.S. 職務角色而言，下列何組的對應是不適當的？',
         options: [
-          '營業稅申報系統V.S.財會人員',
-          '產品結構管理系統V.S.MIS人員',
-          '採購管理系統V.S.採購人員',
-          '品質管理系統V.S.品管人員',
+          '營業稅申報系統 V.S. 財會人員',
+          '產品結構管理系統 V.S. MIS 人員',
+          '採購管理系統 V.S. 採購人員',
+          '品質管理系統 V.S. 品管人員',
         ],
         correctIndex: 1,
       },
@@ -4769,7 +4786,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '490',
         question:
-          '有關Workflow ERP Client的目錄中，何者是存放Client端的公用元件區？',
+          '有關 Workflow ERP Client 的目錄中，何者是存放 Client 端的公用元件區？',
         options: ['C_data', 'S_data', 'C_dsbin', 'S_dsbin'],
         correctIndex: 2,
       },
@@ -4784,9 +4801,9 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '492',
         question:
-          '有關Workflow ERP作業清單（主畫面左邊的選單）的描述以下何者為非？',
+          '有關 Workflow ERP 作業清單（主畫面左邊的選單）的描述以下何者為非？',
         options: [
-          '作業清單有變更時，離開 WF-ERP前必須要存檔',
+          '作業清單有變更時，離開 WF-ERP 前必須要存檔',
           '作業程式名稱如果要修改（重新命名）一定要從程式資料建立作業中修改',
           '作業清單中各項目之排列順序可以直接用滑鼠拖曳調動',
           '點選作業的右鍵內容無法看到版本',
@@ -4812,7 +4829,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '495',
         question: '報表轉出檔案的類型下列何者不是？',
-        options: ['WORD檔', 'EXCEL檔', '文字檔', 'HTML格式檔'],
+        options: ['WORD 檔', 'EXCEL 檔', '文字檔', 'HTML 格式檔'],
         correctIndex: 0,
       },
       {
@@ -4839,12 +4856,12 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '498',
-        question: '下面有關登入Workflow ERP的相關敘述，何者正確？',
+        question: '下面有關登入 Workflow ERP 的相關敘述，何者正確？',
         options: [
           '若沒有設定密碼，他人容易用該帳號直接登入，資料安全堪慮',
           '帳號和密碼皆空白時之登入，表示是最高權限',
-          '帳號大小寫沒有差，例如：TOM和tom是一樣的',
-          '密碼大小寫沒有差，例如：ABC和abc是一樣的',
+          '帳號大小寫沒有差，例如：TOM 和 tom 是一樣的',
+          '密碼大小寫沒有差，例如：ABC 和 abc 是一樣的',
         ],
         correctIndex: 0,
       },
@@ -4878,10 +4895,10 @@ const rawSubjects: Subjects = {
         id: '501',
         question: '下列何者敘述錯誤？',
         options: [
-          '鼎新ERP系統可以設定日期格式（西元\\民國）',
-          '鼎新ERP系統可以設定多種幣別資料',
-          '鼎新ERP系統可以設計表單的簽核',
-          '鼎新ERP系統只可以設計一個倉庫資料',
+          '鼎新 ERP 系統可以設定日期格式（西元\\民國）',
+          '鼎新 ERP 系統可以設定多種幣別資料',
+          '鼎新 ERP 系統可以設計表單的簽核',
+          '鼎新 ERP 系統只可以設計一個倉庫資料',
         ],
         correctIndex: 3,
       },
@@ -4902,7 +4919,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '504',
-        question: '對於在查詢的條件關係中AND及OR的描述下列何者正確？',
+        question: '對於在查詢的條件關係中 AND 及 OR 的描述下列何者正確？',
         options: [
           'AND(且), OR(或)',
           'AND(或), OR(且)',
@@ -4947,14 +4964,14 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '508',
         question: '報表轉出檔案的類型下列何者不是？',
-        options: ['EXCEL檔', '文字檔', 'WORD檔', 'HTML格式'],
+        options: ['EXCEL 檔', '文字檔', 'WORD 檔', 'HTML 格式'],
         correctIndex: 2,
       },
       {
         type: 'single_choice',
         id: '509',
         question:
-          'ERP報表格式可以有類似於EXCEL的凍結窗格的功能，下列何者正確？',
+          'ERP 報表格式可以有類似於 EXCEL 的凍結窗格的功能，下列何者正確？',
         options: ['處理縮排', '對齊用十字線', '折行', '固定欄位'],
         correctIndex: 3,
       },
@@ -4974,7 +4991,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '511',
         question: '報表顯示的數值格式設定負號的方式有幾種？',
-        options: ['3種', '4種', '5種', '6種'],
+        options: ['3 種', '4 種', '5 種', '6 種'],
         correctIndex: 2,
       },
       {
@@ -5035,22 +5052,22 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '517',
-        question: '鼎新ERP系統產生的報表會存放在哪一區？',
-        options: ['C_PKG', 'S_PKG', 'S_MODI', 'REPORT區'],
+        question: '鼎新 ERP 系統產生的報表會存放在哪一區？',
+        options: ['C_PKG', 'S_PKG', 'S_MODI', 'REPORT 區'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '518',
         question:
-          'MRP物料需求計畫中所談的是供需平衡的用料計畫，下列何者是屬於需求的來源？',
+          'MRP 物料需求計畫中所談的是供需平衡的用料計畫，下列何者是屬於需求的來源？',
         options: ['請購量', '客戶訂單', '可用庫存量', '製令的生產品'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '519',
-        question: 'ERP的全名為何？',
+        question: 'ERP 的全名為何？',
         options: [
           'Extend Requirement Plan',
           'Enterprise Requirement Plan',
@@ -5062,7 +5079,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '520',
-        question: 'MRPⅡ的全名為何？',
+        question: 'MRPⅡ 的全名為何？',
         options: [
           'Extend MRP Plan',
           'Material Resource Planning',
@@ -5074,7 +5091,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '521',
-        question: '有關MRP計算產生的需求計畫，以下描述何者為非？',
+        question: '有關 MRP 計算產生的需求計畫，以下描述何者為非？',
         options: [
           '需求計畫的時間推算是以製造或採購的前置時間為依據',
           '需求計畫的假設前題是製造產能無限',
@@ -5086,10 +5103,10 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '522',
-        question: '一般企業MRP系統無法上線的主要原因，下列何者為非？',
+        question: '一般企業 MRP 系統無法上線的主要原因，下列何者為非？',
         options: [
           '生產排程不穩定',
-          'BOM準確度不佳',
+          'BOM 準確度不佳',
           '訂單交期變化大',
           '採領料作業而非發料作業',
         ],
@@ -5098,7 +5115,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '523',
-        question: '關於美國產業管理學會對ERP的定義，以下何者為非？',
+        question: '關於美國產業管理學會對 ERP 的定義，以下何者為非？',
         options: ['關連式資料庫', '第三代語言', '開放性系統平台', '主從架構'],
         correctIndex: 1,
       },
@@ -5106,14 +5123,14 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '524',
         question:
-          '當ERPⅡ概念被提出時，同時提出三項的特徵，請問是哪三項？ A.擴大ERP時代對資源定義的範圍 B.企業必須加速BPR變革管理 C.必須擴大運用網路及IT的技術 D.企業必須建置資訊安全管理',
-        options: ['ABC', 'ABD', 'BCD', 'ACD'],
+          '當 ERPⅡ 概念被提出時，同時提出三項的特徵，請問是哪三項？\na. 擴大 ERP 時代對資源定義的範圍\nb. 企業必須加速 BPR 變革管理\nc. 必須擴大運用網路及 IT 的技術\nd. 企業必須建置資訊安全管理',
+        options: ['abc', 'abd', 'bcd', 'acd'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '525',
-        question: 'ERPⅡ中談到ERP的範圍應擴充的幾個領域，以下何者為非？',
+        question: 'ERPⅡ 中談到 ERP 的範圍應擴充的幾個領域，以下何者為非？',
         options: [
           'Collaborative Commerce',
           'Supply Chain Management',
@@ -5125,42 +5142,42 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '526',
-        question: 'ERPⅡ的理念是由誰提出？',
+        question: 'ERPⅡ 的理念是由誰提出？',
         options: ['IBM', '微軟', 'Gartner Group Inc', '鼎新電腦'],
         correctIndex: 2,
       },
       {
         type: 'single_choice',
         id: '527',
-        question: '以下關於ERP和ERPⅡ的描述，何者為非？',
+        question: '以下關於 ERP 和 ERPⅡ 的描述，何者為非？',
         options: [
-          'ERP的基礎架構是MRPⅡ',
-          'ERPⅡ的範疇包含SCM供應鏈管理',
-          'ERP的發展穩定後將朝ERPⅡ邁進',
-          'ERPⅡ的範疇不包含CRM模組',
+          'ERP 的基礎架構是 MRPⅡ',
+          'ERPⅡ 的範疇包含 SCM 供應鏈管理',
+          'ERP 的發展穩定後將朝 ERPⅡ 邁進',
+          'ERPⅡ 的範疇不包含 CRM 模組',
         ],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '528',
-        question: '以下針對ERP導入與BPR（企業流程再造）的關連描述何者正確？',
+        question: '以下針對 ERP 導入與 BPR（企業流程再造）的關連描述何者正確？',
         options: [
-          'ERP導入跟企業流程有密切關係，所以有機會配合進行BPR',
-          'ERP導入和BRP是獨立事件，企業應該先進行BPR再進行ERP導入',
-          'ERP導入上線後，再來進行BPR',
-          'BPR跟ERP導入沒有關連',
+          'ERP 導入跟企業流程有密切關係，所以有機會配合進行 BPR',
+          'ERP 導入和 BRP 是獨立事件，企業應該先進行 BPR 再進行 ERP 導入',
+          'ERP 導入上線後，再來進行 BPR',
+          'BPR 跟 ERP 導入沒有關連',
         ],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '529',
-        question: '以下何者非ERP系統導入的效益？',
+        question: '以下何者非 ERP 系統導入的效益？',
         options: [
-          '企業流程BPR的最佳時機',
+          '企業流程 BPR 的最佳時機',
           '透過資訊整合，提供各種查核報表',
-          '利用IT技術快速處理大量資料',
+          '利用 IT 技術快速處理大量資料',
           '有效提升資產報酬率',
         ],
         correctIndex: 3,
@@ -5168,33 +5185,33 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '530',
-        question: '衡量企業e化程度的指標，以下何者為非？',
+        question: '衡量企業 e 化程度的指標，以下何者為非？',
         options: [
-          '流程e化的比率',
-          '表單e化的比率',
+          '流程 e 化的比率',
+          '表單 e 化的比率',
           '網路頻寬',
-          '上下游廠商的e化整合程度',
+          '上下游廠商的 e 整合程度',
         ],
         correctIndex: 2,
       },
       {
         type: 'single_choice',
         id: '531',
-        question: '以下哪一個ERP模組與倉庫部門的職能關連性較低？',
+        question: '以下哪一個 ERP 模組與倉庫部門的職能關連性較低？',
         options: ['庫存管理系統', '製令系統', '採購系統', '產品結構系統'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '532',
-        question: '以下哪一個ERP模組與採購部門的職能關連性低？',
+        question: '以下哪一個 ERP 模組與採購部門的職能關連性低？',
         options: ['庫存管理系統', '進口系統', '採購系統', '出口系統'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '533',
-        question: '以下哪一個ERP模組與業務部門的職能關連性較低？',
+        question: '以下哪一個 ERP 模組與業務部門的職能關連性較低？',
         options: [
           '訂單系統',
           '銷售分析系統',
@@ -5206,12 +5223,13 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '534',
-        question: 'ERP推動時，MIS資訊部門的組織定位應屬於哪一個層級比較適當？',
+        question:
+          'ERP 推動時，MIS 資訊部門的組織定位應屬於哪一個層級比較適當？',
         options: [
-          'ERP推動跟公司管理有關，所以應該定位在管理部門下比較適當',
-          'ERP導入最後才是匯入財務資料中，所以隸屬財會部門比較適當',
-          'ERP的推動涵蓋公司的變革，由總經理或經營管理者管轄比較適當',
-          '只要MIS單位主管職稱夠高，其組織定位不用擔心',
+          'ERP 推動跟公司管理有關，所以應該定位在管理部門下比較適當',
+          'ERP 導入最後才是匯入財務資料中，所以隸屬財會部門比較適當',
+          'ERP 的推動涵蓋公司的變革，由總經理或經營管理者管轄比較適當',
+          '只要 MIS 單位主管職稱夠高，其組織定位不用擔心',
         ],
         correctIndex: 2,
       },
@@ -5219,11 +5237,11 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '535',
         question:
-          '企業推動ERP時，MIS資訊單位階層若只屬於課層級（低階主管層級），我們擔心會面臨哪些問題？',
+          '企業推動 ERP 時，MIS 資訊單位階層若只屬於課層級（低階主管層級），我們擔心會面臨哪些問題？',
         options: [
-          '當ERP推動發生資源瓶頸時，擔心人微言輕，建言不容易被採納',
+          '當 ERP 推動發生資源瓶頸時，擔心人微言輕，建言不容易被採納',
           '當發生作業或流程調整時協調的執行權力不足',
-          '當ERP推動發生延遲或異常時，需要組織動員支援的時效不佳',
+          '當 ERP 推動發生延遲或異常時，需要組織動員支援的時效不佳',
           '以上皆是',
         ],
         correctIndex: 3,
@@ -5232,12 +5250,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '536',
         question:
-          '若ERP推動時，假設專案組織分為-企業主/e化規劃小組/e化執行小組，有關企業主的權責描述何者為非？',
+          '若 ERP 推動時，假設專案組織分為-企業主/e 化規劃小組/e 化執行小組，有關企業主的權責描述何者為非？',
         options: [
-          '宣誓及完全支持e化的態度是企業ERP導入的成功關鍵',
-          '應定期召開會議，檢討專案進度，隨時修訂e化的進度或方向',
+          '宣誓及完全支持 e 化的態度是企業 ERP 導入的成功關鍵',
+          '應定期召開會議，檢討專案進度，隨時修訂 e 化的進度或方向',
           '一定要親身參與所有的訓練課程',
-          '決策阻礙影響ERP導入進度，相關的阻礙排除及資源的調度',
+          '決策阻礙影響 ERP 導入進度，相關的阻礙排除及資源的調度',
         ],
         correctIndex: 2,
       },
@@ -5245,12 +5263,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '537',
         question:
-          '若ERP推動時，假設專案組織分為-企業主/e化規劃小組/e化執行小組，有關e化規劃小組的權責描述何者為非？',
+          '若 ERP 推動時，假設專案組織分為-企業主/e 化規劃小組/e 化執行小組，有關 e 化規劃小組的權責描述何者為非？',
         options: [
-          '負責ERP個案修改的需求確認',
-          '負責企業ERP導入成敗之責',
-          '一定要親身參與及登錄ERP所有基本資料',
-          '負責執行及評估ERP導入的成效',
+          '負責 ERP 個案修改的需求確認',
+          '負責企業 ERP 導入成敗之責',
+          '一定要親身參與及登錄 ERP 所有基本資料',
+          '負責執行及評估 ERP 導入的成效',
         ],
         correctIndex: 2,
       },
@@ -5258,12 +5276,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '538',
         question:
-          '若ERP推動時，假設專案組織分為-企業主/e化規劃小組/e化執行小組，有關e化執行小組的權責描述何者為非？',
+          '若 ERP 推動時，假設專案組織分為-企業主/e 化規劃小組/e 化執行小組，有關 e 化執行小組的權責描述何者為非？',
         options: [
-          '負責ERP個案修改的需求提出與驗收',
+          '負責 ERP 個案修改的需求提出與驗收',
           '全程參加與職能相關的系統課程訓練',
-          '負責ERP系統相關職能的基本資料收集及登錄',
-          '當ERP系統流程與現行作業流程發生差異時，負責BPR',
+          '負責 ERP 系統相關職能的基本資料收集及登錄',
+          '當 ERP 系統流程與現行作業流程發生差異時，負責 BPR',
         ],
         correctIndex: 3,
       },
@@ -5281,18 +5299,18 @@ const rawSubjects: Subjects = {
         question: 'WF-ERP 出貨時有一個超級使用者帳號及密碼，請問以下何者為是？',
         options: [
           '使用者：（空白）密碼：（空白）',
-          '使用者：DS密碼：（空白）',
-          '使用者：WFERP密碼：DS',
-          '使用者：WFERP密碼：（空白）',
+          '使用者：DS 密碼：（空白）',
+          '使用者：WFERP 密碼：DS',
+          '使用者：WFERP 密碼：（空白）',
         ],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '541',
-        question: '有關WF-ERP安裝後的系統備份管理，以下描述何者為非？',
+        question: '有關 WF-ERP 安裝後的系統備份管理，以下描述何者為非？',
         options: [
-          '資料備份在WF-ERP上線完成後才需開始備份',
+          '資料備份在 WF-ERP 上線完成後才需開始備份',
           '資料備份應在建置基本資料及參數時，或有資料登錄就該備份',
           '備份的媒體應該要準備數套輪流使用',
           '資料備份時，應有檢視備份是否成功的機制',
@@ -5302,12 +5320,12 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '542',
-        question: '有關WF-ERP安裝後的系統備份管理，以下描述何者為非？',
+        question: '有關 WF-ERP 安裝後的系統備份管理，以下描述何者為非？',
         options: [
           '備份作業時，最好是自動備份及手動備份交互使用比較安全',
           '備份的媒體，應考慮異地備份機制',
           '備份作業應於每日定時有效執行',
-          '不管有沒有個案修改，備份作業只需要備份DATA區',
+          '不管有沒有個案修改，備份作業只需要備份 DATA 區',
         ],
         correctIndex: 3,
       },
@@ -5343,7 +5361,7 @@ const rawSubjects: Subjects = {
           '儲存媒體是有使用壽命的，應有定期更換的機制',
           '儲存媒體應標示清楚備份內容及日期，並妥善保管',
           '儲存媒體的非正常借出，應視同公司機密文件控管',
-          '備份有專業性一定要由MIS來執行',
+          '備份有專業性一定要由 MIS 來執行',
         ],
         correctIndex: 3,
       },
@@ -5364,11 +5382,11 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '547',
         question:
-          '有關WF-ERP架構安裝Load Balance 負載平衡器的功能，以下描述何者為是？',
+          '有關 WF-ERP 架構安裝 Load Balance 負載平衡器的功能，以下描述何者為是？',
         options: [
-          '當架構有多台APP-Server時，該設備是分派工作負載，提升ERP處理效能的設備',
-          '當架構有多台DB-Server時，該設備是分散儲存的設備',
-          '是Printer Server設備的一種',
+          '當架構有多台 APP-Server 時，該設備是分派工作負載，提升 ERP 處理效能的設備',
+          '當架構有多台 DB-Server 時，該設備是分散儲存的設備',
+          '是 Printer Server 設備的一種',
           '是資料庫儲存設備的一種',
         ],
         correctIndex: 0,
@@ -5376,11 +5394,11 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '548',
-        question: 'ERP架構中，建置QOS設備，其功能目的為何？',
+        question: 'ERP 架構中，建置 QOS 設備，其功能目的為何？',
         options: [
           '是一種儲存設備',
-          '頻寬管理器，確保ERP處理的速度維持',
-          '是一種Load Balance 設備',
+          '頻寬管理器，確保 ERP 處理的速度維持',
+          '是一種 Load Balance 設備',
           '是一種防毒軟體',
         ],
         correctIndex: 1,
@@ -5388,14 +5406,14 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '549',
-        question: '以下何者為Database 的儲存架構？',
+        question: '以下何者為 Database 的儲存架構？',
         options: ['QOS', 'SAN', 'DAS', 'Load Balance'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '550',
-        question: '鼎新ERP系統屬於三層架構，所謂三層，以下何者為非？',
+        question: '鼎新 ERP 系統屬於三層架構，所謂三層，以下何者為非？',
         options: [
           '前端使用者-Client 端',
           '中間應用伺服器',
@@ -5407,12 +5425,12 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '551',
-        question: '有關ERP系統的架構描述，以下描述何者為非？',
+        question: '有關 ERP 系統的架構描述，以下描述何者為非？',
         options: [
-          '若企業經費有限可以將Database Server 及Application Server 放在同一台主機',
+          '若企業經費有限可以將 Database Server 及 Application Server 放在同一台主機',
           'Client 端是資料輸入操作的界面',
-          '所謂兩層架構是指：client 端有安裝ERP的Server應用程式',
-          '所謂的三層架構是指：client 端有安裝ERP的Server應用程式',
+          '所謂兩層架構是指：client 端有安裝 ERP 的 Server 應用程式',
+          '所謂的三層架構是指：client 端有安裝 ERP 的 Server 應用程式',
         ],
         correctIndex: 3,
       },
@@ -5420,27 +5438,27 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '552',
         question:
-          '在WF-ERP系統的程式及資料處理架構中，Client 端及Application Server 間是透過什麼程式做連結？',
-        options: ['MIDAS或Socket', 'BDE', '工作佇列員', 'Database Server'],
+          '在 WF-ERP 系統的程式及資料處理架構中，Client 端及 Application Server 間是透過什麼程式做連結？',
+        options: ['MIDAS 或 Socket', 'BDE', '工作佇列員', 'Database Server'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '553',
         question:
-          '在WF-ERP系統的程式及資料處理架構中，Application Server及Database Server 間是透過什麼程式做連結？',
-        options: ['MIDAS或Socket', 'DSCSYS', 'Report Server', 'BDE'],
+          '在 WF-ERP 系統的程式及資料處理架構中，Application Server 及 Database Server 間是透過什麼程式做連結？',
+        options: ['MIDAS 或 Socket', 'DSCSYS', 'Report Server', 'BDE'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '554',
-        question: '有關ERP系統環境架構的描述，以下何者為非？',
+        question: '有關 ERP 系統環境架構的描述，以下何者為非？',
         options: [
-          '若有10台Client 端，要連結主機要透過網路HUB 處理',
-          'UPS 不斷電設備要建置在HUB上',
-          '若為節省成本，備份的設備可直接裝在Database Server 上',
-          'Application Server端指的是存放ERP運算程式的主機',
+          '若有 10 台 Client 端，要連結主機要透過網路 HUB 處理',
+          'UPS 不斷電設備要建置在 HUB 上',
+          '若為節省成本，備份的設備可直接裝在 Database Server 上',
+          'Application Server 端指的是存放 ERP 運算程式的主機',
         ],
         correctIndex: 1,
       },
@@ -5448,11 +5466,11 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '555',
         question:
-          '有關ERP系統環境架構中，UPS不斷電系統的建置，以下描述何者為非？',
+          '有關 ERP 系統環境架構中，UPS 不斷電系統的建置，以下描述何者為非？',
         options: [
-          'Database Server 應建置UPS設備',
-          'Application Server 應建置UPS設備',
-          'UPS的規格跟使用人數無關',
+          'Database Server 應建置 UPS 設備',
+          'Application Server 應建置 UPS 設備',
+          'UPS 的規格跟使用人數無關',
           'UPS 在斷電時才由人工開啟即可',
         ],
         correctIndex: 3,
@@ -5461,11 +5479,11 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '556',
         question:
-          'ERP系統環境外點的解決方案Microsoft Terminal Services 之描述，以下何者為非？',
+          'ERP 系統環境外點的解決方案 Microsoft Terminal Services 之描述，以下何者為非？',
         options: [
-          '使用RAD 通訊協定',
-          'Client 端可以不安裝ERP的程式',
-          'Client 端利用Browser 連接Terminal Server',
+          '使用 RAD 通訊協定',
+          'Client 端可以不安裝 ERP 的程式',
+          'Client 端利用 Browser 連接 Terminal Server',
           'Microsoft Terminal Services 為付費應用工具軟體',
         ],
         correctIndex: 0,
@@ -5474,19 +5492,19 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '557',
         question:
-          'ERP系統環境的解決方案Microsoft Terminal Services 是針對工作端狀況有哪一情形的解決方案？',
+          'ERP 系統環境的解決方案 Microsoft Terminal Services 是針對工作端狀況有哪一情形的解決方案？',
         options: [
-          '因為用Terminal Services可以不用安裝ERP的程式在Client端上，可以節省MIS維護系統的時間',
+          '因為用 Terminal Services 可以不用安裝 ERP 的程式在 Client 端上，可以節省 MIS 維護系統的時間',
           '沒有防毒軟體',
           '沒建置防火牆的系統',
-          'Application Server 與Database Server 放在同一台主機者',
+          'Application Server 與 Database Server 放在同一台主機者',
         ],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '558',
-        question: '有關ERP報表的處理描述何者為非？',
+        question: '有關 ERP 報表的處理描述何者為非？',
         options: [
           '報表處理屬於非同步處理',
           '報表產生及顯示只能在同一台電腦中',
@@ -5498,11 +5516,11 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '559',
-        question: '有關ERP報表的處理描述，以下何者為非？',
+        question: '有關 ERP 報表的處理描述，以下何者為非？',
         options: [
-          '報表由Client端將條件訊息送出到Application Server端由BDE工作回應一個工作代號',
-          'Dispatcher Server會掃描是否有待處理的報表，有者則執行之',
-          '報表產生完成後會將結果存在Report Server 中',
+          '報表由 Client 端將條件訊息送出到 Application Server 端由 BDE 工作回應一個工作代號',
+          'Dispatcher Server 會掃描是否有待處理的報表，有者則執行之',
+          '報表產生完成後會將結果存在 Report Server 中',
           '使用者必須啟動「佇列工作管理員」才能看到報表結果',
         ],
         correctIndex: 0,
@@ -5523,23 +5541,23 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '561',
         question:
-          '有關WF-ERP報表處理的描述何者為是？ A.報表產生要派班中心Dispatcher啟動才能執行 B.派班中心可以不與Database Server同一個網域 C.報表產生速度很慢可以追加Application Server是最佳的方案 D.報表產生結果存在ConductorS.ini中',
-        options: ['AB', 'A', 'ABC', 'CD'],
+          '有關 WF-ERP 報表處理的描述何者為是？\na. 報表產生要派班中心 Dispatcher 啟動才能執行\nb. 派班中心可以不與 Database Server 同一個網域\nc. 報表產生速度很慢可以追加 Application Server 是最佳的方案\nd. 報表產生結果存在 ConductorS.ini 中',
+        options: ['ab', 'a', 'abc', 'cd'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '562',
         question:
-          '有關WF-ERP非同步處理架構以下描述何者為是？ A.批次作業如有產生LOG檔需要透過dscsys.ini 來設定產生位置 B.報表產生結果存放在LeaderTemp中 C.報表產生的存放報表目錄一定是server端，不能是client端 D.報表的工作代號是由dispatcher來回應的',
-        options: ['ABC', 'BC', 'BCD', 'B'],
+          '有關 WF-ERP 非同步處理架構以下描述何者為是？\na. 批次作業如有產生 LOG 檔需要透過 dscsys.ini 來設定產生位置\nb. 報表產生結果存放在 LeaderTemp 中\nc. 報表產生的存放報表目錄一定是 server 端，不能是 client 端\nd. 報表的工作代號是由 dispatcher 來回應的',
+        options: ['abc', 'bc', 'bcd', 'b'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '563',
         question:
-          '有關WF-ERP報表產生後若要指定產生Html報表，可指定目錄，必須透過什麼來設定？',
+          '有關 WF-ERP 報表產生後若要指定產生 Html 報表，可指定目錄，必須透過什麼來設定？',
         options: ['ConductorS.ini', 'dscsys.ini', 'dispatcher', 'socket'],
         correctIndex: 0,
       },
@@ -5549,7 +5567,7 @@ const rawSubjects: Subjects = {
         question: '使用者在進行報表資料產生時，以下描述何者為非？',
         options: [
           '報表條件選取執行後，系統會給一個工作序號，要憑工作序號開啟報表',
-          '報表如果在工作佇列找不到產生完成的報表須到Leadertemp中去找',
+          '報表如果在工作佇列找不到產生完成的報表須到 Leadertemp 中去找',
           '報表的開啟必須為當時產生者，若不是產生者也不是超級使用者則看不到',
           '歷史的報表若不再使用是可以清除的',
         ],
@@ -5565,11 +5583,11 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '566',
-        question: '有關WF-ERP硬體環境建置的規劃，以下描述何者為非？',
+        question: '有關 WF-ERP 硬體環境建置的規劃，以下描述何者為非？',
         options: [
-          '一個軟體授權只能有一個DB-server',
-          '可以有多台Application Server',
-          '只能有一台Dispatcher Server',
+          '一個軟體授權只能有一個 DB-server',
+          '可以有多台 Application Server',
+          '只能有一台 Dispatcher Server',
           '可以有很多台 Terminal Server',
         ],
         correctIndex: 2,
@@ -5577,12 +5595,12 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '567',
-        question: '有關WF-ERP硬體環境建置的規劃，以下描述何者為非？',
+        question: '有關 WF-ERP 硬體環境建置的規劃，以下描述何者為非？',
         options: [
-          '最好有一台Database Server，一台Application Server，這樣效能會比較好',
-          '至少一台Application Server + Database Server，以及一台dispatcher會比較好',
-          '系統的人數限制是管制同時進入ERP系統的人數，不論其是否在操作',
-          'Report Server必須設在Database Server上',
+          '最好有一台 Database Server，一台 Application Server，這樣效能會比較好',
+          '至少一台 Application Server + Database Server，以及一台 dispatcher 會比較好',
+          '系統的人數限制是管制同時進入 ERP 系統的人數，不論其是否在操作',
+          'Report Server 必須設在 Database Server 上',
         ],
         correctIndex: 3,
       },
@@ -5599,9 +5617,9 @@ const rawSubjects: Subjects = {
         question: '憑證自行設計完成後，如何分享予他人使用？',
         options: [
           '無法分享，只能自己設自己的',
-          '要到ConductorC.ini中設定',
-          '要到ConductorS.ini中設定',
-          '要到DSUPDATE.ini中設定',
+          '要到 ConductorC.ini 中設定',
+          '要到 ConductorS.ini 中設定',
+          '要到 DSUPDATE.ini 中設定',
         ],
         correctIndex: 1,
       },
@@ -5610,8 +5628,8 @@ const rawSubjects: Subjects = {
         id: '570',
         question: '使用者要如何查詢每支作業的程式代號？',
         options: [
-          '一般使用者不能查到，只能透過MIS人員',
-          '進入該支作業畫面後，按CTRL+ALT+V',
+          '一般使用者不能查到，只能透過 MIS 人員',
+          '進入該支作業畫面後，按 CTRL+ALT+V',
           '進入該支作業畫面後，按右鍵',
           '進入該支作業畫面後，連續按左鍵二下',
         ],
@@ -5620,9 +5638,9 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '571',
-        question: 'WF-ERP的BB Call 如何啟動？',
+        question: 'WF-ERP 的 BB Call 如何啟動？',
         options: [
-          '想要使用的人員必須先配有一支BB CALL',
+          '想要使用的人員必須先配有一支 BB CALL',
           '只要進系統後，直接點一下啟動鼎新即時線上通知系統即可以啟動',
           '只要進系統後，直接點一下執行傳輸系統即可以啟動',
           '只要進系統後，直接點一下顯示鼎新傳呼系統即可以啟動',
@@ -5634,17 +5652,17 @@ const rawSubjects: Subjects = {
         id: '572',
         question: '當單身中的某一筆資料輸入錯誤時，要如何刪除？',
         options: [
-          '將游標點到該筆按CTRL+DEL，即可刪除',
-          '將游標點到該筆按DEL，即可刪除',
-          '將游標點到該筆按ALT+DEL，即可刪除',
-          '將游標點到該筆按CTRL++ALT+DEL，即可刪除',
+          '將游標點到該筆按 CTRL+DEL，即可刪除',
+          '將游標點到該筆按 DEL，即可刪除',
+          '將游標點到該筆按 ALT+DEL，即可刪除',
+          '將游標點到該筆按 CTRL++ALT+DEL，即可刪除',
         ],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '573',
-        question: 'DB主機上的系統控制員，不包含哪些內容？',
+        question: 'DB 主機上的系統控制員，不包含哪些內容？',
         options: ['線上使用者', '線上派班中心', '拒絕往來戶', '離線者'],
         correctIndex: 3,
       },
@@ -5663,7 +5681,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '575',
-        question: '請問在WF-ERP系統欄位要開窗應該按下列何種功能鍵？',
+        question: '請問在 WF-ERP 系統欄位要開窗應該按下列何種功能鍵？',
         options: ['F1', 'F2', 'F5', 'F8'],
         correctIndex: 1,
       },
@@ -5747,7 +5765,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '584',
-        question: 'WF-ERP提供每支程式的版號，請問要按何種按鍵？',
+        question: 'WF-ERP 提供每支程式的版號，請問要按何種按鍵？',
         options: ['F1', 'CTRL+V', 'CTRL+ALT+V', 'F5'],
         correctIndex: 2,
       },
@@ -5789,9 +5807,9 @@ const rawSubjects: Subjects = {
         question:
           '使用者在使用手冊裡，查看得到系統有某建立作業、畫面說明，但是在系統中卻無法執行該作業，原因可能是？',
         options: [
-          '按F1鍵把執行的權限加上去就好了',
+          '按 F1 鍵把執行的權限加上去就好了',
           '未給予執行權限，所以無法執行',
-          '按F1鍵把隱藏的作業叫出來就好',
+          '按 F1 鍵把隱藏的作業叫出來就好',
           '使用者的功能鍵安裝不完全',
         ],
         correctIndex: 1,
@@ -5802,7 +5820,7 @@ const rawSubjects: Subjects = {
         question: '在列印報表時以下何者為非？',
         options: [
           '產生的報表要使用者主動去開啟',
-          '產生報表送出去後，等10分鐘，報表會自動出現在螢幕上',
+          '產生報表送出去後，等 10 分鐘，報表會自動出現在螢幕上',
           '產生過的報表，若要再列印一次，不需再重新產生報表',
           '兩個使用者，同時產生同一張報表，系統會各自執行使用者的需求，不會將兩張報表合併，只產生一張報表',
         ],
@@ -5815,7 +5833,7 @@ const rawSubjects: Subjects = {
           '請問報表條件送出後，出現一串數字如：20030226000005，這代表什麼？',
         options: [
           '開啟佇列工作控制台時，該報表的工作代號',
-          '這張報表的單別是2003，單號是0000005',
+          '這張報表的單別是 2003，單號是 0000005',
           '號碼是輸入者自己編號的',
           '號碼只是隨機，無任何意義',
         ],
@@ -5827,8 +5845,8 @@ const rawSubjects: Subjects = {
         question: '請問報表開啟後，以下描述何者為非？',
         options: [
           '可在佇列工作控制台內，查詢到輸入的條件',
-          '報表內容，可以轉成EXCEL檔',
-          '報表內容，可以轉成WORD檔',
+          '報表內容，可以轉成 EXCEL 檔',
+          '報表內容，可以轉成 WORD 檔',
           '可以調整報表的欄位寬度',
         ],
         correctIndex: 2,
@@ -5836,12 +5854,13 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '592',
-        question: '有關WF-ERP作業清單（主畫面左邊的選單）的描述以下何者為非？',
+        question:
+          '有關 WF-ERP 作業清單（主畫面左邊的選單）的描述以下何者為非？',
         options: [
           '作業程式名稱如果要修改（重新命名）一定要從程式資料建立作業中修改',
           '作業清單中各項目之排列順序可以直接用滑鼠拖曳調動',
           '點選作業的右鍵內容無法看到版本',
-          '作業清單有變更時，離開 WF-ERP前必須要存檔',
+          '作業清單有變更時，離開 WF-ERP 前必須要存檔',
         ],
         correctIndex: 0,
       },
@@ -5852,7 +5871,7 @@ const rawSubjects: Subjects = {
           '在進行銷貨單/領料單或會計憑證列印時，若想要修改憑證頁尾的送簽流程內容，請問要在哪裡改？',
         options: [
           '在系統的單據性質建立作業中修改',
-          '那是WF-ERP內定的不能改',
+          '那是 WF-ERP 內定的不能改',
           '要在電子表單系統中修改',
           '直接在對應的註記/簽核資料中修改',
         ],
@@ -5861,14 +5880,14 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '594',
-        question: '有關WF-ERP系統的登錄畫面，以下哪一個資料未顯示',
+        question: '有關 WF-ERP 系統的登錄畫面，以下哪一個資料未顯示',
         options: ['密碼', '使用者', '公司別', '權限群組'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '595',
-        question: '有關WF-ERP使用者，登錄密碼管理的描述何者為非',
+        question: '有關 WF-ERP 使用者，登錄密碼管理的描述何者為非',
         options: [
           '密碼最長只能設定到十碼的長度',
           '超級使用者亦看不到使用者的密碼',
@@ -5880,7 +5899,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '596',
-        question: '有關WF-ERP使用者，登錄密碼管理的描述何者為是？',
+        question: '有關 WF-ERP 使用者，登錄密碼管理的描述何者為是？',
         options: [
           '密碼可試三次，都錯誤了，系統自動關閉',
           '密碼可分群組控管，主管的權限可涵蓋部門的權限',
@@ -5917,7 +5936,7 @@ const rawSubjects: Subjects = {
         options: [
           '一定要照排序',
           '可以透過週期性設定處理',
-          '可以以工作序號，要求dispatcher 處理',
+          '可以以工作序號，要求 dispatcher 處理',
           '可以在佇列工作控制台指定優先處理',
         ],
         correctIndex: 2,
@@ -5929,7 +5948,7 @@ const rawSubjects: Subjects = {
         options: [
           '只要能開啟報表，每個人都可以自行調整並存成個人格式',
           '系統有提供調整後存成登錄者格式的功能，以後即不用再調整',
-          '若能開啟報表，報表開啟後，每人都可轉成EXCEL檔，十分方便',
+          '若能開啟報表，報表開啟後，每人都可轉成 EXCEL 檔，十分方便',
           '使用者甲所存的報表格式，都可以讓使用者乙、丙一起共用',
         ],
         correctIndex: 1,
@@ -5969,7 +5988,8 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '604',
-        question: '在WF ERP GP系統中，資料欄位呈現孔雀綠色，那麼其顏色意義為何',
+        question:
+          '在 WF ERP GP 系統中，資料欄位呈現孔雀綠色，那麼其顏色意義為何',
         options: [
           '資料存檔後就不可修改',
           '資料確認後就不可修改',
@@ -5982,9 +6002,9 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '605',
         question:
-          '有關Workflow ERP GP作業清單（主畫面左邊的選單）的描述以下何者為非？',
+          '有關 Workflow ERP GP 作業清單（主畫面左邊的選單）的描述以下何者為非？',
         options: [
-          '作業清單有變更時，離開 WF-ERP前必須要存檔',
+          '作業清單有變更時，離開 WF-ERP 前必須要存檔',
           '作業程式名稱如果要修改（重新命名）一定要從程式資料建立作業中修改',
           '作業清單中各項目之排列順序可以直接用滑鼠拖曳調動',
           '點選作業的右鍵內容無法看到版本',
@@ -6027,7 +6047,7 @@ const rawSubjects: Subjects = {
         options: [
           '號碼是輸入者自己編號的',
           '開啟佇列工作控制台時，該報表的工作代號',
-          '這張報表的單別是2010，單號是0000005',
+          '這張報表的單別是 2010，單號是 0000005',
           '號碼只是隨機，無任何意義',
         ],
         correctIndex: 1,
@@ -6095,50 +6115,50 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '616',
         question:
-          '當ERPII概念被提出時，同時提出三項的特徵，請問是哪三項？ A.擴大ERP時代對資源定義的範圍 B.企業必須加速BPR變革管理 C.必須擴大運用網路及IT的技術 D.企業必須建置資訊安全管理',
-        options: ['ABC', 'ABD', 'BCD', 'ACD'],
+          '當 ERPII 概念被提出時，同時提出三項的特徵，請問是哪三項？\na. 擴大 ERP 時代對資源定義的範圍\nb. 企業必須加速 BPR 變革管理\nc. 必須擴大運用網路及 IT 的技術\nd. 企業必須建置資訊安全管理',
+        options: ['abc', 'abd', 'bcd', 'acd'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '617',
-        question: 'ERPII的理念是由誰提出？',
+        question: 'ERPII 的理念是由誰提出？',
         options: ['IBM', '微軟', 'Gartner Group Inc', '鼎新電腦'],
         correctIndex: 2,
       },
       {
         type: 'single_choice',
         id: '618',
-        question: '以下關於ERP和ERPII的描述，何者為非？',
+        question: '以下關於 ERP 和 ERPII 的描述，何者為非？',
         options: [
-          'ERP的基礎架構是MRPII',
-          'ERPII的範疇包含SCM供應鏈管理',
-          'ERP的發展穩定後將朝ERPII邁進',
-          'ERPII的範疇不包含CRM模組',
+          'ERP 的基礎架構是 MRPII',
+          'ERPII 的範疇包含 SCM 供應鏈管理',
+          'ERP 的發展穩定後將朝 ERPII 邁進',
+          'ERPII 的範疇不包含 CRM 模組',
         ],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '619',
-        question: '以下針對ERP導入與BPR（企業流程再造）的關連描述何者正確？',
+        question: '以下針對 ERP 導入與 BPR（企業流程再造）的關連描述何者正確？',
         options: [
-          'ERP導入跟企業流程有密切關係，所以有機會配合進行BPR',
-          'ERP導入和BRP是獨立事件，企業應該先進行BPR再進行ERP導入',
-          'ERP導入上線後，再來進行BPR',
-          'BPR跟ERP導入沒有關連',
+          'ERP 導入跟企業流程有密切關係，所以有機會配合進行 BPR',
+          'ERP 導入和 BRP 是獨立事件，企業應該先進行 BPR 再進行 ERP 導入',
+          'ERP 導入上線後，再來進行 BPR',
+          'BPR 跟 ERP 導入沒有關連',
         ],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '620',
-        question: '衡量企業e化程度的指標，以下何者為非？',
+        question: '衡量企業 e 化程度的指標，以下何者為非？',
         options: [
-          '流程e化的比率',
-          '表單e化的比率',
+          '流程 e 化的比率',
+          '表單 e 化的比率',
           '網路頻寬',
-          '上下游廠商的e化整合程度',
+          '上下游廠商的 e 化整合程度',
         ],
         correctIndex: 2,
       },
@@ -6146,7 +6166,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '621',
         question:
-          '可藉ERP系統導入，來衡量資材管理效能的可用指標，以下何者為非？',
+          '可藉 ERP 系統導入，來衡量資材管理效能的可用指標，以下何者為非？',
         options: [
           '設備開工率',
           '存貨週轉率',
@@ -6159,7 +6179,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '622',
         question:
-          '可藉ERP系統導入，來衡量財務管理效能的可用指標，以下何者為非？',
+          '可藉 ERP 系統導入，來衡量財務管理效能的可用指標，以下何者為非？',
         options: [
           '應收帳款結帳時效',
           '間接人員生產力或產值',
@@ -6183,7 +6203,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '624',
-        question: 'WF-ERP產品模組中哪一個模組應該屬第二階段上線較佳？',
+        question: 'WF-ERP 產品模組中哪一個模組應該屬第二階段上線較佳？',
         options: [
           '成本計算管理系統',
           '製令/託外管理系統',
@@ -6209,8 +6229,8 @@ const rawSubjects: Subjects = {
         id: '626',
         question: '使用者要如何查詢每支作業的程式代號？',
         options: [
-          '一般使用者不能查到，只能透過MIS人員',
-          '進入該支作業畫面後，按CTRL+ALT+V',
+          '一般使用者不能查到，只能透過 MIS 人員',
+          '進入該支作業畫面後，按 CTRL+ALT+V',
           '進入該支作業畫面後，按右鍵',
           '進入該支作業畫面後，連續按左鍵二下',
         ],
@@ -6219,7 +6239,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '627',
-        question: '請問在WF-ERP系統欄位要開窗應該按下列何種功能鍵？',
+        question: '請問在 WF-ERP 系統欄位要開窗應該按下列何種功能鍵？',
         options: ['F1', 'F2', 'F5', 'F8'],
         correctIndex: 1,
       },
@@ -6283,11 +6303,11 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '634',
-        question: '有關Workflow ERP帳號與權限之敘述，何者正確？',
+        question: '有關 Workflow ERP 帳號與權限之敘述，何者正確？',
         options: [
-          '公司別）查詢客戶資料，表示在B資料區',
+          '公司別）查詢客戶資料，表示在 B 資料區',
           '公司別）也可以查詢客戶資料',
-          '若某帳號，可以在A資料區',
+          '若某帳號，可以在 A 資料區',
           '使用者進入系統之後，能不能新增、修改及查詢資料要在使用者權限建立作業中設定來控管',
         ],
         correctIndex: 3,
@@ -6309,8 +6329,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '636',
         question:
-          '產生並開啟報表之步驟有以下幾項？ (1)點選要產生的報表作業 (2)開啟報表工作佇列控制台 (3)條件選項設定 (4)開啟已完成報表，其順序何者正確？',
-        options: ['1234', '1324', '1342', '2341'],
+          '產生並開啟報表之步驟有以下幾項，其順序何者正確？\na. 點選要產生的報表作業\nb. 開啟報表工作佇列控制台\nc. 條件選項設定\nd. 開啟已完成報表',
+        options: ['abcd', 'acbd', 'acdb', 'bcda'],
         correctIndex: 1,
       },
       {
@@ -6335,11 +6355,11 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '639',
-        question: '有關ERP系統的控制模式，以下何者正確？',
+        question: '有關 ERP 系統的控制模式，以下何者正確？',
         options: [
-          '授權控制是指資料Input/資料切割/資料增修、刪除/Output/資料庫管理',
+          '授權控制是指資料 Input/資料切割/資料增修、刪除/Output/資料庫管理',
           '事後差異分析是指利用程序來控制監督風險',
-          '參數設定是ERP系統廠商為了更有彈性的設計ERP系統，以因應不同企業管理模式的需求',
+          '參數設定是 ERP 系統廠商為了更有彈性的設計 ERP 系統，以因應不同企業管理模式的需求',
           '在「進貨單建立作業」中，輸入採購單的編號，這樣可輕易找到採購的商品資料，此乃為即時警示訊息提醒',
         ],
         correctIndex: 2,
@@ -6352,7 +6372,7 @@ const rawSubjects: Subjects = {
           '擔心公司研發機密外洩，將研發單位的資訊系統架構成為一個封閉的網絡',
           '關鍵性文件的取用須經過多重的授權，或由資料管理中心統一取得',
           '設定報表印製中心，特定敏感性報表的輸出，必須透過統一收發管理',
-          'ERP系統提出訊息告訴收料者，這筆貨品屬於缺料中的品號',
+          'ERP 系統提出訊息告訴收料者，這筆貨品屬於缺料中的品號',
         ],
         correctIndex: 3,
       },
@@ -6360,7 +6380,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '641',
         question:
-          'MRP物料需求計畫從每日及全體料件的角度來檢視供需平衡，下列何者是屬於需求的來源？',
+          'MRP 物料需求計畫從每日及全體料件的角度來檢視供需平衡，下列何者是屬於需求的來源？',
         options: [
           '使用單位所申請的"請購量"',
           '客戶已經確認的訂單"預計出貨量"',
@@ -6376,7 +6396,7 @@ const rawSubjects: Subjects = {
           '當客戶要買台汽車時，如果有些配備要讓客戶自行挑選時，就可以透過訂單選擇增訂，這樣的情況會造成 MRP 計畫執行時的何種困擾？',
         options: [
           '製造生產的前置時間（Lead time）彈性過大',
-          '客製化之BOM特性及替代件對MRP計畫的衝擊',
+          '客製化之 BOM 特性及替代件對 MRP 計畫的衝擊',
           '多樣少量的短交期訂單衝擊製造生產',
           '庫存帳務即時及正確性不佳',
         ],
@@ -6386,23 +6406,23 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '643',
         question:
-          '企業可以從已接訂單的記錄進行分析，例如：美東訂單增加10%，東歐訂單增加15%，東南亞訂單減少5%，透過這些及時資訊快速的調整行銷活動，以因應市場經營，創造更多的營收及獲利的資訊系統使用階段為下列何者？',
-        options: ['MRPII階段', 'ERP階段', 'ERPII階段', 'RTE階段'],
+          '企業可以從已接訂單的記錄進行分析，例如：美東訂單增加 10%，東歐訂單增加 15%，東南亞訂單減少 5%，透過這些及時資訊快速的調整行銷活動，以因應市場經營，創造更多的營收及獲利的資訊系統使用階段為下列何者？',
+        options: ['MRPII 階段', 'ERP 階段', 'ERPII 階段', 'RTE 階段'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '644',
         question:
-          '將企業分散各地所有相關資訊，包含內部ERP、SCM、CRM及外部資訊等，系統性的彙總，透由 ETL （Extract， Transfer， Load）的工具或程序，有效萃取、轉化成有用資訊，作為企業判斷、決策與行動基礎，適時修正現有策略與流程以提升企業競爭優勢"的系統為下列何者？',
-        options: ['MES系統', 'BI系統', 'SCM系統', 'CRM系統'],
+          '將企業分散各地所有相關資訊，包含內部 ERP、SCM、CRM 及外部資訊等，系統性的彙總，透由 ETL （Extract， Transfer， Load）的工具或程序，有效萃取、轉化成有用資訊，作為企業判斷、決策與行動基礎，適時修正現有策略與流程以提升企業競爭優勢"的系統為下列何者？',
+        options: ['MES 系統', 'BI 系統', 'SCM 系統', 'CRM 系統'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '645',
         question:
-          '以採購單跟進貨單之程序控制而言，就必預先於單據性質設定作業中，限定進貨單一定要【核對採購】，然後在「進貨單建立作業」中，單身再加入進行程序控制的功能這樣的控制模式為以下何種？',
+          '以採購單跟進貨單之程序控制而言，就必預先於單據性質設定作業中，限定進貨單一定要「核對採購」，然後在「進貨單建立作業」中，單身再加入進行程序控制的功能這樣的控制模式為以下何種？',
         options: ['授權控制', '參數設定', '程序管制', '資料控管'],
         correctIndex: 2,
       },
@@ -6410,7 +6430,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '646',
         question:
-          '列印「廠商進貨異常表」及「採購價格異常表」為 ERP系統的哪一種控制模式？',
+          '列印「廠商進貨異常表」及「採購價格異常表」為 ERP 系統的哪一種控制模式？',
         options: ['資料調節控制', '事後差異分析', '程序管制', '資料控管'],
         correctIndex: 1,
       },
@@ -6422,7 +6442,7 @@ const rawSubjects: Subjects = {
           '經營者或高階主管之決心及支持度不佳',
           '基本資料及期初餘額過於繁雜，準備不及',
           '專案規劃及執行效率不佳',
-          'ERP基本資料之規劃不良',
+          'ERP 基本資料之規劃不良',
         ],
         correctIndex: 1,
       },
@@ -6444,7 +6464,7 @@ const rawSubjects: Subjects = {
         question: '關於輸出及轉出檔案權限，以下敘述何者錯誤？',
         options: [
           '兩者權限可分開設定',
-          '轉出檔可為Excel',
+          '轉出檔可為 Excel',
           '輸出是指可不可以列印的權限',
           '可以輸出報表就可以轉出檔案',
         ],
@@ -6454,8 +6474,8 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '650',
         question:
-          '1.客戶訂單 2.報價單 3.銷貨單 4.收款單 5.結帳單，以下作業流程順序何者正確？',
-        options: ['12345', '21345', '21354', '12354'],
+          '以下作業流程順序何者正確？\na. 客戶訂單\nb. 報價單\nc. 銷貨單\nd. 收款單\ne. 結帳單',
+        options: ['abcde', 'bacde', 'baced', 'abced'],
         correctIndex: 2,
       },
       {
@@ -6469,7 +6489,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '652',
         question:
-          '若4/1良品有100、不良品50，4/3銷貨30，4/5出貨120，4/8銷貨100，4/10成品入庫100，請問以下庫存量何者正確？',
+          '若 4/1 良品有 100、不良品 50，4/3 銷貨 30，4/5 出貨 120，4/8 銷貨 100，4/10 成品入庫 100，請問以下庫存量何者正確？',
         options: ['4/2-70', '4/3-50', '4/7-150', '4/10-50'],
         correctIndex: 3,
       },
@@ -6520,22 +6540,28 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '657',
-        question: '公司2014年7月準備上線ERP系統，請問上線後現行年月為何？',
-        options: ['2014年1月', '2014年6月', '2014年7月', '2014年12月'],
+        question:
+          '公司 2014 年 7 月準備上線 ERP 系統，請問上線後現行年月為何？',
+        options: [
+          '2014 年 1 月',
+          '2014 年 6 月',
+          '2014 年 7 月',
+          '2014 年 12 月',
+        ],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '658',
         question:
-          '鼎新發展顧問輔導的標準ERP導入五大階段， 1 教育訓練階段 2 專案計畫階段 3 正式上線階段 4 作業流程擬定階段 5 效益評估及結案階段，以下排序何者正確？',
-        options: ['21345', '21435', '12435', '12345'],
+          '鼎新發展顧問輔導的標準 ERP 導入五大階段，以下排序何者正確？\na. 教育訓練階段\nb. 專案計畫階段\nc. 正式上線階段\nd. 作業流程擬定階段\ne. 效益評估及結案階段',
+        options: ['bacde', 'badce', 'abdce', 'abcde'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '659',
-        question: '有關MRP邏輯中，何者公式正確？淨計畫量=',
+        question: '有關 MRP 邏輯中，何者公式正確？淨計畫量=',
         options: [
           '每日需求量小計-每日供給量小計-當日可用庫存量',
           '每日供給量小計-每日需求量小計-當日可用庫存量',
@@ -6550,9 +6576,9 @@ const rawSubjects: Subjects = {
         question:
           '企業推動 ERP 時，MIS 資訊單位階層若只屬於課層級（低階主管層級），我們會擔心面臨哪些問題？',
         options: [
-          '當ERP 推動發生資源瓶頸時，擔心人微言輕，建言不容易被採納',
+          '當 ERP 推動發生資源瓶頸時，擔心人微言輕，建言不容易被採納',
           '當發生作業或流程調整時協調的執行權力不足',
-          '當ERP推動發生延遲或異常時，需要組織動員支援的時效不佳',
+          '當 ERP 推動發生延遲或異常時，需要組織動員支援的時效不佳',
           '以上皆是',
         ],
         correctIndex: 3,
@@ -6585,7 +6611,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '663',
         question:
-          'ERPII中談到以ERP系統為核心再發展延伸的幾個整合資訊系統，以下何者為非？',
+          'ERPII 中談到以 ERP 系統為核心再發展延伸的幾個整合資訊系統，以下何者為非？',
         options: [
           'Customer Relationship Management',
           'Supply Chain Management',
@@ -6604,18 +6630,18 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '665',
-        question: '「鍵值（KEY）」的欄位在WF ERP系統的作業畫面是哪種顏色？',
+        question: '「鍵值（KEY）」的欄位在 WF ERP 系統的作業畫面是哪種顏色？',
         options: ['白色', '黃色', '紅色', '孔雀綠色'],
         correctIndex: 3,
       },
       {
         type: 'single_choice',
         id: '666',
-        question: '以下何者非ERP系統導入效益？',
+        question: '以下何者非 ERP 系統導入效益？',
         options: [
-          '企業流程BPR的最佳時機',
-          '可利用ERP來執行內部控制',
-          '利用IT技術快速處理大量資料',
+          '企業流程 BPR 的最佳時機',
+          '可利用 ERP 來執行內部控制',
+          '利用 IT 技術快速處理大量資料',
           '降低離職率',
         ],
         correctIndex: 3,
@@ -6624,7 +6650,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '667',
         question:
-          'WF ERP系統報表格式可以有類似EXCEL的凍結窗格功能，下列何者正確？',
+          'WF ERP 系統報表格式可以有類似 EXCEL 的凍結窗格功能，下列何者正確？',
         options: ['處理縮排', '對齊用十字線', '折行', '固定欄位'],
         correctIndex: 3,
       },
@@ -6632,12 +6658,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '668',
         question:
-          '若ERP推動時，假設專案組織分為企業主/E化規劃小組/E化執行小組，而有關E化規劃小組權責的描述，以下何者為非？',
+          '若 ERP 推動時，假設專案組織分為企業主/E 化規劃小組/E 化執行小組，而有關 E 化規劃小組權責的描述，以下何者為非？',
         options: [
-          '負責ERP 個案修改的需求確認',
-          '負責企業ERP導入成敗之責',
-          '一定要親身參與及登錄ERP所有基本資料',
-          '負責執行及評估ERP導入成效',
+          '負責 ERP 個案修改的需求確認',
+          '負責企業 ERP 導入成敗之責',
+          '一定要親身參與及登錄 ERP 所有基本資料',
+          '負責執行及評估 ERP 導入成效',
         ],
         correctIndex: 2,
       },
@@ -6656,7 +6682,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '670',
-        question: '以下何者不是WF ERP的資訊控制模式【參數控制】之作業目的？',
+        question: '以下何者不是 WF ERP 的資訊控制模式「參數控制」之作業目的？',
         options: [
           '保留系統彈性',
           '滿足不同管理特性之企業',
@@ -6668,24 +6694,24 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '671',
-        question: '鼎新顧問輔導之ERP導入「教育訓練」階段，下列說明何者有誤？',
+        question: '鼎新顧問輔導之 ERP 導入「教育訓練」階段，下列說明何者有誤？',
         options: [
-          '為避免影響企業運作，ERP培訓一般員工即可，無須涉及主管職',
+          '為避免影響企業運作，ERP 培訓一般員工即可，無須涉及主管職',
           '基礎資料重點規劃之一是電腦化資料的編碼原則',
-          '基礎資料重點規劃之一是成品BOM分階原則',
-          '學習者未經系統教育訓練將影響ERP上線成效',
+          '基礎資料重點規劃之一是成品 BOM 分階原則',
+          '學習者未經系統教育訓練將影響 ERP 上線成效',
         ],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '672',
-        question: '衡量企業e化程度的指標，下列何者為非？',
+        question: '衡量企業 e 化程度的指標，下列何者為非？',
         options: [
-          '流程e化的比率',
-          '表單e化的比率',
+          '流程 e 化的比率',
+          '表單 e 化的比率',
           '網路頻寬',
-          '上下游廠商的e化整合程度',
+          '上下游廠商的 e 化整合程度',
         ],
         correctIndex: 2,
       },
@@ -6693,24 +6719,24 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '673',
         question:
-          'H為一個採購件，4/01良品倉庫有100PCS，不良品倉庫有50PCS，4/03當天須領料 30PCS，4/05日當天有訂單零組件須出貨120PCS，4/08日當天須領料100PCS，已經發出去的採購單在4/10預計入庫200PCS。（註：領料及出貨必須運用前一天的存貨量），以下日期存貨數量何者錯誤？',
+          'H 為一個採購件，4/01 良品倉庫有 100PCS，不良品倉庫有 50PCS，4/03 當天須領料 30PCS，4/05 日當天有訂單零組件須出貨 120PCS，4/08 日當天須領料 100PCS，已經發出去的採購單在 4/10 預計入庫 200PCS。（註：領料及出貨必須運用前一天的存貨量），以下日期存貨數量何者錯誤？',
         options: [
-          '4/02存貨為70PCS',
-          '4/03存貨為-50PCS',
-          '4/07存貨為-120PCS',
-          '4/10存貨為50PCS',
+          '4/02 存貨為 70PCS',
+          '4/03 存貨為-50PCS',
+          '4/07 存貨為-120PCS',
+          '4/10 存貨為 50PCS',
         ],
         correctIndex: 2,
       },
       {
         type: 'single_choice',
         id: '674',
-        question: '有關ERP效益之評量計算，何者描述為非？',
+        question: '有關 ERP 效益之評量計算，何者描述為非？',
         options: [
-          '企業應該設定評量週期，追蹤ERP效益是否有如期達成',
-          'ERP效益在上線當月就應該全面達成，未達成是E化小組的責任',
+          '企業應該設定評量週期，追蹤 ERP 效益是否有如期達成',
+          'ERP 效益在上線當月就應該全面達成，未達成是 E 化小組的責任',
           '有些評量指標在上線前幾個月會退步，主要是人員熟悉度及適應性的問題',
-          'ERP評量的指標實際值最好能透過資訊系統產生最精確',
+          'ERP 評量的指標實際值最好能透過資訊系統產生最精確',
         ],
         correctIndex: 1,
       },
@@ -6718,14 +6744,14 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '675',
         question:
-          '有關 WF ERP 報表處理的描述何者為是？ (1)報表產生要派班中心Dispatcher啟動才能執行 (2)派班中心可以不與DB Sever同一個網域 (3)報表產生速度很慢可以追加APP Sever是最佳的方案 (4)報表產生結果存在ConductorS.ini 中',
-        options: ['(1)(2)', '(1)', '(1)(2)(3)', '(3)(4)'],
+          '有關 WF ERP 報表處理的描述何者為是？\na. 報表產生要派班中心 Dispatcher 啟動才能執行\nb. 派班中心可以不與 DB Server 同一個網域\nc. 報表產生速度很慢可以追加 APP Server 是最佳的方案\nd. 報表產生結果存在 ConductorS.ini 中',
+        options: ['ab', 'a', 'abc', 'cd'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '676',
-        question: 'MRP計算後可能產生兩種計畫，請問會是哪兩種？',
+        question: 'MRP 計算後可能產生兩種計畫，請問會是哪兩種？',
         options: [
           '採購計畫與存貨計畫',
           '生產計劃與採購計畫',
@@ -6738,12 +6764,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '677',
         question:
-          '若ERP推動時，假設專案組織分為企業主/E化規劃小組/E化執行小組，而有關企業主權責的描述，以下何者為非？',
+          '若 ERP 推動時，假設專案組織分為企業主/E 化規劃小組/E 化執行小組，而有關企業主權責的描述，以下何者為非？',
         options: [
-          '宣誓及完全支持E化的態度是企業ERP導入的成功關鍵',
-          '應定期召開會議，檢討專案進度，隨時修正E化進度或方向',
+          '宣誓及完全支持 E 化的態度是企業 ERP 導入的成功關鍵',
+          '應定期召開會議，檢討專案進度，隨時修正 E 化進度或方向',
           '一定要親身參與所有的訓練課程',
-          '決策阻礙ERP導入進度，相關的阻礙排除及資源的調度',
+          '決策阻礙 ERP 導入進度，相關的阻礙排除及資源的調度',
         ],
         correctIndex: 2,
       },
@@ -6754,7 +6780,7 @@ const rawSubjects: Subjects = {
         options: [
           '可分為「整張單據刪除」及「單身單筆刪除」兩種方式',
           '若要執行「整張單據刪除」的功能，該張單據狀態就不得是「已確認」或「已作廢」',
-          '若要執行「單身單筆資料刪除」，可先點選要刪除的資料，再按下ALT+DEL的按鍵',
+          '若要執行「單身單筆資料刪除」，可先點選要刪除的資料，再按下 ALT+DEL 的按鍵',
           '單據必須是在「修改」狀態下，才可執行「單身單筆資料刪除」功能',
         ],
         correctIndex: 2,
@@ -6763,7 +6789,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '679',
         question:
-          '在WF ERP系統裡，設定查詢的條件式「like」用法，以下何者有誤？',
+          '在 WF ERP 系統裡，設定查詢的條件式「like」用法，以下何者有誤？',
         options: [
           '「%like」為查詢「開頭是」',
           '「%like%」為查詢「包含」',
@@ -6782,7 +6808,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '681',
-        question: '可藉ERP系統導入，來衡量財務效能的可用指標，以下何者為非？',
+        question: '可藉 ERP 系統導入，來衡量財務效能的可用指標，以下何者為非？',
         options: [
           '應收帳款結帳時效',
           '間接人員生產力或產值',
@@ -6813,7 +6839,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '684',
-        question: '有關WF ERP系統之報表格式設定，以下說明何者為是？',
+        question: '有關 WF ERP 系統之報表格式設定，以下說明何者為是？',
         options: [
           '「處理縮排」表示調整報表行距',
           '「顯示明細」表示報表縮小比例',
@@ -6826,28 +6852,28 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '685',
         question:
-          '設計ERP系統時必須了解企業的營運需求，而營運需求應包含哪些？ 1企業價值鏈與管理重點 2規章制度 3作業流程 4股東權益',
-        options: ['123', '234', '124', '134'],
+          '設計 ERP 系統時必須了解企業的營運需求，而營運需求應包含哪些？\na. 企業價值鏈與管理重點\nb. 規章制度\nc. 作業流程\nd. 股東權益',
+        options: ['abc', 'bcd', 'abd', 'acd'],
         correctIndex: 0,
       },
       {
         type: 'single_choice',
         id: '686',
         question:
-          '鼎新發展出改良型之MRP系統，稱之為LRP系統，而以下描述何者為非？',
+          '鼎新發展出改良型之 MRP 系統，稱之為 LRP 系統，而以下描述何者為非？',
         options: [
-          'LRP是將一張或若干張的訂單或工單之產品，作為計劃依據',
-          '有了LRP計畫就不再需要運用MRP來規劃存貨',
-          'LRP可完整記錄所有需求計畫量組成內容',
-          'LRP提供淨需求或毛需求選項的計劃算法',
+          'LRP 是將一張或若干張的訂單或工單之產品，作為計劃依據',
+          '有了 LRP 計畫就不再需要運用 MRP 來規劃存貨',
+          'LRP 可完整記錄所有需求計畫量組成內容',
+          'LRP 提供淨需求或毛需求選項的計劃算法',
         ],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '687',
-        question: '以下哪一個E化專案組織是由ERP系統廠商與各部門共同組成？',
-        options: ['E化策略委員會', 'E化規劃小組', 'E化執行小組', '以上皆非'],
+        question: '以下哪一個 E 化專案組織是由 ERP 系統廠商與各部門共同組成？',
+        options: ['E 化策略委員會', 'E 化規劃小組', 'E 化執行小組', '以上皆非'],
         correctIndex: 1,
       },
       {
@@ -6868,7 +6894,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '690',
-        question: '以下何者不是ERP系統被切割成不同模組的原因？',
+        question: '以下何者不是 ERP 系統被切割成不同模組的原因？',
         options: [
           '考量企業預算問題',
           '考量企業部門需求',
@@ -11286,10 +11312,10 @@ const rawSubjects: Subjects = {
         question:
           '_____________是裝備有電磁或光學等自動導引裝置，能夠沿著事先規劃的導引路徑行駛，具有安全保護以及各種移載功能的運輸車。',
         options: [
-          '自動導引運輸車AGV(automated guided vehicle)',
+          '自動導引運輸車 AGV(automated guided vehicle)',
           '感測器(sensor)',
           '工業機器人',
-          '工業4.0戰情室(situation room)',
+          '工業 4.0 戰情室(situation room)',
         ],
         correctIndex: 0,
       },
@@ -11315,7 +11341,7 @@ const rawSubjects: Subjects = {
           '政策、法律和標準化環境',
           '跨國與跨領域的合作關係',
           '低成本的運作空間',
-          '提供高素質AI人才',
+          '提供高素質 AI 人才',
         ],
         correctIndex: 0,
       },
@@ -11357,12 +11383,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '8',
         question:
-          '假設想訓練一台機器來識別直升機，你有150萬張照片，其中有些照片裡邊有直升機，有些沒有直升機。那你需要有人先來教會電腦哪些圖像有直升機，哪些又沒有直升機。這就是_____________的用處所在。',
+          '假設想訓練一台機器來識別直升機，你有 150 萬張照片，其中有些照片裡邊有直升機，有些沒有直升機。那你需要有人先來教會電腦哪些圖像有直升機，哪些又沒有直升機。這就是_____________的用處所在。',
         options: [
           '數據標籤專業人員',
           '規則建構師',
           '機器學習工程師',
-          'AI硬體專家',
+          'AI 硬體專家',
         ],
         correctIndex: 0,
       },
@@ -11398,10 +11424,10 @@ const rawSubjects: Subjects = {
         question:
           '在智慧製造中，_____________是一種全新的分散式運算技術，目前已經成為一種進行複雜系統分析與類比的思想方法與工具。',
         options: [
-          '多智慧體系統MAS',
-          '數位控制車床CNC',
-          '敏捷製造Agile Manufacturing',
-          '分散式數位控制DNC',
+          '多智慧體系統 MAS',
+          '數位控制車床 CNC',
+          '敏捷製造 Agile Manufacturing',
+          '分散式數位控制 DNC',
         ],
         correctIndex: 0,
       },
@@ -11429,7 +11455,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '14',
         question:
-          '在機器學習的主要三項演算法技術中(又稱為三劍客或三兄弟)，_____________不涉及提供“正確的”答案或輸出，只關注性能，讓AI系統很快就學會了，不要重複這一動作。',
+          '在機器學習的主要三項演算法技術中(又稱為三劍客或三兄弟)，_____________不涉及提供“正確的”答案或輸出，只關注性能，讓 AI 系統很快就學會了，不要重複這一動作。',
         options: ['強化學習', '非監督學習', '監督學習', '歸納學習'],
         correctIndex: 0,
       },
@@ -11514,7 +11540,7 @@ const rawSubjects: Subjects = {
         id: '22',
         question:
           '智慧交通的軌道交通系統，所謂“列車自動保護系統”，就是指_____________。',
-        options: ['ATP', '物聯網IoT', '車聯網', '互聯網'],
+        options: ['ATP', '物聯網 IoT', '車聯網', '互聯網'],
         correctIndex: 0,
       },
       {
@@ -11573,7 +11599,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '28',
         question:
-          '根據美國國防高級研究計畫局DARPA對人工智慧技術等級的定義，人工智慧的深度學習、強化學習、對抗學習等技術，是屬於_____________。',
+          '根據美國國防高級研究計畫局 DARPA 對人工智慧技術等級的定義，人工智慧的深度學習、強化學習、對抗學習等技術，是屬於_____________。',
         options: ['統計機器學習', '資訊感知', '物聯網', '大數據分析'],
         correctIndex: 0,
       },
@@ -11615,7 +11641,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '32',
         question:
-          '科學家Wiener從理論上指出，所有的智慧活動都是_____________機制的結果，而這一機制是有可能用機器模擬的。這項發現對早期AI的發展影響很大。',
+          '科學家 Wiener 從理論上指出，所有的智慧活動都是_____________機制的結果，而這一機制是有可能用機器模擬的。這項發現對早期 AI 的發展影響很大。',
         options: ['回饋', '分解', '抽象', '綜合'],
         correctIndex: 0,
       },
@@ -11659,7 +11685,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '37',
         question:
-          '谷歌的“虛擬大腦”是模擬人類的大腦細胞相互交流、影響設計出來的，具備自我學習功能，它可以通過觀看Youku(優酷)、YouTube等影片(視頻)，學習識別人臉、貓臉動物、聲音以及其他事物。這項技術使Google產品變得更加智慧化，而首先受益的是_____________產品。',
+          '谷歌的“虛擬大腦”是模擬人類的大腦細胞相互交流、影響設計出來的，具備自我學習功能，它可以通過觀看 Youku(優酷)、YouTube 等影片(視頻)，學習識別人臉、貓臉動物、聲音以及其他事物。這項技術使 Google 產品變得更加智慧化，而首先受益的是_____________產品。',
         options: ['語音辨識', '自動翻譯', '激勵函數', '影像識別'],
         correctIndex: 0,
       },
@@ -11677,10 +11703,10 @@ const rawSubjects: Subjects = {
         question:
           '關於人工智慧的技術之一機器學習(ML, machine learning)最早的發展可以追溯到_____________。',
         options: [
-          '英國數學家貝葉斯在1763年發表的貝葉斯定理',
-          'Donald Michie在1963年推出的強化學習的tic-tac-toe程式',
-          '1952年Arthur Samuel創建的一個簡單的下棋遊戲程式',
-          '1950年電腦科學家圖靈發明的圖靈測試',
+          '英國數學家貝葉斯在 1763 年發表的貝葉斯定理',
+          'Donald Michie 在 1963 年推出的強化學習的 tic-tac-toe 程式',
+          '1952 年 Arthur Samuel 創建的一個簡單的下棋遊戲程式',
+          '1950 年電腦科學家圖靈發明的圖靈測試',
         ],
         correctIndex: 0,
       },
@@ -11688,7 +11714,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '40',
         question:
-          'i-CRM智慧客服關係管理系統包括四大方向，銷售管理、市場行銷、_____________、管理拓展等。',
+          'i-CRM 智慧客服關係管理系統包括四大方向，銷售管理、市場行銷、_____________、管理拓展等。',
         options: ['人事管理', '服務管理', '財會管理', '生產管理'],
         correctIndex: 1,
       },
@@ -11759,7 +11785,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '49',
         question:
-          '在人工智慧機器學習領域中，輸入的資料對象經過feature(特徵)的classification\n(分類)處理後的結果，稱為_____________。',
+          '在人工智慧機器學習領域中，輸入的資料對象經過 feature(特徵)的 classification(分類)處理後的結果，稱為_____________。',
         options: [
           'enable(啟動)',
           'label(標籤)',
@@ -11816,7 +11842,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '55',
-        question: '大數據的數據存儲單位，1 PB\n(petabyte) =_____________。',
+        question: '大數據的數據存儲單位，1 PB(petabyte) =_____________。',
         options: ['1,024 MB', '1,024 TB', '1,024 KB', '1,024 GB'],
         correctIndex: 1,
       },
@@ -11837,7 +11863,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '57',
         question:
-          '工業4.0不僅是要從過去自動化、標準化作業(SOP)的大量生產，結合智慧互聯、智慧生產、智慧工廠，轉變為以_____________為中心的客制化生產。',
+          '工業 4.0 不僅是要從過去自動化、標準化作業(SOP)的大量生產，結合智慧互聯、智慧生產、智慧工廠，轉變為以_____________為中心的客制化生產。',
         options: ['通信設備', '顧客', '電腦', '自動化裝置'],
         correctIndex: 1,
       },
@@ -11845,11 +11871,11 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '58',
         question:
-          '工業4.0智慧製造將所有的機台與生產資訊，透過_____________作整合資料應用，並且所有處理過程都是視覺化的。',
+          '工業 4.0 智慧製造將所有的機台與生產資訊，透過_____________作整合資料應用，並且所有處理過程都是視覺化的。',
         options: [
           '工業機器人',
-          '製造執行系統MES(manufacturing execution system)',
-          '工業4.0戰情室(situation room)',
+          '製造執行系統 MES(manufacturing execution system)',
+          '工業 4.0 戰情室(situation room)',
           '物聯網及感測器(sensor)',
         ],
         correctIndex: 1,
@@ -11907,7 +11933,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '64',
         question:
-          '智慧家居是以_____________為平臺，通過物聯網IoT技術將家中的各種設備連接到一起，實現智慧化的一種生態系統。',
+          '智慧家居是以_____________為平臺，通過物聯網 IoT 技術將家中的各種設備連接到一起，實現智慧化的一種生態系統。',
         options: ['社區', '住宅', '花園', '街道'],
         correctIndex: 1,
       },
@@ -11915,7 +11941,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '65',
         question:
-          '智慧家居系統方案的設計有一個顯著的特點，就是安裝、調試與維護的工作量非常大，需要大量的人力物力投入，成為行業發展的瓶頸。針對這個問題，系統在設計時，就應考慮安裝與維護的部分工作，系統可以通過Internet遠端調試與維護。這是屬於設計智慧家居系統遵循的_____________原則。',
+          '智慧家居系統方案的設計有一個顯著的特點，就是安裝、調試與維護的工作量非常大，需要大量的人力物力投入，成為行業發展的瓶頸。針對這個問題，系統在設計時，就應考慮安裝與維護的部分工作，系統可以通過 Internet 遠端調試與維護。這是屬於設計智慧家居系統遵循的_____________原則。',
         options: ['實用便利', '方便性', '可靠性', '標準性'],
         correctIndex: 1,
       },
@@ -11923,7 +11949,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '66',
         question:
-          '智慧家居系統方案的設計應依照產業有關標準進行，確保系統的擴充性和擴展性，在系統傳輸上採用標準的 TCP/IP網路協定技術，保證不同家電商品之間系統可以相容與互聯。這是屬於設計智慧家居系統遵循的_____________原則。',
+          '智慧家居系統方案的設計應依照產業有關標準進行，確保系統的擴充性和擴展性，在系統傳輸上採用標準的 TCP/IP 網路協定技術，保證不同家電商品之間系統可以相容與互聯。這是屬於設計智慧家居系統遵循的_____________原則。',
         options: ['方便性', '實用便利', '可靠性', '標準性'],
         correctIndex: 3,
       },
@@ -11978,7 +12004,7 @@ const rawSubjects: Subjects = {
           '當我們把訓練資料送入神經網路的模型或函數學習機的學習過程中，在_____________的程度後，通常可以說這個神經網路的模型或函數學習機完成學習了。',
         options: [
           '系統無法反映',
-          '誤差值r小於可以接受',
+          '誤差值 r 小於可以接受',
           '分類效果快速',
           '反應速度很短快',
         ],
@@ -11995,7 +12021,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '74',
-        question: '第一次的工業革命(簡稱工業1.0)是_____________的革命。',
+        question: '第一次的工業革命(簡稱工業 1.0)是_____________的革命。',
         options: ['智能化', '機械化', '信息化', '電氣化'],
         correctIndex: 1,
       },
@@ -12003,14 +12029,14 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '75',
         question:
-          '線上影片租賃服務商Netflix\n(網飛)的主要經營業務是提供Internet隨選流媒體播放，它所依賴的關鍵服務是_____________。',
+          '線上影片租賃服務商 Netflix(網飛)的主要經營業務是提供 Internet 隨選流媒體播放，它所依賴的關鍵服務是_____________。',
         options: ['百度引擎', '推薦引擎', '搜尋引擎', '谷歌引擎'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '76',
-        question: '自然語言處理(NLP)是AI研究中_____________的領域之一。',
+        question: '自然語言處理(NLP)是 AI 研究中_____________的領域之一。',
         options: [
           '研究歷史較短，但研究最多、要求最高',
           '研究歷史最長、研究最多、要求最高',
@@ -12023,10 +12049,10 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '77',
         question:
-          '語音辨識技術的最重大突破是在數位技術、積體電路技術發展之後，以及應用_____________的大詞彙量語音辨識系統，如李開復的Sphinx系統。',
+          '語音辨識技術的最重大突破是在數位技術、積體電路技術發展之後，以及應用_____________的大詞彙量語音辨識系統，如李開復的 Sphinx 系統。',
         options: [
           '多功能詞彙分析系統',
-          '隱含瑪律科夫模型HMM(Hidden Markov Model)',
+          '隱含瑪律科夫模型 HMM(Hidden Markov Model)',
           '資料編碼壓縮技術',
           '語音轉文字識別',
         ],
@@ -12096,7 +12122,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '83',
         question:
-          '19世紀以來，當面臨大量資料時，社會都依賴於採樣分析。但是採樣分析是屬於_____________時代的產物。',
+          '19 世紀以來，當面臨大量資料時，社會都依賴於採樣分析。但是採樣分析是屬於_____________時代的產物。',
         options: ['雲', '青銅器', '類比資料', '電腦'],
         correctIndex: 2,
       },
@@ -12104,7 +12130,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '84',
         question:
-          'ANN是一種模仿生物神經網路，其中的_____________扮演了生物神經模型中突觸的角色，用於調節一個神經元對另一個神經元的影響程度。',
+          'ANN 是一種模仿生物神經網路，其中的_____________扮演了生物神經模型中突觸的角色，用於調節一個神經元對另一個神經元的影響程度。',
         options: ['細胞體', '輸出通道', '權重', '輸入通道'],
         correctIndex: 2,
       },
@@ -12272,7 +12298,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '103',
-        question: '第四次的工業革命(簡稱工業4.0)是_____________的革命。',
+        question: '第四次的工業革命(簡稱工業 4.0)是_____________的革命。',
         options: ['信息化', '電氣化', '智能化', '機械化'],
         correctIndex: 2,
       },
@@ -12307,7 +12333,7 @@ const rawSubjects: Subjects = {
         id: '106',
         question:
           '_____________不僅是要從過去自動化、標準化作業(SOP)的大量生產，結合智慧互聯、智慧生產、智慧工廠，轉變為以顧客為中心的客制化生產。',
-        options: ['工業2.0', '工業3.0', '工業1.0', '工業4.0'],
+        options: ['工業 2.0', '工業 3.0', '工業 1.0', '工業 4.0'],
         correctIndex: 3,
       },
       {
@@ -12332,10 +12358,10 @@ const rawSubjects: Subjects = {
         question:
           '_____________是智慧工廠的核心，透過領先的資料收集和呈現，實現智慧工廠數位化轉型。',
         options: [
-          '智慧型引導運輸車IGV(intelligent guided vehicle)',
+          '智慧型引導運輸車 IGV(intelligent guided vehicle)',
           '感測器(sensor)',
           '工業機器人',
-          '工業4.0戰情室(situation room)',
+          '工業 4.0 戰情室(situation room)',
         ],
         correctIndex: 3,
       },
@@ -12343,10 +12369,10 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '110',
         question:
-          '_____________集合了三維地理資訊系統3D-GIS、建築資訊模型BIM和物聯網IoT等多種先進技術的城市管理手段，為智慧城市發展注入了新鮮血液。',
+          '_____________集合了三維地理資訊系統 3D-GIS、建築資訊模型 BIM 和物聯網 IoT 等多種先進技術的城市管理手段，為智慧城市發展注入了新鮮血液。',
         options: [
-          'AIoT智慧物聯網模型',
-          '5G智慧網模型',
+          'AIoT 智慧物聯網模型',
+          '5G 智慧網模型',
           'Big data city model(大數據城市模型)',
           'CIM(城市資訊模型)',
         ],
@@ -12364,10 +12390,10 @@ const rawSubjects: Subjects = {
         id: '112',
         question: '“智慧城市”的概念源於_____________的理念。',
         options: [
-          '1987年華為公司提出的“構建萬物互聯的智慧世界”',
-          '1995年微軟公司提出的“Windows 95”',
-          '2010年谷歌公司提出的“工作賦予挑戰，挑戰帶來快樂”',
-          '2008年IBM公司提出的“智慧地球”',
+          '1987 年華為公司提出的“構建萬物互聯的智慧世界”',
+          '1995 年微軟公司提出的“Windows 95”',
+          '2010 年谷歌公司提出的“工作賦予挑戰，挑戰帶來快樂”',
+          '2008 年 IBM 公司提出的“智慧地球”',
         ],
         correctIndex: 3,
       },
@@ -12375,7 +12401,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '113',
         question:
-          '人工智慧AI在圖像識別上已經超越了人類，支援這些圖像識別技術的，通常是_____________。',
+          '人工智慧 AI 在圖像識別上已經超越了人類，支援這些圖像識別技術的，通常是_____________。',
         options: ['雲計算', '神經計算', '網際網路', '深度神經網路'],
         correctIndex: 3,
       },
@@ -12390,7 +12416,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '115',
         question:
-          '人工智慧用電腦實現的方法中，_____________系統開始常犯錯誤，但它能吸取教訓，在下一次運行時就可能改正，至少不會永遠錯下去，通常不需要發佈新版本或做修正\n(打補丁)。',
+          '人工智慧用電腦實現的方法中，_____________系統開始常犯錯誤，但它能吸取教訓，在下一次運行時就可能改正，至少不會永遠錯下去，通常不需要發佈新版本或做修正(打補丁)。',
         options: [
           '工程學方法(engineering approach)',
           '傳統的程式設計技術(programming)',
@@ -12444,10 +12470,10 @@ const rawSubjects: Subjects = {
         question:
           '國際自動機工程師學會(SAE International)定義的自動駕駛為六級，「完全自動駕駛」的車輛是指哪一級？',
         options: [
-          '等級1(Level 1)',
-          '等級0(Level 0)',
-          '等級4(Level 4)',
-          '等級5(Level 5)',
+          '等級 1(Level 1)',
+          '等級 0(Level 0)',
+          '等級 4(Level 4)',
+          '等級 5(Level 5)',
         ],
         correctIndex: 3,
       },
@@ -12476,7 +12502,7 @@ const rawSubjects: Subjects = {
         id: '122',
         question:
           '在每個音段上標記正確的文字，再反饋給語音辨識系統做學習。這種由人工先聽取後，並錄入正確文字的過程，稱之為_____________。',
-        options: ['合成和分析', '語音轉文字識別TTS', '語音的自動檢測', '標音'],
+        options: ['合成和分析', '語音轉文字識別 TTS', '語音的自動檢測', '標音'],
         correctIndex: 3,
       },
       {
@@ -12496,7 +12522,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '124',
         question:
-          '在電商領域，通過靈活的關鍵字匹配、情感/語速識別和智慧業務模型規則，運用智慧客服機器深入多個業務場景，對人工客服的服務態度、話術規範及處理業務的流程做出自動化的批量檢測，將質檢覆蓋率提升到100%。這是_____________的應用案例。',
+          '在電商領域，通過靈活的關鍵字匹配、情感/語速識別和智慧業務模型規則，運用智慧客服機器深入多個業務場景，對人工客服的服務態度、話術規範及處理業務的流程做出自動化的批量檢測，將質檢覆蓋率提升到 100%。這是_____________的應用案例。',
         options: [
           '用智慧客服機器守住第一觸點',
           '讓智慧客服機器分發個性化的內容',
@@ -12508,7 +12534,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '125',
-        question: '大數據的數據存儲單位，1 TB\n(terabyte) =_____________。',
+        question: '大數據的數據存儲單位，1 TB(terabyte) =_____________。',
         options: ['1,024 KB', '1,024 PB', '1,024 MB', '1,024 GB'],
         correctIndex: 3,
       },
@@ -12551,8 +12577,8 @@ const rawSubjects: Subjects = {
         question:
           '智慧工廠是以_____________作為基本資料的搜集機制，所得到的大數據(big data)將是整個智慧工廠的重要資產，包括歷史資料與現在的資料。',
         options: [
-          '自動導引運輸車AGV',
-          '虛實合一系統CPS',
+          '自動導引運輸車 AGV',
+          '虛實合一系統 CPS',
           '機器人應遵守人類的命令',
           '物聯網(IoT)',
         ],
@@ -12679,12 +12705,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '141',
         question:
-          '在智慧製造中的系統中，幫助我們可以根據實際情況靈活的設置AGV的運行路線、呼叫派車、即時監控，智慧分析AGV的運行情況，這是_____________。',
+          '在智慧製造中的系統中，幫助我們可以根據實際情況靈活的設置 AGV 的運行路線、呼叫派車、即時監控，智慧分析 AGV 的運行情況，這是_____________。',
         options: [
-          'AGV自動導引運輸車',
+          'AGV 自動導引運輸車',
           '戰情室',
-          'AGV智慧調度系統',
-          '製造執行系統MES',
+          'AGV 智慧調度系統',
+          '製造執行系統 MES',
         ],
         correctIndex: 2,
       },
@@ -12697,7 +12723,7 @@ const rawSubjects: Subjects = {
           '網域功能變數名稱(domain name)、雲平臺(cloud platform)',
           '雲市場(cloud market)、全域行銷(overall marketing)',
           '街頭店上市場(street market)、全域行銷(overall marketing)。',
-          'IP位址(IP address)、雲平臺(cloud platform)',
+          'IP 位址(IP address)、雲平臺(cloud platform)',
         ],
         correctIndexes: [0, 1],
       },
@@ -12733,10 +12759,10 @@ const rawSubjects: Subjects = {
         question:
           '下列_____________資訊服務利用了人工智慧的機器學習技術。(請選三項(含)以上)',
         options: [
-          '智慧語音助手Siri',
-          'Alexa個人助理用戶端',
-          'Netflix電影推薦',
-          'QQ郵箱轉送',
+          '智慧語音助手 Siri',
+          'Alexa 個人助理用戶端',
+          'Netflix 電影推薦',
+          'QQ 郵箱轉送',
         ],
         correctIndexes: [0, 1, 2],
       },
@@ -12810,11 +12836,11 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '212',
         question:
-          '人工智慧AI與智慧城市的關係為_____________。(請選三項(含)以上)',
+          '人工智慧 AI 與智慧城市的關係為_____________。(請選三項(含)以上)',
         options: [
           '人工智慧是實現智慧城市的技術手段之一',
           '人工智慧技術是和其它資訊技術(例如:物聯網、雲計算、資料採擷…等等) 相互結合或基礎上，共同作用建設智慧城市的',
-          '人工智慧是有其特定概念與技術內涵的，AI與其它技術有明確區別，是發揮認知、分析、運籌與決策作用的關鍵技術',
+          '人工智慧是有其特定概念與技術內涵的，AI 與其它技術有明確區別，是發揮認知、分析、運籌與決策作用的關鍵技術',
           '智慧城市會隨著人工智慧技術的不斷發展深化，推演預測、自動決策等城市智慧化水準不斷提高',
         ],
         correctIndexes: [0, 1, 2, 3],
@@ -12836,7 +12862,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '214',
         question:
-          '智慧醫療以人工智慧為核心的ICT群組技術支援包括_____________等，正在顛覆醫療觀念、體系與技術及服務。(請選三項(含)以上)',
+          '智慧醫療以人工智慧為核心的 ICT 群組技術支援包括_____________等，正在顛覆醫療觀念、體系與技術及服務。(請選三項(含)以上)',
         options: ['雲運算技術', '大數據分析', '物聯網技術', '穿戴式/移動裝置'],
         correctIndexes: [0, 1, 2, 3],
       },
@@ -12857,7 +12883,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '216',
         question:
-          '自從SARS, MERS及新冠狀病毒COVID-19連續發生以來，作為智慧醫療體系中的區域衛生系統的發展就變成很重要，區域衛生系統可包括_____________等。(請選三項(含)以上)',
+          '自從 SARS, MERS 及新冠狀病毒 COVID-19 連續發生以來，作為智慧醫療體系中的區域衛生系統的發展就變成很重要，區域衛生系統可包括_____________等。(請選三項(含)以上)',
         options: [
           '發展電子健康檔案（electronic health records，EHRs）',
           '區域衛生平臺+公共衛生系統',
@@ -12872,7 +12898,7 @@ const rawSubjects: Subjects = {
         question:
           '關於資料結構化與非結構化的觀點，下列說法正確的是_____________。(請選三項(含)以上)',
         options: [
-          '據估計，只有5％的數位資料是屬於結構化資料',
+          '據估計，只有 5％的數位資料是屬於結構化資料',
           '網頁和影像(視頻)資源大多屬於非結構化資料',
           '非結構化資料可能包括很多模糊(fuzzy)和不確定(uncertain)的數據',
           '資料結構化才能適用於傳統資料庫',
@@ -12910,7 +12936,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '220',
         question:
-          '人工智慧AI在數位醫療健康領域應用中已經扮演樞紐角色，應用於_____________等三大領域。(請選三項(含)以上)',
+          '人工智慧 AI 在數位醫療健康領域應用中已經扮演樞紐角色，應用於_____________等三大領域。(請選三項(含)以上)',
         options: ['數位醫療', '精准醫療', '專屬醫學', '預防醫學'],
         correctIndexes: [0, 1, 3],
       },
@@ -12918,7 +12944,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '221',
         question:
-          '人工智慧技術AI與三大新興技術跨領域結合，組成人工智慧物聯網，分別是指_____________。(請選三項(含)以上)',
+          '人工智慧技術 AI 與三大新興技術跨領域結合，組成人工智慧物聯網，分別是指_____________。(請選三項(含)以上)',
         options: [
           '大數據(big data)',
           '物聯網(IoT, Internet of things)',
@@ -12968,7 +12994,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '226',
         question:
-          '大數據的特點可用5V或3V來代表，_____________就是3V的代表。(請選三項(含)以上)',
+          '大數據的特點可用 5V 或 3V 來代表，_____________就是 3V 的代表。(請選三項(含)以上)',
         options: [
           'Volume (容積)',
           'Velocity (速度)',
@@ -12986,7 +13012,7 @@ const rawSubjects: Subjects = {
           '資料科學家',
           '機器學習工程師',
           '電腦維修工程師',
-          'AI硬體專家',
+          'AI 硬體專家',
         ],
         correctIndexes: [0, 1, 3],
       },
@@ -12994,12 +13020,12 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '228',
         question:
-          '數位城市或智慧城市3S技術，是指_____________。(請選三項(含)以上)',
+          '數位城市或智慧城市 3S 技術，是指_____________。(請選三項(含)以上)',
         options: [
-          '地理資訊系統GIS',
-          '全球衛星定位系統GPS',
-          '大數據分析系統BDS',
-          '遙感RS',
+          '地理資訊系統 GIS',
+          '全球衛星定位系統 GPS',
+          '大數據分析系統 BDS',
+          '遙感 RS',
         ],
         correctIndexes: [0, 1, 3],
       },
@@ -13043,7 +13069,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '233',
         question:
-          '要落實推動工業4.0需要先從技術面、行為面、與觀念面來瞭解工業4.0的重點內涵。其中的「虛實合一系統」是_____________。(請選三項(含)以上)',
+          '要落實推動工業 4.0 需要先從技術面、行為面、與觀念面來瞭解工業 4.0 的重點內涵。其中的「虛實合一系統」是_____________。(請選三項(含)以上)',
         options: [
           '以「智慧工廠」為精神',
           '機器人為焦點',
@@ -13096,7 +13122,7 @@ const rawSubjects: Subjects = {
         question:
           '關於智慧工廠應變力的具體意義與功能有_____________。(請選三項(含)以上)',
         options: [
-          '交期承諾短---小量客制化、且12Hr.內交貨',
+          '交期承諾短---小量客制化、且 12Hr.內交貨',
           '生產效率高---產能提高，但不任意擴廠、不加人',
           '減少研發費用---盡量降低研究發展的人力與經費',
           '庫存水準低---零庫存為目標',
@@ -13161,7 +13187,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '243',
         question:
-          '在大規模個性化定制的生產需求下，企業從工業3.0自動化工廠升級為工業4.0智慧工廠的運作模式通常會考慮的處理方式有_____________。(請選三項(含)以上)',
+          '在大規模個性化定制的生產需求下，企業從工業 3.0 自動化工廠升級為工業 4.0 智慧工廠的運作模式通常會考慮的處理方式有_____________。(請選三項(含)以上)',
         options: [
           '使用智慧機台',
           '舊機台全部需要淘汰',
@@ -13174,7 +13200,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '244',
         question:
-          '影像處理技術的主要內容包括3個部分，包括_____________等。(請選三項(含)以上)',
+          '影像處理技術的主要內容包括 3 個部分，包括_____________等。(請選三項(含)以上)',
         options: ['匹配、描述和識別', '數據排序', '圖像壓縮', '增強和復原'],
         correctIndexes: [0, 2, 3],
       },
@@ -13213,10 +13239,10 @@ const rawSubjects: Subjects = {
         question:
           '立足於大數據思維，將城市交通資料有條件地開放，其中_____________等，就是基於開放的資料(open data)進行資料融合、深度挖掘的實際應用案例。(請選兩項)',
         options: [
-          '公車、捷運(地鐵)等App，提供即時進站資訊的查詢',
+          '公車、捷運(地鐵)等 App，提供即時進站資訊的查詢',
           '每位公民繳稅、欠稅情形的查詢',
-          '高速路上每部車輛定位App即時位置的查詢',
-          '飛機航班App起降即時情況的查詢',
+          '高速路上每部車輛定位 App 即時位置的查詢',
+          '飛機航班 App 起降即時情況的查詢',
         ],
         correctIndexes: [0, 3],
       },
@@ -13319,7 +13345,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '258',
         question:
-          '在電腦上實現人工智慧常見的有2種不同方式，其中，_____________等兩種是屬於模擬法(modeling approach)。(請選擇二項)',
+          '在電腦上實現人工智慧常見的有 2 種不同方式，其中，_____________等兩種是屬於模擬法(modeling approach)。(請選擇二項)',
         options: [
           '文字識別',
           '工程學方法(engineering approach)',
@@ -13335,9 +13361,9 @@ const rawSubjects: Subjects = {
           '網路家電技術包括兩個層面。分別是__________。（請選擇二項(含)以上）',
         options: [
           '使家庭中的家電網路真正成為外部網路的延伸',
-          'TCP/IP層面',
+          'TCP/IP 層面',
           '不同家電之間能夠互相識別、協同工作',
-          '使用5G網路技術將普通家用電器設計改進為高速家電',
+          '使用 5G 網路技術將普通家用電器設計改進為高速家電',
         ],
         correctIndexes: [0, 2],
       },
@@ -13348,7 +13374,7 @@ const rawSubjects: Subjects = {
         options: [
           '人工智慧是關於知識的學科―怎樣表示知識以及怎樣獲得知識並使用知識的科學。',
           '人工智慧就是研究如何使電腦去做過去只有人才能做的智慧工作。',
-          '自1946年以來，人工智慧學科經過多年的發展，已經趨於成熟，得到充分應用。',
+          '自 1946 年以來，人工智慧學科經過多年的發展，已經趨於成熟，得到充分應用。',
           '人工智慧不是人的智慧，但能像人那樣思考，甚至也可能超過人的智慧。',
         ],
         correctIndexes: [0, 1, 3],
@@ -13370,7 +13396,7 @@ const rawSubjects: Subjects = {
         type: 'multiple_choice',
         id: '262',
         question:
-          '物聯網IoT技術在醫療領域的應用潛力巨大，利用物聯網技術構建“電子醫療”服務體系，可以為醫療服務領域帶來進步。包括_____________等都是因物聯網技術帶來的便利。(請選擇二項(含)以上)',
+          '物聯網 IoT 技術在醫療領域的應用潛力巨大，利用物聯網技術構建“電子醫療”服務體系，可以為醫療服務領域帶來進步。包括_____________等都是因物聯網技術帶來的便利。(請選擇二項(含)以上)',
         options: [
           '資訊在醫療衛生領域各參與主體間共用互通，將有利於醫療資訊充分共用',
           '運用裁剪技術進行設備創新，有利於降低醫院運行成本',
@@ -13387,7 +13413,7 @@ const rawSubjects: Subjects = {
         options: [
           '簡單、實用、靈巧',
           '可直接面對最終消費者(end user)銷售的產品',
-          '智慧Internet小家電',
+          '智慧 Internet 小家電',
           '無需施工部署，功能可自由搭配組合',
         ],
         correctIndexes: [0, 1, 3],
@@ -13445,13 +13471,14 @@ const rawSubjects: Subjects = {
         type: 'true_false',
         id: '308',
         question:
-          '工業4.0不僅是自動化，而是「整條價值鏈全週期管理與服務」的新觀念。',
+          '工業 4.0 不僅是自動化，而是「整條價值鏈全週期管理與服務」的新觀念。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
         id: '309',
-        question: '簡單地說，深度學習DL可以理解為進行“特徵學習”或“表示學習”。',
+        question:
+          '簡單地說，深度學習 DL 可以理解為進行“特徵學習”或“表示學習”。',
         correctAnswer: true,
       },
       {
@@ -13484,7 +13511,7 @@ const rawSubjects: Subjects = {
         type: 'true_false',
         id: '315',
         question:
-          '人工智慧AI是研究如何應用電腦的軟/硬體來類比人類某些智慧行為的基本理論、方法和技術。',
+          '人工智慧 AI 是研究如何應用電腦的軟/硬體來類比人類某些智慧行為的基本理論、方法和技術。',
         correctAnswer: true,
       },
       {
@@ -13498,7 +13525,7 @@ const rawSubjects: Subjects = {
         type: 'true_false',
         id: '318',
         question:
-          'AGV自動導引運輸車是智能製造中物流系統的關鍵設備之一，通常是以電池為動力，進行非接觸式導引。',
+          'AGV 自動導引運輸車是智能製造中物流系統的關鍵設備之一，通常是以電池為動力，進行非接觸式導引。',
         correctAnswer: true,
       },
       {
@@ -13519,7 +13546,7 @@ const rawSubjects: Subjects = {
         type: 'true_false',
         id: '322',
         question:
-          '機器學習ML新階段的重要表現之一是：機器學習成為新的邊緣學科，並且在很多大學成為一門課程。',
+          '機器學習 ML 新階段的重要表現之一是：機器學習成為新的邊緣學科，並且在很多大學成為一門課程。',
         correctAnswer: true,
       },
       {
@@ -13540,21 +13567,21 @@ const rawSubjects: Subjects = {
         type: 'true_false',
         id: '326',
         question:
-          '目前人工智慧AI最關鍵的難題是機器自主創造性思維能力的塑造與提升。',
+          '目前人工智慧 AI 最關鍵的難題是機器自主創造性思維能力的塑造與提升。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
         id: '327',
         question:
-          '深度學習DL的特徵學習(表徵學習)是通過機器學習技術自身來產生特徵，這種新的觀念與技術使機器學習向“全自動資料分析”又前進了一步。',
+          '深度學習 DL 的特徵學習(表徵學習)是通過機器學習技術自身來產生特徵，這種新的觀念與技術使機器學習向“全自動資料分析”又前進了一步。',
         correctAnswer: true,
       },
       {
         type: 'true_false',
         id: '329',
         question:
-          '人工智慧充滿未知且曲折起伏的探索道路，但可以預測人工智慧AI未來將無所不在(ubiquitous)的深入各行各業應用之中。',
+          '人工智慧充滿未知且曲折起伏的探索道路，但可以預測人工智慧 AI 未來將無所不在(ubiquitous)的深入各行各業應用之中。',
         correctAnswer: true,
       },
       {
@@ -13605,7 +13632,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '1',
-        question: 'Deepfake是指什麼資安威脅？',
+        question: 'Deepfake 是指什麼資安威脅？',
         options: [
           '模擬被害者，使用被害者帳號透過社群媒體對其朋友進行詐騙。',
           '截取並模擬使用者的操作，登入系統竊取資料。',
@@ -13619,7 +13646,7 @@ const rawSubjects: Subjects = {
         id: '2',
         question: '關於網路安全之危害，哪一項描述是基本的認知？',
         options: [
-          '不要使用百貨公司或飯店提供的Wi-Fi，以免個資外洩。',
+          '不要使用百貨公司或飯店提供的 Wi-Fi，以免個資外洩。',
           '作業系統不能時常更新，以免被不法分子趁機鑽漏洞竊取個資。',
           '最好不要讓電腦２４小時都處於連線狀態。',
           '點選不明的超連結，可能會啟動惡意程式並竊取你的個資。',
@@ -13670,8 +13697,8 @@ const rawSubjects: Subjects = {
           '一名研究生儲存論文的筆記型電腦遭竊，突顯資料備份的重要性。以下哪一種資料備份的做法是不正確的？',
         options: [
           '將資料燒錄到光碟',
-          '將資料複製到USB隨身碟',
-          '將資料複製到電腦的其他磁碟區，例如C槽存到D槽',
+          '將資料複製到 USB 隨身碟',
+          '將資料複製到電腦的其他磁碟區，例如 C 槽存到 D 槽',
           '將資料複製到外接式硬碟',
         ],
         correctIndex: 2,
@@ -13693,12 +13720,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '8',
         question:
-          '交友類型的App越來越流行，請問下列何者為使用交友或社群App的安全注意事項？',
+          '交友類型的 App 越來越流行，請問下列何者為使用交友或社群 App 的安全注意事項？',
         options: [
-          '須注意自己在交友App上放置的個人照片是否上相',
-          '須注意自己是否在該App上揭露過多的個人資訊',
-          '須注意該App是否為付費或免費App',
-          '須注意該交友App所配對的對象是否長相甜美可愛',
+          '須注意自己在交友 App 上放置的個人照片是否上相',
+          '須注意自己是否在該 App 上揭露過多的個人資訊',
+          '須注意該 App 是否為付費或免費 App',
+          '須注意該交友 App 所配對的對象是否長相甜美可愛',
         ],
         correctIndex: 1,
       },
@@ -13758,7 +13785,7 @@ const rawSubjects: Subjects = {
         options: [
           '因為網站圖片來源不清楚，無從找到原作者，所以沒有著作權問題',
           '因為做出來的海報已和原圖有很大差異，所以沒有著作權的問題',
-          '要是該圖片有創用CC授權，就可以使用在任何用途，沒有違法',
+          '要是該圖片有創用 CC 授權，就可以使用在任何用途，沒有違法',
           '如果沒有經過原作者的同意或授權，可能會侵害其著作權',
         ],
         correctIndex: 3,
@@ -13788,10 +13815,10 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '16',
         question:
-          '卡耐基美隆大學所提出的「能力成熟度模型整合」CMMI各階段與其主要特定的匹配，下列何者為非？',
+          '卡耐基美隆大學所提出的「能力成熟度模型整合」CMMI 各階段與其主要特定的匹配，下列何者為非？',
         options: [
           '初始階段：無管理，無固定流程。',
-          '已定義階段：建立了標準化的SOP。',
+          '已定義階段：建立了標準化的 SOP。',
           '量化管理階段：經量化回饋機制，產生新的想法與新的技術，以最佳化流程。',
           '已管理階段：相似的專案，可以重覆使用以前的經驗。',
         ],
@@ -13853,7 +13880,7 @@ const rawSubjects: Subjects = {
         question: '如果發現自己沉迷網路遊戲，請問可以採取下列何種做法？',
         options: [
           '心情好的時候才遵守與家長約定的上網公約。',
-          '培養其他不需使用3C產品的興趣，如慢跑。',
+          '培養其他不需使用 3C 產品的興趣，如慢跑。',
           '改成觀看社群媒體的短影音。',
           '改成觀看遊戲直播。',
         ],
@@ -13864,8 +13891,8 @@ const rawSubjects: Subjects = {
         id: '22',
         question: '網路上充斥各種資訊，以下哪一則網路資訊最可靠？',
         options: [
-          '親友轉傳「臺灣高鐵宣布針對50歲至64歲熟齡客，票價為標準車廂對號座75折」訊息。',
-          '社群平臺瘋傳的「道路交通法規修法加重罰則」，內容表示紅燈右轉將罰5,400元。',
+          '親友轉傳「臺灣高鐵宣布針對 50 歲至 64 歲熟齡客，票價為標準車廂對號座 75 折」訊息。',
+          '社群平臺瘋傳的「道路交通法規修法加重罰則」，內容表示紅燈右轉將罰 5,400 元。',
           '食藥署闢謠專區的公告。',
           '網友推薦的民俗療法。',
         ],
@@ -13888,12 +13915,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '24',
         question:
-          '在安裝與使用APP時，為了避免個人資料外洩的風險，以下敘述哪一項正確？',
+          '在安裝與使用 APP 時，為了避免個人資料外洩的風險，以下敘述哪一項正確？',
         options: [
           '隱私權聲明內容太多，隨便看看就好。',
-          '安裝防毒APP就能避免個人資料洩漏。',
-          '不要安裝免費的APP就能避免個人資料洩漏。',
-          '審慎給予APP存取權限。',
+          '安裝防毒 APP 就能避免個人資料洩漏。',
+          '不要安裝免費的 APP 就能避免個人資料洩漏。',
+          '審慎給予 APP 存取權限。',
         ],
         correctIndex: 3,
       },
@@ -14139,10 +14166,10 @@ const rawSubjects: Subjects = {
         question:
           '公司福委會為辦理團體保險，蒐集員工姓名、生日及身分證字號等個人資料，應該怎麼將資料提供給保險公司業務人員比較安全？',
         options: [
-          '將保險資料直接E-mAil給保險公司業務人員',
+          '將保險資料直接 E-mAil 給保險公司業務人員',
           '將保險資料直接放在網路的分享區，讓保險公司業務人員下載',
-          '將保險資料壓縮加密後，E-mAil給保險公司業務人員',
-          '將保險資料壓縮後，E-mAil給保險公司業務人員',
+          '將保險資料壓縮加密後，E-mAil 給保險公司業務人員',
+          '將保險資料壓縮後，E-mAil 給保險公司業務人員',
         ],
         correctIndex: 2,
       },
@@ -14171,19 +14198,19 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '47',
         question:
-          '某書店來電通知陳老師，他於網路訂購的書籍因訂單程序及付款方式有誤，需要透過ATM取消分期付款。請問下列陳老師的處理方式中何者有誤？',
+          '某書店來電通知陳老師，他於網路訂購的書籍因訂單程序及付款方式有誤，需要透過 ATM 取消分期付款。請問下列陳老師的處理方式中何者有誤？',
         options: [
           '這已經是詐騙老梗，不需理會',
           '打電話與該書店確認',
-          '依照電話指示趕快利用ATM取消分期付款',
-          '打電話向165反詐騙專線確認是否為詐騙',
+          '依照電話指示趕快利用 ATM 取消分期付款',
+          '打電話向 165 反詐騙專線確認是否為詐騙',
         ],
         correctIndex: 2,
       },
       {
         type: 'single_choice',
         id: '48',
-        question: '請問下列選項何者不是長期使用3C產品可能導致的生理問題？',
+        question: '請問下列選項何者不是長期使用 3C 產品可能導致的生理問題？',
         options: ['近視。', '扁平足。', '腕隧道症候群。', '駝背。'],
         correctIndex: 1,
       },
@@ -14203,7 +14230,7 @@ const rawSubjects: Subjects = {
           '若要刷卡付費，一定要確認購物網站設有加密保護措施',
           '選擇具正面評價的團購網站',
           '以提供最低售價的網站為第一優先',
-          '提醒網友不要相信轉帳錯誤並要求至ATM操作的來電通知',
+          '提醒網友不要相信轉帳錯誤並要求至 ATM 操作的來電通知',
         ],
         correctIndex: 2,
       },
@@ -14211,11 +14238,11 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '51',
         question:
-          '有人傳訊息告訴你，只要把訊息轉寄10位朋友，就可以獲得精美禮物，你應該怎麼辦？',
+          '有人傳訊息告訴你，只要把訊息轉寄 10 位朋友，就可以獲得精美禮物，你應該怎麼辦？',
         options: [
           '轉寄完後，趕快打電話問對方禮物如何索取。',
           '不理會他，以免垃圾訊息造成朋友的困擾。',
-          '趕快轉寄給20位朋友，並請對方寄給我2份禮物。',
+          '趕快轉寄給 20 位朋友，並請對方寄給我 2 份禮物。',
           '先看禮物是不是我喜歡的，再做決定。',
         ],
         correctIndex: 1,
@@ -14262,7 +14289,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '55',
         question:
-          '現今許多廣告、海報會印出QRCoDe，當我們在掃描QRCoDe時應該注意哪些事項才能確保安全？',
+          '現今許多廣告、海報會印出 QRCoDe，當我們在掃描 QRCoDe 時應該注意哪些事項才能確保安全？',
         options: [
           '掃描後直接下載要求安裝的軟體',
           '導到奇怪的網址也不用理會',
@@ -14291,7 +14318,7 @@ const rawSubjects: Subjects = {
         options: [
           '小明：在玩網路遊戲之前，我會先完成回家作業。',
           '小勝：雖然朋友約我玩網路遊戲，不過我還是想和同學去運動。',
-          '小剛：我一天只玩30分鐘的網路遊戲。',
+          '小剛：我一天只玩 30 分鐘的網路遊戲。',
           '小文：如果不能玩網路遊戲，我的心情會非常不好。',
         ],
         correctIndex: 3,
@@ -14299,7 +14326,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '58',
-        question: '以下哪一種網路內容較適合未滿18歲者瀏覽？',
+        question: '以下哪一種網路內容較適合未滿 18 歲者瀏覽？',
         options: [
           '具有學習功能的線上遊戲平臺。',
           '犯罪行為或自殺過程。',
@@ -14311,8 +14338,8 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '59',
-        question: '請問根據課堂所學，每看螢幕30分鐘應該休息多久？',
-        options: ['10分鐘。', '5分鐘。', '1分鐘。', '3分鐘。'],
+        question: '請問根據課堂所學，每看螢幕 30 分鐘應該休息多久？',
+        options: ['10 分鐘。', '5 分鐘。', '1 分鐘。', '3 分鐘。'],
         correctIndex: 0,
       },
       {
@@ -14359,9 +14386,9 @@ const rawSubjects: Subjects = {
         id: '63',
         question: '以下哪一項屬於侵犯著作權的行為？',
         options: [
-          '使用P2P軟體下載有版權的電影或音樂。',
-          '利用通訊軟體傳送唱片公司公開之歌手MV網址給好友。',
-          '個人單純利用YouTuBe觀看影片或欣賞音樂。',
+          '使用 P2P 軟體下載有版權的電影或音樂。',
+          '利用通訊軟體傳送唱片公司公開之歌手 MV 網址給好友。',
+          '個人單純利用 YouTuBe 觀看影片或欣賞音樂。',
           '在網頁瀏覽著作財產權人自行上載供大眾觀賞的創作影片。',
         ],
         correctIndex: 0,
@@ -14422,7 +14449,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '69',
         question: '以下哪一種人的個人資料不受「個人資料保護法」的保護？',
-        options: ['未成年者。', '已死亡者。', '80歲以上的年長者。', '自然人。'],
+        options: [
+          '未成年者。',
+          '已死亡者。',
+          '80 歲以上的年長者。',
+          '自然人。',
+        ],
         correctIndex: 1,
       },
       {
@@ -14443,9 +14475,9 @@ const rawSubjects: Subjects = {
         id: '71',
         question: '如果長時間近距離用眼，請問可能會發生什麼事？',
         options: [
-          '近視度數減少，變成視力1.0。',
+          '近視度數減少，變成視力 1.0。',
           '視力模糊，看不清楚黑板上的文字。',
-          '近視度數減少，根據統計，平均減少300度。',
+          '近視度數減少，根據統計，平均減少 300 度。',
           '視力模糊，無法分辨紅色與綠色。',
         ],
         correctIndex: 1,
@@ -14453,11 +14485,11 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '72',
-        question: '請問Line訊息查證官方帳號能提供我們什麼幫助？',
+        question: '請問 Line 訊息查證官方帳號能提供我們什麼幫助？',
         options: [
-          '被他人封鎖Line的時候，能解除封鎖。',
-          '能教我們設定LinepAy行動支付。',
-          '能像ChAtGPT一樣，生成文字資訊。',
+          '被他人封鎖 Line 的時候，能解除封鎖。',
+          '能教我們設定 LinepAy 行動支付。',
+          '能像 ChAtGPT 一樣，生成文字資訊。',
           '看到可疑的訊息時，能解答內容的真偽。',
         ],
         correctIndex: 3,
@@ -14624,8 +14656,8 @@ const rawSubjects: Subjects = {
         question: '接到疑似是詐騙電話或釣魚郵件時，請問你應該如何處理？',
         options: [
           '回撥對方提供的電話號碼求證',
-          '只要不是要求操作ATM，就不用擔心',
-          '撥打165反詐騙專線求證',
+          '只要不是要求操作 ATM，就不用擔心',
+          '撥打 165 反詐騙專線求證',
           '依據來電顯示號碼，上網查詢是不是對方所說的單位',
         ],
         correctIndex: 2,
@@ -14670,8 +14702,8 @@ const rawSubjects: Subjects = {
           '使用網路拍賣服務時，應選擇信用好的賣家。請問向下列哪一位賣家購物可能會比較安全？',
         options: [
           '交易評價負面高於正面的賣家',
-          '交易次數低於10次的賣家',
-          '顧客回購率超過90%的賣家',
+          '交易次數低於 10 次的賣家',
+          '顧客回購率超過 90%的賣家',
           '網拍平臺的新會員，且拍賣高單價商品的賣家',
         ],
         correctIndex: 2,
@@ -14712,7 +14744,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '94',
-        question: '下列幾則手機通訊APP上傳來的訊息，哪一項最有可能是詐騙？',
+        question: '下列幾則手機通訊 APP 上傳來的訊息，哪一項最有可能是詐騙？',
         options: [
           '老師傳連結請你填寫志願問卷。',
           '親戚傳聚餐訂位連結，請你幫忙轉貼給你爸爸。',
@@ -14762,10 +14794,10 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '98',
-        question: '請問使用創用CC授權的作品可以用於商業用途嗎？',
+        question: '請問使用創用 CC 授權的作品可以用於商業用途嗎？',
         options: [
           '可以，只要先支付破億的高額費用就可以。',
-          '不可以，如果創用CC授權的作品註明「非商業性」，就絕對不可以用於商業用途。',
+          '不可以，如果創用 CC 授權的作品註明「非商業性」，就絕對不可以用於商業用途。',
           '可以，但需要親自與作者會面並徵得同意。',
           '不可以，除非與作者是好朋友。',
         ],
@@ -14822,7 +14854,7 @@ const rawSubjects: Subjects = {
         id: '103',
         question:
           '臺灣著作財產權的保護期間，原則上是著作人的生存期間，加上其死亡後幾年？',
-        options: ['20年', '50年', '70年', '10年'],
+        options: ['20 年', '50 年', '70 年', '10 年'],
         correctIndex: 1,
       },
       {
@@ -15016,7 +15048,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '120',
         question:
-          '部分駭客專門入侵無線上網民眾的電腦，再破解電腦內儲存的密碼與信用卡資訊，所以當使用沒有加密的無線Wi-Fi上網時，最好不要從事哪些行為？',
+          '部分駭客專門入侵無線上網民眾的電腦，再破解電腦內儲存的密碼與信用卡資訊，所以當使用沒有加密的無線 Wi-Fi 上網時，最好不要從事哪些行為？',
         options: [
           '登入網路銀行進行轉帳。',
           '查詢上檔電影評價及影廳播放場次。',
@@ -15058,9 +15090,9 @@ const rawSubjects: Subjects = {
           '隨著科技的進步與時代的發展，人工智慧議題廣受討論，許多人針對著作權法提出不同的問題，請問下列敘述何者已有明確規定，較不具有爭議性？',
         options: [
           '著作者只能是人類。',
-          '著作權保護期限改為10天。',
+          '著作權保護期限改為 10 天。',
           '網路上的個人使用和分享需要受到極為嚴格的監控和管制。',
-          '著作權許可和授權的流程更加複雜化，需耗時10年才能完成。',
+          '著作權許可和授權的流程更加複雜化，需耗時 10 年才能完成。',
         ],
         correctIndex: 0,
       },
@@ -15109,7 +15141,7 @@ const rawSubjects: Subjects = {
           '網路交易後接到疑似詐騙的電話，多方的查詢及確認是不二法門，下列哪一種做法較為正確？',
         options: [
           '仔細聽從對方的指示。',
-          '撥打165反詐騙專線進行確認。',
+          '撥打 165 反詐騙專線進行確認。',
           '不要告訴其他人自己可能被詐騙。',
           '反覆的向對方詢問、確認。',
         ],
@@ -15233,10 +15265,10 @@ const rawSubjects: Subjects = {
         id: '137',
         question: '請問下列哪項行為可能會使肩頸痠痛？',
         options: [
-          '讓平板與視線同高，看10分鐘的影片。',
-          '低著頭維持相同姿勢，花3分鐘撰寫一封電子郵件。',
-          '趴在床上滑3個小時的手機。',
-          '使用電腦時，每30分鐘就站起來活動筋骨。',
+          '讓平板與視線同高，看 10 分鐘的影片。',
+          '低著頭維持相同姿勢，花 3 分鐘撰寫一封電子郵件。',
+          '趴在床上滑 3 個小時的手機。',
+          '使用電腦時，每 30 分鐘就站起來活動筋骨。',
         ],
         correctIndex: 2,
       },
@@ -15277,7 +15309,7 @@ const rawSubjects: Subjects = {
         question: '請問下列有關網路交友的描述，何者具有較高的風險？',
         options: [
           '告訴身旁親友自己網路交友的狀況。',
-          '與網友相約中午12點在百貨公司碰面。',
+          '與網友相約中午 12 點在百貨公司碰面。',
           '不透漏過多的個人資訊讓網友知道。',
           '向網友透漏自己的住家地址。',
         ],
@@ -15313,11 +15345,11 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '144',
         question:
-          '創作共用授權條款（CreAtiveCommonsLiCense,簡稱CC授權）保障了創作人的著作權，也能讓使用者在符合條件下進行使用與散布該著作，以下有關CC授權著作的描述哪一項較為正確？',
+          '創作共用授權條款（CreAtiveCommonsLiCense,簡稱 CC 授權）保障了創作人的著作權，也能讓使用者在符合條件下進行使用與散布該著作，以下有關 CC 授權著作的描述哪一項較為正確？',
         options: [
-          '只要已被標示為CC授權，創作人就失去提出侵權抗議的權力。',
-          '只要註明出處，就可以隨意利用有CC授權標示的照片。',
-          '只要有標示CC授權的著作即可隨意修改。',
+          '只要已被標示為 CC 授權，創作人就失去提出侵權抗議的權力。',
+          '只要註明出處，就可以隨意利用有 CC 授權標示的照片。',
+          '只要有標示 CC 授權的著作即可隨意修改。',
           '須遵循創作人設定的授權條件，有時也有可能需要付費。',
         ],
         correctIndex: 3,
@@ -15339,7 +15371,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '146',
         question:
-          '好友透過即時通訊APP傳遞熱門院線電影影片給你，請問以下哪一項是正確的？',
+          '好友透過即時通訊 APP 傳遞熱門院線電影影片給你，請問以下哪一項是正確的？',
         options: [
           '即使沒有將影片下載至自己的手機內，朋友傳非正版影片給我，我一樣是侵犯著作權的共犯，亦已構成違法行為。',
           '畢竟不是自己上傳的影片，所以轉傳影片至其他非公開群組也沒關係。',
@@ -15354,7 +15386,7 @@ const rawSubjects: Subjects = {
         question: '在公用電腦登入社群網站時，下列應注意事項何者有誤？',
         options: [
           '取消記憶帳號與密碼的功能',
-          '使用完畢後刪除網頁Cookies',
+          '使用完畢後刪除網頁 Cookies',
           '將重要的資料檔案下載儲存在新的資料夾',
           '確認電腦沒有在執行奇怪的應用程式',
         ],
@@ -15510,7 +15542,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '160',
         question:
-          '網路購物輸入信用卡號碼或身分證字號時，為什麼要注意瀏覽器上方的網址列是否有出現https？這代表該網站具有哪一項功能？',
+          '網路購物輸入信用卡號碼或身分證字號時，為什麼要注意瀏覽器上方的網址列是否有出現 https？這代表該網站具有哪一項功能？',
         options: [
           '具有網路信賴付款機制',
           '不會有網路交易糾紛',
@@ -15551,8 +15583,8 @@ const rawSubjects: Subjects = {
         question: '請問下列何者不是正確使用桌上型電腦的正確姿勢？',
         options: [
           '眼睛與螢幕頂端平行。',
-          '椅子前緣與膝蓋至少距離5公分。',
-          '眼睛距離螢幕少於30公分。',
+          '椅子前緣與膝蓋至少距離 5 公分。',
+          '眼睛距離螢幕少於 30 公分。',
           '雙腳平放在地面上。',
         ],
         correctIndex: 2,
@@ -15573,10 +15605,10 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '165',
-        question: 'OSI模型各層的名稱與描述，下列何者錯誤？',
+        question: 'OSI 模型各層的名稱與描述，下列何者錯誤？',
         options: [
           '實體層(Physical)：描述了實際採用的網路拓樸。',
-          '傳輸層(Transport)：TCP及UDP均屬於傳輸層的協定。',
+          '傳輸層(Transport)：TCP 及 UDP 均屬於傳輸層的協定。',
           '網路層(Network)：基本功能為提供網路連結並將封包由來源送到⽬的地。',
           '應用層(Application)：翻譯、加密及壓縮資料。',
         ],
@@ -15705,7 +15737,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '176',
         question:
-          '網路上的資訊五花八門，並非都適合各年齡層的使用者，以下哪一種屬於未滿18歲適合瀏覽的網站內容？',
+          '網路上的資訊五花八門，並非都適合各年齡層的使用者，以下哪一種屬於未滿 18 歲適合瀏覽的網站內容？',
         options: ['色情影片。', '情色文學。', '益智遊戲節目。', '線上簽賭。'],
         correctIndex: 2,
       },
@@ -15798,7 +15830,7 @@ const rawSubjects: Subjects = {
         question:
           '部分交通轉運車站提供公用電腦讓旅客們使用，請問有關正確使用公用電腦，以下敘述何者正確？',
         options: [
-          '使用完畢後，清除瀏覽器的Cookies、清除密碼與帳號，並登出系統',
+          '使用完畢後，清除瀏覽器的 Cookies、清除密碼與帳號，並登出系統',
           '可透過公用電腦進行線上交易',
           '可在公用電腦上處理敏感性公務',
           '登入社群網站分享心情，使用完畢後不需要登出',
@@ -15876,7 +15908,7 @@ const rawSubjects: Subjects = {
         options: [
           '沉溺於網路遊戲而忘記吃飯。',
           '將個人大量生活照片上傳至雲端空間。',
-          '開車時習慣使用Google導航服務。',
+          '開車時習慣使用 Google 導航服務。',
           '每天固定時間上網不熬夜。',
         ],
         correctIndex: 0,
@@ -15885,7 +15917,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '191',
         question:
-          '有民眾在拍賣網站以6千元標到市價上萬元的筆電，卻始終收不到貨，才知被詐騙。請問下列針對網拍購物安全的敘述何者有誤？',
+          '有民眾在拍賣網站以 6 千元標到市價上萬元的筆電，卻始終收不到貨，才知被詐騙。請問下列針對網拍購物安全的敘述何者有誤？',
         options: [
           '儘量採貨到付款方式',
           '低於市價太多的商品要小心查證',
@@ -15962,7 +15994,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '197',
         question:
-          '身分認證(authentication)常用3種認證要素與實際應用，以下哪⼀個選項正確？',
+          '身分認證(authentication)常用 3 種認證要素與實際應用，以下哪⼀個選項正確？',
         options: [
           '所知之事(somethingyouknow)：同步電子代符(OTP)。',
           '所持之物(somethingyouhave)：指紋。',
@@ -15975,11 +16007,11 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '198',
         question:
-          '在公眾場合想要連接無線網路時，如果手機搜尋到無須密碼驗證的Wi-Fi熱點，以下哪一種行為較恰當？',
+          '在公眾場合想要連接無線網路時，如果手機搜尋到無須密碼驗證的 Wi-Fi 熱點，以下哪一種行為較恰當？',
         options: [
-          '偷偷連線，但最好不要超過10分鐘。',
+          '偷偷連線，但最好不要超過 10 分鐘。',
           '不要使用，因為透過不明連線傳輸資料，可能會被竊取。',
-          '免費的Wi-Fi很方便，所以可以放心使用。',
+          '免費的 Wi-Fi 很方便，所以可以放心使用。',
           '可以使用，並分享給身邊的朋友一起使用。',
         ],
         correctIndex: 1,
@@ -16040,7 +16072,7 @@ const rawSubjects: Subjects = {
         question: '依照著作權法，使用電腦和網路時，以下何者是正確的行為？',
         options: [
           '下載盜版的音樂',
-          '購買正版CD後燒錄分享給親朋好友',
+          '購買正版 CD 後燒錄分享給親朋好友',
           '使用正版軟體',
           '在別人的部落格上發現有趣的文章就直接把全文轉貼在自己的部落格',
         ],
@@ -16076,10 +16108,10 @@ const rawSubjects: Subjects = {
         id: '206',
         question: '請問下列何者是沉迷網路遊戲的現象？',
         options: [
-          '每天只玩30分鐘的手機遊戲。',
+          '每天只玩 30 分鐘的手機遊戲。',
           '培養多元興趣，讓自己沒有滑手機的空閒時間。',
           '半夜偷偷拿手機玩網路遊戲。',
-          '養成運動習慣，遠離3C產品。',
+          '養成運動習慣，遠離 3C 產品。',
         ],
         correctIndex: 2,
       },
@@ -16088,7 +16120,7 @@ const rawSubjects: Subjects = {
         id: '207',
         question: '下列網路購物發生的情形，何者可能是騙局？',
         options: [
-          '收到在購物網站買的3C產品外觀有瑕疵。',
+          '收到在購物網站買的 3C 產品外觀有瑕疵。',
           '賣家不接受貨到付款，要求買家使用第三方支付。',
           '匯款很久都沒收到東西，每次問賣家都說貨櫃還沒入關。',
           '購物網站周年慶搶優惠，結帳時一直無法順利扣款。',
@@ -16271,7 +16303,7 @@ const rawSubjects: Subjects = {
         id: '16',
         question:
           '應收帳款、應付帳款、預收收入、勞務收入，上述會計帳戶中正常餘額在貸方者， 共有幾項？',
-        options: ['2項', '1項', '4項', '3項'],
+        options: ['2 項', '1 項', '4 項', '3 項'],
         correctIndex: 3,
       },
       {
@@ -16403,7 +16435,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '30',
-        question: '獨資企業以現金$100,000代資本主償還其銀行借款，則？',
+        question: '獨資企業以現金 $100,000 代資本主償還其銀行借款，則？',
         options: [
           '負債減少，業主權益(資本)增加',
           '業主權益(資本)減少，資產減少',
@@ -16460,7 +16492,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '36',
-        question: '向銀行借款$20,000是會影響何種會計科目之交易?',
+        question: '向銀行借款 $20,000 是會影響何種會計科目之交易?',
         options: [
           '資產減少，負債減少',
           '資產增加，業主權益增加',
@@ -16551,12 +16583,12 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '44',
-        question: '以即期支票10,000購入辦公設備，其分錄？',
+        question: '以即期支票 10,000 購入辦公設備，其分錄？',
         options: [
-          '借：辦公設備10,000，貸：銀行存款10,000',
-          '借：辦公設備10,000，貸：現金10,000',
-          '借：辦公設備10,000，貸：應付票據10,000',
-          '借：現金10,000，貸：辦公設備10,000',
+          '借：辦公設備 10,000，貸：銀行存款 10,000',
+          '借：辦公設備 10,000，貸：現金 10,000',
+          '借：辦公設備 10,000，貸：應付票據 10,000',
+          '借：現金 10,000，貸：辦公設備 10,000',
         ],
         correctIndex: 0,
       },
@@ -16571,12 +16603,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '46',
         question:
-          '10月3日購買銷售用冰箱，付款時以一張50,000支票，到期日為10/31。此時分錄為',
+          '10 月 3 日購買銷售用冰箱，付款時以一張 50,000 支票，到期日為 10/31。此時分錄為',
         options: [
-          '借：進貨50,000，貸：應付票據50,000',
-          '借：進貨50,000，貸：現金50,000',
-          '借：進貨50,000，貸：應付帳款 50,000',
-          '借：進貨50,000，貸：銀行存款50,000',
+          '借：進貨 50,000，貸：應付票據 50,000',
+          '借：進貨 50,000，貸：現金 50,000',
+          '借：進貨 50,000，貸：應付帳款 50,000',
+          '借：進貨 50,000，貸：銀行存款 50,000',
         ],
         correctIndex: 0,
       },
@@ -16654,7 +16686,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '54',
-        question: '支付本月份的水電費$200，對會計類別之增減變動的影響',
+        question: '支付本月份的水電費 $200，對會計類別之增減變動的影響',
         options: [
           '資產增加、費損減少',
           '資產減少、費損增加',
@@ -16731,7 +16763,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '62',
-        question: '以現金$10,000購入辦公設備，對會計類別之增減變動的影響',
+        question: '以現金 $10,000 購入辦公設備，對會計類別之增減變動的影響',
         options: ['資產減少', '資產不變', '資產增加', '費損增加'],
         correctIndex: 1,
       },
@@ -16877,7 +16909,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '77',
-        question: '向銀行借錢$20,000是？',
+        question: '向銀行借錢 $20,000 是？',
         options: [
           '資產增加，負債減少',
           '資產增加，業主權益增加',
@@ -16901,7 +16933,7 @@ const rawSubjects: Subjects = {
           '借方就是帳戶的左邊，貸方就是右邊',
           '可以用來說明項目的餘額方向',
           '借方就是帳戶增加，貸方就是減少',
-          '借方和貸方的縮寫各為Dr.和Cr.',
+          '借方和貸方的縮寫各為 Dr.和 Cr.',
         ],
         correctIndex: 2,
       },
@@ -16920,12 +16952,13 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '81',
-        question: '陳政績繳入10,000,000現金加入志定股份有限公司股東，其分錄為',
+        question:
+          '陳政績繳入 10,000,000 現金加入志定股份有限公司股東，其分錄為',
         options: [
-          '借：現金10,000,000，貸：業主資本10,000,000',
-          '借：現金10,000,000，貸：股本10,000,000',
-          '借：業主資本10,000,000，貸：現金10,000,000',
-          '借：股本10,000,000，貸：現金10,000,000',
+          '借：現金 10,000,000，貸：業主資本 10,000,000',
+          '借：現金 10,000,000，貸：股本 10,000,000',
+          '借：業主資本 10,000,000，貸：現金 10,000,000',
+          '借：股本 10,000,000，貸：現金 10,000,000',
         ],
         correctIndex: 1,
       },
@@ -16941,13 +16974,13 @@ const rawSubjects: Subjects = {
         id: '83',
         question:
           '應收帳款、應付帳款、預收收入、勞務收入，上述會計帳戶中正常餘額在借方者，共有幾項？',
-        options: ['2項', '1項', '3項', '4項'],
+        options: ['2 項', '1 項', '3 項', '4 項'],
         correctIndex: 1,
       },
       {
         type: 'single_choice',
         id: '84',
-        question: '以現金支付$200,000的薪資，對會計類別之增減變動的影響',
+        question: '以現金支付 $200,000 的薪資，對會計類別之增減變動的影響',
         options: [
           '資產增加、費損減少',
           '資產增加、費損增加',
@@ -16979,7 +17012,7 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '87',
         question:
-          '賒購卡車一輛，帳款$10,000將於下月償付，對會計類別之增減變動的影響',
+          '賒購卡車一輛，帳款 $10,000 將於下月償付，對會計類別之增減變動的影響',
         options: [
           '資產增加、負債減少',
           '資產減少、負債增加',
@@ -17025,7 +17058,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '92',
-        question: '如果試算表不平衡，借貸相差數額能被9整除，則錯誤可能為',
+        question: '如果試算表不平衡，借貸相差數額能被 9 整除，則錯誤可能為',
         options: ['抄錯位數', '相鄰顛倒', '借貸方寫錯', '漏過一筆'],
         correctIndex: 0,
       },
@@ -17057,12 +17090,12 @@ const rawSubjects: Subjects = {
         type: 'single_choice',
         id: '95',
         question:
-          '10月20日銷售一台冰箱，收到客戶第一銀行的即期支票20,000，此時分錄為',
+          '10 月 20 日銷售一台冰箱，收到客戶第一銀行的即期支票 20,000，此時分錄為',
         options: [
-          '借：現金20,000，貸：銷貨收入20,000',
-          '借：應收帳款20,000，貸：銷貨收入20,000',
-          '借：應付票據20,000，貸：銷貨收入20,000',
-          '借：銀行存款20,000，貸：銷貨收入20,000',
+          '借：現金 20,000，貸：銷貨收入 20,000',
+          '借：應收帳款 20,000，貸：銷貨收入 20,000',
+          '借：應付票據 20,000，貸：銷貨收入 20,000',
+          '借：銀行存款 20,000，貸：銷貨收入 20,000',
         ],
         correctIndex: 0,
       },
@@ -17083,7 +17116,7 @@ const rawSubjects: Subjects = {
       {
         type: 'single_choice',
         id: '98',
-        question: '如果試算表不平衡，借貸相差數額能被9整除，則錯誤可能為？',
+        question: '如果試算表不平衡，借貸相差數額能被 9 整除，則錯誤可能為？',
         options: ['重複記錄', '數字移位', '借貸科目顛倒', '計算錯誤'],
         correctIndex: 1,
       },

@@ -252,6 +252,11 @@
               border-bottom: 2px solid var(--divider-color);
             }
 
+            // 題目文字裡的 \n 換行
+            > p {
+              white-space: pre-line;
+            }
+
             //* 題號（左）與對錯標籤（右）同一列
             > .question-header {
               display: flex;
