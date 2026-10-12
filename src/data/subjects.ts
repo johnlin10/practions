@@ -18,6 +18,7 @@ export interface Subject {
   timeLimit: number
   lockTime?: string[]
   group?: SubjectGroupId // 所屬題組（見 data/subject-groups.ts）
+  hiddenQuestionIds?: string[] // 暫時下架的題號（題目保留在題庫裡，只是不出現）
   questions: Question[]
 }
 
@@ -76,7 +77,9 @@ export function convertToSubjectConfig(subject: Subject): SubjectConfig {
     quizOpen: subject.quizOpen,
     lockTime: subject.lockTime,
     group: subject.group,
-    questions: subject.questions,
+    questions: subject.questions.filter(
+      (q) => !subject.hiddenQuestionIds?.includes(q.id),
+    ),
   }
 }
 
@@ -89,6 +92,25 @@ const rawSubjects: Subjects = {
     quizOpen: true,
     questionCount: 50,
     timeLimit: 60,
+    // 缺圖片無法作答，等補上圖片再開放
+    // 選項是圖片：284～288、292、297、304、452；題目要看圖：289、294～296、298、299
+    hiddenQuestionIds: [
+      '284',
+      '285',
+      '286',
+      '287',
+      '288',
+      '289',
+      '292',
+      '294',
+      '295',
+      '296',
+      '297',
+      '298',
+      '299',
+      '304',
+      '452',
+    ],
     questions: [
       {
         type: 'single_choice',
