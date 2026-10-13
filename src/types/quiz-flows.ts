@@ -50,5 +50,6 @@ export interface SubjectConfig {
   quizOpen: boolean
   lockTime?: string[]
   group?: SubjectGroupId // 所屬題組（見 data/subject-groups.ts）
+  source?: string // 題庫來源署名
   questions: Question[]
 }

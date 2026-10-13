@@ -456,6 +456,10 @@ const SingleBank: React.FC = () => {
 
             {/* 題目列表 */}
             <div className="questions-list">
+              {/* 來源署名：放在列表裡，跟著題目捲動 */}
+              {subject.source && (
+                <p className="bank-source">{subject.source}</p>
+              )}
               {getFilteredQuestions().map((question) =>
                 renderQuestionContent(question),
               )}

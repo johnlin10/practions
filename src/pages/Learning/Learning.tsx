@@ -21,7 +21,7 @@ const JOURNEY = [
   {
     color: 'success',
     when: '隔天・再答對一次',
-    text: '不同的兩天，且間隔至少 8 小時，再次答對，就算已經掌握。熬夜到凌晨 3 點前答的，都還算前一天。',
+    text: '隔天再答對一次，而且距離上次答對至少 8 小時，就算掌握。熬夜到凌晨 3 點前答的，都還算前一天。',
   },
   {
     color: 'review',
@@ -151,7 +151,7 @@ function Learning(): React.ReactElement {
             <h2>掌握度怎麼算</h2>
             <p>
               掌握度是一個題庫裡，你已經記住的題目比例。一道題要在
-              <strong>不同的兩天且間隔 8 小時</strong>都答對，才算掌握，過了凌晨
+              <strong>不同的兩天且至少間隔 8 小時</strong>都答對，才算掌握，過了凌晨
               3 點才算新的一天。
             </p>
             <figure className="learning-days">
@@ -230,7 +230,7 @@ function Learning(): React.ReactElement {
                 只看一眼，下次很容易又錯。比較好的做法是馬上知道錯在哪裡，並在同一次練習中再答一次。
               </Pair>
               <Pair from="同一個晚上反覆刷" to="隔天以後再答對一次">
-                一晚刷到全部答對，多半只是短期記憶。研究發現，隔天以後再答對一次，比當下多答對好幾次更能讓記憶留得久。而且隔得越來越久，每次隔了一段時間還想得起來，就記得更牢。研究指出，複習間隔這樣為最佳：
+                一晚刷到全部答對，多半只是短期記憶。研究發現，隔天以後再答對一次，比當下多答對好幾次更能讓記憶留得久。而且隔得越來越久，每次隔了一段時間還想得起來，就記得更牢。Practions 是這樣安排的：
                 <span className="learning-spacing" aria-hidden="true">
                   {['1 天', '幾天', '1 週', '2 週'].map((text, index) => (
                     <span className="step" key={text}>

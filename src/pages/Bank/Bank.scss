@@ -245,6 +245,12 @@ span.lock-time {
       flex-direction: column;
       gap: 9px;
 
+      .bank-source {
+        padding-left: 12px;
+        font-size: 0.8rem;
+        color: var(--text-muted-color);
+      }
+
       .question-item {
         background: var(--background-color);
         padding: 12px;
