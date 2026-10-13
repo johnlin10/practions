@@ -16,21 +16,21 @@ const JOURNEY = [
   {
     color: 'review',
     when: '當天・錯題複習',
-    text: '每答一題，馬上告訴你對錯和正確答案；答錯的最後再練一次，直到答對。答對的題目，今天不會再出現。',
+    text: '每答一題，馬上告訴你對錯和正確答案。答錯的最後再練一次，還沒答對的，下次複習再繼續練。答對的題目，今天不會再出現。',
   },
   {
     color: 'success',
     when: '隔天・再答對一次',
-    text: '不同的兩天都答對，就算掌握，不再是錯題。',
+    text: '不同的兩天，且間隔至少 8 小時，再次答對，就算已經掌握。',
   },
   {
     color: 'review',
     when: '幾天後、一週後、兩週後',
-    text: '錯題複習會再問你三次，確認你還記得。',
+    text: '錯題複習會再考驗你三次，只要你還記得，就會記得更牢。忘了也沒關係，答錯的題會回到錯題複習，重新練起。',
   },
   {
     color: 'success',
-    when: '三次都記得',
+    when: '後續三次複習都答對',
     text: '之後只會在測驗裡偶爾出現。',
   },
 ]
@@ -72,7 +72,7 @@ const TIPS = [
   ],
   [
     '錯題多就加量。',
-    '題庫很大、錯題很多時，把每次複習的題數調到 20 題，才跟得上新增的錯題。',
+    '題庫很大、錯題很多時，把每次複習的題數調到 20 題，才跟得上新的錯題。',
   ],
   ['卡住就先看懂。', '一直答錯的題目，先到題庫看懂再練。'],
 ]
@@ -122,8 +122,7 @@ function Learning(): React.ReactElement {
 
         <div className="learning">
           <section>
-            <h2>一道答錯的題，會這樣走</h2>
-            <p>把上面的循環放到一道題上，是這樣的：</p>
+            <h2>一道答錯題的歷程</h2>
             <ol className="learning-timeline">
               {JOURNEY.map(({ color, when, text }) => (
                 <li key={when} className={color}>
@@ -151,8 +150,8 @@ function Learning(): React.ReactElement {
           <section>
             <h2>掌握度怎麼算</h2>
             <p>
-              掌握度是一個題庫裡，你已經真正記住的題目比例。一道題要在
-              <strong>不同的兩天</strong>都答對，才算掌握。
+              掌握度是一個題庫裡，你已經記住的題目比例。一道題要在
+              <strong>不同的兩天且間隔 8 小時</strong>都答對，才算掌握。
             </p>
             <figure className="learning-days">
               <span className="learning-days-row">
@@ -170,29 +169,54 @@ function Learning(): React.ReactElement {
                       </span>
                     ))}
                   </span>
-                  <span className="result">只算 1 天，還沒掌握</span>
+                  <span className="result">
+                    <span
+                      className="material-symbols-rounded"
+                      aria-hidden="true"
+                    >
+                      close
+                    </span>
+                    還未掌握
+                  </span>
                 </span>
               </span>
               <span className="learning-days-row">
                 <span className="label">今天和隔天都答對</span>
                 <span className="line">
-                  {['今天', '隔天'].map((day) => (
-                    <span key={day} className="chip">
-                      {day}
-                      <span
-                        className="material-symbols-rounded"
-                        aria-hidden="true"
-                      >
-                        check
+                  {['今天', '隔天'].map((day, index) => (
+                    <React.Fragment key={day}>
+                      {index > 0 && (
+                        <span className="interval">
+                          <span className="rule" />
+                          8 小時
+                          <span className="rule" />
+                        </span>
+                      )}
+                      <span className="chip">
+                        {day}
+                        <span
+                          className="material-symbols-rounded"
+                          aria-hidden="true"
+                        >
+                          check
+                        </span>
                       </span>
-                    </span>
+                    </React.Fragment>
                   ))}
-                  <span className="result done">掌握</span>
+                  <span className="result done">
+                    <span
+                      className="material-symbols-rounded"
+                      aria-hidden="true"
+                    >
+                      check
+                    </span>
+                    掌握
+                  </span>
                 </span>
               </span>
             </figure>
             <p>
-              所以掌握度不會因為一晚刷很多次就衝高，而是一天一天累積起來的。掌握度還沒滿，就回到測驗，找出還不會的題目。
+              所以掌握度不會因為一晚刷很多次就提高，而是一天一天累積起來的。想繼續提升掌握度，就回到測驗，找出還不會的題目，然後在錯題中持續複習。
             </p>
           </section>
 
@@ -207,7 +231,7 @@ function Learning(): React.ReactElement {
                 只看一眼，下次很容易又錯。比較好的做法是馬上知道錯在哪裡，並在同一次練習中再答一次。
               </Pair>
               <Pair from="同一個晚上反覆刷" to="隔天以後再答對一次">
-                一晚刷到全部答對，多半只是短期記憶。研究發現，隔天以後再答對一次，比當下多答對好幾次更能讓記憶留得久。而且可以隔得越來越久，每次隔了一段時間還想得起來，就記得更牢。間隔大概是這樣拉長的：
+                一晚刷到全部答對，多半只是短期記憶。研究發現，隔天以後再答對一次，比當下多答對好幾次更能讓記憶留得久。而且隔得越來越久，每次隔了一段時間還想得起來，就記得更牢。研究指出，複習間隔這樣為最佳：
                 <span className="learning-spacing" aria-hidden="true">
                   {['1 天', '幾天', '1 週', '2 週'].map((text, index) => (
                     <span className="step" key={text}>
@@ -265,18 +289,18 @@ function Learning(): React.ReactElement {
               <li>
                 <strong>優先出還沒掌握的題目</strong>
                 ，掌握度到 90% 的時間從 7 個多月縮短到 3 個多月。所以 Practions
-                的測驗會這樣出題。
+                的測驗使用這樣的策略。
               </li>
               <li>
-                <strong>練得越勤越快。</strong>同樣的條件改成每天測驗，大約 40
-                天就能到 90%。
+                <strong>練得越勤就越快。</strong>同樣的條件改成每天測驗，大約 40
+                天就能到 90% 掌握度。
               </li>
               <li>
-                <strong>再次確認要準時。</strong>
+                <strong>再次複習要準時。</strong>
                 錯題很多時，如果每次錯題複習只留 1/3
                 的題數給要再次確認的題目，它們平均會晚 10
                 天以上才出現，隔太久就容易忘；留一半，只晚 2 到 3
-                天。所以每次錯題複習，最多有一半是要再次確認的題目。
+                天。所以每次錯題複習，最多有一半是要再次複習的題目。
               </li>
               <li>
                 <strong>最後幾 % 最慢。</strong>

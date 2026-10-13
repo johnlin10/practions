@@ -16,6 +16,11 @@
     > h2,
     > p {
       padding: 0 6px;
+
+      strong {
+        margin: 0 2px;
+        color: var(--primary-color);
+      }
     }
 
     > h2 {
@@ -42,13 +47,13 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      padding: 0 0 18px 28px;
+      padding: 4px 0 18px 28px;
 
       &::before {
         content: '';
         position: absolute;
-        left: 6px;
-        top: 24px;
+        left: 8px;
+        top: 28px;
         bottom: 0;
         width: 2px;
         background: var(--divider-color);
@@ -63,6 +68,7 @@
         height: 14px;
         border-radius: 50%;
         background: var(--dot-color);
+        border: 2px solid #ffffff30;
       }
 
       &:last-child {
@@ -244,17 +250,39 @@
       background: var(--background-color);
     }
 
+    // 兩次答對之間的時間線：「8 小時」左右各一條線
+    .interval {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      color: var(--foreground-600);
+
+      > .rule {
+        width: 14px;
+        height: 2px;
+        background: var(--border-color);
+      }
+    }
+
     .result {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
       padding: 1px 10px;
       font-size: 0.8rem;
       font-weight: 600;
       line-height: 1.6;
-      color: var(--foreground-600);
+      color: var(--danger-color);
+
+      > .material-symbols-rounded {
+        font-size: 1rem;
+      }
 
       &.done {
-        color: var(--text-white);
-        background: var(--success-color);
-        border-radius: 999px;
+        color: var(--success-color);
       }
     }
   }
