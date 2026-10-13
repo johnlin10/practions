@@ -216,7 +216,7 @@ describe('collectWrongQuestions', () => {
 
 describe('dueToday', () => {
   const [q1, q2] = accounting.map((q) => q.id)
-  const today = '2026-10-02'
+  const today = new Date('2026-10-02T21:00')
 
   it('今天已經答對過的錯題先不出現，今天沒題可練的科目不列出', () => {
     const history = [
@@ -230,10 +230,43 @@ describe('dueToday', () => {
     expect(groups[0].items).toHaveLength(2)
     expect(dueToday(groups, today)[0].items.map((item) => item.question.id)).toEqual([q2])
     // 前一天答對的照常出現（隔天確認）
-    expect(dueToday(groups, '2026-10-03')[0].items).toHaveLength(2)
+    expect(dueToday(groups, new Date('2026-10-03T12:00'))[0].items).toHaveLength(2)
 
     history.push(standard('accounting', '2026-10-02T09:10', [{ id: q2, correct: true }], 'review'))
     expect(dueToday(collectWrongQuestions(history), today)).toEqual([])
+  })
+
+  it('隔天但不到 8 小時，答對的錯題還不出現，也不累積', () => {
+    const history = [
+      standard('accounting', '2026-10-01T20:00', [{ id: q1, correct: false }]),
+      standard('accounting', '2026-10-01T23:59', [{ id: q1, correct: true }], 'review'),
+    ]
+    const groups = collectWrongQuestions(history)
+    expect(dueToday(groups, new Date('2026-10-02T00:01'))).toEqual([])
+    expect(dueToday(groups, new Date('2026-10-02T07:58'))).toEqual([])
+    expect(dueToday(groups, new Date('2026-10-02T07:59'))[0].items).toHaveLength(1)
+
+    // 0:30 又答對不算第二天，還留在錯題
+    history.push(standard('accounting', '2026-10-02T00:30', [{ id: q1, correct: true }], 'review'))
+    expect(collectWrongQuestions(history)[0].items[0].streak.count).toBe(1)
+    history.push(standard('accounting', '2026-10-02T08:00', [{ id: q1, correct: true }], 'review'))
+    expect(collectWrongQuestions(history)[0].items[0].streak.count).toBe(REMOVE_AFTER)
+  })
+
+  it('凌晨 3 點才換日：半夜交卷算前一天', () => {
+    const wrong = standard('accounting', '2026-10-01T20:00', [{ id: q1, correct: false }])
+    const at = (date: string) => [
+      wrong,
+      standard('accounting', date, [{ id: q1, correct: true }], 'review'),
+    ]
+    // 0:05 交卷算 10/1，同一天 8:05 就可以再複習
+    const midnight = collectWrongQuestions(at('2026-10-02T00:05'))
+    expect(dueToday(midnight, new Date('2026-10-02T08:04'))).toEqual([])
+    expect(dueToday(midnight, new Date('2026-10-02T08:05'))[0].items).toHaveLength(1)
+    // 3:30 交卷算 10/2，要到 10/3 凌晨 3 點
+    const late = collectWrongQuestions(at('2026-10-02T03:30'))
+    expect(dueToday(late, new Date('2026-10-03T02:59'))).toEqual([])
+    expect(dueToday(late, new Date('2026-10-03T03:00'))[0].items).toHaveLength(1)
   })
 })
 
@@ -248,7 +281,7 @@ describe('移出後的回顧', () => {
     answer('2026-10-03', true),
   ]
   const due = (history: HistoryRecord[], today: string) =>
-    dueToday(collectWrongQuestions(history), today).flatMap((group) =>
+    dueToday(collectWrongQuestions(history), new Date(`${today}T12:00`)).flatMap((group) =>
       group.items.map((item) => item.question.id),
     )
 
@@ -322,7 +355,7 @@ describe('buildReviewFlow', () => {
       standard('accounting', '2026-10-04T20:00', [{ id: confirm, correct: true }], 'review'),
       wrong('2026-10-05T20:00', fresh),
     ]
-    const group = dueToday(collectWrongQuestions(history), '2026-10-06')[0]
+    const group = dueToday(collectWrongQuestions(history), new Date('2026-10-06T12:00'))[0]
     const picked = buildReviewFlow(group, 15).stages.flatMap((s) => s.questionIds ?? [])
 
     expect(picked).toHaveLength(15)
@@ -344,7 +377,7 @@ describe('buildReviewFlow', () => {
       answers('2026-10-03', reviews, true),
     ]
     const pick = (history: HistoryRecord[]) =>
-      buildReviewFlow(dueToday(collectWrongQuestions(history), '2026-10-06')[0], 15)
+      buildReviewFlow(dueToday(collectWrongQuestions(history), new Date('2026-10-06T12:00'))[0], 15)
         .stages.flatMap((s) => s.questionIds ?? [])
 
     const picked = pick([...graduated, answers('2026-10-05', wrongs, false)])

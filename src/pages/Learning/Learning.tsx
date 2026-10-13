@@ -21,7 +21,7 @@ const JOURNEY = [
   {
     color: 'success',
     when: '隔天・再答對一次',
-    text: '不同的兩天，且間隔至少 8 小時，再次答對，就算已經掌握。',
+    text: '不同的兩天，且間隔至少 8 小時，再次答對，就算已經掌握。熬夜到凌晨 3 點前答的，都還算前一天。',
   },
   {
     color: 'review',
@@ -151,7 +151,8 @@ function Learning(): React.ReactElement {
             <h2>掌握度怎麼算</h2>
             <p>
               掌握度是一個題庫裡，你已經記住的題目比例。一道題要在
-              <strong>不同的兩天且間隔 8 小時</strong>都答對，才算掌握。
+              <strong>不同的兩天且間隔 8 小時</strong>都答對，才算掌握，過了凌晨
+              3 點才算新的一天。
             </p>
             <figure className="learning-days">
               <span className="learning-days-row">
@@ -182,27 +183,25 @@ function Learning(): React.ReactElement {
               </span>
               <span className="learning-days-row">
                 <span className="label">今天和隔天都答對</span>
-                <span className="line">
+                <span className="timeline">
+                  <span className="gap">8 小時</span>
+                  <span className="track" />
+                  <span className="boundary" />
                   {['今天', '隔天'].map((day, index) => (
-                    <React.Fragment key={day}>
-                      {index > 0 && (
-                        <span className="interval">
-                          <span className="rule" />
-                          8 小時
-                          <span className="rule" />
-                        </span>
-                      )}
-                      <span className="chip">
-                        {day}
-                        <span
-                          className="material-symbols-rounded"
-                          aria-hidden="true"
-                        >
-                          check
-                        </span>
+                    <span
+                      key={day}
+                      className={`chip ${index ? 'end' : 'start'}`}
+                    >
+                      {day}
+                      <span
+                        className="material-symbols-rounded"
+                        aria-hidden="true"
+                      >
+                        check
                       </span>
-                    </React.Fragment>
+                    </span>
                   ))}
+                  <span className="time">3:00 換日</span>
                   <span className="result done">
                     <span
                       className="material-symbols-rounded"

@@ -4,7 +4,7 @@
  * 一道錯題 = 科目＋題目＋作答方式（PVQC 在「寫」錯、在「讀」對，算兩題）。
  * 依時間順序走過所有紀錄（含複習紀錄）：答錯就列入並重新計算，
  * 在 REMOVE_AFTER 個不同的日子答對就移出（同一天重複答對只算一次）；沒作答的題目不影響。
- * 今天已經答對過的錯題，今天的複習先不出現，隔天再確認一次。
+ * 已經答對過的錯題，要到隔天、且距離上次答對至少 MIN_GAP_HOURS 小時才再出現確認一次。
  * 移出後依 REVIEW_GAPS 隔越來越久再回顧（到期才出現，畫面上不標示），中途答錯就回到錯題。
  * 舊科目 ID（如合併前的 AIL）會對應到目前的科目與題號，題目內容以目前題庫為準，
  * 題庫已刪除的題目不列出。考試鎖定中的科目不列出，避免考試時查答案。
@@ -25,15 +25,29 @@ export const REMOVE_AFTER = 2
 // 移出錯題後，每次回顧要隔幾天（從上次答對那天算）；到期後答對才進下一次，全部通過就不再安排
 export const REVIEW_GAPS = [3, 7, 14]
 
+// 兩次答對至少要隔幾小時才算不同次（避免 23:59 答對、0:00 又馬上出現）
+export const MIN_GAP_HOURS = 8
+
 /** 答錯後答對的次數，同一天只算一次。 */
 export interface Streak {
   count: number
-  // 最近一次計入的日期（本地時間，例如 2026-10-11）；歸零時為空字串
+  // 最近一次計入的日期（dayOf，例如 2026-10-11）；歸零時為空字串
   day: string
+  // 最近一次計入的時間（毫秒）；歸零時為 0
+  at: number
 }
 
-/** 本地時間的日期，例如 2026-10-11。 */
-export const dayOf = (date: Date): string => date.toLocaleDateString('sv')
+// 凌晨幾點換日：熬夜到半夜答的題還算前一天
+export const DAY_STARTS_AT = 3
+
+/** 本地時間的日期，例如 2026-10-11；凌晨 DAY_STARTS_AT 點前算前一天。 */
+export const dayOf = (date: Date): string =>
+  new Date(date.getTime() - DAY_STARTS_AT * 60 * 60 * 1000).toLocaleDateString('sv')
+
+/** 跟上次計入的答對隔天，且至少隔 MIN_GAP_HOURS 小時。歸零的 streak 一律成立。 */
+export const isNextSession = (prev: Streak, date: Date): boolean =>
+  dayOf(date) !== prev.day &&
+  date.getTime() - prev.at >= MIN_GAP_HOURS * 60 * 60 * 1000
 
 /** 下一次回顧的日期；還沒移出錯題或已經全部回顧完時為 undefined。 */
 export function dueDay({ count, day }: Streak): string | undefined {
@@ -46,7 +60,7 @@ export function dueDay({ count, day }: Streak): string | undefined {
 }
 
 /**
- * 同一天內重複答對只算一次，換一天再答對才累積，答錯歸零（successive relearning：
+ * 同一天內、或間隔不到 MIN_GAP_HOURS 小時重複答對只算一次，隔天且隔夠久再答對才累積，答錯歸零（successive relearning：
  * 隔天還答得出來，比同一次練習中多答對幾次更能代表記住了）。錯題與掌握度共用。
  * 移出錯題後，要等到下一次回顧到期才算，太早答對不累積，也不歸零。
  */
@@ -55,14 +69,14 @@ export function nextStreak(
   isCorrect: boolean,
   date: Date,
 ): Streak {
-  if (!isCorrect) return { count: 0, day: '' }
+  if (!isCorrect) return { count: 0, day: '', at: 0 }
+  if (prev && !isNextSession(prev, date)) return prev
   const day = dayOf(date)
-  if (prev?.day === day) return prev
   if (prev && prev.count >= REMOVE_AFTER) {
     const due = dueDay(prev)
     if (!due || day < due) return prev
   }
-  return { count: (prev?.count ?? 0) + 1, day }
+  return { count: (prev?.count ?? 0) + 1, day, at: date.getTime() }
 }
 
 export interface WrongItem {
@@ -274,19 +288,20 @@ export function collectWrongQuestions(
 }
 
 /**
- * 今天可以複習的題目：錯題中今天已經答對過的先不出現，隔天再確認（畫面上不提，
+ * 現在可以複習的題目：錯題中答對過的要到隔天且隔 MIN_GAP_HOURS 小時才出現再確認（畫面上不提，
  * 避免一直練到同一題）；已經移出的只在回顧到期時出現。今天沒題可練的科目不列出。
  */
 export function dueToday(
   groups: readonly WrongSubject[],
-  today = dayOf(new Date()),
+  now = new Date(),
 ): WrongSubject[] {
+  const today = dayOf(now)
   return groups
     .map((group) => ({
       ...group,
       items: group.items.filter((item) =>
         item.streak.count < REMOVE_AFTER
-          ? item.streak.day !== today
+          ? isNextSession(item.streak, now)
           : dueDay(item.streak)! <= today,
       ),
     }))
