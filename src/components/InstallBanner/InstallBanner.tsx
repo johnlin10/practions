@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import './InstallBanner.scss'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { isLegacySite } from '@/data/authStore'
+import { INSTALL_PATH } from '@/pages/Install/meta'
+import { TRANSFER_PATH } from '@/pages/Transfer/meta'
 
 // 使用者關閉提示後，隔一段時間才再顯示
 const DISMISS_KEY = 'installBannerDismissedAt'
@@ -85,7 +87,7 @@ function InstallBanner(): React.ReactElement | null {
       action: (
         <button
           className="install-banner-install"
-          onClick={() => navigate('/settings/transfer')}
+          onClick={() => navigate(TRANSFER_PATH)}
         >
           看說明
         </button>
@@ -114,7 +116,7 @@ function InstallBanner(): React.ReactElement | null {
       action: (
         <button
           className="install-banner-install"
-          onClick={() => navigate('/settings/install')}
+          onClick={() => navigate(INSTALL_PATH)}
         >
           看教學
         </button>

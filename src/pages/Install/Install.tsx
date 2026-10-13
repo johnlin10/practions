@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import './Install.scss'
 import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 import { INSTALL_TITLE, INSTALL_DESCRIPTION } from './meta'
+import { GUIDE_PATH } from '@/pages/Guide/meta'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { usePageMeta } from '@/hooks/usePageMeta'
 import { useResolvedTheme } from '@/utils/theme'
@@ -81,12 +82,10 @@ function Install(): React.ReactElement {
   return (
     <div className="page">
       <div className="page-container">
-        <h1>
-          <Link className="pre-path no-style" to="/settings">
-            設定 /
-          </Link>{' '}
-          加入主畫面
-        </h1>
+        <Link className="pre-path no-style" to={GUIDE_PATH}>
+          使用指南 /
+        </Link>
+        <h1>加入主畫面</h1>
         <p>
           將 Practions 加入手機主畫面，像 App
           一樣全螢幕使用，沒有網路也能瀏覽題庫和作答。測驗紀錄也會長期保存，不會因為一段時間沒開啟就被清除。

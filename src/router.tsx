@@ -12,6 +12,7 @@ import SingleHistory from './pages/History/ui/SingleHistory'
 import Settings from './pages/Settings/Settings'
 import PVQCSetup from './pages/PVQC/PVQCSetup'
 import Review from './pages/Review/Review'
+import Guide from './pages/Guide/Guide'
 import Install from './pages/Install/Install'
 import Learning from './pages/Learning/Learning'
 import Changelog from './pages/Changelog/Changelog'
@@ -20,6 +21,10 @@ import Privacy from './pages/Legal/Privacy'
 import Terms from './pages/Legal/Terms'
 
 // data
+import { GUIDE_PATH } from './pages/Guide/meta'
+import { INSTALL_PATH, INSTALL_LEGACY_PATH } from './pages/Install/meta'
+import { TRANSFER_PATH, TRANSFER_LEGACY_PATH } from './pages/Transfer/meta'
+import { LEARNING_PATH, LEARNING_LEGACY_PATH } from './pages/Learning/meta'
 import { LEGACY_SUBJECTS } from './data/subjects'
 
 // components
@@ -59,10 +64,20 @@ export const router = createBrowserRouter(
           ],
         },
         { path: '/settings', element: <Settings /> },
-        { path: '/settings/install', element: <Install /> },
-        { path: '/settings/learning', element: <Learning /> },
+        { path: GUIDE_PATH, element: <Guide /> },
+        { path: INSTALL_PATH, element: <Install /> },
+        { path: TRANSFER_PATH, element: <Transfer /> },
+        { path: LEARNING_PATH, element: <Learning /> },
+        // 搬到使用指南前的網址（書籤、分享連結）
+        ...[
+          [INSTALL_LEGACY_PATH, INSTALL_PATH],
+          [TRANSFER_LEGACY_PATH, TRANSFER_PATH],
+          [LEARNING_LEGACY_PATH, LEARNING_PATH],
+        ].map(([from, to]) => ({
+          path: from,
+          element: <Navigate to={to} replace />,
+        })),
         { path: '/settings/changelog', element: <Changelog /> },
-        { path: '/settings/transfer', element: <Transfer /> },
         { path: '/settings/privacy', element: <Privacy /> },
         { path: '/settings/terms', element: <Terms /> },
         // 未知路徑導回首頁

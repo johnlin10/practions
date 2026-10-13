@@ -2,6 +2,8 @@ import React, { useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Transfer.scss'
 import { TRANSFER_TITLE, TRANSFER_DESCRIPTION } from './meta'
+import { INSTALL_PATH } from '@/pages/Install/meta'
+import { GUIDE_PATH } from '@/pages/Guide/meta'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
 import { usePageMeta } from '@/hooks/usePageMeta'
 import { downloadBackup, importBackup } from '@/utils/backup'
@@ -58,12 +60,10 @@ function Transfer(): React.ReactElement {
   return (
     <div className="page">
       <div className="page-container">
-        <h1>
-          <Link className="pre-path no-style" to="/settings">
-            設定 /
-          </Link>{' '}
-          轉移測驗紀錄
-        </h1>
+        <Link className="pre-path no-style" to={GUIDE_PATH}>
+          使用指南 /
+        </Link>
+        <h1>轉移測驗紀錄</h1>
         <p>
           Practions 的網址已改為 practions.app。測驗紀錄存在各自的網址與 App
           裡，不會自動搬過去，請依照以下步驟轉移；換新手機時也是一樣的做法。
@@ -97,7 +97,7 @@ function Transfer(): React.ReactElement {
             <PlatformNotes ios="使用 Safari 開啟" android="使用 Chrome 開啟" />
             <button
               className="transfer-button"
-              onClick={() => navigate('/settings/install')}
+              onClick={() => navigate(INSTALL_PATH)}
             >
               <span className="material-symbols-outlined">
                 add_to_home_screen

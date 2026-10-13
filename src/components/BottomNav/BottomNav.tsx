@@ -58,7 +58,8 @@ function BottomNav(): React.ReactElement {
   // 隱藏導航欄
   useEffect(() => {
     // 隱藏導航欄的路徑列表
-    const hideNavigatePaths = ['/quiz/', '/history/', '/bank/']
+    // 單篇使用指南（/guide/）：專心閱讀，回上一層用標題上方的「使用指南 /」
+    const hideNavigatePaths = ['/quiz/', '/history/', '/bank/', '/guide/']
     // 如果當前路徑在隱藏路徑列表中，則隱藏導航欄
     if (hideNavigatePaths.some((path) => pathname.startsWith(path))) {
       setShowNavigate(false)

@@ -105,6 +105,26 @@
     }
   }
 
+  // 使用指南各篇：上一層獨立在第一行，捲動時跟著內容離開，只留下方標題 sticky
+  // 間距同標題的 sticky top，標題停住時上一層剛好捲出螢幕；遮擋也只延伸到螢幕頂端，才不會蓋住上一層
+  > a.pre-path {
+    display: block;
+    margin-bottom: 12px;
+    padding: 0 6px;
+    line-height: 1.2;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-faint-color);
+
+    &:hover {
+      color: var(--text-muted-color);
+    }
+
+    + h1::before {
+      top: -12px;
+    }
+  }
+
   > p {
     margin-top: 12px;
     padding: 0 6px;

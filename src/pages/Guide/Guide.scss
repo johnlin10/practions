@@ -1,0 +1,70 @@
+// 說明書：直式封面，左側加寬的書背
+.guide-shelf {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.guide-book {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  aspect-ratio: 3 / 4;
+  padding: 24px 18px 18px 18px;
+  border: 2px solid var(--divider-color);
+  border-left-width: 5px;
+  // 陰影同邊框色
+  box-shadow: 0 3px 0 var(--divider-color);
+  background-color: var(--background-color);
+  cursor: pointer;
+  // 同全域 button 的按下效果：先往上抬一個陰影高度，按下時往下壓回原位、陰影收起
+  translate: 0 -3px;
+  transition: 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  transition-property: background-color, border-color, box-shadow, transform;
+
+  // 深色模式的填色與邊框同色，hover 時邊框一起加深，輪廓才不會跟底色連成一塊
+  &:hover {
+    background-color: var(--fill-color);
+    border-color: var(--border-hover-color);
+    box-shadow: 0 3px 0 var(--border-hover-color);
+
+    > .guide-book-title {
+      color: var(--primary-color);
+    }
+  }
+
+  &:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 var(--border-hover-color);
+  }
+
+  // 主題色圓角方塊（同學習循環的彩色圖示，放大給封面用）；固定在封面頂端，不受標題與說明長度影響
+  > .guide-book-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    font-size: 26px;
+    color: var(--text-white);
+    background-color: var(--primary-color);
+    border-radius: 8px;
+  }
+
+  > .guide-book-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--foreground-800);
+  }
+
+  > .guide-book-text {
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+  }
+}

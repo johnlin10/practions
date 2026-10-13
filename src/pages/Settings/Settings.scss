@@ -149,7 +149,6 @@
       -moz-border-radius: 0;
       -ms-border-radius: 0;
       -o-border-radius: 0;
-
     }
 
     // 首末項配合外框內緣圓角（12px - 2px 外框），hover 背景才不會凸出
@@ -256,4 +255,21 @@
   color: inherit;
   text-decoration: underline;
   border-radius: 0;
+}
+
+// 可點的分組標題（使用指南）：右側箭頭表示可進入，同測驗頁的「紀錄 >」
+.settings-list-group > h5 > .settings-title-link {
+  display: flex;
+  align-items: center;
+  color: inherit;
+  border-radius: 0;
+
+  &:hover {
+    color: var(--text-muted-color);
+  }
+
+  > span {
+    font-size: 1.2rem;
+    margin-bottom: -2px;
+  }
 }

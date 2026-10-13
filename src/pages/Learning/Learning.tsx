@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import './Learning.scss'
 import { LEARNING_TITLE, LEARNING_DESCRIPTION } from './meta'
+import { GUIDE_PATH } from '@/pages/Guide/meta'
 import { usePageMeta } from '@/hooks/usePageMeta'
 import LearningCycle from '@/components/LearningCycle/LearningCycle'
 import CollapsibleSection from '@/components/CollapsibleSection/CollapsibleSection'
@@ -107,12 +108,10 @@ function Learning(): React.ReactElement {
   return (
     <div className="page">
       <div className="page-container">
-        <h1>
-          <Link className="pre-path no-style" to="/settings">
-            設定 /
-          </Link>{' '}
-          Practions 如何幫你記住
-        </h1>
+        <Link className="pre-path no-style" to={GUIDE_PATH}>
+          使用指南 /
+        </Link>
+        <h1>Practions 如何幫你記住</h1>
         <p>
           讀過就忘，是大腦本來的運作方式，不是你不夠認真。Practions
           做的事很單純：在你快忘掉之前，剛好再問你一次。整個練習是一個循環：

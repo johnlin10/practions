@@ -5,17 +5,25 @@ import path from 'node:path'
 import { defineConfig, type Plugin } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import {
+  GUIDE_PATH,
+  GUIDE_TITLE,
+  GUIDE_DESCRIPTION,
+} from './src/pages/Guide/meta'
+import {
   INSTALL_PATH,
+  INSTALL_LEGACY_PATH,
   INSTALL_TITLE,
   INSTALL_DESCRIPTION,
 } from './src/pages/Install/meta'
 import {
   TRANSFER_PATH,
+  TRANSFER_LEGACY_PATH,
   TRANSFER_TITLE,
   TRANSFER_DESCRIPTION,
 } from './src/pages/Transfer/meta'
 import {
   LEARNING_PATH,
+  LEARNING_LEGACY_PATH,
   LEARNING_TITLE,
   LEARNING_DESCRIPTION,
 } from './src/pages/Learning/meta'
@@ -29,19 +37,29 @@ import {
 } from './src/pages/Legal/meta'
 
 // 需要自己的標題與描述（分享連結預覽）的頁面
-const PAGES = [
+// legacyPath：舊網址也產生同一份 HTML（og:url 指向新網址），bot 不必跟著轉址就讀得到預覽；使用者打開後由 router 導向新網址
+const PAGES: {
+  path: string
+  legacyPath?: string
+  title: string
+  description: string
+}[] = [
+  { path: GUIDE_PATH, title: GUIDE_TITLE, description: GUIDE_DESCRIPTION },
   {
     path: INSTALL_PATH,
+    legacyPath: INSTALL_LEGACY_PATH,
     title: INSTALL_TITLE,
     description: INSTALL_DESCRIPTION,
   },
   {
     path: TRANSFER_PATH,
+    legacyPath: TRANSFER_LEGACY_PATH,
     title: TRANSFER_TITLE,
     description: TRANSFER_DESCRIPTION,
   },
   {
     path: LEARNING_PATH,
+    legacyPath: LEARNING_LEGACY_PATH,
     title: LEARNING_TITLE,
     description: LEARNING_DESCRIPTION,
   },
@@ -54,9 +72,9 @@ const PAGES = [
 ]
 
 /**
- * 建置後為 PAGES 各複製一份 index.html（例如 settings/install.html），換上該頁的標題與描述，
+ * 建置後為 PAGES 各複製一份 index.html（例如 guide/install.html），換上該頁的標題與描述，
  * 讓不跑 JS 的 bot（LINE、Facebook 等連結預覽）也讀得到。Firebase Hosting 需開啟 cleanUrls，
- * /settings/install 才會回傳這個檔案
+ * /guide/install 才會回傳這個檔案
  */
 function pageHtml(): Plugin {
   return {
@@ -65,7 +83,7 @@ function pageHtml(): Plugin {
     closeBundle() {
       const outDir = path.resolve(__dirname, 'build')
       const index = fs.readFileSync(path.join(outDir, 'index.html'), 'utf-8')
-      for (const { path: pagePath, title, description } of PAGES) {
+      for (const { path: pagePath, legacyPath, title, description } of PAGES) {
         let html = index
         const replacements: [RegExp, string][] = [
           [/<title>.*?<\/title>/, `<title>${title}</title>`],
@@ -86,9 +104,12 @@ function pageHtml(): Plugin {
             throw new Error(`page-html: 找不到 ${pattern}`)
           html = html.replace(pattern, value)
         }
-        const file = path.join(outDir, `${pagePath}.html`)
-        fs.mkdirSync(path.dirname(file), { recursive: true })
-        fs.writeFileSync(file, html)
+        for (const filePath of [pagePath, legacyPath]) {
+          if (!filePath) continue
+          const file = path.join(outDir, `${filePath}.html`)
+          fs.mkdirSync(path.dirname(file), { recursive: true })
+          fs.writeFileSync(file, html)
+        }
       }
     },
   }

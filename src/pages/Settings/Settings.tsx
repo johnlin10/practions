@@ -14,6 +14,10 @@ import {
 } from '@/data/authStore'
 import { showAlert, showConfirm } from '@/utils/dialog'
 import { applyUpdate, useNewVersion } from '@/utils/serviceWorker'
+import { GUIDE_PATH } from '@/pages/Guide/meta'
+import { INSTALL_PATH } from '@/pages/Install/meta'
+import { TRANSFER_PATH } from '@/pages/Transfer/meta'
+import { LEARNING_PATH } from '@/pages/Learning/meta'
 import {
   getSystemTheme,
   useResolvedTheme,
@@ -197,7 +201,7 @@ function Settings(): React.ReactElement {
                 </div>
                 <div
                   className="settings-list-group-item action"
-                  onClick={() => navigate('/settings/transfer')}
+                  onClick={() => navigate(TRANSFER_PATH)}
                 >
                   <p>
                     <span className="material-symbols-outlined icon">
@@ -377,20 +381,6 @@ function Settings(): React.ReactElement {
               </p>
             </div>
             <div
-              className="settings-list-group-item action"
-              onClick={() => navigate('/settings/transfer')}
-            >
-              <p>
-                <span className="material-symbols-outlined icon">
-                  swap_horiz
-                </span>
-                如何轉移資料
-              </p>
-              <span className="material-symbols-rounded icon">
-                chevron_right
-              </span>
-            </div>
-            <div
               className={`settings-list-group-item action ${
                 !hasHistory ? 'disabled' : ''
               }`}
@@ -409,14 +399,23 @@ function Settings(): React.ReactElement {
           </div>
 
           <div className="settings-list-group has-title">
-            <h5>使用指南</h5>
+            <h5>
+              <Link className="settings-title-link no-style" to={GUIDE_PATH}>
+                使用指南
+                <span className="material-symbols-rounded" aria-hidden="true">
+                  chevron_right
+                </span>
+              </Link>
+            </h5>
             <div
               className="settings-list-group-item action"
-              onClick={() => navigate('/settings/learning')}
+              onClick={() => navigate(INSTALL_PATH)}
             >
               <p>
-                <span className="material-symbols-outlined icon">school</span>
-                Practions 如何幫你記住
+                <span className="material-symbols-outlined icon">
+                  add_to_home_screen
+                </span>
+                加入主畫面
               </p>
               <span className="material-symbols-rounded icon">
                 chevron_right
@@ -424,13 +423,25 @@ function Settings(): React.ReactElement {
             </div>
             <div
               className="settings-list-group-item action"
-              onClick={() => navigate('/settings/install')}
+              onClick={() => navigate(TRANSFER_PATH)}
             >
               <p>
                 <span className="material-symbols-outlined icon">
-                  add_to_home_screen
+                  swap_horiz
                 </span>
-                加入主畫面
+                如何轉移資料
+              </p>
+              <span className="material-symbols-rounded icon">
+                chevron_right
+              </span>
+            </div>
+            <div
+              className="settings-list-group-item action"
+              onClick={() => navigate(LEARNING_PATH)}
+            >
+              <p>
+                <span className="material-symbols-outlined icon">school</span>
+                Practions 如何幫你記住
               </p>
               <span className="material-symbols-rounded icon">
                 chevron_right

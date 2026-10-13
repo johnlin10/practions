@@ -20,6 +20,8 @@
   -moz-transform: translateX(-50%) translateY(calc(48px + 66px));
   -ms-transform: translateX(-50%) translateY(calc(48px + 66px));
   -o-transform: translateX(-50%) translateY(calc(48px + 66px));
+  // 滑入 / 滑出（全域 * 已不設 transition，需自行指定）
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 
   // 導航欄底下到螢幕底部的遮罩，讓滾動內容淡出，增加層級感：
   // 上段為漸變（::before），最底部 $edge-height 為實色（.navigate-edge），最不透明處對齊畫面底部
