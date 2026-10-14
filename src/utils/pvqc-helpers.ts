@@ -11,14 +11,14 @@ export interface PVQCQuizItem {
   correctIndex?: number
 }
 
-/** 隨機取 count 個不重複、且不等於正確答案的選項文字。 */
+/** 隨機取 count 個不重複、且不在 excluded 裡（正確答案和同義字）的選項文字。 */
 function uniqueDistractors(
   texts: string[],
-  correctAnswer: string,
+  excluded: string[],
   count: number
 ): string[] {
   return [...new Set(shuffle(texts))]
-    .filter((text) => text !== correctAnswer)
+    .filter((text) => !excluded.includes(text))
     .slice(0, count)
 }
 
@@ -51,7 +51,10 @@ export function generatePVQCOptions(
         ? q.chinese
         : q.english
     ),
-    correctAnswer,
+    // 選英文時，中文一樣的其他英文（例如 AI 和 artificial intelligence）也不能出現
+    mode === 'pvqc_read' || mode === 'pvqc_listen_chinese'
+      ? [correctAnswer]
+      : [correctAnswer, ...(targetQuestion.sameMeaning ?? [])],
     optionCount - 1
   )
 
@@ -83,7 +86,7 @@ export function generatePVQCPronunciationOptions(
   // 從其他題目中選擇干擾英文單字（去重複）
   const distractors = uniqueDistractors(
     allQuestions.map((q) => q.english),
-    correctAnswer,
+    [correctAnswer, ...(targetQuestion.sameMeaning ?? [])],
     optionCount - 1
   )
 

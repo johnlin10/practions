@@ -49,6 +49,8 @@ export interface VocabularyQuestion {
   id: string
   english: string
   chinese: string
+  // 題庫裡中文一樣的其他英文（例如 AI 和 artificial intelligence），載入題庫時算好
+  sameMeaning?: string[]
 }
 
 // 聯合型別
