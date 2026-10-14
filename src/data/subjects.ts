@@ -79,10 +79,26 @@ export function convertToSubjectConfig(subject: Subject): SubjectConfig {
     lockTime: subject.lockTime,
     group: subject.group,
     source: subject.source,
-    questions: subject.questions.filter(
-      (q) => !subject.hiddenQuestionIds?.includes(q.id),
+    questions: withSameMeaning(
+      subject.questions.filter(
+        (q) => !subject.hiddenQuestionIds?.includes(q.id),
+      ),
     ),
   }
+}
+
+// 同一個中文對到好幾個英文時，看中文作答這些英文都算對，也不拿來當干擾選項
+const withSameMeaning = (questions: Question[]): Question[] => {
+  const byChinese = new Map<string, string[]>()
+  for (const q of questions) {
+    if (q.type !== 'vocabulary') continue
+    byChinese.set(q.chinese, [...(byChinese.get(q.chinese) ?? []), q.english])
+  }
+  return questions.map((q) => {
+    if (q.type !== 'vocabulary') return q
+    const others = byChinese.get(q.chinese)!.filter((e) => e !== q.english)
+    return others.length ? { ...q, sameMeaning: others } : q
+  })
 }
 
 //* 原始題庫
@@ -8289,7 +8305,7 @@ const rawSubjects: Subjects = {
     questionCount: 20,
     timeLimit: 10,
     quizType: 'vocabulary',
-    // 老師分享的兩份 AI 模擬單字表（800 字、500 字）合併去重，縮寫另外一題
+    // 老師分享的兩份 AI 模擬單字表（800 字、500 字）合併去重，縮寫另外一題（中文跟完整名稱一樣）
     questions: [
       {
         type: 'vocabulary',
@@ -8301,7 +8317,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '2',
         english: 'AI',
-        chinese: '(n)人工智慧（縮寫）',
+        chinese: '(n)人工智慧',
       },
       {
         type: 'vocabulary',
@@ -8313,7 +8329,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '4',
         english: 'ML',
-        chinese: '(n)機器學習（縮寫）',
+        chinese: '(n)機器學習',
       },
       {
         type: 'vocabulary',
@@ -8325,7 +8341,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '6',
         english: 'DL',
-        chinese: '(n)深度學習（縮寫）',
+        chinese: '(n)深度學習',
       },
       {
         type: 'vocabulary',
@@ -8343,7 +8359,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '9',
         english: 'AGI',
-        chinese: '(n)通用人工智慧（縮寫）',
+        chinese: '(n)通用人工智慧',
       },
       {
         type: 'vocabulary',
@@ -8373,7 +8389,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '14',
         english: 'RL',
-        chinese: '(n)強化學習；增強學習（縮寫）',
+        chinese: '(n)強化學習；增強學習',
       },
       {
         type: 'vocabulary',
@@ -8475,7 +8491,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '31',
         english: 'SVM',
-        chinese: '(n)支援向量機；支持向量機（縮寫）',
+        chinese: '(n)支援向量機；支持向量機',
       },
       {
         type: 'vocabulary',
@@ -8487,7 +8503,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '33',
         english: 'KNN',
-        chinese: '(n)K 最近鄰演算法（縮寫）',
+        chinese: '(n)K 最近鄰演算法',
       },
       {
         type: 'vocabulary',
@@ -8523,7 +8539,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '39',
         english: 'PCA',
-        chinese: '(n)主成分分析（縮寫）',
+        chinese: '(n)主成分分析',
       },
       {
         type: 'vocabulary',
@@ -8589,7 +8605,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '50',
         english: 'ANN',
-        chinese: '(n)人工神經網路（縮寫）',
+        chinese: '(n)人工神經網路',
       },
       {
         type: 'vocabulary',
@@ -8601,7 +8617,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '52',
         english: 'CNN',
-        chinese: '(n)卷積神經網路（縮寫）',
+        chinese: '(n)卷積神經網路',
       },
       {
         type: 'vocabulary',
@@ -8613,7 +8629,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '54',
         english: 'RNN',
-        chinese: '(n)循環神經網路（縮寫）',
+        chinese: '(n)循環神經網路',
       },
       {
         type: 'vocabulary',
@@ -8625,7 +8641,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '56',
         english: 'LSTM',
-        chinese: '(n)長短期記憶網路（縮寫）',
+        chinese: '(n)長短期記憶網路',
       },
       {
         type: 'vocabulary',
@@ -8643,7 +8659,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '59',
         english: 'GAN',
-        chinese: '(n)生成對抗網路（縮寫）',
+        chinese: '(n)生成對抗網路',
       },
       {
         type: 'vocabulary',
@@ -8667,7 +8683,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '63',
         english: 'ReLU',
-        chinese: '(n)線性整流函數；修正線性單元（縮寫）',
+        chinese: '(n)線性整流函數；修正線性單元',
       },
       {
         type: 'vocabulary',
@@ -8697,7 +8713,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '68',
         english: 'SGD',
-        chinese: '(n)隨機梯度下降（縮寫）',
+        chinese: '(n)隨機梯度下降',
       },
       {
         type: 'vocabulary',
@@ -8721,7 +8737,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '72',
         english: 'MSE',
-        chinese: '(n)均方誤差（縮寫）',
+        chinese: '(n)均方誤差',
       },
       {
         type: 'vocabulary',
@@ -8757,7 +8773,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '78',
         english: 'NLP',
-        chinese: '(n)自然語言處理（縮寫）',
+        chinese: '(n)自然語言處理',
       },
       {
         type: 'vocabulary',
@@ -8769,7 +8785,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '80',
         english: 'LLM',
-        chinese: '(n)大型語言模型（縮寫）',
+        chinese: '(n)大型語言模型',
       },
       {
         type: 'vocabulary',
@@ -8823,7 +8839,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '89',
         english: 'RAG',
-        chinese: '(n)檢索增強生成（縮寫）',
+        chinese: '(n)檢索增強生成',
       },
       {
         type: 'vocabulary',
@@ -8841,7 +8857,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '92',
         english: 'PEFT',
-        chinese: '(n)參數高效率微調（縮寫）',
+        chinese: '(n)參數高效率微調',
       },
       {
         type: 'vocabulary',
@@ -8853,7 +8869,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '94',
         english: 'LoRA',
-        chinese: '(n)低秩適應；低秩適配（縮寫）',
+        chinese: '(n)低秩適應；低秩適配',
       },
       {
         type: 'vocabulary',
@@ -8889,7 +8905,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '100',
         english: 'NER',
-        chinese: '(n)命名實體辨識（縮寫）',
+        chinese: '(n)命名實體辨識',
       },
       {
         type: 'vocabulary',
@@ -8913,7 +8929,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '104',
         english: 'CV',
-        chinese: '(n)電腦視覺（縮寫）',
+        chinese: '(n)電腦視覺',
       },
       {
         type: 'vocabulary',
@@ -8949,7 +8965,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '110',
         english: 'OCR',
-        chinese: '(n)光學字元辨識（縮寫）',
+        chinese: '(n)光學字元辨識',
       },
       {
         type: 'vocabulary',
@@ -8973,7 +8989,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '114',
         english: 'IoU',
-        chinese: '(n)交併比；交集比聯集（縮寫）',
+        chinese: '(n)交併比；交集比聯集',
       },
       {
         type: 'vocabulary',
@@ -8997,7 +9013,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '118',
         english: 'LiDAR',
-        chinese: '(n)光達；光學雷達（縮寫）',
+        chinese: '(n)光達；光學雷達',
       },
       {
         type: 'vocabulary',
@@ -9021,7 +9037,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '122',
         english: 'IoT',
-        chinese: '(n)物聯網（縮寫）',
+        chinese: '(n)物聯網',
       },
       {
         type: 'vocabulary',
@@ -9045,7 +9061,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '126',
         english: 'SLAM',
-        chinese: '(n)同步定位與地圖建構（縮寫）',
+        chinese: '(n)同步定位與地圖建構',
       },
       {
         type: 'vocabulary',
@@ -9075,7 +9091,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '131',
         english: 'GPU',
-        chinese: '(n)圖形處理器（縮寫）',
+        chinese: '(n)圖形處理器',
       },
       {
         type: 'vocabulary',
@@ -9087,7 +9103,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '133',
         english: 'TPU',
-        chinese: '(n)張量處理器（縮寫）',
+        chinese: '(n)張量處理器',
       },
       {
         type: 'vocabulary',
@@ -9099,7 +9115,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '135',
         english: 'MLOps',
-        chinese: '(n)機器學習維運（縮寫）',
+        chinese: '(n)機器學習維運',
       },
       {
         type: 'vocabulary',
@@ -9141,7 +9157,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '142',
         english: 'XAI',
-        chinese: '(n)可解釋人工智慧（縮寫）',
+        chinese: '(n)可解釋人工智慧',
       },
       {
         type: 'vocabulary',
@@ -10041,7 +10057,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '292',
         english: 'GRU',
-        chinese: '(n)閘控循環單元（縮寫）',
+        chinese: '(n)閘控循環單元',
       },
       {
         type: 'vocabulary',
@@ -10353,7 +10369,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '344',
         english: 'VAE',
-        chinese: '(n)變分自編碼器（縮寫）',
+        chinese: '(n)變分自編碼器',
       },
       {
         type: 'vocabulary',
@@ -10455,7 +10471,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '361',
         english: 'POS tagging',
-        chinese: '(n)詞性標註（縮寫）',
+        chinese: '(n)詞性標註',
       },
       {
         type: 'vocabulary',
@@ -10485,7 +10501,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '366',
         english: 'TTS',
-        chinese: '(n)文字轉語音（縮寫）',
+        chinese: '(n)文字轉語音',
       },
       {
         type: 'vocabulary',
@@ -10497,7 +10513,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '368',
         english: 'ASR',
-        chinese: '(n)自動語音辨識（縮寫）',
+        chinese: '(n)自動語音辨識',
       },
       {
         type: 'vocabulary',
@@ -10659,7 +10675,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '395',
         english: 'NMS',
-        chinese: '(n)非極大值抑制（縮寫）',
+        chinese: '(n)非極大值抑制',
       },
       {
         type: 'vocabulary',
@@ -10761,7 +10777,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '412',
         english: 'RPA',
-        chinese: '(n)機器人流程自動化（縮寫）',
+        chinese: '(n)機器人流程自動化',
       },
       {
         type: 'vocabulary',
@@ -11199,7 +11215,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '485',
         english: 'AutoML',
-        chinese: '(n)自動化機器學習（縮寫）',
+        chinese: '(n)自動化機器學習',
       },
       {
         type: 'vocabulary',
@@ -11223,7 +11239,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '489',
         english: 'NAS',
-        chinese: '(n)神經架構搜尋（縮寫）',
+        chinese: '(n)神經架構搜尋',
       },
       {
         type: 'vocabulary',
@@ -11439,7 +11455,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '525',
         english: 'RMSE',
-        chinese: '(n)均方根誤差（縮寫）',
+        chinese: '(n)均方根誤差',
       },
       {
         type: 'vocabulary',
@@ -11451,7 +11467,7 @@ const rawSubjects: Subjects = {
         type: 'vocabulary',
         id: '527',
         english: 'MAE',
-        chinese: '(n)平均絕對誤差（縮寫）',
+        chinese: '(n)平均絕對誤差',
       },
       {
         type: 'vocabulary',

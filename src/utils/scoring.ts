@@ -1,5 +1,5 @@
 // types
-import { Question } from '../types/questions'
+import { Question, VocabularyQuestion } from '../types/questions'
 import { AnswerRecord } from '../types/answers'
 import { QuizModeId } from '../types/quiz-modes'
 
@@ -10,6 +10,12 @@ export interface ScoringStrategy {
 
 // 英文 / 拼音正規化（去前後空白、轉小寫）
 const normalizeEnglish = (s: string): string => s.trim().toLowerCase()
+
+// 拼字題：中文一樣的其他英文也算對（例如「人工智慧」打 AI 或 artificial intelligence）
+export const isSpelledRight = (input: string, question: VocabularyQuestion): boolean =>
+  [question.english, ...(question.sameMeaning ?? [])].some(
+    (e) => normalizeEnglish(e) === normalizeEnglish(input),
+  )
 
 // 中文正規化（僅去前後空白，不轉大小寫）
 const normalizeChinese = (s: string): string => s.trim()
@@ -66,7 +72,7 @@ export const pvqcWriteScoringStrategy: ScoringStrategy = {
     if (question.type !== 'vocabulary' || typeof answer.answer !== 'string') {
       return false
     }
-    return normalizeEnglish(answer.answer) === normalizeEnglish(question.english)
+    return isSpelledRight(answer.answer, question)
   },
 }
 

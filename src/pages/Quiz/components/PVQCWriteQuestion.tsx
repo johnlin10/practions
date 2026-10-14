@@ -1,5 +1,6 @@
 import { VocabularyQuestion } from '../../../types/questions'
 import { useState, useEffect } from 'react'
+import { isSpelledRight } from '../../../utils/scoring'
 import './PVQCWriteQuestion.scss'
 
 interface Props {
@@ -57,8 +58,7 @@ function PVQCWriteQuestion({
           type="text"
           className={
             reveal
-              ? input.trim().toLowerCase() ===
-                question.english.trim().toLowerCase()
+              ? isSpelledRight(input, question)
                 ? 'correct'
                 : 'wrong'
               : undefined
