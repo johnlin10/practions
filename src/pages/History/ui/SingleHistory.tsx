@@ -698,12 +698,14 @@ function SingleHistory(): React.ReactElement {
   const flowModeLabel =
     flowMode === 'review'
       ? '錯題複習'
+      : flowMode === 'practice'
+      ? '隨手練'
       : flowMode === 'pvqc_official'
       ? 'PVQC 官方模擬'
       : flowMode === 'pvqc_custom'
       ? 'PVQC 自訂'
       : '標準測驗'
-  // 錯題複習：一次答對、再練答對、還要加強（不顯示分數）
+  // 錯題複習、隨手練：一次答對、再練答對、還要加強（不顯示分數）
   const review = reviewSummary(record)
   // 只有官方模擬有整體通過與否
   const overallPassed =
@@ -747,7 +749,7 @@ function SingleHistory(): React.ReactElement {
         </div>
 
         {review ? (
-          //* 錯題複習的結算：進度條依序是一次答對（藍）與再練答對（橘）
+          //* 錯題複習、隨手練的結算：進度條依序是一次答對（藍）與再練答對（橘）
           <div className="summary review-summary">
             <div className="summary-bar">
               <div

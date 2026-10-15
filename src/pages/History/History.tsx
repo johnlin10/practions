@@ -1,6 +1,7 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Link, useOutlet } from 'react-router-dom'
 import './History.scss'
+import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 
 // data
 import { useQuizHistory } from '@/hooks/useQuizHistory'
@@ -9,6 +10,7 @@ import { reviewSummary } from '@/data/wrongQuestions'
 import { useAuth } from '@/data/authStore'
 import { showConfirm } from '@/utils/dialog'
 import { isPracticeRecord } from './meta'
+import type { HistoryRecord } from '@/types'
 
 /**
  * [page] History page
@@ -29,8 +31,25 @@ function History({
   const ready = useHistoryReady()
   // 開啟單筆紀錄時只顯示詳情頁（整頁捲動，不疊在列表上）
   const outlet = useOutlet()
+  // 練習頁的篩選：錯題複習 / 隨手練，一開始顯示最近一筆練習的那一種
+  const [filter, setFilter] = useState<'review' | 'practice'>(() =>
+    rawHistory.reduce<HistoryRecord | undefined>(
+      (latest, record) =>
+        isPracticeRecord(record.flowMode) &&
+        (!latest || new Date(record.date) > new Date(latest.date))
+          ? record
+          : latest,
+      undefined,
+    )?.flowMode === 'practice'
+      ? 'practice'
+      : 'review',
+  )
   const history = rawHistory
-    .filter((record) => isPracticeRecord(record.flowMode) === practice)
+    .filter((record) =>
+      practice
+        ? record.flowMode === filter
+        : !isPracticeRecord(record.flowMode),
+    )
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   // 依日期分組，同一天的紀錄放在同一個列表
@@ -108,6 +127,18 @@ function History({
               </Link>{' '}
               紀錄
             </span>
+            {/* 篩選：跟著標題固定在頂部 */}
+            {practice && (
+              <SegmentedControl
+                label="篩選紀錄"
+                value={filter}
+                onChange={setFilter}
+                options={[
+                  { value: 'review', label: '錯題複習' },
+                  { value: 'practice', label: '隨手練' },
+                ]}
+              />
+            )}
           </h1>
           <div className="history-list">
             {days.length > 0 ? (
@@ -126,12 +157,14 @@ function History({
                     const modeLabel =
                       flowMode === 'review'
                         ? '錯題複習'
-                        : flowMode === 'pvqc_official'
-                          ? 'PVQC 官方'
-                          : flowMode === 'pvqc_custom'
-                            ? 'PVQC 自訂'
-                            : '標準'
-                    // 錯題複習：顯示答對的題數（含再練答對），不顯示正確率
+                        : flowMode === 'practice'
+                          ? '隨手練'
+                          : flowMode === 'pvqc_official'
+                            ? 'PVQC 官方'
+                            : flowMode === 'pvqc_custom'
+                              ? 'PVQC 自訂'
+                              : '標準'
+                    // 錯題複習、隨手練：顯示答對的題數（含再練答對），不顯示正確率
                     const review = reviewSummary(record)
                     // 官方模擬：顯示通過與否
                     const officialPassed =
@@ -228,9 +261,11 @@ function History({
                 <p>
                   {!ready
                     ? '正在載入測驗紀錄…'
-                    : practice
-                      ? '尚無練習紀錄'
-                      : '尚無測驗紀錄'}
+                    : !practice
+                      ? '尚無測驗紀錄'
+                      : filter === 'review'
+                        ? '尚無錯題複習紀錄'
+                        : '尚無隨手練紀錄'}
                 </p>
               </div>
             )}

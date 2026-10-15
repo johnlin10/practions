@@ -2,8 +2,13 @@ import { Question, QuestionTypeId } from './questions'
 import { QuizModeId } from './quiz-modes'
 import type { SubjectGroupId } from '../data/subject-groups'
 
-// 測驗流程模式：標準單階段、PVQC 自訂、PVQC 官方模擬、錯題複習
-export type FlowMode = 'standard' | 'pvqc_custom' | 'pvqc_official' | 'review'
+// 測驗流程模式：標準單階段、PVQC 自訂、PVQC 官方模擬、錯題複習、隨手練
+export type FlowMode =
+  | 'standard'
+  | 'pvqc_custom'
+  | 'pvqc_official'
+  | 'review'
+  | 'practice'
 
 // 測驗階段配置
 export interface QuizStageConfig {
@@ -32,7 +37,7 @@ export interface QuizFlowConfig {
   flowMode?: FlowMode
   // 是否啟用分階段強制計時（true=時間到強制換階段；false=維持舊全局計時行為）
   enforceStageTimer?: boolean
-  // 即時回饋（錯題複習）：答一題就檢查對錯，答錯的題目在該階段最後再練一次
+  // 即時回饋（錯題複習、隨手練）：答一題就檢查對錯，答錯的題目在該階段最後再練一次
   instantFeedback?: boolean
   // 各階段的題目打散成一條流程，每題用自己階段的作答方式（PVQC 錯題複習）；
   // 答錯的題目在全部做完後一起再練一次。紀錄與計分仍依階段分開

@@ -5,7 +5,11 @@
  * 缺漏欄位也會自動補上預設值（取代原本 loadSettingsFromStorage 的手動合併）。
  */
 import { z } from 'zod'
-import { DEFAULT_SETTINGS, REVIEW_LIMITS } from '@/types/settings'
+import {
+  DEFAULT_SETTINGS,
+  PRACTICE_LIMITS,
+  REVIEW_LIMITS,
+} from '@/types/settings'
 
 export const pvqcSettingsSchema = z.object({
   defaultQuestionCount: z
@@ -24,5 +28,13 @@ export const appSettingsSchema = z.object({
     .number()
     .refine((n) => (REVIEW_LIMITS as readonly number[]).includes(n))
     .catch(DEFAULT_SETTINGS.reviewLimit),
+  practiceLimit: z
+    .number()
+    .int()
+    .min(PRACTICE_LIMITS.min)
+    .max(PRACTICE_LIMITS.max)
+    .catch(DEFAULT_SETTINGS.practiceLimit),
+  practiceSubject: z.string().catch(DEFAULT_SETTINGS.practiceSubject),
+  practiceSubjectAt: z.number().catch(DEFAULT_SETTINGS.practiceSubjectAt),
   sound: z.boolean().catch(DEFAULT_SETTINGS.sound),
 })

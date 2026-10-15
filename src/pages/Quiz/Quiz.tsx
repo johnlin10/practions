@@ -444,7 +444,11 @@ function Quiz(): React.ReactElement {
     if (summary.perfect) playPerfectSound()
   }
 
-  // 結算畫面淡出後才交卷；「退出」交卷後回錯題複習頁，不進結果詳情
+  // 結算畫面淡出後才交卷；「退出」交卷後回錯題複習頁（隨手練回練習頁），不進結果詳情
+  const isPractice = quizState.flowConfig.flowMode === 'practice'
+  const exitPath = isPractice ? '/practice' : '/review'
+  // 隨手練的結算畫面用藍色（Quiz.scss）
+  const practiceClass = isPractice ? ' practice' : ''
   const handleLeave = (exitTo?: string): void => {
     setLeaving(true)
     setTimeout(() => handleFinish(false, exitTo), 250)
@@ -757,7 +761,9 @@ function Quiz(): React.ReactElement {
               <span className="quiz-preparing-icon material-symbols-rounded fill">
                 {flowConfig?.flowMode === 'review'
                   ? 'replay'
-                  : 'assignment_turned_in'}
+                  : flowConfig?.flowMode === 'practice'
+                    ? 'exercise'
+                    : 'assignment_turned_in'}
               </span>
               <p className="quiz-preparing-name">{subject.name}</p>
               <p className="quiz-preparing-meta">
@@ -769,6 +775,9 @@ function Quiz(): React.ReactElement {
                   const minutes = flowConfig?.totalTimeLimit ?? 0
                   if (flowConfig?.flowMode === 'review') {
                     return `錯題複習・${count} 題`
+                  }
+                  if (flowConfig?.flowMode === 'practice') {
+                    return `隨手練・${count} 題`
                   }
                   return minutes > 0
                     ? `${count} 題・${minutes} 分鐘`
@@ -793,7 +802,7 @@ function Quiz(): React.ReactElement {
                 ))}
               </div>
               <div
-                className={`quiz-retry-intro quiz-perfect${leaving ? ' leaving' : ''}`}
+                className={`quiz-retry-intro quiz-perfect${practiceClass}${leaving ? ' leaving' : ''}`}
                 role="status"
               >
                 <span className="quiz-retry-intro-icon material-symbols-rounded">
@@ -812,7 +821,7 @@ function Quiz(): React.ReactElement {
                 </button>
                 <button
                   className="quiz-retry-intro-btn quiz-retry-intro-exit"
-                  onClick={() => handleLeave('/review')}
+                  onClick={() => handleLeave(exitPath)}
                 >
                   退出
                 </button>
@@ -821,13 +830,15 @@ function Quiz(): React.ReactElement {
           ) : subject && finished ? (
             //* 複習完成：藍色是第一次答對、橘色是再練答對
             <div
-              className={`quiz-retry-intro quiz-summary${leaving ? ' leaving' : ''}`}
+              className={`quiz-retry-intro quiz-summary${practiceClass}${leaving ? ' leaving' : ''}`}
               role="status"
             >
               <span className="quiz-retry-intro-icon material-symbols-rounded">
                 task_alt
               </span>
-              <p className="quiz-retry-intro-title">複習完成</p>
+              <p className="quiz-retry-intro-title">
+                {isPractice ? '練習完成' : '複習完成'}
+              </p>
               <p className="quiz-summary-count">
                 {summary.first + summary.retry}
                 <span> / {summary.total} 題</span>
@@ -856,7 +867,7 @@ function Quiz(): React.ReactElement {
               </button>
               <button
                 className="quiz-retry-intro-btn quiz-retry-intro-exit"
-                onClick={() => handleLeave('/review')}
+                onClick={() => handleLeave(exitPath)}
               >
                 退出
               </button>

@@ -105,8 +105,8 @@ function Review(): React.ReactElement {
             <p>
               {wrongGroups.length > 0 ? '今天的複習完成了' : '目前沒有錯題'}
             </p>
-            <Link className="review-empty-btn no-style" to="/quiz">
-              去做測驗
+            <Link className="review-empty-btn no-style" to="/practice">
+              去隨手練
             </Link>
           </div>
         )}

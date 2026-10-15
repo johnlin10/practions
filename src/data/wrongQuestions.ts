@@ -159,13 +159,14 @@ export function retryCorrectKeys(record: HistoryRecord): Set<string> {
 }
 
 /**
- * 錯題複習紀錄的結算：一次答對、再練答對、還要加強各幾題。
- * 不是複習紀錄回傳 null。
+ * 錯題複習、隨手練紀錄的結算：一次答對、再練答對、還要加強各幾題。
+ * 其他紀錄回傳 null。
  */
 export function reviewSummary(
   record: HistoryRecord,
 ): { first: number; retry: number; remaining: number; total: number } | null {
-  if (record.flowMode !== 'review') return null
+  if (record.flowMode !== 'review' && record.flowMode !== 'practice')
+    return null
   const retried = retryCorrectKeys(record)
   let first = 0
   let retry = 0

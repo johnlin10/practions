@@ -993,6 +993,28 @@ h1.quiz-to-history {
   transition: opacity 0.25s ease-in;
 }
 
+// 隨手練的結算畫面用藍色（錯題複習是橘色）；再練一次的過渡畫面維持橘色
+.quiz-retry-intro.practice {
+  > .quiz-retry-intro-icon {
+    background: var(--primary-color);
+    box-shadow: 0 4px 0 var(--primary-dark-color);
+  }
+
+  > .quiz-retry-intro-btn:not(.quiz-retry-intro-exit) {
+    background-color: var(--primary-color);
+    border-color: var(--primary-dark-color);
+    box-shadow: 0 4px 0 var(--primary-dark-color);
+
+    &:not(:disabled):hover {
+      background-color: var(--primary-dark-color);
+    }
+
+    &:not(:disabled):active {
+      box-shadow: 0 0 0 var(--primary-dark-color);
+    }
+  }
+}
+
 // 完美作答（沿用再練一次過渡畫面的版型）
 // 圖示先輕微抖動蓄力（0.4～1.2 秒），再放大到最大（1.4 秒）噴出彩帶後彈回；跟 playPerfectSound 的時間點對齊
 .quiz-perfect > .quiz-retry-intro-icon {

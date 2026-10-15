@@ -71,7 +71,7 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     // 準備所有階段題目
     const allStagesQuestions: Record<string, Question[]> = {}
 
-    // 測驗優先抽還沒掌握的題目；PVQC 官方模擬維持完全隨機（模擬正式考試），錯題複習有自己的選題
+    // 測驗與隨手練優先抽還沒掌握的題目；PVQC 官方模擬維持完全隨機（模擬正式考試），錯題複習有自己的選題
     const mastered =
       flowConfig.flowMode === 'pvqc_official' ||
       flowConfig.flowMode === 'review' ||
