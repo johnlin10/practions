@@ -10,6 +10,7 @@ import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types/settings'
 // components
 import Stepper from '../../components/Stepper/Stepper'
 import SegmentedControl from '../../components/SegmentedControl/SegmentedControl'
+import SubjectPicker from '../../components/SubjectPicker/SubjectPicker'
 import MasteryBar, {
   MasteryModes,
   MasteryPercent,
@@ -60,6 +61,8 @@ function PVQCSetup(): React.ReactElement {
   const [setupMode, setSetupMode] = useState<SetupMode>('official')
   // 選擇的科目題庫
   const [subjectId, setSubjectId] = useState<string>(PVQC_SUBJECTS[0]?.id ?? '')
+  // 選題庫的彈窗清單
+  const [pickerOpen, setPickerOpen] = useState(false)
   // 目前科目的掌握度（沒做過的題庫沒有）
   const mastery = useMastery().get(subjectId)
   // 官方模式：是否包含 Spelling 選考
@@ -156,20 +159,14 @@ function PVQCSetup(): React.ReactElement {
         <h1>PVQC 測驗設定</h1>
 
         <div className="pvqc-setup-section">
-          <div className="subject-select">
-            <select
-              aria-label="科目"
-              value={subjectId}
-              onChange={(e) => setSubjectId(e.target.value)}
-            >
-              {PVQC_SUBJECTS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}（{s.questions.length} 字）
-                </option>
-              ))}
-            </select>
-            <span className="material-symbols-rounded">expand_more</span>
-          </div>
+          <SubjectPicker
+            subjects={PVQC_SUBJECTS}
+            value={PVQC_SUBJECTS.find((s) => s.id === subjectId)}
+            onChange={(s) => setSubjectId(s.id)}
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+            detail={(s) => `${s.questions.length} 字`}
+          />
 
           {/* 掌握度：點開看各作答方式 */}
           {mastery && (

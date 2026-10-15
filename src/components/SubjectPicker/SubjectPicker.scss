@@ -1,0 +1,76 @@
+// 目前的題庫，點了彈出清單（外觀像下拉選單）
+.subject-picker {
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: start;
+
+  > .subject-picker-name {
+    min-width: 0;
+    font-weight: 600;
+    color: var(--foreground-900);
+  }
+
+  > .subject-picker-switch {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-muted-color);
+
+    > .material-symbols-rounded {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// 題庫清單（彈窗本體見 Modal.scss）
+.subject-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  // 上緣留出標題的漸變（Modal.scss 的 12px），按鈕往上抬的 3px 也在裡面，不會切到第一個按鈕
+  padding: 12px 20px 20px;
+  overflow-y: auto;
+
+  > button {
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    text-align: start;
+
+    > .subject-picker-option {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-width: 0;
+      font-weight: 500;
+      color: var(--foreground-800);
+
+      > small {
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: var(--text-muted-color);
+      }
+    }
+
+    > .subject-picker-mastery {
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      color: var(--foreground-600);
+    }
+
+    > .material-symbols-rounded {
+      font-size: 1.25rem;
+      color: var(--primary-color);
+    }
+
+    &.selected {
+      background-color: var(--primary-background-color);
+      border-color: var(--primary-color);
+      box-shadow: 0 3px 0 var(--primary-color);
+    }
+  }
+}

@@ -70,39 +70,10 @@ $radius: 12px;
     }
   }
 
-  > .subject-select {
-    position: relative;
+  // 題庫選擇器（SubjectPicker）：圓角跟本頁其他方框一致（隨手練維持按鈕的圓角）
+  > .subject-picker {
     margin-top: 12px;
-
-    > select {
-      width: 100%;
-      padding: 12px 42px 12px 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--foreground-900);
-      background-color: var(--background-color);
-      border: 2px solid var(--divider-color);
-      border-radius: $radius;
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-
-      &:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        background-color: var(--primary-background-color);
-        color: var(--primary-text-color);
-      }
-    }
-
-    > .material-symbols-rounded {
-      position: absolute;
-      top: 50%;
-      right: 12px;
-      transform: translateY(-50%);
-      color: var(--foreground-500);
-      pointer-events: none;
-    }
+    border-radius: $radius;
   }
 
   // 掌握度：收合時只有總比例，點開看各作答方式

@@ -4,7 +4,7 @@ import './Practice.scss'
 
 // components
 import Stepper from '@/components/Stepper/Stepper'
-import Modal from '@/components/Modal/Modal'
+import SubjectPicker from '@/components/SubjectPicker/SubjectPicker'
 import MasteryBar, { MasteryPercent } from '@/components/MasteryBar/MasteryBar'
 
 // data
@@ -41,13 +41,11 @@ function Practice(): React.ReactElement {
   )
   const subjectMastery = subject && mastery.get(subject.id)
 
-  // 切換題庫的清單
+  // 切換題庫的清單；還沒選題庫時按「開始練習」也會打開
   const [pickerOpen, setPickerOpen] = useState(false)
-  const openPicker = (): void => setPickerOpen(true)
-  const closePicker = (): void => setPickerOpen(false)
 
   const start = (): void => {
-    if (!subject) return openPicker()
+    if (!subject) return setPickerOpen(true)
     navigate(`/quiz/${subject.id}`, {
       state: { customFlowConfig: buildPracticeFlow(subject, practiceLimit) },
     })
@@ -73,15 +71,18 @@ function Practice(): React.ReactElement {
             </span>
             隨手練
           </p>
-          <button className="practice-subject" onClick={openPicker}>
-            <span className="practice-subject-name">
-              {subject ? subject.name : '選擇題庫'}
-            </span>
-            <span className="practice-subject-switch">
-              {subject && '切換'}
-              <span className="material-symbols-rounded">expand_more</span>
-            </span>
-          </button>
+          <SubjectPicker
+            subjects={practiceSubjects()}
+            value={subject}
+            onChange={(option) =>
+              updateSettings({
+                practiceSubject: option.id,
+                practiceSubjectAt: Date.now(),
+              })
+            }
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+          />
           {subjectMastery && (
             <div className="subject-mastery">
               <MasteryBar percent={masteryPercent(subjectMastery)} />
@@ -130,40 +131,6 @@ function Practice(): React.ReactElement {
             chevron_right
           </span>
         </Link>
-
-        <Modal open={pickerOpen} onClose={closePicker} title="選擇題庫">
-          <div className="practice-picker-list">
-            {practiceSubjects().map((option) => {
-              const optionMastery = mastery.get(option.id)
-              const selected = option.id === subject?.id
-              return (
-                <button
-                  key={option.id}
-                  className={selected ? 'selected' : undefined}
-                  aria-pressed={selected}
-                  onClick={() => {
-                    updateSettings({
-                      practiceSubject: option.id,
-                      practiceSubjectAt: Date.now(),
-                    })
-                    closePicker()
-                  }}
-                >
-                  <span className="practice-picker-name">{option.name}</span>
-                  {optionMastery && (
-                    <span className="practice-picker-mastery">
-                      掌握度{' '}
-                      <MasteryPercent percent={masteryPercent(optionMastery)} />
-                    </span>
-                  )}
-                  {selected && (
-                    <span className="material-symbols-rounded">check</span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        </Modal>
       </div>
     </div>
   )

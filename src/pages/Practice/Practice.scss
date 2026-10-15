@@ -34,35 +34,10 @@
     }
   }
 
-  // 目前的題庫，點了切換（外觀像下拉選單）；手機全寬，平板與電腦最寬 320px
-  > .practice-subject {
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-
+  // 題庫選擇器（SubjectPicker）：手機全寬，平板與電腦最寬 320px
+  > .subject-picker {
     @media (min-width: 560px) {
       max-width: 320px;
-    }
-
-    padding: 10px 12px;
-    text-align: start;
-
-    > .practice-subject-name {
-      min-width: 0;
-      font-weight: 600;
-      color: var(--foreground-900);
-    }
-
-    > .practice-subject-switch {
-      display: flex;
-      flex-shrink: 0;
-      align-items: center;
-      font-size: 0.85rem;
-      color: var(--text-muted-color);
-
-      > .material-symbols-rounded {
-        font-size: 1.25rem;
-      }
     }
   }
 
@@ -123,46 +98,4 @@
 // 錯題複習入口接在隨手練下方（入口本身的樣式見 Quiz.scss）
 .practice-card + .review-entry {
   margin-top: 12px;
-}
-
-// 隨手練的題庫清單（彈窗本體見 Modal.scss）
-.practice-picker-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  // 上緣留出標題的漸變（Modal.scss 的 12px），按鈕往上抬的 3px 也在裡面，不會切到第一個按鈕
-  padding: 12px 20px 20px;
-  overflow-y: auto;
-
-  > button {
-    justify-content: flex-start;
-    gap: 8px;
-    width: 100%;
-    padding: 10px 12px;
-    text-align: start;
-
-    > .practice-picker-name {
-      flex: 1 1 auto;
-      min-width: 0;
-      font-weight: 500;
-      color: var(--foreground-800);
-    }
-
-    > .practice-picker-mastery {
-      flex-shrink: 0;
-      font-size: 0.75rem;
-      color: var(--foreground-600);
-    }
-
-    > .material-symbols-rounded {
-      font-size: 1.25rem;
-      color: var(--primary-color);
-    }
-
-    &.selected {
-      background-color: var(--primary-background-color);
-      border-color: var(--primary-color);
-      box-shadow: 0 3px 0 var(--primary-color);
-    }
-  }
 }
