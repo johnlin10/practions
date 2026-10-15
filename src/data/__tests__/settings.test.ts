@@ -30,13 +30,19 @@ describe('appSettingsSchema reviewLimit', () => {
     expect(settings.pvqc).toEqual(pvqc)
   })
 
-  it('不在選項內的題數退回 15 題', () => {
-    for (const reviewLimit of [7, '10', null, -5]) {
-      expect(appSettingsSchema.parse({ pvqc, reviewLimit }).reviewLimit).toBe(15)
+  it('不在 5～30、每次 5 題範圍內的題數退回 15 題', () => {
+    for (const reviewLimit of [7, '10', null, -5, 0, 35]) {
+      expect(appSettingsSchema.parse({ pvqc, reviewLimit }).reviewLimit).toBe(
+        15,
+      )
     }
   })
 
   it('保留選擇的題數', () => {
-    expect(appSettingsSchema.parse({ pvqc, reviewLimit: 20 }).reviewLimit).toBe(20)
+    for (const reviewLimit of [5, 20, 30]) {
+      expect(appSettingsSchema.parse({ pvqc, reviewLimit }).reviewLimit).toBe(
+        reviewLimit,
+      )
+    }
   })
 })

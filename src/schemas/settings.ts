@@ -26,7 +26,10 @@ export const appSettingsSchema = z.object({
   theme: z.enum(['system', 'light', 'dark']).catch(DEFAULT_SETTINGS.theme),
   reviewLimit: z
     .number()
-    .refine((n) => (REVIEW_LIMITS as readonly number[]).includes(n))
+    .int()
+    .min(REVIEW_LIMITS.min)
+    .max(REVIEW_LIMITS.max)
+    .multipleOf(REVIEW_LIMITS.step)
     .catch(DEFAULT_SETTINGS.reviewLimit),
   practiceLimit: z
     .number()

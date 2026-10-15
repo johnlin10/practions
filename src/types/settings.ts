@@ -62,8 +62,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   sound: true,
 }
 
-// 錯題複習每次題數的選項
-export const REVIEW_LIMITS = [5, 10, 15, 20] as const
+// 錯題複習每次題數可調整的範圍（含）與每次增減的量
+export const REVIEW_LIMITS = { min: 5, max: 30, step: 5 }
 
 // 隨手練每次題數可調整的範圍（含）與每次增減的量
 export const PRACTICE_LIMITS = { min: 20, max: 50, step: 5 }
