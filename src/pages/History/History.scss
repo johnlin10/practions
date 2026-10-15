@@ -40,9 +40,9 @@ h1.history-title {
     border: 2px solid var(--divider-color);
     transition: all 0.3s ease;
 
-    // 只換顏色，列表內沒有外框的項目才不會在 hover 時多出邊框
+    // 同設定頁、題庫頁的列表項目：hover 時換底色，邊框不變
     &:hover {
-      border-color: var(--border-strong-color);
+      background-color: var(--fill-color);
     }
 
     @media (min-width: 800px) {

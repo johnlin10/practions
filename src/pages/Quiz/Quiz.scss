@@ -563,10 +563,16 @@ h1.quiz-to-history {
   background: var(--background-color);
   border: 2px solid var(--divider-color);
   border-radius: 12px;
-  transition: border-color 0.3s ease;
+  transition: background-color 0.3s ease;
 
+  // 同設定頁、題庫頁的列表項目：hover 時換底色，邊框不變；
+  // 掌握度進度條的軌道跟 hover 底色同色，改用較深的填色才看得到
   &:hover {
-    border-color: var(--border-strong-color);
+    background-color: var(--fill-color);
+
+    .mastery-bar {
+      background: var(--fill-strong-color);
+    }
   }
 }
 
