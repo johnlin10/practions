@@ -1,7 +1,6 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import { Link, useOutlet } from 'react-router-dom'
 import './History.scss'
-import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 
 // data
 import { useQuizHistory } from '@/hooks/useQuizHistory'
@@ -9,12 +8,20 @@ import { useHistoryReady } from '@/data/historyStore'
 import { reviewSummary } from '@/data/wrongQuestions'
 import { useAuth } from '@/data/authStore'
 import { showConfirm } from '@/utils/dialog'
+import { isPracticeRecord } from './meta'
 
 /**
  * [page] History page
- * 歷史記錄列表頁面
+ * 歷史記錄列表頁面：測驗頁列出測驗的紀錄，練習頁列出練習（錯題複習）的紀錄
  */
-function History(): React.ReactElement {
+function History({
+  scope,
+}: {
+  scope: 'quiz' | 'practice'
+}): React.ReactElement {
+  const practice = scope === 'practice'
+  // 列表與單筆紀錄的網址
+  const base = practice ? '/practice/history' : '/history'
   // 歷史記錄（由資料層提供）；複製後依時間新到舊排序，以免 mutate 唯讀快照
   const { history: rawHistory, deleteRecord } = useQuizHistory()
   const signedIn = useAuth().status === 'signed-in'
@@ -22,14 +29,8 @@ function History(): React.ReactElement {
   const ready = useHistoryReady()
   // 開啟單筆紀錄時只顯示詳情頁（整頁捲動，不疊在列表上）
   const outlet = useOutlet()
-  // 篩選：一般測驗 / 錯題複習
-  const [filter, setFilter] = useState<'quiz' | 'review'>('quiz')
   const history = rawHistory
-    .filter((record) =>
-      filter === 'review'
-        ? record.flowMode === 'review'
-        : record.flowMode !== 'review',
-    )
+    .filter((record) => isPracticeRecord(record.flowMode) === practice)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   // 依日期分組，同一天的紀錄放在同一個列表
@@ -99,23 +100,14 @@ function History(): React.ReactElement {
         <div className="page-container">
           <h1 className="history-title">
             <span>
-              <Link className="pre-path no-style" to="/quiz">
-                測驗 /
+              <Link
+                className="pre-path no-style"
+                to={practice ? '/practice' : '/quiz'}
+              >
+                {practice ? '練習 /' : '測驗 /'}
               </Link>{' '}
               紀錄
             </span>
-            {/* 篩選：跟著標題固定在頂部 */}
-            {rawHistory.length > 0 && (
-              <SegmentedControl
-                label="篩選紀錄"
-                value={filter}
-                onChange={setFilter}
-                options={[
-                  { value: 'quiz', label: '測驗' },
-                  { value: 'review', label: '複習' },
-                ]}
-              />
-            )}
           </h1>
           <div className="history-list">
             {days.length > 0 ? (
@@ -155,7 +147,7 @@ function History(): React.ReactElement {
                       >
                         <Link
                           className="history-item no-style"
-                          to={`/history/${record.id}`}
+                          to={`${base}/${record.id}`}
                           viewTransition
                         >
                           <div className="history-info">
@@ -236,8 +228,8 @@ function History(): React.ReactElement {
                 <p>
                   {!ready
                     ? '正在載入測驗紀錄…'
-                    : filter === 'review'
-                      ? '尚無錯題複習紀錄'
+                    : practice
+                      ? '尚無練習紀錄'
                       : '尚無測驗紀錄'}
                 </p>
               </div>

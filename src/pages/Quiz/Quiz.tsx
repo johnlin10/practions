@@ -35,13 +35,13 @@ import {
 
 // data
 import { subjects } from '../../data/subjects'
-import { dueToday, useWrongQuestions } from '../../data/wrongQuestions'
 import { masteryPercent, useMastery } from '../../data/mastery'
 import {
   subjectGroups,
   SubjectGroup,
   groupSubjects,
 } from '../../data/subject-groups'
+import { historyPath } from '../History/meta'
 
 // utils
 import { speakEnglish } from '../../utils/tts'
@@ -166,10 +166,6 @@ function Quiz(): React.ReactElement {
   const subject = subjectId ? subjects[subjectId] || null : null
   // 預覽所有題目的狀態
   const [previewAllQuestions, setPreviewAllQuestions] = useState<boolean>(false)
-  // 錯題（測驗列表的錯題複習卡片）
-  const wrongGroups = useWrongQuestions()
-  // 今天可以複習的錯題（今天已經答對過的隔天再確認，含到期的回顧題）
-  const dueGroups = dueToday(wrongGroups)
   // 各題庫的掌握度（沒做過的題庫沒有）
   const mastery = useMastery()
   // 是否顯示「正在準備」畫面
@@ -520,9 +516,9 @@ function Quiz(): React.ReactElement {
         if (exitTo) {
           navigate(exitTo)
         } else if (recordId) {
-          navigate(`/history/${recordId}`)
+          navigate(`${historyPath(quizState.flowConfig.flowMode)}/${recordId}`)
         } else {
-          navigate('/history')
+          navigate(historyPath(quizState.flowConfig.flowMode))
         }
       } else {
         // 時間未到，但未回答所有問題
@@ -537,9 +533,9 @@ function Quiz(): React.ReactElement {
       if (exitTo) {
         navigate(exitTo)
       } else if (recordId) {
-        navigate(`/history/${recordId}`)
+        navigate(`${historyPath(quizState.flowConfig.flowMode)}/${recordId}`)
       } else {
-        navigate('/history')
+        navigate(historyPath(quizState.flowConfig.flowMode))
       }
     }
   }
@@ -1126,31 +1122,6 @@ function Quiz(): React.ReactElement {
                 <span className="material-symbols-rounded">chevron_right</span>
               </Link>
             </h1>
-
-            {/* 錯題複習入口 */}
-            <Link className="review-entry no-style" to="/review">
-              <span className="review-entry-icon material-symbols-rounded fill">
-                replay
-              </span>
-              <span className="review-entry-title">錯題複習</span>
-              <span className="review-entry-count">
-                {dueGroups.length > 0 ? (
-                  <>
-                    <strong>
-                      {dueGroups.reduce((sum, g) => sum + g.items.length, 0)}
-                    </strong>{' '}
-                    題待複習
-                  </>
-                ) : wrongGroups.length > 0 ? (
-                  '今天的複習完成了'
-                ) : (
-                  '目前沒有錯題'
-                )}
-              </span>
-              <span className="review-entry-arrow material-symbols-rounded">
-                chevron_right
-              </span>
-            </Link>
 
             {/* PVQC 測驗入口：要先經過設定頁，所以整列是連結，以向右箭頭表示進到下一層 */}
             <Link className="pvqc-entry no-style" to="/pvqc">

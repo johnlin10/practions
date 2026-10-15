@@ -39,8 +39,8 @@ function Review(): React.ReactElement {
     <div className="page">
       <div className="page-container">
         <h1>
-          <Link className="pre-path no-style" to="/quiz">
-            測驗 /
+          <Link className="pre-path no-style" to="/practice">
+            練習 /
           </Link>{' '}
           <span className="review-title">錯題複習</span>
         </h1>

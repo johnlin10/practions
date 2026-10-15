@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import './SingleHistory.scss'
 
 // components
@@ -69,6 +69,10 @@ function SingleHistory(): React.ReactElement {
   const { id } = useParams<HistoryParams>()
   // 導航
   const navigate = useNavigate()
+  // 回到所在的紀錄列表（測驗頁或練習頁）
+  const base = useLocation().pathname.startsWith('/practice/')
+    ? '/practice/history'
+    : '/history'
   // 歷史記錄
   const [record, setRecord] = useState<HistoryRecord | null>(null)
   // 是否只顯示錯誤題目
@@ -89,7 +93,7 @@ function SingleHistory(): React.ReactElement {
     if (!selectedRecord) {
       // 顯示錯誤訊息
       console.warn('找不到指定的歷史記錄:', id)
-      navigate('/history')
+      navigate(base)
       void showAlert('找不到此歷史記錄')
       return
     }
@@ -97,7 +101,7 @@ function SingleHistory(): React.ReactElement {
     // 確保 subject 資料存在
     if (!selectedRecord.subject || !selectedRecord.subject.id) {
       console.warn('歷史記錄中的 subject 資料不完整:', selectedRecord)
-      navigate('/history')
+      navigate(base)
       void showAlert('此歷史記錄資料不完整，無法查看')
       return
     }
@@ -112,7 +116,7 @@ function SingleHistory(): React.ReactElement {
       const subject = findSubject(selectedRecord.subject.id)
       // 如果科目存在且被鎖定，則顯示錯誤訊息
       if (subject && isSubjectLocked(subject)) {
-        navigate('/history')
+        navigate(base)
         void showAlert('此科目目前處於鎖定狀態，無法查看歷史紀錄')
         return
       }
@@ -125,7 +129,7 @@ function SingleHistory(): React.ReactElement {
     setRecord(selectedRecord)
     // 清除每 5 秒檢查一次科目是否鎖定
     return () => clearInterval(intervalId)
-  }, [id, navigate, ready])
+  }, [id, navigate, ready, base])
 
   /**
    * [function] handleClose
@@ -134,7 +138,7 @@ function SingleHistory(): React.ReactElement {
    */
   const handleClose = (): void => {
     // 滑出動畫由頁面轉場負責（App.scss）
-    navigate('/history', { viewTransition: true })
+    navigate(base, { viewTransition: true })
   }
 
   /**
