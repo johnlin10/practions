@@ -22,6 +22,12 @@ export interface AppSettings {
   theme: ThemeSetting
   // 錯題複習每次最多幾題
   reviewLimit: number
+  // 隨手練每次幾題
+  practiceLimit: number
+  // 隨手練手動選的題庫 ID；空字串表示還沒選過
+  practiceSubject: string
+  // 手動選題庫的時間（毫秒）：之後有作答就改用最後作答的題庫
+  practiceSubjectAt: number
   // 互動音效：錯題複習答對／答錯、完美作答時播放
   sound: boolean
   // 未來可以擴展更多設定分類
@@ -50,11 +56,17 @@ export const DEFAULT_SETTINGS: AppSettings = {
   },
   theme: 'system',
   reviewLimit: 15,
+  practiceLimit: 20,
+  practiceSubject: '',
+  practiceSubjectAt: 0,
   sound: true,
 }
 
-// 錯題複習每次題數的選項
-export const REVIEW_LIMITS = [5, 10, 15, 20] as const
+// 錯題複習每次題數可調整的範圍（含）與每次增減的量
+export const REVIEW_LIMITS = { min: 5, max: 30, step: 5 }
+
+// 隨手練每次題數可調整的範圍（含）與每次增減的量
+export const PRACTICE_LIMITS = { min: 20, max: 50, step: 5 }
 
 // PVQC 自訂測驗可調整的範圍（含）與每次增減的量（PVQC 測驗設定頁）
 export const PVQC_LIMITS = {

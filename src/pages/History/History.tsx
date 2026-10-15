@@ -9,12 +9,21 @@ import { useHistoryReady } from '@/data/historyStore'
 import { reviewSummary } from '@/data/wrongQuestions'
 import { useAuth } from '@/data/authStore'
 import { showConfirm } from '@/utils/dialog'
+import { isPracticeRecord } from './meta'
+import type { HistoryRecord } from '@/types'
 
 /**
  * [page] History page
- * 歷史記錄列表頁面
+ * 歷史記錄列表頁面：測驗頁列出測驗的紀錄，練習頁列出練習（錯題複習）的紀錄
  */
-function History(): React.ReactElement {
+function History({
+  scope,
+}: {
+  scope: 'quiz' | 'practice'
+}): React.ReactElement {
+  const practice = scope === 'practice'
+  // 列表與單筆紀錄的網址
+  const base = practice ? '/practice/history' : '/history'
   // 歷史記錄（由資料層提供）；複製後依時間新到舊排序，以免 mutate 唯讀快照
   const { history: rawHistory, deleteRecord } = useQuizHistory()
   const signedIn = useAuth().status === 'signed-in'
@@ -22,13 +31,24 @@ function History(): React.ReactElement {
   const ready = useHistoryReady()
   // 開啟單筆紀錄時只顯示詳情頁（整頁捲動，不疊在列表上）
   const outlet = useOutlet()
-  // 篩選：一般測驗 / 錯題複習
-  const [filter, setFilter] = useState<'quiz' | 'review'>('quiz')
+  // 練習頁的篩選：錯題複習 / 隨手練，一開始顯示最近一筆練習的那一種
+  const [filter, setFilter] = useState<'review' | 'practice'>(() =>
+    rawHistory.reduce<HistoryRecord | undefined>(
+      (latest, record) =>
+        isPracticeRecord(record.flowMode) &&
+        (!latest || new Date(record.date) > new Date(latest.date))
+          ? record
+          : latest,
+      undefined,
+    )?.flowMode === 'practice'
+      ? 'practice'
+      : 'review',
+  )
   const history = rawHistory
     .filter((record) =>
-      filter === 'review'
-        ? record.flowMode === 'review'
-        : record.flowMode !== 'review',
+      practice
+        ? record.flowMode === filter
+        : !isPracticeRecord(record.flowMode),
     )
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
@@ -99,20 +119,23 @@ function History(): React.ReactElement {
         <div className="page-container">
           <h1 className="history-title">
             <span>
-              <Link className="pre-path no-style" to="/quiz">
-                測驗 /
+              <Link
+                className="pre-path no-style"
+                to={practice ? '/practice' : '/quiz'}
+              >
+                {practice ? '練習 /' : '測驗 /'}
               </Link>{' '}
               紀錄
             </span>
             {/* 篩選：跟著標題固定在頂部 */}
-            {rawHistory.length > 0 && (
+            {practice && (
               <SegmentedControl
                 label="篩選紀錄"
                 value={filter}
                 onChange={setFilter}
                 options={[
-                  { value: 'quiz', label: '測驗' },
-                  { value: 'review', label: '複習' },
+                  { value: 'review', label: '錯題複習' },
+                  { value: 'practice', label: '隨手練' },
                 ]}
               />
             )}
@@ -134,12 +157,14 @@ function History(): React.ReactElement {
                     const modeLabel =
                       flowMode === 'review'
                         ? '錯題複習'
-                        : flowMode === 'pvqc_official'
-                          ? 'PVQC 官方'
-                          : flowMode === 'pvqc_custom'
-                            ? 'PVQC 自訂'
-                            : '標準'
-                    // 錯題複習：顯示答對的題數（含再練答對），不顯示正確率
+                        : flowMode === 'practice'
+                          ? '隨手練'
+                          : flowMode === 'pvqc_official'
+                            ? 'PVQC 官方'
+                            : flowMode === 'pvqc_custom'
+                              ? 'PVQC 自訂'
+                              : '標準'
+                    // 錯題複習、隨手練：顯示答對的題數（含再練答對），不顯示正確率
                     const review = reviewSummary(record)
                     // 官方模擬：顯示通過與否
                     const officialPassed =
@@ -155,7 +180,7 @@ function History(): React.ReactElement {
                       >
                         <Link
                           className="history-item no-style"
-                          to={`/history/${record.id}`}
+                          to={`${base}/${record.id}`}
                           viewTransition
                         >
                           <div className="history-info">
@@ -236,9 +261,11 @@ function History(): React.ReactElement {
                 <p>
                   {!ready
                     ? '正在載入測驗紀錄…'
-                    : filter === 'review'
-                      ? '尚無錯題複習紀錄'
-                      : '尚無測驗紀錄'}
+                    : !practice
+                      ? '尚無測驗紀錄'
+                      : filter === 'review'
+                        ? '尚無錯題複習紀錄'
+                        : '尚無隨手練紀錄'}
                 </p>
               </div>
             )}

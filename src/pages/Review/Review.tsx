@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import './Review.scss'
 
 // components
-import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
+import Stepper from '@/components/Stepper/Stepper'
 
 // data
 import {
@@ -15,11 +15,6 @@ import {
 import { useHistoryReady } from '@/data/historyStore'
 import { updateSettings, useSettingsStore } from '@/data/settingsStore'
 import { REVIEW_LIMITS } from '@/types/settings'
-
-const limitOptions = REVIEW_LIMITS.map((n) => ({
-  value: String(n),
-  label: String(n),
-}))
 
 /**
  * [page] Review page
@@ -39,8 +34,8 @@ function Review(): React.ReactElement {
     <div className="page">
       <div className="page-container">
         <h1>
-          <Link className="pre-path no-style" to="/quiz">
-            測驗 /
+          <Link className="pre-path no-style" to="/practice">
+            練習 /
           </Link>{' '}
           <span className="review-title">錯題複習</span>
         </h1>
@@ -49,13 +44,12 @@ function Review(): React.ReactElement {
           <>
             <div className="review-limit">
               <span>每次複習題數</span>
-              <SegmentedControl
+              <Stepper
                 label="每次複習題數"
-                value={String(limit)}
-                onChange={(value) =>
-                  updateSettings({ reviewLimit: Number(value) })
-                }
-                options={limitOptions}
+                value={limit}
+                onChange={(v) => updateSettings({ reviewLimit: v })}
+                {...REVIEW_LIMITS}
+                unit="題"
               />
             </div>
             <div className="review-list">
@@ -105,8 +99,8 @@ function Review(): React.ReactElement {
             <p>
               {wrongGroups.length > 0 ? '今天的複習完成了' : '目前沒有錯題'}
             </p>
-            <Link className="review-empty-btn no-style" to="/quiz">
-              去做測驗
+            <Link className="review-empty-btn no-style" to="/practice">
+              去隨手練
             </Link>
           </div>
         )}

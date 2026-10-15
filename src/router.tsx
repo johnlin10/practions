@@ -12,6 +12,7 @@ import SingleHistory from './pages/History/ui/SingleHistory'
 import Settings from './pages/Settings/Settings'
 import PVQCSetup from './pages/PVQC/PVQCSetup'
 import Review from './pages/Review/Review'
+import Practice from './pages/Practice/Practice'
 import Guide from './pages/Guide/Guide'
 import Install from './pages/Install/Install'
 import Learning from './pages/Learning/Learning'
@@ -49,10 +50,16 @@ export const router = createBrowserRouter(
         { path: '/quiz/:subjectId', element: <Quiz /> },
         ...legacyRedirects('/quiz'),
         { path: '/pvqc', element: <PVQCSetup /> },
+        { path: '/practice', element: <Practice /> },
         { path: '/review', element: <Review /> },
         {
           path: '/history',
-          element: <History />,
+          element: <History scope="quiz" />,
+          children: [{ path: ':id', element: <SingleHistory /> }],
+        },
+        {
+          path: '/practice/history',
+          element: <History scope="practice" />,
           children: [{ path: ':id', element: <SingleHistory /> }],
         },
         {

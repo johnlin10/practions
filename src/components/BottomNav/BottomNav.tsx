@@ -35,9 +35,15 @@ function BottomNav(): React.ReactElement {
         icon: 'assignment_turned_in',
         active:
           pathname.includes('/quiz') ||
-          pathname.includes('/history') ||
-          pathname.startsWith('/pvqc') ||
-          pathname.startsWith('/review'),
+          pathname.startsWith('/history') ||
+          pathname.startsWith('/pvqc'),
+      },
+      {
+        path: '/practice',
+        label: '練習',
+        icon: 'exercise',
+        active:
+          pathname.startsWith('/practice') || pathname.startsWith('/review'),
       },
       {
         path: '/bank',
@@ -59,7 +65,13 @@ function BottomNav(): React.ReactElement {
   useEffect(() => {
     // 隱藏導航欄的路徑列表
     // 單篇使用指南（/guide/）：專心閱讀，回上一層用標題上方的「使用指南 /」
-    const hideNavigatePaths = ['/quiz/', '/history/', '/bank/', '/guide/']
+    const hideNavigatePaths = [
+      '/quiz/',
+      '/history/',
+      '/practice/history/',
+      '/bank/',
+      '/guide/',
+    ]
     // 如果當前路徑在隱藏路徑列表中，則隱藏導航欄
     if (hideNavigatePaths.some((path) => pathname.startsWith(path))) {
       setShowNavigate(false)

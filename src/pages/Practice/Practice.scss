@@ -1,0 +1,219 @@
+// 隨手練：一張卡片，題庫、掌握度、題數與開始按鈕
+.practice-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 14px;
+  background: var(--background-color);
+  border: 2px solid var(--divider-color);
+  border-radius: 12px;
+
+  p {
+    margin: 0;
+  }
+
+  // 標題：藍色圖示方塊（同錯題複習入口的橘色方塊）
+  > .practice-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: var(--foreground-800);
+
+    > .practice-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      font-size: 20px;
+      color: var(--text-white);
+      background: var(--primary-color);
+      border-radius: 5px;
+    }
+  }
+
+  // 目前的題庫，點了切換（外觀像下拉選單）；手機全寬，平板與電腦最寬 320px
+  > .practice-subject {
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+
+    @media (min-width: 560px) {
+      max-width: 320px;
+    }
+
+    padding: 10px 12px;
+    text-align: start;
+
+    > .practice-subject-name {
+      min-width: 0;
+      font-weight: 600;
+      color: var(--foreground-900);
+    }
+
+    > .practice-subject-switch {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted-color);
+
+      > .material-symbols-rounded {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  // 掌握度：樣式同測驗頁科目卡片
+  > .subject-mastery {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 2px;
+
+    > .mastery-bar {
+      flex: 1 1 auto;
+      height: 5px;
+    }
+
+    > p {
+      font-size: 0.75rem;
+      white-space: nowrap;
+      color: var(--foreground-600);
+    }
+  }
+
+  > .practice-limit {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2px;
+
+    > p {
+      font-size: 0.95rem;
+      color: var(--foreground-700);
+    }
+  }
+
+  // 實心藍色按鈕，撐滿卡片寬度
+  > .practice-start-btn {
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    font-weight: 600;
+    color: var(--text-white);
+    background-color: var(--primary-color);
+    border-color: var(--primary-dark-color);
+    box-shadow: 0 3px 0 var(--primary-dark-color);
+
+    &:not(:disabled):hover {
+      background-color: var(--primary-dark-color);
+      border-color: var(--primary-darker-color);
+      box-shadow: 0 3px 0 var(--primary-darker-color);
+    }
+
+    &:not(:disabled):active {
+      box-shadow: 0 0 0 var(--primary-darker-color);
+    }
+  }
+}
+
+// 錯題複習入口接在隨手練下方（入口本身的樣式見 Quiz.scss）
+.practice-card + .review-entry {
+  margin-top: 12px;
+}
+
+// 彈窗開著時背景頁面不捲動
+html:has(.practice-picker[open]) {
+  overflow: hidden;
+}
+
+// 切換題庫的清單：外觀與動畫同全站彈窗（Dialog.scss）
+.practice-picker {
+  width: calc(100vw - 48px);
+  max-width: 360px;
+  max-height: 70vh;
+  margin: auto;
+  padding: 0;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  border: 3px solid var(--border-color);
+  box-shadow: 0 3px 0 var(--border-color);
+  border-radius: 12px;
+  animation: dialog-in 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 40%);
+    animation: dialog-fade-in 0.25s ease;
+  }
+
+  &.closing {
+    animation: dialog-out 0.15s ease forwards;
+
+    &::backdrop {
+      animation: dialog-fade-out 0.15s ease forwards;
+    }
+  }
+
+  // 標題下方少 3px，留給清單上緣
+  > h3 {
+    padding: 20px 20px 9px;
+    font-size: 1.05rem;
+    color: var(--foreground-900);
+  }
+
+  // 按鈕預設往上抬 3px（index.scss），清單上緣留 3px，捲動區才不會切到第一個按鈕
+  > .practice-picker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 3px 20px 20px;
+    overflow-y: auto;
+
+    > button {
+      justify-content: flex-start;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 12px;
+      text-align: start;
+
+      > .practice-picker-name {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-weight: 500;
+        color: var(--foreground-800);
+      }
+
+      > .practice-picker-mastery {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        color: var(--foreground-600);
+      }
+
+      > .material-symbols-rounded {
+        font-size: 1.25rem;
+        color: var(--primary-color);
+      }
+
+      &.selected {
+        background-color: var(--primary-background-color);
+        border-color: var(--primary-color);
+        box-shadow: 0 3px 0 var(--primary-color);
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .practice-picker,
+  .practice-picker::backdrop {
+    animation-duration: 1ms !important;
+  }
+}
