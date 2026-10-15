@@ -2,8 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { Link, useOutlet } from 'react-router-dom'
 import './Bank.scss'
 
+// components
+import MasteryBar, {
+  MasteryPercent,
+} from '../../components/MasteryBar/MasteryBar'
+
 // data
 import { subjects } from '../../data/subjects'
+import { masteryPercent, useMastery } from '../../data/mastery'
 import {
   subjectGroups,
   SubjectGroup,
@@ -28,6 +34,8 @@ function Bank(): React.ReactElement {
   const outlet = useOutlet()
   // 當前時間
   const [currentTime, setCurrentTime] = useState<Date>(new Date())
+  // 各題庫的掌握度（沒做過的題庫沒有）
+  const mastery = useMastery()
 
   // 更新當前時間
   useEffect(() => {
@@ -57,14 +65,33 @@ function Bank(): React.ReactElement {
                   const cardClassName = `subject-card no-style${
                     locked ? ' locked' : ''
                   }`
+                  const subjectMastery = mastery.get(subject.id)
                   const cardContent = (
                     <>
-                      <p className="subject-name">
-                        {locked && (
-                          <span className="material-symbols-rounded">lock</span>
+                      {/* 題庫名稱與下方的掌握度（沒做過的題庫只有名稱） */}
+                      <div className="subject-title">
+                        <p className="subject-name">
+                          {locked && (
+                            <span className="material-symbols-rounded">
+                              lock
+                            </span>
+                          )}
+                          {subject.name}
+                        </p>
+                        {subjectMastery && (
+                          <div className="subject-mastery">
+                            <MasteryBar
+                              percent={masteryPercent(subjectMastery)}
+                            />
+                            <p>
+                              掌握度{' '}
+                              <MasteryPercent
+                                percent={masteryPercent(subjectMastery)}
+                              />
+                            </p>
+                          </div>
                         )}
-                        {subject.name}
-                      </p>
+                      </div>
 
                       <p>
                         {subject.lockTime && lockStatus.status !== 'none' && (

@@ -1,0 +1,101 @@
+@use '../../styles/fade';
+
+// 彈窗開著時背景頁面不捲動
+html:has(.modal[open]) {
+  overflow: hidden;
+}
+
+// 外觀與動畫同全站彈窗（Dialog.scss）；內容超過高度時由內容自己捲動
+.modal {
+  width: calc(100vw - 48px);
+  max-width: 360px;
+  max-height: 70vh;
+  margin: auto;
+  padding: 0;
+  // 打開時焦點在彈窗本身（Modal.tsx），不畫焦點框
+  &:focus {
+    outline: none;
+  }
+
+  // 標題與底部按鈕有自己的底色，跟著圓角裁切才不會蓋到邊框；捲動由內容自己負責
+  overflow: hidden;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  border: 3px solid var(--border-color);
+  box-shadow: 0 3px 0 var(--border-color);
+  border-radius: 12px;
+  animation: dialog-in 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 40%);
+    animation: dialog-fade-in 0.25s ease;
+  }
+
+  &.closing {
+    animation: dialog-out 0.15s ease forwards;
+
+    &::backdrop {
+      animation: dialog-fade-out 0.15s ease forwards;
+    }
+  }
+
+  // 標題與底部按鈕疊在捲動的內容上，內容捲到下面時逐漸消失（同一般頁面的標題）；
+  // 內容上下要各留 $fade 的空間，沒捲動時才不會一開始就被淡化
+  $fade: 12px;
+
+  > h3 {
+    z-index: 1;
+    position: relative;
+    padding: 20px 20px 0;
+    font-size: 1.05rem;
+    color: var(--foreground-900);
+    background-color: var(--background-color);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      height: $fade;
+      background: fade.fade-gradient(var(--background-color));
+      pointer-events: none;
+    }
+  }
+
+  > .modal-actions {
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 4px 20px 20px;
+    background-color: var(--background-color);
+
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      height: $fade;
+      background: fade.fade-gradient(var(--background-color), to top);
+      pointer-events: none;
+    }
+
+    > button {
+      font-weight: 600;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .modal::backdrop {
+    animation-duration: 1ms !important;
+  }
+}

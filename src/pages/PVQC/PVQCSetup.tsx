@@ -11,6 +11,7 @@ import { DEFAULT_SETTINGS, PVQC_LIMITS } from '../../types/settings'
 import Stepper from '../../components/Stepper/Stepper'
 import SegmentedControl from '../../components/SegmentedControl/SegmentedControl'
 import MasteryBar, {
+  MasteryModes,
   MasteryPercent,
 } from '../../components/MasteryBar/MasteryBar'
 
@@ -183,27 +184,7 @@ function PVQCSetup(): React.ReactElement {
                 </span>
                 <MasteryBar percent={masteryPercent(mastery)} />
               </summary>
-              <div className="pvqc-mastery-modes">
-                {mastery.modes.map((m) => {
-                  const info = PVQC_MODES.find(({ id }) => id === m.mode)
-                  return (
-                    <div key={m.mode}>
-                      <p>
-                        {info?.name}
-                        <span>{info?.desc}</span>
-                      </p>
-                      <MasteryBar percent={masteryPercent(m)} />
-                      <strong className={m.practiced ? '' : 'not-practiced'}>
-                        {m.practiced ? (
-                          <MasteryPercent percent={masteryPercent(m)} />
-                        ) : (
-                          '還沒練習'
-                        )}
-                      </strong>
-                    </div>
-                  )
-                })}
-              </div>
+              <MasteryModes modes={mastery.modes} />
             </details>
           )}
         </div>

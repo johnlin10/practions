@@ -22,3 +22,67 @@
 .mastery-complete {
   color: var(--correct-text-color);
 }
+
+// 圓形的掌握度：底圈同進度條的軌道，從 12 點鐘方向順時針畫
+.mastery-ring {
+  width: 20px;
+  height: 20px;
+  transform: rotate(-90deg);
+
+  > circle {
+    fill: none;
+    stroke: var(--fill-strong-color);
+    stroke-width: 3;
+  }
+
+  > circle + circle {
+    stroke: var(--primary-color);
+    stroke-linecap: round;
+  }
+
+  &.complete > circle + circle {
+    stroke: var(--success-color);
+  }
+}
+
+// 各作答方式的掌握度：左側名稱與說明、中間進度條、右側百分比
+.mastery-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    > p {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      width: 118px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--foreground-800);
+
+      > span {
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: var(--text-muted-color);
+      }
+    }
+
+    > strong {
+      flex-shrink: 0;
+      width: 56px;
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--foreground-800);
+
+      &.not-practiced {
+        font-weight: 400;
+        color: var(--text-faint-color);
+      }
+    }
+  }
+}

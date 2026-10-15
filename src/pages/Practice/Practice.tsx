@@ -1,9 +1,10 @@
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Practice.scss'
 
 // components
 import Stepper from '@/components/Stepper/Stepper'
+import Modal from '@/components/Modal/Modal'
 import MasteryBar, { MasteryPercent } from '@/components/MasteryBar/MasteryBar'
 
 // data
@@ -40,18 +41,10 @@ function Practice(): React.ReactElement {
   )
   const subjectMastery = subject && mastery.get(subject.id)
 
-  // 切換題庫的清單（原生 <dialog>：焦點、Esc、背景無法操作由瀏覽器處理）
-  const pickerRef = useRef<HTMLDialogElement>(null)
-  const [closing, setClosing] = useState(false)
-  const openPicker = (): void => pickerRef.current?.showModal()
-  const closePicker = (): void => setClosing(true)
-  const handlePickerAnimationEnd = (e: React.AnimationEvent): void => {
-    // 背景（::backdrop）的動畫也會在 <dialog> 上觸發，只看清單本體的
-    if (e.target !== e.currentTarget || e.nativeEvent.pseudoElement) return
-    if (!closing) return
-    pickerRef.current?.close()
-    setClosing(false)
-  }
+  // 切換題庫的清單
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const openPicker = (): void => setPickerOpen(true)
+  const closePicker = (): void => setPickerOpen(false)
 
   const start = (): void => {
     if (!subject) return openPicker()
@@ -138,21 +131,7 @@ function Practice(): React.ReactElement {
           </span>
         </Link>
 
-        <dialog
-          ref={pickerRef}
-          className={`practice-picker${closing ? ' closing' : ''}`}
-          aria-labelledby="practice-picker-title"
-          onCancel={(e) => {
-            e.preventDefault()
-            closePicker()
-          }}
-          // 點背景（清單本體之外）關閉
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closePicker()
-          }}
-          onAnimationEnd={handlePickerAnimationEnd}
-        >
-          <h3 id="practice-picker-title">選擇題庫</h3>
+        <Modal open={pickerOpen} onClose={closePicker} title="選擇題庫">
           <div className="practice-picker-list">
             {practiceSubjects().map((option) => {
               const optionMastery = mastery.get(option.id)
@@ -184,7 +163,7 @@ function Practice(): React.ReactElement {
               )
             })}
           </div>
-        </dialog>
+        </Modal>
       </div>
     </div>
   )

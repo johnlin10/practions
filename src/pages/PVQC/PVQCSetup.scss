@@ -146,48 +146,10 @@ $radius: 12px;
       transform: rotate(180deg);
     }
 
-    > .pvqc-mastery-modes {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    > .mastery-modes {
       padding: 12px;
       border-top: 2px solid var(--divider-color);
       border-radius: 0; // 覆蓋全域 div 圓角，避免分隔線兩端彎曲
-
-      > div {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-
-        > p {
-          display: flex;
-          flex-direction: column;
-          flex-shrink: 0;
-          width: 118px;
-          font-size: 0.85rem;
-          font-weight: 500;
-          color: var(--foreground-800);
-
-          > span {
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: var(--text-muted-color);
-          }
-        }
-
-        > strong {
-          flex-shrink: 0;
-          width: 56px;
-          text-align: right;
-          font-size: 0.8rem;
-          color: var(--foreground-800);
-
-          &.not-practiced {
-            font-weight: 400;
-            color: var(--text-faint-color);
-          }
-        }
-      }
     }
   }
 

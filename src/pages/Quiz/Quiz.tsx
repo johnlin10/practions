@@ -11,9 +11,6 @@ import PVQCPronunciationQuestion from './components/PVQCPronunciationQuestion'
 import PVQCReadListenQuestion from './components/PVQCReadListenQuestion'
 import StandardQuestion from './components/StandardQuestion'
 import { OptionImage } from '../../components/QuestionImage/QuestionImage'
-import MasteryBar, {
-  MasteryPercent,
-} from '../../components/MasteryBar/MasteryBar'
 
 // context
 import { useQuiz } from '../../context/QuizContext'
@@ -35,7 +32,6 @@ import {
 
 // data
 import { subjects } from '../../data/subjects'
-import { masteryPercent, useMastery } from '../../data/mastery'
 import {
   subjectGroups,
   SubjectGroup,
@@ -142,11 +138,6 @@ const confetti: React.CSSProperties[] = Array.from({ length: 36 }, () => ({
   animationDuration: `${1.6 + Math.random() * 1.2}s`,
 }))
 
-// 可用於 PVQC 的題庫：所有單字題庫（測驗頁的 PVQC 入口顯示它們的掌握度）
-const PVQC_SUBJECTS = Object.values(subjects).filter(
-  (s) => s.baseQuestionType === 'vocabulary',
-)
-
 const quizSections = groupSubjects(
   Object.values(subjects).filter((subject) => subject.quizOpen),
 )
@@ -166,8 +157,6 @@ function Quiz(): React.ReactElement {
   const subject = subjectId ? subjects[subjectId] || null : null
   // 預覽所有題目的狀態
   const [previewAllQuestions, setPreviewAllQuestions] = useState<boolean>(false)
-  // 各題庫的掌握度（沒做過的題庫沒有）
-  const mastery = useMastery()
   // 是否顯示「正在準備」畫面
   const [preparing, setPreparing] = useState<boolean>(true)
   // 這次準備畫面停留的時間（每次隨機）
@@ -1136,29 +1125,10 @@ function Quiz(): React.ReactElement {
 
             {/* PVQC 測驗入口：要先經過設定頁，所以整列是連結，以向右箭頭表示進到下一層 */}
             <Link className="pvqc-entry no-style" to="/pvqc">
-              <div className="pvqc-entry-main">
-                <span className="pvqc-entry-title">
-                  <span className="material-symbols-rounded">psychology</span>
-                  PVQC 測驗
-                </span>
-                {/* 各 PVQC 題庫的掌握度（做過的才顯示），樣式同科目卡片 */}
-                {PVQC_SUBJECTS.map((subject) => {
-                  const subjectMastery = mastery.get(subject.id)
-                  if (!subjectMastery) return null
-                  const percent = masteryPercent(subjectMastery)
-                  return (
-                    <div key={subject.id} className="subject-title">
-                      <p className="pvqc-subject-name">{subject.name}</p>
-                      <div className="subject-mastery">
-                        <MasteryBar percent={percent} />
-                        <p>
-                          掌握度 <MasteryPercent percent={percent} />
-                        </p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+              <span className="pvqc-entry-title">
+                <span className="material-symbols-rounded">psychology</span>
+                PVQC 測驗
+              </span>
               <span className="pvqc-entry-arrow material-symbols-rounded">
                 chevron_right
               </span>
@@ -1174,26 +1144,9 @@ function Quiz(): React.ReactElement {
                     0,
                   )
 
-                  const subjectMastery = mastery.get(subject.id)
-
                   return (
                     <div key={subject.id} className="subject-card">
-                      <div className="subject-title">
-                        <p className="subject-name">{subject.name}</p>
-                        {subjectMastery && (
-                          <div className="subject-mastery">
-                            <MasteryBar
-                              percent={masteryPercent(subjectMastery)}
-                            />
-                            <p>
-                              掌握度{' '}
-                              <MasteryPercent
-                                percent={masteryPercent(subjectMastery)}
-                              />
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                      <p className="subject-name">{subject.name}</p>
                       <div className="subject-card-content">
                         <div className="subject-info">
                           <p>{totalQuestions} 題</p>

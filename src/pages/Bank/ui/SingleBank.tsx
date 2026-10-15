@@ -2,6 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import '../Bank.scss'
 import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
+import Modal from '@/components/Modal/Modal'
+import MasteryBar, {
+  MasteryModes,
+  MasteryPercent,
+  MasteryRing,
+} from '@/components/MasteryBar/MasteryBar'
 
 // utils
 import {
@@ -25,6 +31,7 @@ import { SubjectConfig } from '../../../types/quiz-flows'
 
 // data
 import { subjects } from '../../../data/subjects'
+import { masteryPercent, useMastery } from '@/data/mastery'
 import {
   OptionImage,
   QuestionImages,
@@ -45,6 +52,9 @@ const SingleBank: React.FC = () => {
   const { subjectId } = useParams<SingleBankParams>()
   // 導航
   const navigate = useNavigate()
+  // 這個題庫的掌握度（沒做過的題庫沒有），點左上角的按鈕彈出
+  const mastery = useMastery().get(subjectId ?? '')
+  const [masteryOpen, setMasteryOpen] = useState(false)
   // 搜尋關鍵字
   const [searchTerm, setSearchTerm] = useState<string>('')
   // 題型篩選（混合題型的題庫才有，null 為全部）
@@ -392,6 +402,42 @@ const SingleBank: React.FC = () => {
       <button className="close-btn" onClick={handleClose}>
         <span className="material-symbols-rounded">close</span>
       </button>
+      {/* 掌握度：題庫列表已經看得到，這裡做成左上角的按鈕，不跟題目混在一起 */}
+      {mastery && !isLocked && (
+        <>
+          <button
+            className="mastery-btn"
+            onClick={() => setMasteryOpen(true)}
+            aria-label="查看掌握度"
+          >
+            <MasteryRing percent={masteryPercent(mastery)} />
+            <MasteryPercent percent={masteryPercent(mastery)} />
+          </button>
+          <Modal
+            open={masteryOpen}
+            onClose={() => setMasteryOpen(false)}
+            title="掌握度"
+            actions={
+              <button onClick={() => setMasteryOpen(false)}>關閉</button>
+            }
+          >
+            <div className="bank-mastery">
+              <p className="bank-mastery-total">
+                <strong>
+                  <MasteryPercent percent={masteryPercent(mastery)} />
+                </strong>
+                {/* 單字題庫一個字有六種作答方式，總數不好理解，改看下方各作答方式 */}
+                {mastery.modes.length === 1 &&
+                  `已掌握 ${mastery.mastered} / ${mastery.total} 題`}
+              </p>
+              <MasteryBar percent={masteryPercent(mastery)} />
+              {mastery.modes.length > 1 && (
+                <MasteryModes modes={mastery.modes} />
+              )}
+            </div>
+          </Modal>
+        </>
+      )}
       <div className="single-bank-container">
         <h2>
           {subject.name}
