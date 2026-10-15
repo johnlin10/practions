@@ -7,7 +7,7 @@ import { LEARNING_PATH, LEARNING_TITLE } from '@/pages/Learning/meta'
 import packageJson from '../../../package.json'
 
 // 合作聯絡信箱（與設定頁相同）
-const CONTACT_EMAIL = 'johnlin@johnlin.me'
+const CONTACT_EMAIL = 'contact@practions.app'
 
 // 用起來很方便：學習循環以外的特色
 const conveniences = [
@@ -117,7 +117,7 @@ function Home(): React.ReactElement {
               考前想多練幾題，學校的測驗系統卻不太順手，光是操作就花掉不少時間。
             </p>
             <p>
-              所以我做了 Practions，希望練習能單純一點，
+              Practions 因此而生，希望練習能單純一點，
               <strong>把時間花在題目本身</strong>。
             </p>
             <p>
@@ -206,7 +206,7 @@ function Home(): React.ReactElement {
                 <div>
                   <h4>正式考試期間可以鎖定</h4>
                   <p>
-                    事先告訴我考試的科目與時間，考試期間該科目的題庫、測驗與測驗紀錄都會暫時鎖住，時間一過自動解鎖，避免學生在考試時拿來查答案。
+                    事先告訴 Practions 考試的科目與時間，考試期間該科目的題庫、測驗與測驗紀錄都會暫時鎖住，時間一過自動解鎖，避免學生在考試時拿來查答案。
                   </p>
                 </div>
               </div>
@@ -220,14 +220,12 @@ function Home(): React.ReactElement {
               <span className="material-symbols-rounded">handshake</span>
               <span>
                 <span>合作</span>
-                <span>想讓同學在這裡練習？寄信給我</span>
+                <span>想讓同學在這裡練習？寄信給 Practions</span>
               </span>
               <span className="material-symbols-rounded">expand_more</span>
             </summary>
             <div className="intro-contact">
-              <p>
-                寄信給我就可以：想先聊聊的話可以約時間，也可以直接把題庫檔案附在信裡。
-              </p>
+              <p>寄信給 Practions：將題庫檔案附在信裡。</p>
               <div className="intro-contact-list">
                 <p>信中可以附上</p>
                 <ul>

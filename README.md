@@ -299,7 +299,7 @@ src/
 
 ## 📞 聯絡資訊
 
-如有問題或建議，請聯絡開發者：[johnlin@johnlin.me](mailto:johnlin@johnlin.me)
+如有問題或建議，請聯絡開發者：[support@practions.app](mailto:support@practions.app)
 
 ---
 

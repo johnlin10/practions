@@ -26,7 +26,7 @@ export function showLegalNoticeOnce(): void {
   const markSeen = () => write(LEGAL_SEEN_KEY, LEGAL_UPDATED)
   if (!returning) return markSeen()
   void showAlert(
-    '「使用條款」更名為「服務條款」，並補充了考試期間鎖定、語音播放、錯題與掌握度等說明。\n\n繼續使用 Practions 即表示您同意更新後的內容，完整條文可以在「設定」頁查看。',
+    '聯絡信箱改為 support@practions.app，並調整了服務介紹與部分文字。\n\n繼續使用 Practions 即表示您同意更新後的內容，完整條文可以在「設定」頁查看。',
     { title: '服務條款與隱私權政策已更新', confirmText: '我知道了' },
   ).then(markSeen)
 }

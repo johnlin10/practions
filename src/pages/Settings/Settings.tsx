@@ -504,14 +504,14 @@ function Settings(): React.ReactElement {
             </div>
             <div
               className="settings-list-group-item action"
-              onClick={() => openEmail('johnlin@johnlin.me')}
+              onClick={() => openEmail('support@practions.app')}
             >
-              <p>聯絡方式</p>
-              <p className="info">johnlin@johnlin.me</p>
+              <p>支援</p>
+              <p className="info">support@practions.app</p>
             </div>
           </div>
           <div className="settings-list-group has-title">
-            <h5>服務條款與隱私權政策</h5>
+            <h5>條款與政策</h5>
             <div
               className="settings-list-group-item action"
               onClick={() => navigate('/settings/terms')}

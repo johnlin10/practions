@@ -26,7 +26,7 @@ function Privacy(): React.ReactElement {
           隱私權政策
         </h1>
         <p>
-          Practions 是由 John Lin 個人開發、免費提供的題庫練習工具，涵蓋 PVQC
+          Practions 是免費提供的題庫練習工具，涵蓋 PVQC
           與多個課程的題庫。這份政策說明 Practions
           會收集哪些資料、怎麼使用，以及您可以怎麼管理自己的資料。
         </p>
