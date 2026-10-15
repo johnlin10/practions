@@ -31,26 +31,37 @@ describe('pickQuestions', () => {
     expect(countByType(picked).true_false).toBe(1)
   })
 
-  it('約 80% 從還沒掌握的題目抽，其餘從整個題庫隨機抽', () => {
+  it('約 20% 隨機、10% 已掌握，其餘優先從還沒掌握的題目抽，不重複', () => {
     const questions = subjects.accounting.questions
-    // 只剩 20 題還沒掌握
-    const mastered = new Set(questions.slice(20).map((q) => q.id))
-    const picked = pickQuestions(questions, { questionCount: 25 }, mastered)
-    expect(picked).toHaveLength(25)
-    // 還沒掌握的 20 題全部抽到，隨機的 5 題剛好也可能是其中幾題
-    expect(picked.filter((q) => !mastered.has(q.id))).toHaveLength(20)
+    const count = { questionCount: 40 } // 隨機 8 題、已掌握 4 題
+    const many = new Set(questions.slice(40).map((q) => q.id))
+    for (let i = 0; i < 20; i++) {
+      // 還沒掌握的很多時，已掌握的至少 4 題，最多再加隨機的 8 題
+      const picked = pickQuestions(questions, count, many)
+      expect(new Set(picked).size).toBe(40)
+      const n = picked.filter((q) => many.has(q.id)).length
+      expect(n).toBeGreaterThanOrEqual(4)
+      expect(n).toBeLessThanOrEqual(12)
+    }
 
-    // 還沒掌握的很多時，已掌握的最多只佔隨機的那 5 題
-    const few = new Set(questions.slice(0, 10).map((q) => q.id))
-    const picked2 = pickQuestions(questions, { questionCount: 25 }, few)
-    expect(picked2.filter((q) => few.has(q.id)).length).toBeLessThanOrEqual(5)
+    // 只剩 20 題還沒掌握：全部抽到，其餘由已掌握的補滿
+    const most = new Set(questions.slice(20).map((q) => q.id))
+    const picked = pickQuestions(questions, count, most)
+    expect(picked).toHaveLength(40)
+    expect(picked.filter((q) => !most.has(q.id))).toHaveLength(20)
+
+    // 已掌握的只有 2 題：兩題都抽到，不夠的由還沒掌握的補滿
+    const few = new Set(questions.slice(0, 2).map((q) => q.id))
+    const picked2 = pickQuestions(questions, count, few)
+    expect(picked2).toHaveLength(40)
+    expect(picked2.filter((q) => few.has(q.id))).toHaveLength(2)
   })
 
   it('有出題組成時，各題型的題數不變，題型內優先抽還沒掌握的', () => {
     const single = ail.questions.filter((q) => q.type === 'single_choice')
-    // 單選只有 20 題還沒掌握：隨機的 10 題最多佔 10 個單選名額，剩下 25 個一定裝得下這 20 題
-    const unmastered = single.slice(0, 20)
-    const mastered = new Set(single.slice(20).map((q) => q.id))
+    // 單選只有 15 題還沒掌握：隨機 10 題與已掌握 5 題最多佔 15 個單選名額，剩下 20 個一定裝得下這 15 題
+    const unmastered = single.slice(0, 15)
+    const mastered = new Set(single.slice(15).map((q) => q.id))
     const picked = pickQuestions(ail.questions, stage, mastered)
     expect(countByType(picked)).toEqual({
       single_choice: 35,
