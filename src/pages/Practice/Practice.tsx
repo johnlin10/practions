@@ -72,31 +72,6 @@ function Practice(): React.ReactElement {
           </Link>
         </h1>
 
-        {/* 錯題複習入口（樣式同測驗頁的 PVQC 入口，見 Quiz.scss） */}
-        <Link className="review-entry no-style" to="/review">
-          <span className="review-entry-icon material-symbols-rounded fill">
-            replay
-          </span>
-          <span className="review-entry-title">錯題複習</span>
-          <span className="review-entry-count">
-            {dueGroups.length > 0 ? (
-              <>
-                <strong>
-                  {dueGroups.reduce((sum, g) => sum + g.items.length, 0)}
-                </strong>{' '}
-                題待複習
-              </>
-            ) : wrongGroups.length > 0 ? (
-              '今天的複習完成了'
-            ) : (
-              '目前沒有錯題'
-            )}
-          </span>
-          <span className="review-entry-arrow material-symbols-rounded">
-            chevron_right
-          </span>
-        </Link>
-
         {/* 隨手練：一張卡片，記住上次的題庫，點題庫名稱切換 */}
         <section className="practice-card">
           <p className="practice-card-title">
@@ -137,6 +112,31 @@ function Practice(): React.ReactElement {
             開始練習
           </button>
         </section>
+
+        {/* 錯題複習入口（樣式同測驗頁的 PVQC 入口，見 Quiz.scss） */}
+        <Link className="review-entry no-style" to="/review">
+          <span className="review-entry-icon material-symbols-rounded fill">
+            replay
+          </span>
+          <span className="review-entry-title">錯題複習</span>
+          <span className="review-entry-count">
+            {dueGroups.length > 0 ? (
+              <>
+                <strong>
+                  {dueGroups.reduce((sum, g) => sum + g.items.length, 0)}
+                </strong>{' '}
+                題待複習
+              </>
+            ) : wrongGroups.length > 0 ? (
+              '今天的複習完成了'
+            ) : (
+              '目前沒有錯題'
+            )}
+          </span>
+          <span className="review-entry-arrow material-symbols-rounded">
+            chevron_right
+          </span>
+        </Link>
 
         <dialog
           ref={pickerRef}
