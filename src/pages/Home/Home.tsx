@@ -9,7 +9,41 @@ import packageJson from '../../../package.json'
 // 合作聯絡信箱（與設定頁相同）
 const CONTACT_EMAIL = 'contact@practions.app'
 
-// 用起來很方便：學習循環以外的特色
+// 能做什麼：Practions 的主要功能，點了直接打開那一頁
+const features = [
+  {
+    icon: 'assignment_turned_in',
+    title: '測驗',
+    text: '課程與證照題庫，限時作答，交卷後看成績與答錯的題目',
+    to: '/quiz',
+  },
+  {
+    icon: 'psychology',
+    title: 'PVQC',
+    text: '六種作答方式，可以自選題型、題數和時間，也有官方模擬',
+    to: '/pvqc',
+  },
+  {
+    icon: 'exercise',
+    title: '隨手練',
+    text: '選好題庫就開始，不計時，答一題就看到對錯',
+    to: '/practice',
+  },
+  {
+    icon: 'replay',
+    title: '錯題複習',
+    text: '答錯的題自動收集起來，快忘記前再問你一次',
+    to: '/practice',
+  },
+  {
+    icon: 'library_books',
+    title: '題庫',
+    text: '所有題目和答案隨時都能查，也看得到每個題庫的掌握度',
+    to: '/bank',
+  },
+]
+
+// 用起來很方便：功能以外的使用體驗
 const conveniences = [
   {
     icon: 'cloud_sync',
@@ -20,16 +54,6 @@ const conveniences = [
     icon: 'install_mobile',
     title: '安裝成 App',
     text: '加入主畫面全螢幕使用，沒網路也能練',
-  },
-  {
-    icon: 'visibility',
-    title: '答案全公開',
-    text: '題庫、答案和自己的測驗紀錄，隨時都能查看',
-  },
-  {
-    icon: 'tune',
-    title: '測驗可以自訂',
-    text: 'PVQC 可以自選題型、題數和時間，也有官方模擬',
   },
 ]
 
@@ -127,6 +151,24 @@ function Home(): React.ReactElement {
           </div>
         </section>
 
+        <section className="intro-group intro-features">
+          <h5>能做什麼</h5>
+          {features.map((item) => (
+            <Link
+              className="intro-feature no-style"
+              key={item.title}
+              to={item.to}
+            >
+              <span className="material-symbols-rounded">{item.icon}</span>
+              <span>
+                <span>{item.title}</span>
+                <span>{item.text}</span>
+              </span>
+              <span className="material-symbols-rounded">chevron_right</span>
+            </Link>
+          ))}
+        </section>
+
         <section className="intro-group intro-plain">
           <h5>用起來很方便</h5>
           <div className="intro-conveniences">
@@ -206,7 +248,8 @@ function Home(): React.ReactElement {
                 <div>
                   <h4>正式考試期間可以鎖定</h4>
                   <p>
-                    事先告訴 Practions 考試的科目與時間，考試期間該科目的題庫、測驗與測驗紀錄都會暫時鎖住，時間一過自動解鎖，避免學生在考試時拿來查答案。
+                    事先告訴 Practions
+                    考試的科目與時間，考試期間該科目的題庫、測驗與測驗紀錄都會暫時鎖住，時間一過自動解鎖，避免學生在考試時拿來查答案。
                   </p>
                 </div>
               </div>

@@ -190,7 +190,51 @@
       }
     }
 
-    // 圖示右邊的標題與一行說明（連結、給老師與合作的列共用）
+    // 能做什麼：每個功能一列，點了打開那一頁
+    > .intro-features {
+      padding: 0;
+    }
+
+    .intro-feature {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 12px;
+      border-radius: 0; // 覆蓋全域圓角，分隔線兩端才不會彎曲
+
+      &:not(:last-child) {
+        border-bottom: 2px solid var(--divider-color);
+      }
+
+      &:first-of-type {
+        border-radius: 10px 10px 0 0; // 外框 12px 減去 2px 邊框
+      }
+
+      &:last-child {
+        border-radius: 0 0 10px 10px;
+      }
+
+      &:hover {
+        background-color: var(--fill-color);
+      }
+
+      > .material-symbols-rounded:first-child {
+        font-size: 1.4rem;
+        color: var(--primary-color);
+      }
+
+      > .material-symbols-rounded:last-child {
+        color: var(--text-muted-color);
+      }
+
+      // 固定行高：英文標題（PVQC）的預設行高比中文矮，各列才會一樣高
+      > span:nth-child(2) > :first-child {
+        line-height: 1.5;
+      }
+    }
+
+    // 圖示右邊的標題與一行說明（功能列、連結、給老師與合作的列共用）
+    .intro-feature,
     .intro-learning-link,
     .intro-more summary {
       > span:nth-child(2) {

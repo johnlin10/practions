@@ -4,4 +4,4 @@ export const LEARNING_PATH = '/guide/learning'
 export const LEARNING_LEGACY_PATH = '/settings/learning'
 export const LEARNING_TITLE = 'Practions 如何幫你記住'
 export const LEARNING_DESCRIPTION =
-  'Practions 的測驗、錯題複習與掌握度背後的學習原理，以及怎麼練最有效。'
+  'Practions 的測驗、隨手練、錯題複習與掌握度背後的學習原理，以及怎麼練最有效。'

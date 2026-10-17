@@ -6,7 +6,7 @@ const STEPS = [
   {
     icon: 'assignment_turned_in',
     color: 'primary',
-    name: '測驗',
+    name: '測驗・隨手練',
     text: '找出不會的',
   },
   { icon: 'replay', color: 'review', name: '錯題複習', text: '把不會的練到會' },
@@ -39,7 +39,7 @@ export function StepIcon({ step }: { step: number }): React.ReactElement {
 
 /**
  * [component] LearningCycle
- * 學習循環圖：測驗 → 錯題複習 → 再次確認 → 掌握度，右側的線繞回測驗。
+ * 學習循環圖：測驗・隨手練 → 錯題複習 → 再次確認 → 掌握度，右側的線繞回測驗。
  * 學習系統引導與首頁共用
  */
 function LearningCycle(): React.ReactElement {

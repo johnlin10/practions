@@ -25,7 +25,7 @@ const GUIDES = [
     path: LEARNING_PATH,
     icon: 'school',
     title: 'Practions 如何幫你記住',
-    text: '測驗、錯題複習與掌握度怎麼幫你記得更久。',
+    text: '測驗、隨手練、錯題複習與掌握度怎麼幫你記得更久。',
   },
 ]
 
