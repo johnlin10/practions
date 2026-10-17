@@ -40,9 +40,9 @@ import {
 import { historyPath } from '../History/meta'
 
 // utils
-import { speakEnglish } from '../../utils/tts'
+import { speakEnglish, cancelSpeech } from '../../utils/tts'
 import { playFeedbackSound, playPerfectSound } from '../../utils/sound'
-import { needsCheckButton } from '../../types/quiz-modes'
+import { QUIZ_MODES, needsCheckButton } from '../../types/quiz-modes'
 import {
   answerKey,
   baseStageId,
@@ -181,6 +181,7 @@ function Quiz(): React.ReactElement {
     hasNextStage,
     checkAnswer,
     continueFeedback,
+    skipListening,
   } = useQuiz()
 
   // 偵錯模式（網址加 ?debug，或 ?debug=題號 從該題開始）：依原順序出整個題庫、不計時、不存紀錄
@@ -435,6 +436,27 @@ function Quiz(): React.ReactElement {
 
   // 結算畫面淡出後才交卷；「退出」交卷後回練習頁，不進結果詳情
   const isPractice = quizState.flowConfig.flowMode === 'practice'
+  // 隨手練的聽力題可以按「現在不做聽力題」，這次練習剩下的聽力題換成不用聽的題目；
+  // 已經檢查過任何一題聽力題，代表這次可以聽，就不再顯示
+  const requiresAudio = (stageId: string) =>
+    quizState.flowConfig.stages.some(
+      (stage) =>
+        stage.stageId === baseStageId(stageId) &&
+        QUIZ_MODES[stage.mode].requiresAudio,
+    )
+  const canSkipListening =
+    isPractice &&
+    mixed &&
+    QUIZ_MODES[quizState.currentStage.mode]?.requiresAudio === true &&
+    !Object.keys(quizState.feedback).some((key) =>
+      requiresAudio(key.split('::')[0]),
+    )
+  const handleSkipListening = (): void => {
+    cancelSpeech()
+    if (skipListening() !== 'finish') return
+    setFinished(true)
+    if (summary.perfect) playPerfectSound()
+  }
   // 隨手練的結算畫面用藍色（Quiz.scss）
   const practiceClass = isPractice ? ' practice' : ''
   const handleLeave = (exitTo?: string): void => {
@@ -969,6 +991,20 @@ function Quiz(): React.ReactElement {
                             </span>
                           )}
                           {text}
+                          {canSkipListening && (
+                            <button
+                              className="quiz-skip-listening"
+                              onClick={handleSkipListening}
+                            >
+                              <span
+                                className="material-symbols-rounded"
+                                aria-hidden="true"
+                              >
+                                hearing_disabled
+                              </span>
+                              現在不做聽力題
+                            </button>
+                          )}
                         </p>
                       )
                     )
