@@ -10,7 +10,6 @@ import { reviewSummary } from '@/data/wrongQuestions'
 import { useAuth } from '@/data/authStore'
 import { showConfirm } from '@/utils/dialog'
 import { isPracticeRecord } from './meta'
-import type { HistoryRecord } from '@/types'
 
 /**
  * [page] History page
@@ -31,19 +30,8 @@ function History({
   const ready = useHistoryReady()
   // 開啟單筆紀錄時只顯示詳情頁（整頁捲動，不疊在列表上）
   const outlet = useOutlet()
-  // 練習頁的篩選：錯題複習 / 隨手練，一開始顯示最近一筆練習的那一種
-  const [filter, setFilter] = useState<'review' | 'practice'>(() =>
-    rawHistory.reduce<HistoryRecord | undefined>(
-      (latest, record) =>
-        isPracticeRecord(record.flowMode) &&
-        (!latest || new Date(record.date) > new Date(latest.date))
-          ? record
-          : latest,
-      undefined,
-    )?.flowMode === 'practice'
-      ? 'practice'
-      : 'review',
-  )
+  // 練習頁的篩選：隨手練 / 錯題複習（同練習頁的順序），一開始是隨手練
+  const [filter, setFilter] = useState<'review' | 'practice'>('practice')
   const history = rawHistory
     .filter((record) =>
       practice
@@ -134,8 +122,8 @@ function History({
                 value={filter}
                 onChange={setFilter}
                 options={[
-                  { value: 'review', label: '錯題複習' },
                   { value: 'practice', label: '隨手練' },
+                  { value: 'review', label: '錯題複習' },
                 ]}
               />
             )}
