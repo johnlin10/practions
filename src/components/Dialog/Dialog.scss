@@ -12,7 +12,8 @@ html:has(.dialog[open]) {
   background-color: var(--background-color);
   border: 3px solid var(--border-color);
   box-shadow: 0 3px 0 var(--border-color);
-  border-radius: 12px;
+  // 比裡面的按鈕（12px）大一級
+  border-radius: 20px;
   animation: dialog-in 0.25s cubic-bezier(0.23, 1, 0.32, 1);
 
   &::backdrop {
@@ -55,6 +56,7 @@ html:has(.dialog[open]) {
     > button {
       flex: 1;
       padding: 8px 12px;
+      border-radius: 12px;
     }
 
     > .dialog-confirm {
