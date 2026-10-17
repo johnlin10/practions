@@ -182,6 +182,8 @@ export interface QuizContextType {
   checkAnswer: () => void
   // 即時回饋：按「繼續」，回傳 'finish' 表示全部做完、該交卷了
   continueFeedback: () => 'continue' | 'finish'
+  // 隨手練：這次練習跳過要聽聲音的題目，換成不用聽的題目補足題數；回傳 'finish' 表示沒有題目了
+  skipListening: () => 'continue' | 'finish'
 
   // 導航
   handlePrev: () => void

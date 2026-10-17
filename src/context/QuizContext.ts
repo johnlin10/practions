@@ -13,6 +13,7 @@ import {
 } from '../types'
 import { addHistoryRecord, getAllHistory } from '@/data/historyStore'
 import { masteredQuestions } from '@/data/mastery'
+import { findSubject } from '@/data/subjects'
 import { Question } from '../types/questions'
 import { QuizState } from '../types/answers'
 import {
@@ -469,6 +470,87 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
   }
 
   /**
+   * [function] skipListening
+   * 隨手練按「現在不做聽力題」：從目前這題起，要聽聲音的題目都拿掉（不計分、不算錯題）；
+   * 第一輪時改從不用聽的作答方式補上同樣的題數，打散到剩下的題目裡。再練一次時不補，只拿掉。
+   * @returns {'continue' | 'finish'} - 'finish' 表示沒有題目了，由頁面交卷
+   */
+  const skipListening = (): 'continue' | 'finish' => {
+    const { sequenceStages, currentQuestions, currentQuestionIndex: index } =
+      quizState
+    if (!sequenceStages) return 'continue'
+    const audio = (stage: QuizStageConfig) => QUIZ_MODES[stage.mode].requiresAudio
+    const items = currentQuestions.map((question, i) => ({
+      question,
+      stage: sequenceStages[i],
+    }))
+    const skipped = items.filter((item, i) => i >= index && audio(item.stage))
+    const kept = items.filter((item, i) => i < index || !audio(item.stage))
+    let { allStagesQuestions, flowConfig } = quizState
+    let upcoming = kept.slice(index)
+
+    if (!isRetryStage(quizState.currentStage.stageId)) {
+      // 補題：跳過的題數平均分給不用聽的作答方式，抽題方式同開始時（優先出還沒掌握的）
+      const quiet = flowConfig.stages.filter((stage) => !audio(stage))
+      const questions = findSubject(quizState.subjectId)?.questions ?? []
+      const mastered = masteredQuestions(getAllHistory())
+      const extra = quiet.flatMap((stage, i) => {
+        const count =
+          Math.floor(skipped.length / quiet.length) +
+          (i < skipped.length % quiet.length ? 1 : 0)
+        const used = new Set(
+          (allStagesQuestions[stage.stageId] ?? []).map((q) => q.id),
+        )
+        return pickQuestions(
+          questions.filter((q) => !used.has(q.id)),
+          { questionCount: count },
+          mastered.get(`${quizState.subjectId}/${stage.mode}`),
+        ).map((question) => ({ question, stage }))
+      })
+      upcoming = shuffle([...upcoming, ...extra])
+
+      // 各階段的題目跟著改：聽力題拿掉跳過的，不用聽的加上補的；沒有題目的階段整個拿掉
+      const skippedKeys = new Set(
+        skipped.map(({ stage, question }) => answerKey(stage.stageId, question.id)),
+      )
+      allStagesQuestions = Object.fromEntries(
+        flowConfig.stages.map((stage) => [
+          stage.stageId,
+          [
+            ...(allStagesQuestions[stage.stageId] ?? []).filter(
+              (q) => !skippedKeys.has(answerKey(stage.stageId, q.id)),
+            ),
+            ...extra
+              .filter((item) => item.stage === stage)
+              .map((item) => item.question),
+          ],
+        ]),
+      )
+      flowConfig = {
+        ...flowConfig,
+        stages: flowConfig.stages
+          .map((stage) => ({
+            ...stage,
+            questionCount: allStagesQuestions[stage.stageId].length,
+          }))
+          .filter((stage) => stage.questionCount > 0),
+      }
+    }
+
+    // ponytail: 第一輪補不到題目（題庫太小）時直接交卷，不進再練一次
+    const sequence = [...kept.slice(0, index), ...upcoming]
+    setQuizState((prev) => ({
+      ...prev,
+      flowConfig,
+      allStagesQuestions,
+      currentQuestions: sequence.map((item) => item.question),
+      sequenceStages: sequence.map((item) => item.stage),
+      currentStage: sequence[index]?.stage ?? prev.currentStage,
+    }))
+    return upcoming.length > 0 ? 'continue' : 'finish'
+  }
+
+  /**
    * [function] finishQuiz
    * 完成測驗
    * @returns {string | null} - 歷史記錄 ID
@@ -693,6 +775,7 @@ export function QuizProvider({ children }: QuizProviderProps): JSX.Element {
     finishQuiz,
     checkAnswer,
     continueFeedback,
+    skipListening,
     handlePrev,
     handleNext,
     goToStage,
