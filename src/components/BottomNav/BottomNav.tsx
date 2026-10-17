@@ -42,8 +42,7 @@ function BottomNav(): React.ReactElement {
         path: '/practice',
         label: '練習',
         icon: 'exercise',
-        active:
-          pathname.startsWith('/practice') || pathname.startsWith('/review'),
+        active: pathname.startsWith('/practice'),
       },
       {
         path: '/bank',

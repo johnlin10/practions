@@ -433,9 +433,8 @@ function Quiz(): React.ReactElement {
     if (summary.perfect) playPerfectSound()
   }
 
-  // 結算畫面淡出後才交卷；「退出」交卷後回錯題複習頁（隨手練回練習頁），不進結果詳情
+  // 結算畫面淡出後才交卷；「退出」交卷後回練習頁，不進結果詳情
   const isPractice = quizState.flowConfig.flowMode === 'practice'
-  const exitPath = isPractice ? '/practice' : '/review'
   // 隨手練的結算畫面用藍色（Quiz.scss）
   const practiceClass = isPractice ? ' practice' : ''
   const handleLeave = (exitTo?: string): void => {
@@ -810,7 +809,7 @@ function Quiz(): React.ReactElement {
                 </button>
                 <button
                   className="quiz-retry-intro-btn quiz-retry-intro-exit"
-                  onClick={() => handleLeave(exitPath)}
+                  onClick={() => handleLeave('/practice')}
                 >
                   退出
                 </button>
@@ -856,7 +855,7 @@ function Quiz(): React.ReactElement {
               </button>
               <button
                 className="quiz-retry-intro-btn quiz-retry-intro-exit"
-                onClick={() => handleLeave(exitPath)}
+                onClick={() => handleLeave('/practice')}
               >
                 退出
               </button>

@@ -20,6 +20,8 @@ interface SubjectPickerProps {
   // 清單裡題庫名稱下方的補充，例如字數
   detail?: (subject: SubjectConfig) => string
   className?: string
+  // 按鈕裡題庫名稱下方的內容，例如隨手練的掌握度
+  children?: React.ReactNode
 }
 
 /**
@@ -35,22 +37,26 @@ function SubjectPicker({
   onOpenChange,
   detail,
   className,
+  children,
 }: SubjectPickerProps): React.ReactElement {
   const mastery = useMastery()
 
   return (
     <>
       <button
-        className={`subject-picker${className ? ` ${className}` : ''}`}
+        className={`subject-picker${children ? ' has-detail' : ''}${className ? ` ${className}` : ''}`}
         onClick={() => onOpenChange(true)}
       >
-        <span className="subject-picker-name">
-          {value ? value.name : '選擇題庫'}
+        <span className="subject-picker-row">
+          <span className="subject-picker-name">
+            {value ? value.name : '選擇題庫'}
+          </span>
+          <span className="subject-picker-switch">
+            {value && '切換'}
+            <span className="material-symbols-rounded">expand_more</span>
+          </span>
         </span>
-        <span className="subject-picker-switch">
-          {value && '切換'}
-          <span className="material-symbols-rounded">expand_more</span>
-        </span>
+        {children}
       </button>
 
       <Modal open={open} onClose={() => onOpenChange(false)} title="選擇題庫">
