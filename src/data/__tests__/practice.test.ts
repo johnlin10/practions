@@ -25,6 +25,12 @@ describe('buildPracticeFlow', () => {
     expect(flow.mixStages).toBe(true)
     expect(flow.stages.map((s) => s.questionCount)).toEqual([4, 4, 3, 3, 3, 3])
   })
+
+  it('單字題庫不含 Spelling：不出看中拼英，題數分給其餘五種', () => {
+    const flow = buildPracticeFlow(subjects.pvqc_ai, 20, false)
+    expect(flow.stages.map((s) => s.mode)).not.toContain('pvqc_write')
+    expect(flow.stages.map((s) => s.questionCount)).toEqual([4, 4, 4, 4, 4])
+  })
 })
 
 describe('defaultPracticeSubject', () => {

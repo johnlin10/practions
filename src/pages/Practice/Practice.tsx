@@ -31,8 +31,12 @@ function Practice(): React.ReactElement {
   const dueGroups = dueToday(wrongGroups)
   const mastery = useMastery()
   const history = useHistoryStore()
-  const { practiceLimit, practiceSubject, practiceSubjectAt } =
-    useSettingsStore()
+  const {
+    practiceLimit,
+    practiceSpelling,
+    practiceSubject,
+    practiceSubjectAt,
+  } = useSettingsStore()
   // 隨手練的題庫：最後一次作答或手動選擇的
   const subject = defaultPracticeSubject(
     practiceSubject,
@@ -47,7 +51,13 @@ function Practice(): React.ReactElement {
   const start = (): void => {
     if (!subject) return setPickerOpen(true)
     navigate(`/quiz/${subject.id}`, {
-      state: { customFlowConfig: buildPracticeFlow(subject, practiceLimit) },
+      state: {
+        customFlowConfig: buildPracticeFlow(
+          subject,
+          practiceLimit,
+          practiceSpelling,
+        ),
+      },
     })
   }
 
@@ -71,36 +81,59 @@ function Practice(): React.ReactElement {
             </span>
             隨手練
           </p>
-          <SubjectPicker
-            subjects={practiceSubjects()}
-            value={subject}
-            onChange={(option) =>
-              updateSettings({
-                practiceSubject: option.id,
-                practiceSubjectAt: Date.now(),
-              })
-            }
-            open={pickerOpen}
-            onOpenChange={setPickerOpen}
-          />
-          {subjectMastery && (
-            <div className="subject-mastery">
-              <MasteryBar percent={masteryPercent(subjectMastery)} />
-              <p>
-                掌握度{' '}
-                <MasteryPercent percent={masteryPercent(subjectMastery)} />
-              </p>
-            </div>
-          )}
-          <div className="practice-limit">
-            <p>題數</p>
-            <Stepper
-              label="隨手練題數"
-              value={practiceLimit}
-              onChange={(v) => updateSettings({ practiceLimit: v })}
-              {...PRACTICE_LIMITS}
-              unit="題"
+          {/* 題庫：選擇器，下方是這個題庫的掌握度 */}
+          <div className="practice-subject">
+            <SubjectPicker
+              subjects={practiceSubjects()}
+              value={subject}
+              onChange={(option) =>
+                updateSettings({
+                  practiceSubject: option.id,
+                  practiceSubjectAt: Date.now(),
+                })
+              }
+              open={pickerOpen}
+              onOpenChange={setPickerOpen}
             />
+            {subjectMastery && (
+              <div className="subject-mastery">
+                <p>掌握度</p>
+                <MasteryBar percent={masteryPercent(subjectMastery)} />
+                <strong>
+                  <MasteryPercent percent={masteryPercent(subjectMastery)} />
+                </strong>
+              </div>
+            )}
+          </div>
+          {/* 設定：同 PVQC 自訂測驗的列表，左邊名稱、右邊調整 */}
+          <div className="practice-options">
+            <div className="practice-option">
+              <p>題數</p>
+              <Stepper
+                label="隨手練題數"
+                value={practiceLimit}
+                onChange={(v) => updateSettings({ practiceLimit: v })}
+                {...PRACTICE_LIMITS}
+                unit="題"
+              />
+            </div>
+            {subject?.baseQuestionType === 'vocabulary' && (
+              <label className="practice-option">
+                <p>
+                  包含 Spelling
+                  <small>看中拼英</small>
+                </p>
+                <input
+                  type="checkbox"
+                  role="switch"
+                  className="switch"
+                  checked={practiceSpelling}
+                  onChange={(e) =>
+                    updateSettings({ practiceSpelling: e.target.checked })
+                  }
+                />
+              </label>
+            )}
           </div>
           <button className="practice-start-btn" onClick={start}>
             開始練習

@@ -1,4 +1,4 @@
-// 隨手練：一張卡片，題庫、掌握度、題數與開始按鈕
+// 隨手練：一張卡片，由上而下是題庫（含掌握度）、設定、開始按鈕
 .practice-card {
   display: flex;
   flex-direction: column;
@@ -34,41 +34,74 @@
     }
   }
 
-  // 題庫選擇器（SubjectPicker）：手機全寬，平板與電腦最寬 320px
-  > .subject-picker {
-    @media (min-width: 560px) {
-      max-width: 320px;
-    }
-  }
-
-  // 掌握度：樣式同測驗頁科目卡片
-  > .subject-mastery {
+  // 題庫：選擇器與下方的掌握度
+  > .practice-subject {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 8px;
-    padding: 0 2px;
 
-    > .mastery-bar {
-      flex: 1 1 auto;
-      height: 5px;
+    // 跟下方的設定列表同寬、同圓角
+    > .subject-picker {
+      border-radius: 12px;
     }
 
-    > p {
-      font-size: 0.75rem;
-      white-space: nowrap;
+    // 文字左緣對齊題庫名稱（選擇器的 12px 內距加 2px 外框）
+    > .subject-mastery {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      font-size: 0.8rem;
       color: var(--foreground-600);
+
+      > .mastery-bar {
+        flex: 1 1 auto;
+        height: 5px;
+      }
+
+      > strong {
+        min-width: 3em;
+        text-align: end;
+        font-variant-numeric: tabular-nums;
+        color: var(--foreground-800);
+      }
     }
   }
 
-  > .practice-limit {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2px;
+  // 設定列表：同 PVQC 自訂測驗（PVQCSetup.scss 的 .config-inputs），列與列之間以分隔線隔開
+  > .practice-options {
+    border: 2px solid var(--divider-color);
+    border-radius: 12px;
 
-    > p {
-      font-size: 0.95rem;
-      color: var(--foreground-700);
+    > .practice-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      // 兩列一樣高：開關那列的說明有兩行，步進器那列跟著撐高
+      min-height: 64px;
+      padding: 12px;
+      border-radius: 0; // 覆蓋全域 div 圓角，避免分隔線兩端彎曲
+
+      &:not(:last-child) {
+        border-bottom: 2px solid var(--divider-color);
+      }
+
+      > p {
+        display: flex;
+        flex-direction: column;
+        font-size: 0.95rem;
+        color: var(--foreground-700);
+
+        > small {
+          font-size: 0.75rem;
+          color: var(--text-muted-color);
+        }
+      }
+    }
+
+    > label.practice-option {
+      cursor: pointer;
     }
   }
 
@@ -76,6 +109,7 @@
   > .practice-start-btn {
     justify-content: center;
     width: 100%;
+    border-radius: 12px;
     padding: 10px;
     font-weight: 600;
     color: var(--text-white);

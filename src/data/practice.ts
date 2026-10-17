@@ -43,13 +43,16 @@ export function defaultPracticeSubject(
 
 /**
  * 隨手練的流程：count 題平均分給各作答方式（單字題庫是六種，打散成一條流程），
- * 抽題時優先出還沒掌握的（QuizContext）。
+ * 抽題時優先出還沒掌握的（QuizContext）。includeSpelling 為 false 時不出看中拼英。
  */
 export function buildPracticeFlow(
   subject: SubjectConfig,
   count: number,
+  includeSpelling = true,
 ): QuizFlowConfig {
-  const modes = modesOf(subject)
+  const modes = modesOf(subject).filter(
+    (mode) => includeSpelling || mode !== 'pvqc_write',
+  )
   const stages = modes.map((mode, i) => {
     const { name, description } = QUIZ_MODES[mode]
     return {
