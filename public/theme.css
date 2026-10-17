@@ -145,6 +145,14 @@
   --review-dark-color: var(--orange-600); /* 實心按鈕的底邊、hover 底色 */
   --review-darker-color: var(--orange-700); /* 實心按鈕 hover 的底邊 */
   --review-text-color: var(--orange-600);
+
+  /* 練習頁的區塊：淡色底、主題色邊框與標題 */
+  --practice-section-color: #dff3fb;
+  --practice-section-border-color: var(--blue-200);
+  --practice-section-text-color: var(--blue-700);
+  --review-section-color: #fce6d8;
+  --review-section-border-color: var(--orange-200);
+  --review-section-text-color: var(--orange-700);
 }
 
 /*
@@ -214,4 +222,12 @@
   /* 橘色降一階會變褐色（不像藍色仍然飽和），所以深色模式沿用 orange-500 */
   --review-color: var(--orange-500);
   --review-text-color: var(--orange-400);
+
+  /* 練習頁的區塊：深色底上改用很暗的藍與橘 */
+  --practice-section-color: #0a222c;
+  --practice-section-border-color: var(--blue-800);
+  --practice-section-text-color: var(--blue-200);
+  --review-section-color: #26160c;
+  --review-section-border-color: var(--orange-800);
+  --review-section-text-color: var(--orange-200);
 }

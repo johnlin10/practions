@@ -37,6 +37,7 @@ export const appSettingsSchema = z.object({
     .min(PRACTICE_LIMITS.min)
     .max(PRACTICE_LIMITS.max)
     .catch(DEFAULT_SETTINGS.practiceLimit),
+  practiceSpelling: z.boolean().catch(DEFAULT_SETTINGS.practiceSpelling),
   practiceSubject: z.string().catch(DEFAULT_SETTINGS.practiceSubject),
   practiceSubjectAt: z.number().catch(DEFAULT_SETTINGS.practiceSubjectAt),
   sound: z.boolean().catch(DEFAULT_SETTINGS.sound),

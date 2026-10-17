@@ -495,8 +495,7 @@ h1.quiz-to-history {
   }
 }
 
-// 錯題複習與 PVQC 入口：整列可點，外觀同科目卡片
-.review-entry,
+// PVQC 入口：整列可點，外觀同科目卡片
 .pvqc-entry {
   position: relative;
   display: flex;
@@ -512,42 +511,6 @@ h1.quiz-to-history {
   // 同設定頁、題庫頁的列表項目：hover 時換底色，邊框不變
   &:hover {
     background-color: var(--fill-color);
-  }
-}
-
-// 錯題複習入口：以橘色圖示方塊區分
-.review-entry {
-  .review-entry-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 30px;
-    height: 30px;
-    font-size: 20px;
-    color: var(--text-white);
-    background: var(--review-color);
-    border-radius: 5px;
-  }
-
-  .review-entry-title {
-    flex-grow: 1;
-    font-weight: 600;
-    color: var(--foreground-800);
-  }
-
-  .review-entry-count {
-    font-size: 0.8rem;
-    color: var(--text-muted-color);
-
-    strong {
-      font-size: 1rem;
-      color: var(--foreground-800);
-    }
-  }
-
-  .review-entry-arrow {
-    color: var(--text-faint-color);
   }
 }
 

@@ -24,6 +24,8 @@ export interface AppSettings {
   reviewLimit: number
   // 隨手練每次幾題
   practiceLimit: number
+  // 隨手練單字題庫時是否包含 Spelling（看中拼英）
+  practiceSpelling: boolean
   // 隨手練手動選的題庫 ID；空字串表示還沒選過
   practiceSubject: string
   // 手動選題庫的時間（毫秒）：之後有作答就改用最後作答的題庫
@@ -57,6 +59,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'system',
   reviewLimit: 15,
   practiceLimit: 20,
+  practiceSpelling: false,
   practiceSubject: '',
   practiceSubjectAt: 0,
   sound: true,

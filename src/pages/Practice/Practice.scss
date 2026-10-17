@@ -1,25 +1,26 @@
-// 隨手練：一張卡片，題庫、掌握度、題數與開始按鈕
-.practice-card {
+// 隨手練與錯題複習：各一個淡色底、主題色邊框的區塊，由上而下是標題、選擇、設定摘要、開始
+.practice-section {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 24px;
   padding: 14px;
-  background: var(--background-color);
-  border: 2px solid var(--divider-color);
-  border-radius: 12px;
+  background: var(--practice-section-color);
+  border: 2px solid var(--practice-section-border-color);
+  border-radius: 16px;
 
   p {
     margin: 0;
   }
 
-  // 標題：藍色圖示方塊（同錯題複習入口的橘色方塊）
-  > .practice-card-title {
+  // 標題：藍色圖示方塊與深藍文字（錯題複習是橘色）
+  > .practice-section-title {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 600;
-    color: var(--foreground-800);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--practice-section-text-color);
 
     > .practice-icon {
       display: flex;
@@ -32,47 +33,84 @@
       background: var(--primary-color);
       border-radius: 5px;
     }
-  }
 
-  // 題庫選擇器（SubjectPicker）：手機全寬，平板與電腦最寬 320px
-  > .subject-picker {
-    @media (min-width: 560px) {
-      max-width: 320px;
+    // 錯題複習的待複習題數，靠右
+    > .practice-section-count {
+      margin-left: auto;
+      font-size: 0.8rem;
+      font-weight: 400;
+
+      > strong {
+        font-size: 1rem;
+      }
     }
   }
 
-  // 掌握度：樣式同測驗頁科目卡片
-  > .subject-mastery {
+  // 題庫選擇器：名稱下方是這個題庫的掌握度
+  > .subject-picker {
+    border-radius: 12px;
+
+    .subject-mastery {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--foreground-600);
+
+      > .mastery-bar {
+        flex: 1 1 auto;
+        height: 5px;
+      }
+
+      > strong {
+        font-variant-numeric: tabular-nums;
+        color: var(--foreground-800);
+      }
+    }
+  }
+
+  // 設定摘要與「調整」：文字左緣對齊題庫名稱（選擇器的 12px 內距加 2px 外框）
+  > .practice-summary {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 0 2px;
-
-    > .mastery-bar {
-      flex: 1 1 auto;
-      height: 5px;
-    }
+    justify-content: space-between;
+    gap: 12px;
+    padding-left: 14px;
 
     > p {
-      font-size: 0.75rem;
-      white-space: nowrap;
+      font-size: 0.9rem;
       color: var(--foreground-600);
     }
   }
 
-  > .practice-limit {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2px;
+  // 「調整」：沒有外框的文字按鈕，主題色
+  .practice-adjust-btn {
+    gap: 4px;
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    background: none;
+    border: none;
+    border-radius: 8px;
+    box-shadow: none;
+    translate: none;
 
-    > p {
-      font-size: 0.95rem;
-      color: var(--foreground-700);
+    > .material-symbols-rounded {
+      font-size: 1.15rem;
+    }
+
+    &:not(:disabled):hover {
+      background-color: color-mix(in srgb, currentColor 10%, transparent);
+    }
+
+    &:not(:disabled):active {
+      transform: none;
     }
   }
 
-  // 實心藍色按鈕，撐滿卡片寬度
+  // 實心藍色按鈕，撐滿整排
   > .practice-start-btn {
     justify-content: center;
     width: 100%;
@@ -81,6 +119,7 @@
     color: var(--text-white);
     background-color: var(--primary-color);
     border-color: var(--primary-dark-color);
+    border-radius: 12px;
     box-shadow: 0 3px 0 var(--primary-dark-color);
 
     &:not(:disabled):hover {
@@ -95,7 +134,149 @@
   }
 }
 
-// 錯題複習入口接在隨手練下方（入口本身的樣式見 Quiz.scss）
-.practice-card + .review-entry {
-  margin-top: 12px;
+// 錯題複習接在隨手練下方
+.practice-section + .practice-section {
+  margin-top: 16px;
+}
+
+// 錯題複習：橘色的底、邊框、標題與「調整」
+.practice-section.review {
+  background: var(--review-section-color);
+  border-color: var(--review-section-border-color);
+
+  > .practice-section-title {
+    color: var(--review-section-text-color);
+
+    > .practice-icon {
+      background: var(--review-color);
+    }
+  }
+
+  .practice-adjust-btn {
+    color: var(--review-text-color);
+  }
+
+  // 待複習的科目：一個列表，每列是科目、題數與題型，右邊是開始按鈕
+  > .review-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--background-color);
+    border: 2px solid var(--divider-color);
+    border-radius: 12px;
+
+    > li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+
+      &:not(:last-child) {
+        border-bottom: 2px solid var(--divider-color);
+      }
+
+      > p {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+
+        > strong {
+          font-weight: 600;
+          color: var(--foreground-800);
+        }
+
+        > small {
+          font-size: 0.75rem;
+          line-height: 1.5;
+          color: var(--text-muted-color);
+        }
+      }
+    }
+  }
+
+  // 實心橘色按鈕；在圓角列表裡，圓角比外面的按鈕小一級
+  .review-start-btn {
+    flex-shrink: 0;
+    gap: 2px;
+    padding: 6px 10px 6px 14px;
+    font-weight: 600;
+    color: var(--text-white);
+    background-color: var(--review-color);
+    border-color: var(--review-dark-color);
+    border-radius: 8px;
+    box-shadow: 0 3px 0 var(--review-dark-color);
+
+    .material-symbols-rounded {
+      font-size: 1.25rem;
+    }
+
+    &:not(:disabled):hover {
+      background-color: var(--review-dark-color);
+      border-color: var(--review-darker-color);
+      box-shadow: 0 3px 0 var(--review-darker-color);
+    }
+
+    &:not(:disabled):active {
+      box-shadow: 0 0 0 var(--review-darker-color);
+    }
+  }
+
+  // 沒有要複習的錯題：綠色勾勾與一句話
+  > .review-empty {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 2px;
+    font-size: 0.95rem;
+    color: var(--foreground-700);
+
+    > .material-symbols-rounded {
+      font-size: 1.25rem;
+      color: var(--success-color);
+    }
+  }
+}
+
+// 「調整」彈窗的設定列表：同 PVQC 自訂測驗（PVQCSetup.scss 的 .config-inputs），列與列之間以分隔線隔開
+.practice-settings {
+  margin: 12px 20px 8px;
+  border: 2px solid var(--divider-color);
+  border-radius: 12px;
+
+  p {
+    margin: 0;
+  }
+
+  > .practice-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    // 兩列一樣高：開關那列的說明有兩行，步進器那列跟著撐高
+    min-height: 64px;
+    padding: 12px;
+    border-radius: 0; // 覆蓋全域 div 圓角，避免分隔線兩端彎曲
+
+    &:not(:last-child) {
+      border-bottom: 2px solid var(--divider-color);
+    }
+
+    > p {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.95rem;
+      color: var(--foreground-700);
+
+      > small {
+        font-size: 0.75rem;
+        color: var(--text-muted-color);
+      }
+    }
+  }
+
+  > label.practice-option {
+    cursor: pointer;
+  }
 }

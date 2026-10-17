@@ -11,7 +11,6 @@ import History from './pages/History/History'
 import SingleHistory from './pages/History/ui/SingleHistory'
 import Settings from './pages/Settings/Settings'
 import PVQCSetup from './pages/PVQC/PVQCSetup'
-import Review from './pages/Review/Review'
 import Practice from './pages/Practice/Practice'
 import Guide from './pages/Guide/Guide'
 import Install from './pages/Install/Install'
@@ -51,7 +50,8 @@ export const router = createBrowserRouter(
         ...legacyRedirects('/quiz'),
         { path: '/pvqc', element: <PVQCSetup /> },
         { path: '/practice', element: <Practice /> },
-        { path: '/review', element: <Review /> },
+        // 錯題複習併進練習頁前的網址
+        { path: '/review', element: <Navigate to="/practice" replace /> },
         {
           path: '/history',
           element: <History scope="quiz" />,
