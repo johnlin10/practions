@@ -49,14 +49,14 @@
       flex-direction: column;
       padding: 4px 0 18px 28px;
 
+      // 串起各階段的虛線
       &::before {
         content: '';
         position: absolute;
-        left: 8px;
-        top: 28px;
-        bottom: 0;
-        width: 2px;
-        background: var(--divider-color);
+        left: 6px;
+        top: 32px;
+        bottom: 6px;
+        border-left: 2px dashed var(--border-color);
       }
 
       &::after {
@@ -68,7 +68,7 @@
         height: 14px;
         border-radius: 50%;
         background: var(--dot-color);
-        border: 2px solid #ffffff30;
+        box-shadow: 0 0 0 4px var(--dot-halo-color);
       }
 
       &:last-child {
@@ -81,12 +81,15 @@
 
       &.primary {
         --dot-color: var(--primary-color);
+        --dot-halo-color: var(--primary-background-color);
       }
       &.review {
         --dot-color: var(--review-color);
+        --dot-halo-color: var(--review-background-color);
       }
       &.success {
         --dot-color: var(--success-color);
+        --dot-halo-color: var(--correct-background-color);
       }
 
       > strong {
@@ -96,6 +99,201 @@
       > span {
         font-size: 0.9rem;
         color: var(--foreground-600);
+      }
+    }
+  }
+
+  // 歷程每一步的示意小卡：跟著同一題 apple 走完全程
+  .journey-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 8px 0;
+    padding: 12px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--foreground-600);
+    border: 2px solid var(--divider-color);
+
+    .material-symbols-rounded {
+      font-size: 1rem;
+    }
+  }
+
+  .journey-word {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--foreground-900);
+  }
+
+  .journey-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+
+    > span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 38px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--foreground-900);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+
+      &.wrong {
+        color: var(--wrong-text-color);
+        background: var(--wrong-background-color);
+        border-color: var(--wrong-border-color);
+      }
+
+      &.correct {
+        color: var(--correct-text-color);
+        background: var(--correct-background-color);
+        border-color: var(--correct-border-color);
+      }
+
+      > .material-symbols-rounded {
+        font-size: 1.15rem;
+      }
+    }
+  }
+
+  .journey-caption {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &.review {
+      font-weight: 600;
+      color: var(--review-text-color);
+    }
+  }
+
+  // 今天 —— 至少 8 小時 —— 隔天
+  .journey-days {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    > .chip {
+      flex-shrink: 0;
+    }
+  }
+
+  .journey-gap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    gap: 2px;
+    min-width: 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+
+    &::after {
+      content: '';
+      align-self: stretch;
+      border-top: 2px dashed var(--border-strong-color);
+    }
+  }
+
+  // 兩天都答對 → 掌握，靠右對齊隔天
+  .journey-result {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+
+    > .material-symbols-rounded {
+      color: var(--text-muted-color);
+    }
+  }
+
+  .journey-mastered {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 10px;
+    font-weight: 700;
+    line-height: 1.6;
+    color: var(--text-white);
+    background: var(--success-color);
+    border-radius: 999px;
+  }
+
+  // 幾天後、一週後、兩週後
+  .journey-later {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+
+    > span {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      height: 64px;
+      background: var(--fill-color);
+      border-radius: 10px;
+
+      > .material-symbols-rounded {
+        font-size: 1.4rem;
+      }
+
+      > span {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 0.75rem;
+        font-weight: 600;
+
+        > .material-symbols-rounded {
+          font-size: 0.9rem;
+          color: var(--correct-text-color);
+        }
+      }
+    }
+  }
+
+  // 記牢了：稍微歪一點的綠色徽章
+  .journey-remembered {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    > .material-symbols-rounded {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      color: var(--text-white);
+      background: var(--success-color);
+      border-radius: 10px;
+      box-shadow: 0 3px 0 var(--success-dark-color);
+      rotate: -4deg;
+    }
+
+    > span {
+      display: flex;
+      flex-direction: column;
+
+      > :first-child {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--foreground-900);
+      }
+
+      > :last-child {
+        font-weight: 600;
+        color: var(--correct-text-color);
       }
     }
   }
@@ -253,7 +451,10 @@
     // 今天和隔天兩次答對中間的時間線：上面「8 小時」，中間 3:00 換日的虛線，下面標「3:00 換日」
     .timeline {
       display: grid;
-      grid-template-columns: auto minmax(12px, 1fr) auto minmax(12px, 1fr) auto auto;
+      grid-template-columns: auto minmax(12px, 1fr) auto minmax(
+          12px,
+          1fr
+        ) auto auto;
       align-items: center;
       row-gap: 2px;
       max-width: 22rem;

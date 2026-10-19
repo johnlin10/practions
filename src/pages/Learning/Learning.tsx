@@ -7,30 +7,127 @@ import { usePageMeta } from '@/hooks/usePageMeta'
 import LearningCycle from '@/components/LearningCycle/LearningCycle'
 import CollapsibleSection from '@/components/CollapsibleSection/CollapsibleSection'
 
+// 示意小卡用的圖示
+function Icon({ name }: { name: string }): React.ReactElement {
+  return (
+    <span className="material-symbols-rounded" aria-hidden="true">
+      {name}
+    </span>
+  )
+}
+
+// 示意小卡：一道題和兩個選項，標出這次選的答案
+function JourneyQuestion({
+  correct,
+}: {
+  correct: boolean
+}): React.ReactElement {
+  return (
+    <>
+      <span className="journey-word">apple</span>
+      <span className="journey-options">
+        <span className={correct ? undefined : 'wrong'}>
+          {!correct && <Icon name="close" />}
+          香蕉
+        </span>
+        <span className={correct ? 'correct' : undefined}>
+          {correct && <Icon name="check" />}
+          蘋果
+        </span>
+      </span>
+    </>
+  )
+}
+
 // 一道答錯的題會經歷的事，color 對應學習循環的步驟顏色
+// card 是跟著同一題 apple 走完全程的示意小卡，說明文字已經講完整，所以小卡對螢幕閱讀器隱藏
 const JOURNEY = [
   {
     color: 'primary',
+    card: (
+      <>
+        <JourneyQuestion correct={false} />
+        <span className="journey-caption review">
+          <Icon name="replay" />
+          收進錯題複習
+        </span>
+      </>
+    ),
     when: '測驗或隨手練答錯',
     text: '測驗和隨手練都會優先出你還沒掌握的題目，偶爾穿插幾題已經會的，確認你還記得。答錯的題會自動收進錯題複習。',
   },
   {
     color: 'review',
+    card: (
+      <>
+        <JourneyQuestion correct />
+        <span className="journey-caption">答對了，今天不會再出現</span>
+      </>
+    ),
     when: '當天・錯題複習',
     text: '每答一題，馬上告訴你對錯和正確答案。答錯的最後再練一次，還沒答對的，下次複習再繼續練。答對的題目，今天不會再出現。',
   },
   {
     color: 'success',
+    card: (
+      <>
+        <span className="journey-days">
+          <span className="chip">
+            今天
+            <Icon name="check" />
+          </span>
+          <span className="journey-gap">
+            <span>至少 8 小時</span>
+          </span>
+          <span className="chip">
+            隔天
+            <Icon name="check" />
+          </span>
+        </span>
+        <span className="journey-result">
+          兩天都答對
+          <Icon name="arrow_forward" />
+          <span className="journey-mastered">
+            <Icon name="check" />
+            掌握
+          </span>
+        </span>
+      </>
+    ),
     when: '隔天・再答對一次',
     text: '隔天再答對一次，而且距離上次答對至少 8 小時，就算掌握。熬夜到凌晨 3 點前答的，都還算前一天。',
   },
   {
     color: 'review',
+    card: (
+      <span className="journey-later">
+        {['幾天後', '一週後', '兩週後'].map((when) => (
+          <span key={when}>
+            <Icon name="calendar_month" />
+            <span>
+              {when}
+              <Icon name="check" />
+            </span>
+          </span>
+        ))}
+      </span>
+    ),
     when: '幾天後、一週後、兩週後',
     text: '錯題複習會再考驗你三次，只要你還記得，就會記得更牢。忘了也沒關係，答錯的題會回到錯題複習，重新練起。',
   },
   {
     color: 'success',
+    card: (
+      <span className="journey-remembered">
+        <span className="material-symbols-rounded fill" aria-hidden="true">
+          verified
+        </span>
+        <span>
+          <span>apple → 蘋果</span>
+          <span>記牢了</span>
+        </span>
+      </span>
+    ),
     when: '後續三次複習都答對',
     text: '之後只會在測驗裡偶爾出現。',
   },
@@ -127,9 +224,12 @@ function Learning(): React.ReactElement {
           <section>
             <h2>一道答錯題的歷程</h2>
             <ol className="learning-timeline">
-              {JOURNEY.map(({ color, when, text }) => (
+              {JOURNEY.map(({ color, card, when, text }) => (
                 <li key={when} className={color}>
                   <strong>{when}</strong>
+                  <div className="journey-card" aria-hidden="true">
+                    {card}
+                  </div>
                   <span>{text}</span>
                 </li>
               ))}
@@ -154,8 +254,8 @@ function Learning(): React.ReactElement {
             <h2>掌握度怎麼算</h2>
             <p>
               掌握度是一個題庫裡，你已經記住的題目比例。一道題要在
-              <strong>不同的兩天且至少間隔 8 小時</strong>都答對，才算掌握，過了凌晨
-              3 點才算新的一天。
+              <strong>不同的兩天且至少間隔 8 小時</strong>
+              都答對，才算掌握，過了凌晨 3 點才算新的一天。
             </p>
             <figure className="learning-days">
               <span className="learning-days-row">
@@ -233,7 +333,8 @@ function Learning(): React.ReactElement {
                 只看一眼，下次很容易又錯。比較好的做法是馬上知道錯在哪裡，並在同一次練習中再答一次。
               </Pair>
               <Pair from="同一個晚上反覆刷" to="隔天以後再答對一次">
-                一晚刷到全部答對，多半只是短期記憶。研究發現，隔天以後再答對一次，比當下多答對好幾次更能讓記憶留得久。而且隔得越來越久，每次隔了一段時間還想得起來，就記得更牢。Practions 是這樣安排的：
+                一晚刷到全部答對，多半只是短期記憶。研究發現，隔天以後再答對一次，比當下多答對好幾次更能讓記憶留得久。而且隔得越來越久，每次隔了一段時間還想得起來，就記得更牢。Practions
+                是這樣安排的：
                 <span className="learning-spacing" aria-hidden="true">
                   {['1 天', '幾天', '1 週', '2 週'].map((text, index) => (
                     <span className="step" key={text}>
