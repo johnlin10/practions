@@ -202,7 +202,6 @@ function PVQCSetup(): React.ReactElement {
         {setupMode === 'official' ? (
           <>
             <div className="pvqc-setup-section">
-              <h2>PVQC 官方模擬</h2>
               <p className="setup-description">
                 依官方規範：每階段 100
                 題，時間到自動進入下一階段，未作答視為錯誤。

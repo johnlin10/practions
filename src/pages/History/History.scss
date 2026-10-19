@@ -98,6 +98,13 @@ h1.history-title {
           -moz-transform: translateY(-50%);
           -ms-transform: translateY(-50%);
           -o-transform: translateY(-50%);
+
+          > .correct-total {
+            margin-left: 2px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-muted-color);
+          }
         }
       }
     }
@@ -236,4 +243,9 @@ h1.history-title {
 .review-label {
   font-weight: 600;
   color: var(--review-text-color);
+}
+
+.practice-label {
+  font-weight: 600;
+  color: var(--practice-text-color);
 }

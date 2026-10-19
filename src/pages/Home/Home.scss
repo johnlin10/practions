@@ -18,6 +18,13 @@
     height: 100dvh;
     padding-bottom: 96px;
 
+    > .home-logo {
+      width: 72px;
+      height: 72px;
+      margin-bottom: 16px;
+      color: var(--primary-color);
+    }
+
     h1 {
       font-size: 2.5rem;
       color: var(--primary-color);
@@ -27,30 +34,6 @@
     p {
       font-size: 1rem;
       color: var(--text-faint-color);
-      margin-bottom: 54px;
-    }
-
-    > .pvqc-entrance-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      padding: 18px 32px;
-      margin-top: 12px;
-      height: 42px;
-      background: var(--background-color);
-      color: var(--text-color);
-      font-size: 1rem;
-      font-weight: 500;
-      border: 2px solid var(--border-color);
-
-      &:hover {
-        background: var(--fill-color);
-      }
-
-      > .material-symbols-rounded {
-        margin-right: 6px;
-      }
     }
 
     // 導航列上方的捲動提示（純文字，不套用全域按鈕外框）
@@ -173,11 +156,12 @@
       gap: 10px;
       margin-top: 16px;
       padding: 12px;
-      border: 2px solid var(--border-color);
-      background-color: var(--fill-color);
+      // 同其他卡片：底色蓋住後面的背景方塊
+      border: 2px solid var(--divider-color);
+      background-color: var(--background-color);
 
       &:hover {
-        background-color: var(--fill-strong-color);
+        background-color: var(--fill-color);
       }
 
       > .material-symbols-rounded:first-child {

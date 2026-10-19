@@ -338,7 +338,7 @@ function Settings(): React.ReactElement {
           </div>
 
           <div className="settings-list-group has-title">
-            <h5>錯題複習</h5>
+            <h5>練習</h5>
             <label className="settings-list-group-item action">
               <p>互動音效</p>
               <input
@@ -352,7 +352,7 @@ function Settings(): React.ReactElement {
           </div>
 
           <div className="settings-list-group has-title">
-            <h5>測驗紀錄</h5>
+            <h5>測驗與練習紀錄</h5>
             <input
               ref={importInputRef}
               type="file"
@@ -368,7 +368,7 @@ function Settings(): React.ReactElement {
             >
               <p>
                 <span className="material-symbols-outlined icon">download</span>
-                匯出測驗紀錄
+                匯出紀錄
               </p>
             </div>
             <div
@@ -377,7 +377,7 @@ function Settings(): React.ReactElement {
             >
               <p>
                 <span className="material-symbols-outlined icon">upload</span>
-                匯入測驗紀錄
+                匯入紀錄
               </p>
             </div>
             <div
@@ -388,10 +388,10 @@ function Settings(): React.ReactElement {
             >
               <p>
                 <span className="material-symbols-outlined icon">delete</span>
-                清除測驗紀錄
+                清除紀錄
               </p>
               {!hasHistory ? (
-                <p className="info">沒有測驗紀錄</p>
+                <p className="info">沒有測驗或練習紀錄</p>
               ) : (
                 <p className="info">{history.length} 筆紀錄</p>
               )}

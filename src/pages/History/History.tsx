@@ -119,6 +119,7 @@ function History({
             {practice && (
               <SegmentedControl
                 label="篩選紀錄"
+                className={filter === 'review' ? 'review' : undefined}
                 value={filter}
                 onChange={setFilter}
                 options={[
@@ -180,7 +181,9 @@ function History({
                                 className={
                                   flowMode === 'review'
                                     ? 'review-label'
-                                    : undefined
+                                    : flowMode === 'practice'
+                                      ? 'practice-label'
+                                      : undefined
                                 }
                               >
                                 {modeLabel}
@@ -212,11 +215,19 @@ function History({
                               )}
                             </p>
                             <p className="correct-rate">
-                              {review
-                                ? `${review.first + review.retry}/${review.total}`
-                                : record.results?.overallCorrectRate ||
-                                  record.correctRate ||
-                                  '0%'}
+                              {review ? (
+                                <>
+                                  {review.first + review.retry}
+                                  {/* 總題數是次要資訊，小字淡色 */}
+                                  <span className="correct-total">
+                                    /{review.total}
+                                  </span>
+                                </>
+                              ) : (
+                                record.results?.overallCorrectRate ||
+                                record.correctRate ||
+                                '0%'
+                              )}
                             </p>
                           </div>
                         </Link>

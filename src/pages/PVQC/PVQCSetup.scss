@@ -182,7 +182,10 @@ $radius: 12px;
 
 // 官方 / 自訂切換（SegmentedControl 的外層間距；安裝頁的平台切換也沿用）
 .setup-mode-switch {
-  margin: 8px 0;
+  z-index: 10;
+  position: sticky;
+  top: 60px;
+  margin: 12px 0 8px 0;
 }
 
 // 官方模式說明

@@ -69,6 +69,24 @@
     box-shadow: 0 0 0 var(--primary-color);
   }
 
+  // 錯題複習的主題色：選中的選項改用橘色
+  &.review > button.active,
+  &.review > button.active:not(:disabled):hover,
+  &.review > button.active:not(:disabled):active {
+    color: var(--review-section-text-color);
+    background-color: var(--review-background-color);
+    border-color: var(--review-color);
+  }
+
+  &.review > button.active:not(:disabled),
+  &.review > button.active:not(:disabled):hover {
+    box-shadow: 0 3px 0 var(--review-color);
+  }
+
+  &.review > button.active:not(:disabled):active {
+    box-shadow: 0 0 0 var(--review-color);
+  }
+
   // 大型：撐滿整行，選項平分寬度
   &.lg {
     display: flex;

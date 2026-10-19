@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import './Home.scss'
 import InstallBanner from '@/components/InstallBanner/InstallBanner'
-import LearningCycle from '@/components/LearningCycle/LearningCycle'
+import { LearningLoop } from '@/components/LearningCycle/LearningCycle'
 import { LEARNING_PATH, LEARNING_TITLE } from '@/pages/Learning/meta'
 import packageJson from '../../../package.json'
 
@@ -62,8 +62,6 @@ const conveniences = [
  * 首頁頁面
  */
 function Home(): React.ReactElement {
-  const navigate = useNavigate()
-
   //* 背景矩形動畫效果
   useEffect(() => {
     // 選取所有背景矩形元素
@@ -112,19 +110,23 @@ function Home(): React.ReactElement {
   return (
     <div className="home-container">
       <div className="home-header">
+        {/* Logo：透明底，方塊顏色跟著主題色；外框圓角同 App 圖示 */}
+        <svg
+          className="home-logo"
+          viewBox="0 0 1024 1024"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <clipPath id="home-logo-clip">
+            <rect width="1024" height="1024" rx="225" />
+          </clipPath>
+          <path
+            clipPath="url(#home-logo-clip)"
+            d="M0 0H675V241H240V676H0ZM783 0H1024V241H783ZM348 349H675V676H348ZM783 349H1024V1024H348V784H783ZM0 784H240V1024H0Z"
+          />
+        </svg>
         <h1 onClick={handleTitleClick}>Practions</h1>
         <p>Practice Questions</p>
-
-        {/* PVQC 測驗入口 */}
-        <button
-          className="pvqc-entrance-btn"
-          onClick={() => navigate('/pvqc')}
-          title="前往 PVQC 測驗設定"
-        >
-          <span className="hot-badge">HOT</span>
-          <span className="material-symbols-rounded">psychology</span>
-          PVQC 測驗
-        </button>
 
         <button className="scroll-hint" onClick={handleScrollHintClick}>
           認識 Practions
@@ -185,7 +187,7 @@ function Home(): React.ReactElement {
         <section className="intro-group intro-plain">
           <h5>怎麼幫你記住</h5>
           <p>你只要照著練，哪些題目該再練一次，Practions 會幫你安排。</p>
-          <LearningCycle />
+          <LearningLoop />
           <Link className="intro-learning-link no-style" to={LEARNING_PATH}>
             <span className="material-symbols-rounded">school</span>
             <span>
@@ -198,13 +200,12 @@ function Home(): React.ReactElement {
 
         {/* 給老師與合作：預設收合，同一時間只展開一個 */}
         <section className="intro-group intro-more">
-          <h5>給老師與合作</h5>
           <details name="home-more">
             <summary>
               <span className="material-symbols-rounded">school</span>
               <span>
-                <span>給老師</span>
-                <span>練習平台，不是考核平台；考試期間可以鎖定</span>
+                <span>平台特性</span>
+                <span>練習平台，而非考核平台</span>
               </span>
               <span className="material-symbols-rounded">expand_more</span>
             </summary>
@@ -215,7 +216,7 @@ function Home(): React.ReactElement {
                 不是考核平台
               </h3>
               <p>
-                為了讓練習盡量簡單，答案全部公開。登入只是用來保存自己的紀錄，測驗紀錄也只有作答的人自己看得到；老師無法查看，也無法確認是誰作答。
+                為了讓練習盡量簡單，答案全部公開。登入只是用來保存自己的紀錄，測驗紀錄也只有作答的人自己看得到。老師無法查看，也無法確認是誰作答。
               </p>
               <div className="intro-fit">
                 <div className="fit-yes">

@@ -103,3 +103,123 @@
     }
   }
 }
+
+// 首頁的學習循環：四個步驟在圓環上繞一圈（位置由 LearningLoop 算好）
+// 寬度固定 339px：iPhone 375px 扣掉頁面左右 18px，延伸到卡片的內距裡，圓環才能撐大
+.learning-loop {
+  position: relative;
+  width: 339px;
+  // 置中；卡片比較窄時兩側伸進卡片內距
+  margin: 20px 0 0 calc(50% - 169.5px);
+
+  // 比 iPhone 窄的螢幕整張縮小
+  @media (max-width: 374px) {
+    zoom: 0.82;
+  }
+
+  // 虛線圓環（SVG，在文字與箭頭的位置斷開）
+  > .learning-loop-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    > circle {
+      fill: none;
+      stroke: var(--border-color);
+      stroke-width: 3;
+      stroke-dasharray: 8 6;
+    }
+  }
+
+  > .learning-loop-hub {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 104px;
+    height: 104px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--primary-text-color);
+    background: var(--primary-background-color);
+    border-radius: 50%;
+
+    > span:last-child {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+  }
+
+  > .learning-loop-arrow {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    color: var(--text-muted-color);
+  }
+
+  > ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    > li {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 112px;
+
+      > .learning-icon {
+        width: 52px;
+        height: 52px;
+        margin-bottom: 4px;
+        font-size: 30px;
+        border-radius: 14px;
+
+        &.primary {
+          box-shadow: 0 4px 0 var(--primary-dark-color);
+        }
+        &.review {
+          box-shadow: 0 4px 0 var(--review-dark-color);
+        }
+        &.success {
+          box-shadow: 0 4px 0 var(--success-dark-color);
+        }
+      }
+
+      // 每個圖示歪一點點，看起來比較隨性
+      &:nth-child(1) > .learning-icon {
+        rotate: -4deg;
+      }
+      &:nth-child(2) > .learning-icon {
+        rotate: 4deg;
+      }
+      &:nth-child(3) > .learning-icon {
+        rotate: -3deg;
+      }
+      &:nth-child(4) > .learning-icon {
+        rotate: 3deg;
+      }
+
+      > .learning-step-name {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--foreground-900);
+      }
+
+      > .learning-step-text {
+        font-size: 0.75rem;
+        color: var(--foreground-600);
+      }
+    }
+  }
+}

@@ -1162,7 +1162,7 @@ function Quiz(): React.ReactElement {
             <Link className="pvqc-entry no-style" to="/pvqc">
               <span className="pvqc-entry-title">
                 <span className="material-symbols-rounded">psychology</span>
-                PVQC 測驗
+                PVQC
               </span>
               <span className="pvqc-entry-arrow material-symbols-rounded">
                 chevron_right

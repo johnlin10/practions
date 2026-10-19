@@ -145,6 +145,8 @@
   --review-dark-color: var(--orange-600); /* 實心按鈕的底邊、hover 底色 */
   --review-darker-color: var(--orange-700); /* 實心按鈕 hover 的底邊 */
   --review-text-color: var(--orange-600);
+  --review-background-color: var(--orange-100); /* 選中狀態的淺橘底 */
+  --practice-text-color: var(--blue-600); /* 隨手練的文字，對應錯題複習的橘色文字 */
 
   /* 練習頁的區塊：淡色底、主題色邊框與標題 */
   --practice-section-color: #dff3fb;
@@ -222,6 +224,8 @@
   /* 橘色降一階會變褐色（不像藍色仍然飽和），所以深色模式沿用 orange-500 */
   --review-color: var(--orange-500);
   --review-text-color: var(--orange-400);
+  --review-background-color: var(--orange-800);
+  --practice-text-color: var(--blue-400); /* primary-text-color 是給深藍底用的淡藍，直接放在深色背景上太淡 */
 
   /* 練習頁的區塊：深色底上改用很暗的藍與橘 */
   --practice-section-color: #0a222c;
