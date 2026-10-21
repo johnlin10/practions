@@ -1,5 +1,6 @@
 import { SubjectConfig } from '../../../types/quiz-flows'
 import { QuestionTypeId } from '../../../types/questions'
+import type { BankGroup, BankMask, BankSort } from '../../../types/settings'
 
 // types
 export type LockStatus = 'none' | 'upcoming' | 'locked'
@@ -112,4 +113,70 @@ export const formatLockTime = (time: string): string => {
       hour12: false,
     })
     .replace(/\//g, '.')
+}
+
+// 檢視方式彈窗的選項（單字題庫）
+export const MASK_OPTIONS: { value: BankMask; label: string }[] = [
+  { value: 'none', label: '不遮' },
+  { value: 'chinese', label: '中文' },
+  { value: 'english', label: '英文' },
+]
+// 「短到長」的圖示在 Bank.scss 上下翻轉，變成由短到長的線條
+export const SORT_OPTIONS: { value: BankSort; label: string; icon?: string }[] = [
+  { value: 'none', label: '預設' },
+  { value: 'short', label: '短到長', icon: 'sort' },
+  { value: 'alphabet', label: 'A→Z' },
+  { value: 'random', label: '隨機', icon: 'shuffle' },
+]
+export const GROUP_OPTIONS: { value: BankGroup; label: string }[] = [
+  { value: 'none', label: '不分組' },
+  { value: 'twenty', label: '每 20 字' },
+]
+
+const GROUP_SIZE = 20
+
+/**
+ * [function] sortWords
+ * 依檢視方式排列單字；隨機的順序由呼叫端洗好傳進來，畫面重新渲染時才不會一直變
+ * @param words - 題庫原本順序的單字
+ * @param sort - 排序方式
+ * @param shuffled - 洗好的順序
+ * @returns 排好的單字（新陣列或傳入的陣列）
+ */
+export const sortWords = <T extends { english: string }>(
+  words: T[],
+  sort: BankSort,
+  shuffled: T[],
+): T[] => {
+  switch (sort) {
+    case 'short':
+      return [...words].sort((a, b) => a.english.length - b.english.length)
+    case 'alphabet':
+      return [...words].sort((a, b) => a.english.localeCompare(b.english))
+    case 'random':
+      return shuffled
+    default:
+      return words
+  }
+}
+
+/**
+ * [function] groupWords
+ * 每 20 字一組，組名是在整個列表裡的位置（1–20、21–40…），搜尋時組名不變；
+ * 不分組時只有一組、沒有組名
+ * @param words - 排好的單字
+ * @param group - 分組方式
+ * @returns 各組的組名與單字
+ */
+export const groupWords = <T>(
+  words: T[],
+  group: BankGroup,
+): { title: string; words: T[] }[] => {
+  if (group === 'none') return [{ title: '', words }]
+  const groups = []
+  for (let i = 0; i < words.length; i += GROUP_SIZE) {
+    const end = Math.min(i + GROUP_SIZE, words.length)
+    groups.push({ title: `${i + 1}–${end}`, words: words.slice(i, end) })
+  }
+  return groups
 }

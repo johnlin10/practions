@@ -6,6 +6,9 @@
  */
 import { z } from 'zod'
 import {
+  BANK_GROUPS,
+  BANK_MASKS,
+  BANK_SORTS,
   DEFAULT_SETTINGS,
   PRACTICE_LIMITS,
   REVIEW_LIMITS,
@@ -41,4 +44,7 @@ export const appSettingsSchema = z.object({
   practiceSubject: z.string().catch(DEFAULT_SETTINGS.practiceSubject),
   practiceSubjectAt: z.number().catch(DEFAULT_SETTINGS.practiceSubjectAt),
   sound: z.boolean().catch(DEFAULT_SETTINGS.sound),
+  bankMask: z.enum(BANK_MASKS).catch(DEFAULT_SETTINGS.bankMask),
+  bankSort: z.enum(BANK_SORTS).catch(DEFAULT_SETTINGS.bankSort),
+  bankGroup: z.enum(BANK_GROUPS).catch(DEFAULT_SETTINGS.bankGroup),
 })
