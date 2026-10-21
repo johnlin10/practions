@@ -44,6 +44,7 @@ import {
   QuestionImages,
 } from '@/components/QuestionImage/QuestionImage'
 import { speakEnglish } from '../../../utils/tts'
+import { useSwipeToClose } from '@/hooks/useSwipeToClose'
 
 // interfaces
 interface SingleBankParams extends Record<string, string | undefined> {
@@ -67,6 +68,8 @@ const SingleBank: React.FC = () => {
   const { subjectId } = useParams<SingleBankParams>()
   // 導航
   const navigate = useNavigate()
+  // 整頁，往下拉關閉時跟著手指移動
+  const pageRef = useRef<HTMLDivElement>(null)
   // 這個題庫的掌握度（沒做過的題庫沒有），點左上角的按鈕彈出
   const mastery = useMastery().get(subjectId ?? '')
   const [masteryOpen, setMasteryOpen] = useState(false)
@@ -462,6 +465,9 @@ const SingleBank: React.FC = () => {
     navigate('/bank', { viewTransition: true })
   }
 
+  // 由底部滑入，所以在最上面往下拉也能關閉
+  useSwipeToClose(pageRef, handleClose)
+
   // 如果科目 ID 不存在，則顯示錯誤訊息
   if (!subjectId) {
     return (
@@ -502,7 +508,7 @@ const SingleBank: React.FC = () => {
 
   // 渲染單一題庫頁面
   return (
-    <div className="single-bank">
+    <div className="single-bank" ref={pageRef}>
       <button className="close-btn" onClick={handleClose}>
         <span className="material-symbols-rounded">close</span>
       </button>

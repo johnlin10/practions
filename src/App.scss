@@ -143,7 +143,8 @@
 // 只用整頁（root）的擷取畫面：各瀏覽器的 root 都剛好一個視窗大，不受詳情頁長度與捲動位置影響。
 // 轉場期間 DOM 已經是新畫面，由新畫面有沒有詳情頁判斷方向
 $sheet-in: sheet-in 0.65s cubic-bezier(0.23, 1, 0.32, 1);
-$sheet-out: sheet-out 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+// 滑出跟滑入一樣長，下拉放開後才不會一下子就不見
+$sheet-out: sheet-out 0.65s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 $sheet-pages: '.single-bank, .single-history';
 
 ::view-transition-old(root),
@@ -162,6 +163,22 @@ html:not(:has(#{$sheet-pages}))::view-transition-old(root) {
   animation: $sheet-out;
 }
 
+// 題庫頁在最上面往下拉會關閉（useSwipeToClose），關掉 Safari 的下拉重新整理與回彈，才不會同時觸發
+html:has(.single-bank) {
+  overscroll-behavior-y: none;
+}
+
+// 往下拉放開後關閉：拍下的畫面上方是拉下來時空出的背景，裁掉（留下 2px 邊線與圓角），露出底下的列表
+html.sheet-swipe-closing::view-transition-old(root) {
+  clip-path: inset(calc(var(--sheet-offset) - 2px) 0 0 0 round 14px 14px 0 0);
+}
+
+// 往下拉的時候，頁面上緣加一條邊線，看得出整頁被拉下來
+// 用 outline 才有完整的圓角邊線，左右兩邊在畫面外，看到的只有上緣
+.single-bank.swiping {
+  outline: 2px solid var(--border-color);
+}
+
 // 詳情頁上邊緣外側的柔和漸層：一條背景色、往上淡出的帶子，與詳情頁同步移動
 // fixed 在畫面上緣之外，平常看不到；自己命名（sheet-edge），轉場時疊在整頁畫面之上
 $sheet-edge: 120px;
@@ -178,6 +195,11 @@ $sheet-edge: 120px;
     height: $sheet-edge;
     background: fade.fade-gradient(var(--background-color), to top);
     pointer-events: none;
+  }
+
+  // 往下拉時頁面有 transform，漸層會貼在頁面上緣外側，往上讓出邊線的 2px，不然會蓋住邊線
+  &.swiping::before {
+    top: calc(-#{$sheet-edge} - 2px);
   }
 }
 
