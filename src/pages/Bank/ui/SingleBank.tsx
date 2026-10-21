@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import '../Bank.scss'
 import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
@@ -15,7 +15,13 @@ import {
   getLockStatus,
   getSearchPlaceholder,
   formatLockTime,
+  sortWords,
+  groupWords,
+  MASK_OPTIONS,
+  SORT_OPTIONS,
+  GROUP_OPTIONS,
 } from '../utils/bankHelpers'
+import { shuffle } from '@/utils/pick-questions'
 
 // types
 import {
@@ -32,6 +38,7 @@ import { SubjectConfig } from '../../../types/quiz-flows'
 // data
 import { subjects } from '../../../data/subjects'
 import { masteryPercent, useMastery } from '@/data/mastery'
+import { updateSettings, useSettingsStore } from '@/data/settingsStore'
 import {
   OptionImage,
   QuestionImages,
@@ -42,6 +49,14 @@ import { speakEnglish } from '../../../utils/tts'
 interface SingleBankParams extends Record<string, string | undefined> {
   subjectId?: string
 }
+
+// 遮住的字點一下後顯示多久
+const REVEAL_MS = 2000
+
+const vocabularyOf = (subjectId?: string): VocabularyQuestion[] =>
+  (subjects[subjectId ?? '']?.questions ?? []).filter(
+    (q): q is VocabularyQuestion => q.type === 'vocabulary',
+  )
 
 /**
  * [page] SingleBank page
@@ -63,6 +78,21 @@ const SingleBank: React.FC = () => {
   const [isLocked, setIsLocked] = useState<boolean>(false)
   // 當前時間
   const [currentTime, setCurrentTime] = useState<Date>(new Date())
+  // 單字題庫的檢視方式（遮住、排序、分組），記在設定裡
+  const { bankMask, bankSort, bankGroup } = useSettingsStore()
+  const [viewOpen, setViewOpen] = useState(false)
+  // 隨機排序的順序：打開題庫時洗一次，再選一次「隨機」會重洗
+  const [shuffledWords, setShuffledWords] = useState(() =>
+    shuffle(vocabularyOf(subjectId)),
+  )
+  // 遮住時點一下暫時顯示的單字，REVEAL_MS 後恢復模糊
+  const [revealed, setRevealed] = useState<ReadonlySet<string>>(new Set())
+  const revealTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>())
+
+  useEffect(() => {
+    const timers = revealTimers.current
+    return () => timers.forEach(clearTimeout)
+  }, [])
 
   // 更新當前時間
   useEffect(() => {
@@ -211,23 +241,72 @@ const SingleBank: React.FC = () => {
 
   /**
    * [function] renderVocabulary
-   * 渲染單字題
+   * 渲染單字題：緊湊列表的一列，發音按鈕在最前面
    * @param {VocabularyQuestion} question - 單字題
    * @returns {React.ReactNode} - 渲染單字題
    */
   const renderVocabulary = (question: VocabularyQuestion): React.ReactNode => {
     return (
-      <div key={question.id} className="question-item">
-        <div className="vocabulary-content" onClick={() => playWord(question)}>
-          <div className="word">
-            <span className="english">{question.english}</span>
-            <span className="chinese">{question.chinese}</span>
-          </div>
-          <div className="volume-up">
-            <span className="material-symbols-rounded">volume_up</span>
-          </div>
-        </div>
+      <div key={question.id} className="vocabulary-row">
+        <button
+          className="vocabulary-play"
+          aria-label={`念出 ${question.english}`}
+          onClick={() => playWord(question)}
+        >
+          <span className="material-symbols-rounded" aria-hidden="true">
+            volume_up
+          </span>
+        </button>
+        {renderWordText(question, 'english')}
+        {renderWordText(question, 'chinese')}
       </div>
+    )
+  }
+
+  /**
+   * [function] renderWordText
+   * 單字的英文或中文；被遮住時是模糊的按鈕，點了暫時顯示
+   * @param {VocabularyQuestion} question - 單字題
+   * @param {'english' | 'chinese'} side - 英文或中文
+   * @returns {React.ReactNode} - 文字
+   */
+  const renderWordText = (
+    question: VocabularyQuestion,
+    side: 'english' | 'chinese',
+  ): React.ReactNode => {
+    if (bankMask !== side) {
+      return <span className={side}>{question[side]}</span>
+    }
+    return (
+      <button
+        className={`${side} masked${revealed.has(question.id) ? ' revealed' : ''}`}
+        aria-label={side === 'english' ? '顯示英文' : '顯示中文'}
+        onClick={() => revealWord(question.id)}
+      >
+        {question[side]}
+      </button>
+    )
+  }
+
+  /**
+   * [function] revealWord
+   * 暫時顯示遮住的字，REVEAL_MS 後恢復；顯示中再點一次會重新計時
+   * @param {string} id - 題目 ID
+   * @returns {void}
+   */
+  const revealWord = (id: string): void => {
+    clearTimeout(revealTimers.current.get(id))
+    setRevealed((prev) => new Set(prev).add(id))
+    revealTimers.current.set(
+      id,
+      setTimeout(() => {
+        revealTimers.current.delete(id)
+        setRevealed((prev) => {
+          const next = new Set(prev)
+          next.delete(id)
+          return next
+        })
+      }, REVEAL_MS),
     )
   }
 
@@ -263,49 +342,54 @@ const SingleBank: React.FC = () => {
     const currentQuestions = typeFilter
       ? subject.questions.filter((q) => q.type === typeFilter)
       : subject.questions
-    // 如果沒有搜尋關鍵字，則返回科目題目
-    if (!searchTerm) return currentQuestions
+    return currentQuestions.filter(matchesSearch)
+  }
+
+  /**
+   * [function] matchesSearch
+   * 題目是否符合搜尋關鍵字（沒有關鍵字時都符合）
+   * @param {Question} question - 題目
+   * @returns {boolean} - 是否符合
+   */
+  const matchesSearch = (question: Question): boolean => {
+    // 如果沒有搜尋關鍵字，則都符合
+    if (!searchTerm) return true
 
     // 通用的 ID 搜尋邏輯
     if (searchTerm.startsWith('#')) {
-      // 取得搜尋 ID
-      const idSearch = searchTerm.slice(1)
-      // 返回搜尋 ID 的題目
-      return currentQuestions.filter((q) => q.id?.toString() === idSearch)
+      return question.id?.toString() === searchTerm.slice(1)
     }
 
     // 根據不同題型進行搜尋
-    // 如果搜尋關鍵字包含題目或選項，則返回該題目
-    return currentQuestions.filter((question) => {
-      switch (question.type) {
-        case 'single_choice':
-        case 'multiple_choice':
-          return (
-            question.question
-              ?.toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            question.options?.some((option) =>
-              option.toLowerCase().includes(searchTerm.toLowerCase()),
-            )
-          )
-
-        case 'true_false':
-          return question.question
+    // 如果搜尋關鍵字包含題目或選項，則符合
+    switch (question.type) {
+      case 'single_choice':
+      case 'multiple_choice':
+        return (
+          question.question
             ?.toLowerCase()
-            .includes(searchTerm.toLowerCase())
-
-        case 'vocabulary':
-          return (
-            question.english
-              ?.toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            question.chinese?.includes(searchTerm)
+            .includes(searchTerm.toLowerCase()) ||
+          question.options?.some((option) =>
+            option.toLowerCase().includes(searchTerm.toLowerCase()),
           )
+        )
 
-        default:
-          return false
-      }
-    })
+      case 'true_false':
+        return question.question
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase())
+
+      case 'vocabulary':
+        return (
+          question.english
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          question.chinese?.includes(searchTerm)
+        )
+
+      default:
+        return false
+    }
   }
 
   //* 檢查鎖定狀態
@@ -395,6 +479,11 @@ const SingleBank: React.FC = () => {
 
   // 題庫內的題型（超過一種才顯示篩選）
   const questionTypes = [...new Set(subject.questions.map((q) => q.type))]
+  // 單字題庫：緊湊列表，可以遮住、排序、分組
+  const isVocabulary = subject.baseQuestionType === 'vocabulary'
+  const vocabulary = vocabularyOf(subjectId)
+  const viewChanged =
+    bankMask !== 'none' || bankSort !== 'none' || bankGroup !== 'none'
 
   // 渲染單一題庫頁面
   return (
@@ -479,6 +568,17 @@ const SingleBank: React.FC = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="search-input"
                 />
+                {isVocabulary && (
+                  <button
+                    className={`view-btn${viewChanged ? ' changed' : ''}`}
+                    aria-label="檢視方式"
+                    onClick={() => setViewOpen(true)}
+                  >
+                    <span className="material-symbols-rounded" aria-hidden="true">
+                      tune
+                    </span>
+                  </button>
+                )}
               </div>
               {/* 題型篩選（混合題型的題庫才有），跟著搜尋框固定在頂部 */}
               {questionTypes.length > 1 && (
@@ -506,10 +606,78 @@ const SingleBank: React.FC = () => {
               {subject.source && (
                 <p className="bank-source">{subject.source}</p>
               )}
-              {getFilteredQuestions().map((question) =>
-                renderQuestionContent(question),
-              )}
+              {isVocabulary
+                ? groupWords(
+                    sortWords(vocabulary, bankSort, shuffledWords),
+                    bankGroup,
+                  ).map(({ title, words }) => {
+                    // 搜尋時只留下有符合單字的組，組名不變
+                    const shown = words.filter(matchesSearch)
+                    if (!shown.length) return null
+                    return (
+                      <div
+                        key={title}
+                        className={`vocabulary-list${title ? ' has-title' : ''}`}
+                      >
+                        {title && <h5>{title}</h5>}
+                        {shown.map(renderVocabulary)}
+                      </div>
+                    )
+                  })
+                : getFilteredQuestions().map((question) =>
+                    renderQuestionContent(question),
+                  )}
             </div>
+
+            {/* 單字題庫的檢視方式：點了立刻生效，背後的列表跟著變 */}
+            {isVocabulary && (
+              <Modal
+                open={viewOpen}
+                onClose={() => setViewOpen(false)}
+                title="檢視方式"
+                actions={
+                  <button onClick={() => setViewOpen(false)}>完成</button>
+                }
+              >
+                <div className="bank-view">
+                  <div>
+                    <h5>遮住</h5>
+                    <SegmentedControl
+                      size="lg"
+                      label="遮住"
+                      value={bankMask}
+                      onChange={(value) => updateSettings({ bankMask: value })}
+                      options={MASK_OPTIONS}
+                    />
+                  </div>
+                  <div>
+                    <h5>排序</h5>
+                    <SegmentedControl
+                      size="lg"
+                      label="排序"
+                      value={bankSort}
+                      onChange={(value) => {
+                        if (value === 'random') {
+                          setShuffledWords(shuffle(vocabulary))
+                        }
+                        updateSettings({ bankSort: value })
+                      }}
+                      options={SORT_OPTIONS}
+                    />
+                  </div>
+                  <div>
+                    <h5>分組</h5>
+                    <SegmentedControl
+                      size="lg"
+                      label="分組"
+                      value={bankGroup}
+                      onChange={(value) => updateSettings({ bankGroup: value })}
+                      options={GROUP_OPTIONS}
+                    />
+                  </div>
+                </div>
+              </Modal>
+            )}
           </>
         )}
       </div>

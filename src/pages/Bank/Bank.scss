@@ -289,8 +289,35 @@ span.lock-time {
       .search-box {
         position: relative;
         isolation: isolate;
+        display: flex;
+        gap: 8px;
         width: 100%;
         background-color: var(--background-color);
+
+        // 單字題庫的檢視方式；有改過（不是預設）時變成主題色，提醒列表被遮住或重新排過
+        > .view-btn {
+          flex: none;
+          width: 48px;
+          padding: 0;
+          color: var(--foreground-600);
+          border-radius: 12px;
+
+          > .material-symbols-rounded {
+            font-size: 24px;
+          }
+
+          &.changed,
+          &.changed:not(:disabled):hover {
+            color: var(--primary-text-color);
+            background-color: var(--primary-background-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 3px 0 var(--primary-color);
+          }
+
+          &.changed:not(:disabled):active {
+            box-shadow: 0 0 0 var(--primary-color);
+          }
+        }
 
         &::after {
           content: '';
@@ -318,6 +345,7 @@ span.lock-time {
 
       .search-input {
         width: 100%;
+        min-width: 0;
         padding: 12px 15px;
         border: 2px solid var(--border-color);
         font-size: 1rem;
@@ -422,40 +450,92 @@ span.lock-time {
         }
       }
 
-      .vocabulary-content {
-        display: flex;
-        flex-direction: row;
-        position: relative;
-        width: 100%;
-        height: min-content;
+      // 單字題庫：緊湊列表（同設定頁的分組列表），每 20 字一組時框外左上方有組名
+      .vocabulary-list {
+        @include list-group.titled-list(list-group.$compact-title-space);
 
-        > .word {
+        > .vocabulary-row {
           display: flex;
-          flex-direction: column;
-          width: 100%;
+          align-items: center;
+          gap: 4px;
+          min-height: 44px;
+          padding: 4px 12px 4px 4px;
+          // 全域 div 有 12px 圓角，分隔線兩端才不會彎
+          border-radius: 0;
+
+          &:not(:last-child) {
+            border-bottom: 2px solid var(--divider-color);
+          }
+
+          // 發音、遮住的字：拿掉全域按鈕的外框、陰影與上抬
+          > button {
+            padding: 0;
+            background: none;
+            border: none;
+            box-shadow: none;
+            translate: none;
+
+            &:not(:disabled):hover {
+              background: none;
+              border: none;
+              box-shadow: none;
+            }
+          }
+
+          > .vocabulary-play {
+            flex: none;
+            width: 36px;
+            height: 36px;
+            color: var(--text-muted-color);
+            border-radius: 8px;
+
+            &:not(:disabled):active {
+              transform: scale(0.94);
+              box-shadow: none;
+            }
+
+            > .material-symbols-rounded {
+              font-size: 22px;
+            }
+          }
 
           > .english {
-            margin-bottom: 3px;
-            font-size: 1rem;
+            flex: 0 0 40%;
+            min-width: 0;
+            font-size: 0.9rem;
             font-weight: bold;
+            color: var(--foreground-900);
+            overflow-wrap: anywhere;
           }
 
           > .chinese {
+            flex: 1 1 auto;
+            min-width: 0;
             font-size: 0.8rem;
+            line-height: 1.4;
             color: var(--text-color);
           }
-        }
 
-        > .volume-up {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: absolute;
-          right: 0;
-          top: 0;
-          height: 100%;
-          width: 48px;
-          color: var(--text-muted-color);
+          // 遮住：很模糊，看不出字形；點了暫時顯示（.revealed）
+          > .masked {
+            display: block;
+            font-family: inherit;
+            text-align: start;
+            border-radius: 0;
+            filter: blur(6px);
+            user-select: none;
+            -webkit-user-select: none;
+            transition: filter 0.2s ease;
+
+            &:not(:disabled):active {
+              transform: none;
+              box-shadow: none;
+            }
+
+            &.revealed {
+              filter: none;
+            }
+          }
         }
       }
     }
@@ -466,6 +546,35 @@ span.lock-time {
       -moz-transform: translateY(100%);
       -ms-transform: translateY(100%);
       -o-transform: translateY(100%);
+    }
+  }
+}
+
+// 單字題庫的檢視方式彈窗（彈窗本體見 Modal.scss）
+.bank-view {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  // 上緣留出標題的漸變（Modal.scss 的 12px），選中的選項往上抬的 3px 也在裡面
+  padding: 15px 20px 20px;
+  overflow-y: auto;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+
+    > h5 {
+      padding-left: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted-color);
+    }
+
+    // 排序有四個選項，窄螢幕上「短到長」才不會斷成兩行
+    > .segmented-control > button {
+      padding-inline: 4px;
+      white-space: nowrap;
     }
   }
 }

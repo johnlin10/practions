@@ -14,6 +14,14 @@ export interface PVQCSettings {
 // 主題：跟隨系統（自動模式），或手動指定淺色 / 深色
 export type ThemeSetting = 'system' | 'light' | 'dark'
 
+// 題庫單字列表的檢視方式：遮住哪一邊、排序、分組
+export const BANK_MASKS = ['none', 'chinese', 'english'] as const
+export const BANK_SORTS = ['none', 'short', 'alphabet', 'random'] as const
+export const BANK_GROUPS = ['none', 'twenty'] as const
+export type BankMask = (typeof BANK_MASKS)[number]
+export type BankSort = (typeof BANK_SORTS)[number]
+export type BankGroup = (typeof BANK_GROUPS)[number]
+
 // 通用設定介面
 export interface AppSettings {
   // PVQC 測驗設定
@@ -32,6 +40,10 @@ export interface AppSettings {
   practiceSubjectAt: number
   // 互動音效：錯題複習答對／答錯、完美作答時播放
   sound: boolean
+  // 題庫單字列表的檢視方式（所有單字題庫共用）
+  bankMask: BankMask
+  bankSort: BankSort
+  bankGroup: BankGroup
   // 未來可以擴展更多設定分類
   // ui: UISettings
   // notifications: NotificationSettings
@@ -63,6 +75,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   practiceSubject: '',
   practiceSubjectAt: 0,
   sound: true,
+  bankMask: 'none',
+  bankSort: 'none',
+  bankGroup: 'none',
 }
 
 // 錯題複習每次題數可調整的範圍（含）與每次增減的量
