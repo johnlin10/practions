@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import SlideLink from '@/components/SlideLink/SlideLink'
 import '../Settings/Settings.scss'
 import './Changelog.scss'
 
@@ -43,9 +43,9 @@ function Changelog(): React.ReactElement {
     <div className="page">
       <div className="page-container">
         <h1>
-          <Link className="pre-path no-style" to="/settings">
+          <SlideLink direction="back" className="pre-path no-style" to="/settings">
             設定 /
-          </Link>{' '}
+          </SlideLink>{' '}
           更新紀錄
         </h1>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useLocation, Link } from 'react-router-dom'
+import { useSlideNavigate } from '@/hooks/useSlideNavigate'
 import './BottomNav.scss'
 
 interface NavigationLink {
@@ -60,6 +61,25 @@ function BottomNav(): React.ReactElement {
     [pathname],
   )
 
+  // 目前在第幾個分頁，切換時依前後順序決定往左或往右
+  const activeIndex = linkList.findIndex((link) => link.active)
+
+  const slideTo = useSlideNavigate()
+
+  /**
+   * [function] switchTab
+   * 切換分頁：往後面的分頁從右邊淡入，往前面的從左邊淡入
+   * @param {React.MouseEvent} event - 點擊事件
+   * @param {number} index - 要前往的分頁
+   * @returns {void}
+   */
+  const switchTab = (event: React.MouseEvent, index: number): void => {
+    // 點目前所在的分頁不做轉場
+    if (index === activeIndex) return
+    event.preventDefault()
+    slideTo(linkList[index].path, index > activeIndex ? 'forward' : 'back')
+  }
+
   // 隱藏導航欄
   useEffect(() => {
     // 隱藏導航欄的路徑列表
@@ -87,12 +107,13 @@ function BottomNav(): React.ReactElement {
       <div className="navigate-edge" aria-hidden="true" />
       <div className="navigate-links">
         {/* 渲染導航連結 */}
-        {linkList.map((link) => (
+        {linkList.map((link, index) => (
           <Link
             key={link.path}
             className="no-style"
             data-active={link.active}
             to={link.path}
+            onClick={(event) => switchTab(event, index)}
           >
             <span className="material-symbols-rounded fill" aria-hidden="true">
               {link.icon}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useOutlet } from 'react-router-dom'
+import { useOutlet } from 'react-router-dom'
+import SlideLink from '@/components/SlideLink/SlideLink'
 import './Bank.scss'
 
 // components
@@ -118,14 +119,14 @@ function Bank(): React.ReactElement {
                       {cardContent}
                     </div>
                   ) : (
-                    <Link
+                    <SlideLink
                       key={subject.id}
                       className={cardClassName}
                       to={`/bank/${subject.id}`}
-                      viewTransition
+                      direction="up"
                     >
                       {cardContent}
-                    </Link>
+                    </SlideLink>
                   )
                 })
 

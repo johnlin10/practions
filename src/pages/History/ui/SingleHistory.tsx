@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useSlideNavigate } from '@/hooks/useSlideNavigate'
 import './SingleHistory.scss'
 
 // components
@@ -69,6 +70,7 @@ function SingleHistory(): React.ReactElement {
   const { id } = useParams<HistoryParams>()
   // 導航
   const navigate = useNavigate()
+  const slideTo = useSlideNavigate()
   // 回到所在的紀錄列表（測驗頁或練習頁）
   const base = useLocation().pathname.startsWith('/practice/')
     ? '/practice/history'
@@ -137,8 +139,8 @@ function SingleHistory(): React.ReactElement {
    * @returns {void}
    */
   const handleClose = (): void => {
-    // 滑出動畫由頁面轉場負責（App.scss）
-    navigate(base, { viewTransition: true })
+    // 往下滑出（App.scss）
+    slideTo(base, 'down')
   }
 
   /**

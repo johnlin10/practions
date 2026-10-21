@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import './Home.scss'
 import InstallBanner from '@/components/InstallBanner/InstallBanner'
 import { LearningLoop } from '@/components/LearningCycle/LearningCycle'
 import { LEARNING_PATH, LEARNING_TITLE } from '@/pages/Learning/meta'
 import packageJson from '../../../package.json'
+import SlideLink from '@/components/SlideLink/SlideLink'
 
 // 合作聯絡信箱（與設定頁相同）
 const CONTACT_EMAIL = 'contact@practions.app'
@@ -156,7 +156,7 @@ function Home(): React.ReactElement {
         <section className="intro-group intro-features">
           <h5>能做什麼</h5>
           {features.map((item) => (
-            <Link
+            <SlideLink
               className="intro-feature no-style"
               key={item.title}
               to={item.to}
@@ -167,7 +167,7 @@ function Home(): React.ReactElement {
                 <span>{item.text}</span>
               </span>
               <span className="material-symbols-rounded">chevron_right</span>
-            </Link>
+            </SlideLink>
           ))}
         </section>
 
@@ -188,14 +188,17 @@ function Home(): React.ReactElement {
           <h5>怎麼幫你記住</h5>
           <p>你只要照著練，哪些題目該再練一次，Practions 會幫你安排。</p>
           <LearningLoop />
-          <Link className="intro-learning-link no-style" to={LEARNING_PATH}>
+          <SlideLink
+            className="intro-learning-link no-style"
+            to={LEARNING_PATH}
+          >
             <span className="material-symbols-rounded">school</span>
             <span>
               <span>{LEARNING_TITLE}</span>
               <span>背後的學習原理與模擬測試</span>
             </span>
             <span className="material-symbols-rounded">chevron_right</span>
-          </Link>
+          </SlideLink>
         </section>
 
         {/* 給老師與合作：預設收合，同一時間只展開一個 */}

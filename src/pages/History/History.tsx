@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Link, useOutlet } from 'react-router-dom'
+import { useOutlet } from 'react-router-dom'
 import './History.scss'
 import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 
@@ -10,6 +10,7 @@ import { reviewSummary } from '@/data/wrongQuestions'
 import { useAuth } from '@/data/authStore'
 import { showConfirm } from '@/utils/dialog'
 import { isPracticeRecord } from './meta'
+import SlideLink from '@/components/SlideLink/SlideLink'
 
 /**
  * [page] History page
@@ -107,12 +108,13 @@ function History({
         <div className="page-container">
           <h1 className="history-title">
             <span>
-              <Link
+              <SlideLink
+                direction="back"
                 className="pre-path no-style"
                 to={practice ? '/practice' : '/quiz'}
               >
                 {practice ? '練習 /' : '測驗 /'}
-              </Link>{' '}
+              </SlideLink>{' '}
               紀錄
             </span>
             {/* 篩選：跟著標題固定在頂部 */}
@@ -167,10 +169,10 @@ function History({
                         className="history-swipe"
                         onScroll={handleRowScroll}
                       >
-                        <Link
+                        <SlideLink
                           className="history-item no-style"
                           to={`${base}/${record.id}`}
-                          viewTransition
+                          direction="up"
                         >
                           <div className="history-info">
                             <p className="history-subject">
@@ -230,7 +232,7 @@ function History({
                               )}
                             </p>
                           </div>
-                        </Link>
+                        </SlideLink>
                         <button
                           className="delete-btn"
                           aria-label="刪除這筆紀錄"

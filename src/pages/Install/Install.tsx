@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import SlideLink from '@/components/SlideLink/SlideLink'
 import './Install.scss'
 import SegmentedControl from '@/components/SegmentedControl/SegmentedControl'
 import { INSTALL_TITLE, INSTALL_DESCRIPTION } from './meta'
@@ -82,9 +82,9 @@ function Install(): React.ReactElement {
   return (
     <div className="page">
       <div className="page-container">
-        <Link className="pre-path no-style" to={GUIDE_PATH}>
+        <SlideLink direction="back" className="pre-path no-style" to={GUIDE_PATH}>
           使用指南 /
-        </Link>
+        </SlideLink>
         <h1>加入主畫面</h1>
         <p>
           將 Practions 加入手機主畫面，像 App

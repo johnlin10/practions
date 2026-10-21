@@ -141,11 +141,11 @@
 
 // 詳情頁（題庫題目、測驗紀錄）的頁面轉場：開啟時從底部滑入，關閉時往下滑出
 // 只用整頁（root）的擷取畫面：各瀏覽器的 root 都剛好一個視窗大，不受詳情頁長度與捲動位置影響。
-// 轉場期間 DOM 已經是新畫面，由新畫面有沒有詳情頁判斷方向
+// 方向由 useSlideNavigate 標在 <html> 的 data-nav（up 開啟、down 關閉），沒標的轉場（例如 React Router
+// 在瀏覽器上一頁時自己啟動的）不做動畫，才不會把一般頁面當成詳情頁往下滑出
 $sheet-in: sheet-in 0.65s cubic-bezier(0.23, 1, 0.32, 1);
 // 滑出跟滑入一樣長，下拉放開後才不會一下子就不見
 $sheet-out: sheet-out 0.65s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-$sheet-pages: '.single-bank, .single-history';
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
@@ -153,12 +153,12 @@ $sheet-pages: '.single-bank, .single-history';
 }
 
 // 開啟：新畫面（詳情頁）從底部滑入，蓋在靜止的列表上
-html:has(#{$sheet-pages})::view-transition-new(root) {
+html[data-nav='up']::view-transition-new(root) {
   animation: $sheet-in;
 }
 
 // 關閉：舊畫面（詳情頁）往下滑出，露出底下靜止的列表
-html:not(:has(#{$sheet-pages}))::view-transition-old(root) {
+html[data-nav='down']::view-transition-old(root) {
   z-index: 1;
   animation: $sheet-out;
 }
@@ -203,11 +203,11 @@ $sheet-edge: 120px;
   }
 }
 
-::view-transition-new(sheet-edge):only-child {
+html[data-nav='up']::view-transition-new(sheet-edge):only-child {
   animation: $sheet-in;
 }
 
-::view-transition-old(sheet-edge):only-child {
+html[data-nav='down']::view-transition-old(sheet-edge):only-child {
   animation: $sheet-out;
 }
 
@@ -223,6 +223,37 @@ $sheet-edge: 120px;
 
 ::view-transition-new(bottom-nav) {
   animation: none;
+}
+
+// 切換分頁、進出二級畫面：依方向（useSlideNavigate 設定 data-nav），舊畫面往一邊淡出、新畫面從另一邊淡入
+html[data-nav='forward'] {
+  --nav-shift: 48px;
+}
+
+html[data-nav='back'] {
+  --nav-shift: -48px;
+}
+
+html:is([data-nav='forward'], [data-nav='back'])::view-transition-old(root) {
+  animation: nav-out 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+html:is([data-nav='forward'], [data-nav='back'])::view-transition-new(root) {
+  animation: nav-in 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes nav-out {
+  to {
+    opacity: 0;
+    transform: translateX(calc(var(--nav-shift) * -1));
+  }
+}
+
+@keyframes nav-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--nav-shift));
+  }
 }
 
 // 位移用視窗高度：詳情頁可能長達數萬 px，用 100% 會從畫面外很遠的地方開始

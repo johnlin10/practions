@@ -1,5 +1,6 @@
 import React, { useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useSlideNavigate } from '@/hooks/useSlideNavigate'
+import SlideLink from '@/components/SlideLink/SlideLink'
 import './Transfer.scss'
 import { TRANSFER_TITLE, TRANSFER_DESCRIPTION } from './meta'
 import { INSTALL_PATH } from '@/pages/Install/meta'
@@ -45,7 +46,7 @@ function PlatformNotes({
  * 舊網址與 practions.app 的紀錄分開保存，主畫面 App 也與瀏覽器分開，只能用備份檔搬
  */
 function Transfer(): React.ReactElement {
-  const navigate = useNavigate()
+  const slideTo = useSlideNavigate()
   const { history } = useQuizHistory()
   const importInputRef = useRef<HTMLInputElement>(null)
   usePageMeta(TRANSFER_TITLE, TRANSFER_DESCRIPTION)
@@ -60,9 +61,9 @@ function Transfer(): React.ReactElement {
   return (
     <div className="page">
       <div className="page-container">
-        <Link className="pre-path no-style" to={GUIDE_PATH}>
+        <SlideLink direction="back" className="pre-path no-style" to={GUIDE_PATH}>
           使用指南 /
-        </Link>
+        </SlideLink>
         <h1>轉移測驗紀錄</h1>
         <p>
           Practions 的網址已改為 practions.app。測驗紀錄存在各自的網址與 App
@@ -97,7 +98,7 @@ function Transfer(): React.ReactElement {
             <PlatformNotes ios="使用 Safari 開啟" android="使用 Chrome 開啟" />
             <button
               className="transfer-button"
-              onClick={() => navigate(INSTALL_PATH)}
+              onClick={() => slideTo(INSTALL_PATH)}
             >
               <span className="material-symbols-outlined">
                 add_to_home_screen

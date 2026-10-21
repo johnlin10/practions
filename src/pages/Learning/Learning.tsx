@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import SlideLink from '@/components/SlideLink/SlideLink'
 import './Learning.scss'
 import { LEARNING_TITLE, LEARNING_DESCRIPTION } from './meta'
 import { GUIDE_PATH } from '@/pages/Guide/meta'
@@ -209,9 +209,9 @@ function Learning(): React.ReactElement {
   return (
     <div className="page">
       <div className="page-container">
-        <Link className="pre-path no-style" to={GUIDE_PATH}>
+        <SlideLink direction="back" className="pre-path no-style" to={GUIDE_PATH}>
           使用指南 /
-        </Link>
+        </SlideLink>
         <h1>Practions 如何幫你記住</h1>
         <p>
           讀過就忘，是大腦本來的運作方式，不是你不夠認真。Practions

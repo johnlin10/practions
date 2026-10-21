@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import './Practice.scss'
 
 // components
@@ -24,6 +24,7 @@ import {
   practiceSubjects,
 } from '@/data/practice'
 import { PRACTICE_LIMITS, REVIEW_LIMITS } from '@/types/settings'
+import SlideLink from '@/components/SlideLink/SlideLink'
 
 /**
  * [page] Practice page
@@ -83,10 +84,10 @@ function Practice(): React.ReactElement {
         {/* 標題列的樣式同測驗頁（Quiz.scss） */}
         <h1 className="quiz-to-history">
           練習
-          <Link to="/practice/history" className="no-style">
+          <SlideLink to="/practice/history" className="no-style">
             <p>紀錄</p>
             <span className="material-symbols-rounded">chevron_right</span>
-          </Link>
+          </SlideLink>
         </h1>
 
         {/* 隨手練：題庫（含掌握度）、設定摘要、開始；設定收在「調整」彈窗 */}

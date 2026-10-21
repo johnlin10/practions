@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import SlideLink from '@/components/SlideLink/SlideLink'
 import './Legal.scss'
 import {
   PRIVACY_TITLE,
@@ -20,9 +20,9 @@ function Privacy(): React.ReactElement {
     <div className="page">
       <div className="page-container">
         <h1>
-          <Link className="pre-path no-style" to="/settings">
+          <SlideLink direction="back" className="pre-path no-style" to="/settings">
             設定 /
-          </Link>{' '}
+          </SlideLink>{' '}
           隱私權政策
         </h1>
         <p>

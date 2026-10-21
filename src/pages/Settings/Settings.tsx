@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import './Settings.scss'
 import packageJson from '../../../package.json'
 import { useQuizHistory } from '@/hooks/useQuizHistory'
@@ -23,6 +22,8 @@ import {
   useResolvedTheme,
   type ResolvedTheme,
 } from '@/utils/theme'
+import SlideLink from '@/components/SlideLink/SlideLink'
+import { useSlideNavigate } from '@/hooks/useSlideNavigate'
 
 const THEME_OPTIONS: { value: ResolvedTheme; label: string; icon: string }[] = [
   { value: 'light', label: '淺色', icon: 'light_mode' },
@@ -65,7 +66,8 @@ function GoogleIcon(): React.ReactElement {
  * 設定頁面，包含測驗記錄管理和開發資訊
  */
 function Settings(): React.ReactElement {
-  const navigate = useNavigate()
+  // 進出二級畫面時左右淡入淡出
+  const slideTo = useSlideNavigate()
   // 測驗紀錄（由資料層提供，清除後即時反映，無需 reload）
   const { history, clearHistory: clearAllHistory } = useQuizHistory()
   const hasHistory = history.length > 0
@@ -201,7 +203,7 @@ function Settings(): React.ReactElement {
                 </div>
                 <div
                   className="settings-list-group-item action"
-                  onClick={() => navigate(TRANSFER_PATH)}
+                  onClick={() => slideTo(TRANSFER_PATH)}
                 >
                   <p>
                     <span className="material-symbols-outlined icon">
@@ -292,8 +294,8 @@ function Settings(): React.ReactElement {
           {!isLegacySite && !signedIn && (
             <p className="settings-list-note">
               登入後，測驗紀錄會自動同步到雲端，換裝置也看得到。登入即表示同意
-              <Link to="/settings/terms">服務條款</Link>與
-              <Link to="/settings/privacy">隱私權政策</Link>。
+              <SlideLink to="/settings/terms">服務條款</SlideLink>與
+              <SlideLink to="/settings/privacy">隱私權政策</SlideLink>。
             </p>
           )}
 
@@ -400,16 +402,19 @@ function Settings(): React.ReactElement {
 
           <div className="settings-list-group has-title">
             <h5>
-              <Link className="settings-title-link no-style" to={GUIDE_PATH}>
+              <SlideLink
+                className="settings-title-link no-style"
+                to={GUIDE_PATH}
+              >
                 使用指南
                 <span className="material-symbols-rounded" aria-hidden="true">
                   chevron_right
                 </span>
-              </Link>
+              </SlideLink>
             </h5>
             <div
               className="settings-list-group-item action"
-              onClick={() => navigate(INSTALL_PATH)}
+              onClick={() => slideTo(INSTALL_PATH)}
             >
               <p>
                 <span className="material-symbols-outlined icon">
@@ -423,7 +428,7 @@ function Settings(): React.ReactElement {
             </div>
             <div
               className="settings-list-group-item action"
-              onClick={() => navigate(TRANSFER_PATH)}
+              onClick={() => slideTo(TRANSFER_PATH)}
             >
               <p>
                 <span className="material-symbols-outlined icon">
@@ -437,7 +442,7 @@ function Settings(): React.ReactElement {
             </div>
             <div
               className="settings-list-group-item action"
-              onClick={() => navigate(LEARNING_PATH)}
+              onClick={() => slideTo(LEARNING_PATH)}
             >
               <p>
                 <span className="material-symbols-outlined icon">school</span>
@@ -479,7 +484,7 @@ function Settings(): React.ReactElement {
             </div>
             <div
               className="settings-list-group-item action"
-              onClick={() => navigate('/settings/changelog')}
+              onClick={() => slideTo('/settings/changelog')}
             >
               <p>更新紀錄</p>
               <span className="material-symbols-rounded icon">
@@ -514,7 +519,7 @@ function Settings(): React.ReactElement {
             <h5>條款與政策</h5>
             <div
               className="settings-list-group-item action"
-              onClick={() => navigate('/settings/terms')}
+              onClick={() => slideTo('/settings/terms')}
             >
               <p>服務條款</p>
               <span className="material-symbols-rounded icon">
@@ -523,7 +528,7 @@ function Settings(): React.ReactElement {
             </div>
             <div
               className="settings-list-group-item action"
-              onClick={() => navigate('/settings/privacy')}
+              onClick={() => slideTo('/settings/privacy')}
             >
               <p>隱私權政策</p>
               <span className="material-symbols-rounded icon">

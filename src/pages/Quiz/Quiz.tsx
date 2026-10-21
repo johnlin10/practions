@@ -54,6 +54,7 @@ import {
   randomPrepareFrames,
   randomPrepareMs,
 } from '../../utils/prepare-progress'
+import SlideLink from '@/components/SlideLink/SlideLink'
 
 // interfaces
 // 預覽所有題目的彈窗元件 Props 介面
@@ -1152,10 +1153,10 @@ function Quiz(): React.ReactElement {
           <>
             <h1 className="quiz-to-history">
               測驗
-              <Link to="/history" className="no-style">
+              <SlideLink to="/history" className="no-style">
                 <p>紀錄</p>
                 <span className="material-symbols-rounded">chevron_right</span>
-              </Link>
+              </SlideLink>
             </h1>
 
             {/* PVQC 測驗入口：要先經過設定頁，所以整列是連結，以向右箭頭表示進到下一層 */}

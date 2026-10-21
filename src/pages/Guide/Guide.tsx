@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import SlideLink from '@/components/SlideLink/SlideLink'
 import './Guide.scss'
 import { INSTALL_PATH } from '../Install/meta'
 import { TRANSFER_PATH } from '../Transfer/meta'
@@ -42,7 +42,7 @@ function Guide(): React.ReactElement {
         <h1>使用指南</h1>
         <div className="guide-shelf">
           {GUIDES.map(({ path, icon, title, text }) => (
-            <Link key={path} className="guide-book no-style" to={path}>
+            <SlideLink key={path} className="guide-book no-style" to={path}>
               <span
                 className="material-symbols-rounded fill guide-book-icon"
                 aria-hidden="true"
@@ -51,7 +51,7 @@ function Guide(): React.ReactElement {
               </span>
               <strong className="guide-book-title">{title}</strong>
               <span className="guide-book-text">{text}</span>
-            </Link>
+            </SlideLink>
           ))}
         </div>
       </div>

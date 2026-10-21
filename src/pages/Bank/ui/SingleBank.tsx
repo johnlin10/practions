@@ -45,6 +45,7 @@ import {
 } from '@/components/QuestionImage/QuestionImage'
 import { speakEnglish } from '../../../utils/tts'
 import { useSwipeToClose } from '@/hooks/useSwipeToClose'
+import { useSlideNavigate } from '@/hooks/useSlideNavigate'
 
 // interfaces
 interface SingleBankParams extends Record<string, string | undefined> {
@@ -68,6 +69,7 @@ const SingleBank: React.FC = () => {
   const { subjectId } = useParams<SingleBankParams>()
   // 導航
   const navigate = useNavigate()
+  const slideTo = useSlideNavigate()
   // 整頁，往下拉關閉時跟著手指移動
   const pageRef = useRef<HTMLDivElement>(null)
   // 這個題庫的掌握度（沒做過的題庫沒有），點左上角的按鈕彈出
@@ -461,8 +463,8 @@ const SingleBank: React.FC = () => {
    * @returns {void}
    */
   const handleClose = (): void => {
-    // 滑出動畫由頁面轉場負責（App.scss）
-    navigate('/bank', { viewTransition: true })
+    // 往下滑出（App.scss）
+    slideTo('/bank', 'down')
   }
 
   // 由底部滑入，所以在最上面往下拉也能關閉

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import SlideLink from '@/components/SlideLink/SlideLink'
 import './Legal.scss'
 import {
   TERMS_TITLE,
@@ -21,9 +21,9 @@ function Terms(): React.ReactElement {
     <div className="page">
       <div className="page-container">
         <h1>
-          <Link className="pre-path no-style" to="/settings">
+          <SlideLink direction="back" className="pre-path no-style" to="/settings">
             設定 /
-          </Link>{' '}
+          </SlideLink>{' '}
           服務條款
         </h1>
         <p>使用 Practions 即表示您同意以下條款，如果不同意，請停止使用。</p>
@@ -37,7 +37,7 @@ function Terms(): React.ReactElement {
               PVQC
               與多個課程的題庫，並提供錯題複習、掌握度等練習功能。不登入就能使用；登入
               Google 帳號後，可以在不同裝置同步測驗紀錄。個人資料的處理方式請見
-              <Link to={PRIVACY_PATH}>隱私權政策</Link>。
+              <SlideLink to={PRIVACY_PATH}>隱私權政策</SlideLink>。
             </p>
           </section>
 
