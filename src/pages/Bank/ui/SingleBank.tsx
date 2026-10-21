@@ -88,6 +88,9 @@ const SingleBank: React.FC = () => {
   // 遮住時點一下暫時顯示的單字，REVEAL_MS 後恢復模糊
   const [revealed, setRevealed] = useState<ReadonlySet<string>>(new Set())
   const revealTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>())
+  // 正在念的單字，發音圖示顯示為藍色，念完恢復
+  const [playingId, setPlayingId] = useState<string | null>(null)
+  const playToken = useRef(0)
 
   useEffect(() => {
     const timers = revealTimers.current
@@ -241,23 +244,27 @@ const SingleBank: React.FC = () => {
 
   /**
    * [function] renderVocabulary
-   * 渲染單字題：緊湊列表的一列，發音按鈕在最前面
+   * 渲染單字題：緊湊列表的一列，發音圖示在最前面；英文沒被遮住時，點圖示到單字都會念
    * @param {VocabularyQuestion} question - 單字題
    * @returns {React.ReactNode} - 渲染單字題
    */
   const renderVocabulary = (question: VocabularyQuestion): React.ReactNode => {
+    const withWord = bankMask !== 'english'
     return (
       <div key={question.id} className="vocabulary-row">
         <button
-          className="vocabulary-play"
-          aria-label={`念出 ${question.english}`}
+          className={`vocabulary-play${withWord ? ' with-word' : ''}${
+            playingId === question.id ? ' playing' : ''
+          }`}
+          aria-label={withWord ? undefined : `念出 ${question.english}`}
           onClick={() => playWord(question)}
         >
           <span className="material-symbols-rounded" aria-hidden="true">
             volume_up
           </span>
+          {withWord && <span className="english">{question.english}</span>}
         </button>
-        {renderWordText(question, 'english')}
+        {!withWord && renderWordText(question, 'english')}
         {renderWordText(question, 'chinese')}
       </div>
     )
@@ -318,8 +325,16 @@ const SingleBank: React.FC = () => {
    */
   const playWord = (question: VocabularyQuestion): void => {
     if (question.english) {
+      // 換念另一個字時，前一個字結束的通知不能把新的藍色圖示收掉
+      const token = ++playToken.current
+      const done = (): void => {
+        if (playToken.current === token) setPlayingId(null)
+      }
+      setPlayingId(question.id)
       speakEnglish(question.english, {
         rate: 0.85,
+        onEnd: done,
+        onError: done,
       })
     }
   }

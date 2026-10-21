@@ -482,30 +482,59 @@ span.lock-time {
             }
           }
 
+          // 發音：英文沒被遮住時，單字也在按鈕裡（.with-word），點圖示到單字都會念；
+          // 寬度等於圖示加上原本英文欄的 40%，遮英文時兩種排法對齊
           > .vocabulary-play {
             flex: none;
-            width: 36px;
-            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 4px;
+            min-height: 36px;
+            font-family: inherit;
+            text-align: start;
             color: var(--text-muted-color);
             border-radius: 8px;
 
+            &.with-word {
+              flex: 0 0 calc(40% + 40px);
+            }
+
             &:not(:disabled):active {
-              transform: scale(0.94);
+              transform: none;
               box-shadow: none;
             }
 
             > .material-symbols-rounded {
+              flex: none;
+              width: 36px;
+              // 按鈕是靠左排（單字要靠左），圖示要自己在 36px 裡置中，跟單字的距離才同 Beta 1
+              text-align: center;
               font-size: 22px;
+              transition: color 0.2s ease;
+            }
+
+            // 念的時候圖示變藍，念完恢復
+            &.playing > .material-symbols-rounded {
+              color: var(--primary-color);
+            }
+
+            > .english {
+              flex: 1 1 auto;
             }
           }
 
-          > .english {
-            flex: 0 0 40%;
+          .english {
             min-width: 0;
             font-size: 0.9rem;
             font-weight: bold;
             color: var(--foreground-900);
             overflow-wrap: anywhere;
+          }
+
+          // 遮英文時，英文是單獨的按鈕
+          > .english {
+            flex: 0 0 40%;
           }
 
           > .chinese {
@@ -571,10 +600,19 @@ span.lock-time {
       color: var(--text-muted-color);
     }
 
-    // 排序有四個選項，窄螢幕上「短到長」才不會斷成兩行
+    // 排序有四個選項、兩個有圖示，寬度依內容分配，窄螢幕上「短到長」才不會斷成兩行
     > .segmented-control > button {
+      flex: 1 1 auto;
+      gap: 2px;
       padding-inline: 4px;
       white-space: nowrap;
+    }
+
+    // 「短到長」：sort 圖示是由長到短，上下翻轉
+    > .segmented-control[aria-label='排序']
+      > button:nth-child(2)
+      > .material-symbols-rounded {
+      scale: 1 -1;
     }
   }
 }

@@ -118,14 +118,15 @@ export const formatLockTime = (time: string): string => {
 // 檢視方式彈窗的選項（單字題庫）
 export const MASK_OPTIONS: { value: BankMask; label: string }[] = [
   { value: 'none', label: '不遮' },
-  { value: 'chinese', label: '遮中文' },
-  { value: 'english', label: '遮英文' },
+  { value: 'chinese', label: '中文' },
+  { value: 'english', label: '英文' },
 ]
-export const SORT_OPTIONS: { value: BankSort; label: string }[] = [
-  { value: 'none', label: '原本' },
-  { value: 'short', label: '短到長' },
+// 「短到長」的圖示在 Bank.scss 上下翻轉，變成由短到長的線條
+export const SORT_OPTIONS: { value: BankSort; label: string; icon?: string }[] = [
+  { value: 'none', label: '預設' },
+  { value: 'short', label: '短到長', icon: 'sort' },
   { value: 'alphabet', label: 'A→Z' },
-  { value: 'random', label: '隨機' },
+  { value: 'random', label: '隨機', icon: 'shuffle' },
 ]
 export const GROUP_OPTIONS: { value: BankGroup; label: string }[] = [
   { value: 'none', label: '不分組' },
