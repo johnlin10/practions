@@ -577,7 +577,10 @@ const SingleBank: React.FC = () => {
             >
               <div className="search-box">
                 <input
+                  id="bank-search"
+                  name="search"
                   type="text"
+                  aria-label="搜尋題目"
                   placeholder={getSearchPlaceholder(subject.baseQuestionType)}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}

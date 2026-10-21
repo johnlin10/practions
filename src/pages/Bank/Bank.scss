@@ -153,11 +153,29 @@ span.lock-time {
     padding-bottom: 176px;
   }
 
+  // 關閉按鈕正下方就是顯示選項的按鈕，這裡拿掉外框、陰影與上抬，跟左上角的圓環一樣只留圖示
   > .close-btn {
     z-index: 2000;
     position: fixed !important;
-    top: 12px;
+    top: 9px;
     right: 12px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    translate: none;
+
+    &:not(:disabled):hover {
+      background-color: var(--background-color);
+      border: none;
+      box-shadow: none;
+    }
+
+    &:not(:disabled):active {
+      transform: scale(0.94);
+      box-shadow: none;
+    }
   }
 
   // 掌握度：左上角只有一個圓環（跟右上角的關閉按鈕一樣 40px），百分比在中間，點了彈出詳細比例
@@ -525,6 +543,7 @@ span.lock-time {
           }
 
           .english {
+            padding: 4px 0;
             min-width: 0;
             font-size: 0.9rem;
             font-weight: bold;
@@ -542,6 +561,7 @@ span.lock-time {
             min-width: 0;
             font-size: 0.8rem;
             line-height: 1.4;
+            padding: 4px 0;
             color: var(--text-color);
           }
 
