@@ -38,6 +38,8 @@ function App(): React.ReactElement {
     <>
       <ScrollRestoration getKey={scrollKey} />
       <BottomNav />
+      {/* 進出第二層時，上層畫面左緣的柔和漸層（App.scss） */}
+      <div className="push-edge" aria-hidden="true" />
       <Outlet />
       <Dialog />
     </>

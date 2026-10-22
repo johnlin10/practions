@@ -160,6 +160,8 @@ function Home(): React.ReactElement {
               className="intro-feature no-style"
               key={item.title}
               to={item.to}
+              // 從首頁跳到其他獨立的頁面
+              direction="jump"
             >
               <span className="material-symbols-rounded">{item.icon}</span>
               <span>
@@ -191,6 +193,7 @@ function Home(): React.ReactElement {
           <SlideLink
             className="intro-learning-link no-style"
             to={LEARNING_PATH}
+            direction="jump"
           >
             <span className="material-symbols-rounded">school</span>
             <span>

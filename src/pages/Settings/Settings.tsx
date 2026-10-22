@@ -402,9 +402,11 @@ function Settings(): React.ReactElement {
 
           <div className="settings-list-group has-title">
             <h5>
+              {/* 使用指南是獨立的頁面，不是設定的下一層 */}
               <SlideLink
                 className="settings-title-link no-style"
                 to={GUIDE_PATH}
+                direction="jump"
               >
                 使用指南
                 <span className="material-symbols-rounded" aria-hidden="true">

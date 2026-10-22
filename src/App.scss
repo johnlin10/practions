@@ -143,9 +143,9 @@
 // 只用整頁（root）的擷取畫面：各瀏覽器的 root 都剛好一個視窗大，不受詳情頁長度與捲動位置影響。
 // 方向由 useSlideNavigate 標在 <html> 的 data-nav（up 開啟、down 關閉），沒標的轉場（例如 React Router
 // 在瀏覽器上一頁時自己啟動的）不做動畫，才不會把一般頁面當成詳情頁往下滑出
-$sheet-in: sheet-in 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+$sheet-in: sheet-in 0.55s cubic-bezier(0.23, 1, 0.32, 1);
 // 滑出跟滑入一樣長，下拉放開後才不會一下子就不見
-$sheet-out: sheet-out 0.65s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+$sheet-out: sheet-out 0.55s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
@@ -225,46 +225,128 @@ html[data-nav='down']::view-transition-old(sheet-edge):only-child {
   animation: none;
 }
 
-// 切換分頁、進出二級畫面：依方向（useSlideNavigate 設定 data-nav），舊畫面往一邊淡出、新畫面從另一邊淡入
-html[data-nav='forward'] {
-  --nav-shift: 48px;
+// 切換分頁（tab-forward／tab-back）：兩個畫面並排整個寬度推過去，
+// 舊畫面往一邊滑出、新畫面從另一邊緊接著滑入，不淡入淡出，兩個畫面不會疊在一起
+html[data-nav='tab-forward'] {
+  --nav-shift: 100%;
 }
 
-html[data-nav='back'] {
-  --nav-shift: -48px;
+html[data-nav='tab-back'] {
+  --nav-shift: -100%;
 }
 
-html:is([data-nav='forward'], [data-nav='back'])::view-transition-old(root) {
-  animation: nav-out 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+html:is([data-nav='tab-forward'], [data-nav='tab-back'])::view-transition-old(
+    root
+  ) {
+  animation: nav-out 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
-html:is([data-nav='forward'], [data-nav='back'])::view-transition-new(root) {
-  animation: nav-in 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+html:is([data-nav='tab-forward'], [data-nav='tab-back'])::view-transition-new(
+    root
+  ) {
+  animation: nav-in 0.45s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @keyframes nav-out {
   to {
-    opacity: 0;
     transform: translateX(calc(var(--nav-shift) * -1));
   }
 }
 
 @keyframes nav-in {
   from {
-    opacity: 0;
     transform: translateX(var(--nav-shift));
   }
 }
 
-// 位移用視窗高度：詳情頁可能長達數萬 px，用 100% 會從畫面外很遠的地方開始
+// 進到下一層（push）：原本的畫面不動，新畫面從右邊蓋上來；回上一層（pop）：上層畫面往右滑走，露出原本的畫面
+$push-in: push-in 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+$pop-out: pop-out 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+
+html[data-nav='push']::view-transition-new(root) {
+  animation: $push-in;
+}
+
+html[data-nav='pop']::view-transition-old(root) {
+  z-index: 1;
+  animation: $pop-out;
+}
+
+// 上層畫面左緣外側的柔和漸層（同詳情頁上緣的 sheet-edge），跟著上層畫面移動；
+// 只在 push 的新畫面、pop 的舊畫面出現，其他轉場都藏起來
+.push-edge {
+  view-transition-name: push-edge;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: -$sheet-edge;
+  width: $sheet-edge;
+  background: fade.fade-gradient(var(--background-color), to left);
+  pointer-events: none;
+}
+
+::view-transition-old(push-edge),
+::view-transition-new(push-edge) {
+  display: none;
+}
+
+html[data-nav='push']::view-transition-new(push-edge) {
+  display: block;
+  animation: $push-in;
+}
+
+html[data-nav='pop']::view-transition-old(push-edge) {
+  display: block;
+  animation: $pop-out;
+}
+
+// 位移用視窗寬度：漸層只有 120px 寬，用 100% 會只移動自己的寬度。
+// 多移一個漸層寬度，開始與結束時漸層也完全在畫面外，不會停在畫面右側才突然出現或消失
+@keyframes push-in {
+  from {
+    transform: translateX(calc(100vw + #{$sheet-edge}));
+  }
+}
+
+@keyframes pop-out {
+  to {
+    transform: translateX(calc(100vw + #{$sheet-edge}));
+  }
+}
+
+// 兩個獨立頁面之間跳轉（jump）：舊畫面縮小淡出，新畫面晚一點才放大淡入，兩個畫面不會清楚地疊在一起
+html[data-nav='jump']::view-transition-old(root) {
+  animation: jump-out 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+html[data-nav='jump']::view-transition-new(root) {
+  animation: jump-in 0.25s cubic-bezier(0, 0, 0.2, 1) 0.1s both;
+}
+
+@keyframes jump-out {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes jump-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+// 位移用視窗高度：詳情頁可能長達數萬 px，用 100% 會從畫面外很遠的地方開始。
+// 同 push-in，多移一個漸層高度，上緣的漸層開始與結束時也在畫面外
 @keyframes sheet-in {
   from {
-    transform: translateY(100vh);
+    transform: translateY(calc(100vh + #{$sheet-edge}));
   }
 }
 
 @keyframes sheet-out {
   to {
-    transform: translateY(100vh);
+    transform: translateY(calc(100vh + #{$sheet-edge}));
   }
 }

@@ -43,7 +43,11 @@ function Changelog(): React.ReactElement {
     <div className="page">
       <div className="page-container">
         <h1>
-          <SlideLink direction="back" className="pre-path no-style" to="/settings">
+          <SlideLink
+            direction="pop"
+            className="pre-path no-style"
+            to="/settings"
+          >
             設定 /
           </SlideLink>{' '}
           更新紀錄

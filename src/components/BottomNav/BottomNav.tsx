@@ -77,7 +77,10 @@ function BottomNav(): React.ReactElement {
     // 點目前所在的分頁不做轉場
     if (index === activeIndex) return
     event.preventDefault()
-    slideTo(linkList[index].path, index > activeIndex ? 'forward' : 'back')
+    slideTo(
+      linkList[index].path,
+      index > activeIndex ? 'tab-forward' : 'tab-back',
+    )
   }
 
   // 隱藏導航欄

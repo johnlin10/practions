@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useSlideNavigate } from '@/hooks/useSlideNavigate'
+import SlideLink from '@/components/SlideLink/SlideLink'
 import './PVQCSetup.scss'
 
 // types
@@ -48,8 +49,8 @@ const PVQC_MODES = [
  * PVQC 測驗設定頁面
  */
 function PVQCSetup(): React.ReactElement {
-  // 導航
-  const navigate = useNavigate()
+  // 導航：開始作答是跳到另一個獨立的頁面
+  const slideTo = useSlideNavigate()
   // PVQC 設定：自訂測驗的題數與時間直接存成偏好，下次進來沿用
   const { pvqcSettings, updatePVQCSettings } = usePVQCSettings()
   const questionCount = pvqcSettings.defaultQuestionCount
@@ -140,7 +141,7 @@ function PVQCSetup(): React.ReactElement {
     }
 
     // 導航到測驗頁面，並傳遞配置
-    navigate(`/quiz/${subjectId}`, {
+    slideTo(`/quiz/${subjectId}`, 'jump', {
       state: {
         customFlowConfig: flowConfig,
       },
@@ -156,7 +157,12 @@ function PVQCSetup(): React.ReactElement {
   return (
     <div className="page pvqc-setup-page">
       <div className="page-container">
-        <h1>PVQC 測驗設定</h1>
+        <h1>
+          <SlideLink direction="pop" className="pre-path no-style" to="/quiz">
+            測驗 /
+          </SlideLink>{' '}
+          PVQC
+        </h1>
 
         <div className="pvqc-setup-section">
           <SubjectPicker

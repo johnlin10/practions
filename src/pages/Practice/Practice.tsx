@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import './Practice.scss'
 
 // components
@@ -25,13 +24,15 @@ import {
 } from '@/data/practice'
 import { PRACTICE_LIMITS, REVIEW_LIMITS } from '@/types/settings'
 import SlideLink from '@/components/SlideLink/SlideLink'
+import { useSlideNavigate } from '@/hooks/useSlideNavigate'
 
 /**
  * [page] Practice page
  * 練習：答一題就看到對錯的輕鬆練習，包含錯題複習與隨手練
  */
 function Practice(): React.ReactElement {
-  const navigate = useNavigate()
+  // 開始作答：跳到作答畫面
+  const slideTo = useSlideNavigate()
   // 錯題
   const wrongGroups = useWrongQuestions()
   // 今天可以複習的錯題（今天已經答對過的隔天再確認，含到期的回顧題）
@@ -67,7 +68,7 @@ function Practice(): React.ReactElement {
 
   const start = (): void => {
     if (!subject) return setPickerOpen(true)
-    navigate(`/quiz/${subject.id}`, {
+    slideTo(`/quiz/${subject.id}`, 'jump', {
       state: {
         customFlowConfig: buildPracticeFlow(
           subject,
@@ -210,7 +211,7 @@ function Practice(): React.ReactElement {
                     <button
                       className="review-start-btn"
                       onClick={() =>
-                        navigate(`/quiz/${group.subject.id}`, {
+                        slideTo(`/quiz/${group.subject.id}`, 'jump', {
                           state: {
                             customFlowConfig: buildReviewFlow(
                               group,

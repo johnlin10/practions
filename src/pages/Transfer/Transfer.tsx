@@ -61,7 +61,11 @@ function Transfer(): React.ReactElement {
   return (
     <div className="page">
       <div className="page-container">
-        <SlideLink direction="back" className="pre-path no-style" to={GUIDE_PATH}>
+        <SlideLink
+          direction="pop"
+          className="pre-path no-style"
+          to={GUIDE_PATH}
+        >
           使用指南 /
         </SlideLink>
         <h1>轉移測驗紀錄</h1>
@@ -98,7 +102,7 @@ function Transfer(): React.ReactElement {
             <PlatformNotes ios="使用 Safari 開啟" android="使用 Chrome 開啟" />
             <button
               className="transfer-button"
-              onClick={() => slideTo(INSTALL_PATH)}
+              onClick={() => slideTo(INSTALL_PATH, 'jump')}
             >
               <span className="material-symbols-outlined">
                 add_to_home_screen

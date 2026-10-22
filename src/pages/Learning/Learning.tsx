@@ -209,7 +209,11 @@ function Learning(): React.ReactElement {
   return (
     <div className="page">
       <div className="page-container">
-        <SlideLink direction="back" className="pre-path no-style" to={GUIDE_PATH}>
+        <SlideLink
+          direction="pop"
+          className="pre-path no-style"
+          to={GUIDE_PATH}
+        >
           使用指南 /
         </SlideLink>
         <h1>Practions 如何幫你記住</h1>

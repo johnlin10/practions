@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react'
-import { useNavigate, useParams, Link, useLocation } from 'react-router-dom'
+import { useParams, Link, useLocation } from 'react-router-dom'
 import './Quiz.scss'
 
 // components
@@ -55,6 +55,7 @@ import {
   randomPrepareMs,
 } from '../../utils/prepare-progress'
 import SlideLink from '@/components/SlideLink/SlideLink'
+import { useSlideNavigate } from '@/hooks/useSlideNavigate'
 
 // interfaces
 // 預覽所有題目的彈窗元件 Props 介面
@@ -150,8 +151,8 @@ const quizSections = groupSubjects(
 function Quiz(): React.ReactElement {
   // 取得科目 ID
   const { subjectId } = useParams<{ subjectId: string }>()
-  // 導航函數
-  const navigate = useNavigate()
+  // 導航函數：開始作答、交卷離開都是兩個獨立頁面之間的跳轉
+  const slideTo = useSlideNavigate()
   // 取得當前路徑
   const location = useLocation()
   // 取得科目資訊
@@ -529,11 +530,14 @@ function Quiz(): React.ReactElement {
         const recordId = finishQuiz()
         // 如果測驗完成，則導航到歷史頁面
         if (exitTo) {
-          navigate(exitTo)
+          slideTo(exitTo, 'jump')
         } else if (recordId) {
-          navigate(`${historyPath(quizState.flowConfig.flowMode)}/${recordId}`)
+          slideTo(
+            `${historyPath(quizState.flowConfig.flowMode)}/${recordId}`,
+            'jump',
+          )
         } else {
-          navigate(historyPath(quizState.flowConfig.flowMode))
+          slideTo(historyPath(quizState.flowConfig.flowMode), 'jump')
         }
       } else {
         // 時間未到，但未回答所有問題
@@ -546,11 +550,14 @@ function Quiz(): React.ReactElement {
       const recordId = finishQuiz()
       // 如果測驗完成，則導航到歷史頁面
       if (exitTo) {
-        navigate(exitTo)
+        slideTo(exitTo, 'jump')
       } else if (recordId) {
-        navigate(`${historyPath(quizState.flowConfig.flowMode)}/${recordId}`)
+        slideTo(
+          `${historyPath(quizState.flowConfig.flowMode)}/${recordId}`,
+          'jump',
+        )
       } else {
-        navigate(historyPath(quizState.flowConfig.flowMode))
+        slideTo(historyPath(quizState.flowConfig.flowMode), 'jump')
       }
     }
   }
@@ -1160,7 +1167,7 @@ function Quiz(): React.ReactElement {
             </h1>
 
             {/* PVQC 測驗入口：要先經過設定頁，所以整列是連結，以向右箭頭表示進到下一層 */}
-            <Link className="pvqc-entry no-style" to="/pvqc">
+            <SlideLink className="pvqc-entry no-style" to="/pvqc">
               <span className="pvqc-entry-title">
                 <span className="material-symbols-rounded">psychology</span>
                 PVQC
@@ -1168,7 +1175,7 @@ function Quiz(): React.ReactElement {
               <span className="pvqc-entry-arrow material-symbols-rounded">
                 chevron_right
               </span>
-            </Link>
+            </SlideLink>
 
             {/* 科目列表 */}
             <div className="subject-list">
@@ -1197,7 +1204,7 @@ function Quiz(): React.ReactElement {
                               )
                               return
                             }
-                            navigate(`/quiz/${subject.id}`)
+                            slideTo(`/quiz/${subject.id}`, 'jump')
                           }}
                         >
                           <span className="material-symbols-rounded fill">

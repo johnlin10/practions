@@ -82,7 +82,11 @@ function Install(): React.ReactElement {
   return (
     <div className="page">
       <div className="page-container">
-        <SlideLink direction="back" className="pre-path no-style" to={GUIDE_PATH}>
+        <SlideLink
+          direction="pop"
+          className="pre-path no-style"
+          to={GUIDE_PATH}
+        >
           使用指南 /
         </SlideLink>
         <h1>加入主畫面</h1>

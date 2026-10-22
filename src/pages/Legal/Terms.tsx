@@ -21,7 +21,7 @@ function Terms(): React.ReactElement {
     <div className="page">
       <div className="page-container">
         <h1>
-          <SlideLink direction="back" className="pre-path no-style" to="/settings">
+          <SlideLink direction="pop" className="pre-path no-style" to="/settings">
             設定 /
           </SlideLink>{' '}
           服務條款
@@ -37,7 +37,9 @@ function Terms(): React.ReactElement {
               PVQC
               與多個課程的題庫，並提供錯題複習、掌握度等練習功能。不登入就能使用；登入
               Google 帳號後，可以在不同裝置同步測驗紀錄。個人資料的處理方式請見
-              <SlideLink to={PRIVACY_PATH}>隱私權政策</SlideLink>。
+              <SlideLink to={PRIVACY_PATH} direction="jump">
+                隱私權政策
+              </SlideLink>。
             </p>
           </section>
 

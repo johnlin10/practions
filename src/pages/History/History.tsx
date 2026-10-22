@@ -109,7 +109,7 @@ function History({
           <h1 className="history-title">
             <span>
               <SlideLink
-                direction="back"
+                direction="pop"
                 className="pre-path no-style"
                 to={practice ? '/practice' : '/quiz'}
               >

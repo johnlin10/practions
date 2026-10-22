@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import './InstallBanner.scss'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
+import { useSlideNavigate } from '@/hooks/useSlideNavigate'
 import { isLegacySite } from '@/data/authStore'
 import { INSTALL_PATH } from '@/pages/Install/meta'
 import { TRANSFER_PATH } from '@/pages/Transfer/meta'
@@ -44,7 +44,8 @@ type NavigatorWithRelatedApps = Navigator & {
  * 舊網址改為顯示「網址已搬家」：主畫面 App 也顯示、不能關閉，引導到轉移教學頁
  */
 function InstallBanner(): React.ReactElement | null {
-  const navigate = useNavigate()
+  // 從首頁跳到說明頁
+  const slideTo = useSlideNavigate()
   const { canInstall, install } = useInstallPrompt()
   const [dismissed, setDismissed] = useState<boolean>(isDismissed)
   const [installed, setInstalled] = useState<boolean>(false)
@@ -87,7 +88,7 @@ function InstallBanner(): React.ReactElement | null {
       action: (
         <button
           className="install-banner-install"
-          onClick={() => navigate(TRANSFER_PATH)}
+          onClick={() => slideTo(TRANSFER_PATH, 'jump')}
         >
           看說明
         </button>
@@ -116,7 +117,7 @@ function InstallBanner(): React.ReactElement | null {
       action: (
         <button
           className="install-banner-install"
-          onClick={() => navigate(INSTALL_PATH)}
+          onClick={() => slideTo(INSTALL_PATH, 'jump')}
         >
           看教學
         </button>
