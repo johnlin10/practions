@@ -6,11 +6,11 @@
  * 之後再答錯就掉回來（同時回到錯題）。
  * 總數以目前題庫為準；沒作答過的題庫不列出。
  */
-import { useMemo } from 'react'
+import { useSyncExternalStore } from 'react'
 import type { HistoryRecord } from '@/types'
 import type { SubjectConfig } from '@/types/quiz-flows'
 import { QUIZ_MODES, type QuizModeId } from '@/types/quiz-modes'
-import { useHistoryStore } from '@/data/historyStore'
+import { deriveFromHistory } from '@/data/historyStore'
 import {
   REMOVE_AFTER,
   answeredInOrder,
@@ -116,8 +116,10 @@ export function collectMastery(
   return result
 }
 
+// 紀錄變動後在空閒時重算，不擋換頁（deriveFromHistory）
+const mastery = deriveFromHistory(collectMastery)
+
 /** 目前的掌握度（紀錄變動時自動重新計算）。 */
 export function useMastery(): Map<string, SubjectMastery> {
-  const history = useHistoryStore()
-  return useMemo(() => collectMastery(history), [history])
+  return useSyncExternalStore(mastery.subscribe, mastery.get)
 }

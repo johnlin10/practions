@@ -532,6 +532,67 @@ function getReady(): boolean {
   return ready
 }
 
+// 空閒時再做：不支援 requestIdleCallback 的瀏覽器（Safari）延後一點，避開點擊後馬上開始的換頁
+const whenIdle = (task: () => void): void => {
+  if ('requestIdleCallback' in window)
+    window.requestIdleCallback(task, { timeout: 1000 })
+  else setTimeout(task, 200)
+}
+
+export interface HistoryDerived<T> {
+  subscribe: (listener: () => void) => () => void
+  get: () => T
+}
+
+/**
+ * 從紀錄算出來的資料（錯題、掌握度）：要把全部紀錄走過一遍，紀錄多時很花時間。
+ * 紀錄變動後排到空閒時重算，重算完成前先沿用上次的結果，不擋換頁與畫面更新；
+ * 開啟 App 後也先在空閒時算好，第一次打開頁面就不用等。
+ * key：紀錄以外也會影響結果的條件（例如題庫的考試鎖定），變了一樣排到空閒時重算
+ */
+export function deriveFromHistory<T>(
+  compute: (history: readonly HistoryRecord[]) => T,
+  key: () => string = () => '',
+): HistoryDerived<T> {
+  let result:
+    | { history: readonly HistoryRecord[]; key: string; value: T }
+    | undefined
+  let scheduled = false
+  const derivedListeners = new Set<() => void>()
+  const isFresh = (): boolean =>
+    result?.history === getSnapshot() && result.key === key()
+  const recompute = (): void => {
+    const history = getSnapshot()
+    result = { history, key: key(), value: compute(history) }
+  }
+  const schedule = (): void => {
+    if (scheduled) return
+    scheduled = true
+    whenIdle(() => {
+      scheduled = false
+      if (isFresh()) return
+      recompute()
+      derivedListeners.forEach((listener) => listener())
+    })
+  }
+  subscribe(schedule)
+  schedule()
+  return {
+    subscribe: (listener) => {
+      derivedListeners.add(listener)
+      return () => {
+        derivedListeners.delete(listener)
+      }
+    },
+    get: () => {
+      // 還沒算過（剛開啟 App 就馬上打開頁面）只能當場算
+      if (!result) recompute()
+      else if (!isFresh()) schedule()
+      return result!.value
+    },
+  }
+}
+
 /** React hook：雲端紀錄是否已載入（未登入時永遠為 true）。 */
 export function useHistoryReady(): boolean {
   return useSyncExternalStore(subscribe, getReady)

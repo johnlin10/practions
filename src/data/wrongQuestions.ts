@@ -9,14 +9,14 @@
  * 舊科目 ID（如合併前的 AIL）會對應到目前的科目與題號，題目內容以目前題庫為準，
  * 題庫已刪除的題目不列出。考試鎖定中的科目不列出，避免考試時查答案。
  */
-import { useMemo } from 'react'
+import { useSyncExternalStore } from 'react'
 import type { DetailedQuestionResult, HistoryRecord, RetryResult } from '@/types'
 import type { Question } from '@/types/questions'
 import { QUESTION_TYPE_LABELS } from '@/types/questions'
 import type { QuizFlowConfig, SubjectConfig } from '@/types/quiz-flows'
 import { QUIZ_MODES, type QuizModeId } from '@/types/quiz-modes'
-import { currentQuestionId, findSubject } from '@/data/subjects'
-import { useHistoryStore } from '@/data/historyStore'
+import { currentQuestionId, findSubject, subjects } from '@/data/subjects'
+import { deriveFromHistory } from '@/data/historyStore'
 import { isSubjectLocked } from '@/pages/Bank/utils/bankHelpers'
 
 // 在幾個不同的日子答對後移出（也是掌握度的「已掌握」門檻）
@@ -443,8 +443,16 @@ export function buildReviewFlow(
   }
 }
 
+// 紀錄變動後在空閒時重算，不擋換頁（deriveFromHistory）。
+// 鎖定中的題庫不列入錯題，鎖定會隨時間變，所以目前鎖住哪些題庫變了也要重算
+const wrongQuestions = deriveFromHistory(collectWrongQuestions, () =>
+  Object.values(subjects)
+    .filter(isSubjectLocked)
+    .map((subject) => subject.id)
+    .join(),
+)
+
 /** 目前的錯題（紀錄變動時自動重新計算）。 */
 export function useWrongQuestions(): WrongSubject[] {
-  const history = useHistoryStore()
-  return useMemo(() => collectWrongQuestions(history), [history])
+  return useSyncExternalStore(wrongQuestions.subscribe, wrongQuestions.get)
 }
