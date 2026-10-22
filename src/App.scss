@@ -300,6 +300,20 @@ html[data-nav='pop']::view-transition-old(push-edge) {
   animation: $pop-out;
 }
 
+// 進出第二層時，標題列（.page-container > h1，含上方遮擋與下方淡出）單獨擷取，留在原地交替，
+// 例如「測驗」變成「測驗 / 紀錄」，看起來是同一個標題列，只有下面的內容蓋上來或滑走。
+// 使用指南各篇的上一層在標題上方獨立一行，也一起留在原地淡入淡出。
+// 只在 push／pop 時命名：其他轉場的標題要跟著整頁移動
+html:is([data-nav='push'], [data-nav='pop']) .page-container {
+  > h1 {
+    view-transition-name: page-title;
+  }
+
+  > a.pre-path {
+    view-transition-name: page-pre-path;
+  }
+}
+
 // 位移用視窗寬度：漸層只有 120px 寬，用 100% 會只移動自己的寬度。
 // 多移一個漸層寬度，開始與結束時漸層也完全在畫面外，不會停在畫面右側才突然出現或消失
 @keyframes push-in {
